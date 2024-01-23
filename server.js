@@ -36,7 +36,7 @@ const config = new Configuration({
 const client = new PlaidApi(config);
 
 //Creates a Link token and return it
-app.post('/api/create_link_token', async (req, res, next) => {
+app.post('/create_link_token', async (req, res, next) => {
   let payload = {};
   //Payload if running iOS
   if (req.body.address === 'localhost') {
