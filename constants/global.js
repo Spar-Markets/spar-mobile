@@ -1,5 +1,5 @@
 const ip = "54.242.239.177";
-const port = 8080;
+const port = 8000;
 const mongoPort = 8000;
 
 export const ip1 = ip
