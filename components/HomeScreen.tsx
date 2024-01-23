@@ -47,7 +47,7 @@ const HomeScreen = ({ navigation }: any) => {
       <View style={styles.bottom}>
         <PlaidLink
           tokenConfig={{
-            token: `sandbox-${linkToken}`, // Add the environment name (sandbox) here
+            token: linkToken, // Add the environment name (sandbox) here
             noLoadingState: false,
           }}
           
