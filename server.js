@@ -55,7 +55,7 @@ app.post('/createLinkToken', async (req, res) => {
   } else {
     //Payload if running Android
     payload = {
-      user: {client_user_id: req.sessionID},
+      user: { client_user_id: 'user' },
       client_name: 'Spar',
       language: 'en',
       products: ['auth'],

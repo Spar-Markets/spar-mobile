@@ -23,11 +23,12 @@ const HomeScreen = ({ navigation }: any) => {
     })
     .then((response) => response.json())
     .then((data) => {
+      
       console.log("log empty " + data.link_token)
       setLinkToken(data.link_token);
     })
     .catch((err) => {
-      console.log(err);
+      console.log("hello" + err);
     });
   }, [setLinkToken])
 
@@ -60,14 +61,13 @@ const HomeScreen = ({ navigation }: any) => {
             body: JSON.stringify({ public_token: success.publicToken }),
             })
             .catch((err) => {
-              console.log(linkToken)
-
+              console.log("ello" + linkToken)
               console.log(err);
             });
             navigation.navigate('Success', success);
           }}
           onExit={(response: LinkExit) => {
-            console.log(linkToken)
+            console.log("rahh" + linkToken)
 
             console.log(response);
           }}>
