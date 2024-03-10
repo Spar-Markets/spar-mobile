@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SuccessScreen from './components/SuccessScreen';
 import Plaid from './components/Plaid';
 import { PlaidTheme } from './Style/style';
-import Onboardscreen1 from './components/Onboardscreen1';
+import Onboardscreen1 from './components/OnboardScreen';
 import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
 import CoreApp from './CoreApp';
@@ -17,7 +17,6 @@ const Auth0Config = {
   domain: "dev-wol45o5xjg0gma8k.us.auth0.com",
   clientId: "o8K4SMbnC2Y059k4PZ1gkpCaj3Hb8dgP"
 };
-
 
 const App = (): React.ReactElement => {
   return (
@@ -33,20 +32,10 @@ const App = (): React.ReactElement => {
           name="Onboardscreen1"
           component={Onboardscreen1}
           options={{
-            // headerShown: false, // Hide header for Onboard1
+            // headerShown: false, // Hide header for Onboard
             title: 'Welcome',
           }}
         />
-        {/* <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{
-            headerStyle: {
-              backgroundColor: '#000000',
-            },
-            headerTintColor: '#fff',
-          }}
-        /> */}
         <Stack.Screen
           name="CoreApp"
           component={CoreApp}
@@ -58,27 +47,5 @@ const App = (): React.ReactElement => {
     </Auth0Provider>
   );
 };
-
-// <Stack.Screen
-// name="Home"
-// component={HomeScreen}
-// options={{
-//   headerStyle: {
-//     backgroundColor: '#000000',
-//   },
-//   headerTintColor: '#fff',
-// }}
-// />
-// <Stack.Screen
-// name="Success"
-// component={SuccessScreen}
-// options={{
-//   headerStyle: {
-//     backgroundColor: '#000000',
-//   },
-//   headerTintColor: '#fff',
-// }}
-// />
-
 
 export default App;
