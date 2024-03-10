@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 
-const Onboardscreen1 = () => {
+const OnboardScreen = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { authorize } = useAuth0();
@@ -67,4 +67,4 @@ const Onboardscreen1 = () => {
   );
 };
 
-export default Onboardscreen1;
+export default OnboardScreen;

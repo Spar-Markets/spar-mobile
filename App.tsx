@@ -5,7 +5,7 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SuccessScreen from './components/SuccessScreen';
 import Plaid from './components/Plaid';
-import { PlaidTheme } from './components/style';
+import { PlaidTheme } from './Style/style';
 import Onboardscreen1 from './components/Onboardscreen1';
 import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
