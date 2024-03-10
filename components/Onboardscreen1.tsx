@@ -5,9 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 
 const Onboardscreen1 = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { authorize, logout } = useAuth0();
+  const { authorize } = useAuth0();
 
   // Function to check if the user is authenticated on app startup
   const checkAuthentication = async () => {
@@ -37,22 +37,14 @@ const Onboardscreen1 = () => {
     }
   };
 
-  // Function to handle user logout
-  const handleLogout = async () => {
-    try {
-      await logout();
-      setIsAuthenticated(false);
-      // Clear authentication state from AsyncStorage
-      await AsyncStorage.removeItem('authData');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
   // Function to navigate to the next screen
   const goToNextScreen = () => {
-    navigation.navigate('Login');
+    navigation.replace('Home');
   };
+
+  if (isAuthenticated == true) {
+    goToNextScreen()
+  }
 
   return (
     <Auth0Provider
@@ -66,13 +58,10 @@ const Onboardscreen1 = () => {
             <Text>Log In</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={handleLogout}>
-            <Text>Log Out</Text>
+          <TouchableOpacity>
+            <Text>Logged In</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={goToNextScreen}>
-          <Text>Sign Up</Text>
-        </TouchableOpacity>
       </View>
     </Auth0Provider>
   );
