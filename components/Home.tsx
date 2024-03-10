@@ -5,7 +5,7 @@ import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-var styles = require('./style');
+var styles = require('../Style/style');
 
 const Home  = ({}) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);

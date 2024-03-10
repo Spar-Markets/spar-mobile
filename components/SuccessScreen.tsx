@@ -6,7 +6,8 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-var styles = require('./style');
+
+var styles = require('../Style/style');
 
 const SuccessScreen = ({ navigation, route }: any) => {
   const [data, setData] = useState(null);

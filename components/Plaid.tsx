@@ -5,7 +5,7 @@ import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
 
-var styles = require('./style');
+var styles = require('../Style/style');
 
 const Plaid = ({ navigation }: any) => {
   const [linkToken, setLinkToken] = useState("");
