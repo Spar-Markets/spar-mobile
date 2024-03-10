@@ -12,7 +12,6 @@ const Plaid = ({ navigation }: any) => {
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
 
   const createLinkToken = useCallback(async () => {
-    console.log("linkinitiative")
     await fetch(serverUrl+"/createLinkToken", {
       method: "POST",
     headers: {
@@ -23,17 +22,17 @@ const Plaid = ({ navigation }: any) => {
     })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Log Empty Token" + data.link_token)
+      console.log("Log Empty Token " + data.link_token)
       setLinkToken(data.link_token);
     })
     .catch((err) => {
-      console.log("Error:" + err);
+      console.log("Error: " + err);
     });
   }, [setLinkToken])
 
   useEffect(() => {
     if (linkToken == "") {
-      console.log("GettingLinkToken")
+      console.log("Getting Link Token")
       createLinkToken();
     }
   }, [linkToken]);
@@ -60,13 +59,13 @@ const Plaid = ({ navigation }: any) => {
             body: JSON.stringify({ public_token: success.publicToken }),
             })
             .catch((err) => {
-              console.log("Error, printing link token:" + linkToken)
+              console.log("Error, printing link token: " + linkToken)
               console.log(err);
             });
             navigation.navigate('Success', success);
           }}
           onExit={(response: LinkExit) => {
-            console.log("On Exit, printing link token" + linkToken)
+            console.log("On Exit, printing link token " + linkToken)
 
             console.log(response);
           }}>

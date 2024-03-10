@@ -17,16 +17,15 @@ const Home  = ({}) => {
       // Clear authentication state from AsyncStorage
       await AsyncStorage.removeItem('authData');
       setIsAuthenticated(false);
-      navigation.replace('Onboardscreen1');
+      navigation.replace('OnboardScreen');
     } catch (error) {
       console.error('Error logging out:', error);
     }
   }, [navigation]);
 
-
 return (
     <View>
-        <Text style={styles.titleText}>Login</Text>
+        <Text style={styles.titleText}>Home</Text>
         {!isAuthenticated ? (
           <TouchableOpacity onPress={handleLogout}>
             <Text>Log Out</Text>
