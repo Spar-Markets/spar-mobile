@@ -1,4 +1,4 @@
-const ip = "23.20.5.54";
+const ip = "34.234.65.34";
 const port = 8000;
 const mongoPort = 8000;
 

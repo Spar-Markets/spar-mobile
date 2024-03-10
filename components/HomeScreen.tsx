@@ -4,9 +4,6 @@ import { Platform, View, Text, StyleSheet, Button } from 'react-native';
 import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
-
-
 
 var styles = require('./style');
 
@@ -14,19 +11,7 @@ const HomeScreen = ({ navigation }: any) => {
   const [linkToken, setLinkToken] = useState("");
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
 
-  const LoginButton = () => {
-    const {authorize} = useAuth0();
-
-    const onPress = async () => {
-        try {
-            await authorize();
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
-    return <Button onPress={onPress} title="Log in" />  
-  } 
+  
 
 
   const createLinkToken = useCallback(async () => {
@@ -58,9 +43,6 @@ const HomeScreen = ({ navigation }: any) => {
   }, [linkToken]);
   
   return (
-    <Auth0Provider domain={"dev-wol45o5xjg0gma8k.us.auth0.com"} clientId={"o8K4SMbnC2Y059k4PZ1gkpCaj3Hb8dgP"}>
-    <LoginButton></LoginButton>
-
     <View style={{flex: 1}}>
       <View style={styles.heading}>
         <Text style={styles.titleText}>Spar</Text>
@@ -98,7 +80,6 @@ const HomeScreen = ({ navigation }: any) => {
         </PlaidLink>
       </View>
     </View>
-    </Auth0Provider>
   );
 };
 

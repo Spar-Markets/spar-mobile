@@ -11,7 +11,6 @@ var styles = require('./style');
 const SuccessScreen = ({ navigation, route }: any) => {
   const [data, setData] = useState(null);
 
-
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.heading}>
