@@ -6,10 +6,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SuccessScreen from './components/SuccessScreen';
 import Plaid from './components/Plaid';
 import { PlaidTheme } from './components/style';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Onboardscreen1 from './components/Onboardscreen1';
 import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
+import CoreApp from './CoreApp';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,7 +37,7 @@ const App = (): React.ReactElement => {
             title: 'Welcome',
           }}
         />
-        <Stack.Screen
+        {/* <Stack.Screen
           name="Home"
           component={Home}
           options={{
@@ -46,6 +46,11 @@ const App = (): React.ReactElement => {
             },
             headerTintColor: '#fff',
           }}
+        /> */}
+        <Stack.Screen
+          name="CoreApp"
+          component={CoreApp}
+          options={{ headerShown: false}} 
         />
       </Stack.Navigator>
       </NavigationContainer>

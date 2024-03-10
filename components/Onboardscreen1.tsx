@@ -39,7 +39,7 @@ const Onboardscreen1 = () => {
 
   // Function to navigate to the next screen
   const goToNextScreen = () => {
-    navigation.replace('Home');
+    navigation.replace('CoreApp');
   };
 
   if (isAuthenticated == true) {
