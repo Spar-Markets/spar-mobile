@@ -17,7 +17,7 @@ const Home  = ({}) => {
       // Clear authentication state from AsyncStorage
       await AsyncStorage.removeItem('authData');
       setIsAuthenticated(false);
-      navigation.replace('OnboardScreen');
+      navigation.replace('Onboardscreen1');
     } catch (error) {
       console.error('Error logging out:', error);
     }
