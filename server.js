@@ -19,8 +19,6 @@ app.use(bodyParser.json());
 // WE should look at saving this in a .env file which should be safer
 const uri = 'mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-
-
 // Mongo
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -73,7 +71,8 @@ app.post("/createUser", async (req, res) => {
     const { email } = req.body;
     console.log('Received email:', email);
     const newUser = new User({
-      email,
+      username: generateRandomString(40),
+      email: email,
     });
     console.log("New User Created")
     await newUser.save();
@@ -106,6 +105,7 @@ const client = new PlaidApi(config);
 app.post('/createLinkToken', async (req, res) => {
   console.log("called")
   let payload1 = {};
+  // This needs to be fixed for ANDROID, look below for a better explaination
   let payload = {};
 
   console.log(req.body.address)
@@ -120,7 +120,7 @@ app.post('/createLinkToken', async (req, res) => {
       //redirect_uri: process.env.PLAID_SANDBOX_REDIRECT_URI,
     };
   } else {
-    //Payload if running Android
+    //Payload if running Android *
     payload = {
       user: { client_user_id: 'user' },
       client_name: 'Spar',
@@ -175,3 +175,24 @@ app.post('/Balance', async (req, res, next) => {
 app.listen(port, () => {
   console.log(`Backend server is running on port ${port}...`);
 });
+
+
+
+
+
+// Function for random string generation:
+
+function generateRandomString(length) {
+  // Define the characters that can be used in the random string
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+  let randomString = '';
+  for (let i = 0; i < length; i++) {
+    // Generate a random index to select a character from the charset
+    const randomIndex = crypto.randomInt(0, charset.length);
+    // Append the randomly selected character to the random string
+    randomString += charset[randomIndex];
+  }
+
+  return randomString;
+}
