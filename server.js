@@ -7,13 +7,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const {Configuration, PlaidApi, PlaidEnvironments} = require('plaid');
-
 const mongoose = require('mongoose');
-// WE should look at saving this in a .env file which should be safer
-const uri = 'mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 const app = express();
 const port = 8000;
+
+// app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+
+// WE should look at saving this in a .env file which should be safer
+const uri = 'mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
+
 
 // Mongo
 
@@ -63,9 +69,9 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('users', userSchema);
 
 app.post("/createUser", async (req, res) => {
-
     console.log(req.body)
     const { email } = req.body;
+    console.log('Received email:', email);
     const newUser = new User({
       email,
     });
@@ -80,8 +86,6 @@ app.use(
 );
 
 
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
 const PLAID_ENV = process.env.PLAID_ENV || 'sandbox';
 
 // Configuration for the Plaid client

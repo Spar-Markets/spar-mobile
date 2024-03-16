@@ -38,8 +38,8 @@ const OnboardScreen = () => {
       const data = {
         email: user!.name,
       };
-
-      await axios.post(serverUrl + '/createUser', data);
+      console.log(data)
+      await axios.post(serverUrl+'/createUser', data);
 
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
