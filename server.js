@@ -16,19 +16,20 @@ const port = 8000;
 // app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-
-// WE should look at saving this in a .env file which should be safer
-const uri = 'mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
 // Mongo
 
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose
+// WE should look at saving this in a .env file which should be safer
+
+  .connect(
+    "mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongodb.net/Spar",
+    {}
+  )
   .then(() => {
-    console.log('MongoDB connected successfully');
-    mongoose.connection.useDb('Spar');
+    console.log("Connected to MongoDB");
   })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB:', error);
+  .catch((err) => {
+    console.log("Test Error connecting", err);
   });
 
 // Define a Song schema
