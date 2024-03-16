@@ -64,8 +64,8 @@ const User = mongoose.model('users', userSchema);
 
 app.post("/createUser", async (req, res) => {
   try {
-    console.log(req.body.email)
-    const { email } = req.body.email;
+    console.log(req.body)
+    const { email } = req.body;
     const newUser = new User({
       email,
     });
