@@ -31,16 +31,15 @@ const OnboardScreen = () => {
   const handleLogin = async () => {
     try {
       await authorize();
-
       setIsAuthenticated(true);
-      // Extract email from the authentication token
-      
+
       const data = {
         email: user!.name,
       };
       console.log(data)
+      
       await axios.post(serverUrl+'/createUser', data);
-
+          
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
     } catch (error) {

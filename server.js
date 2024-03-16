@@ -25,6 +25,7 @@ const uri = 'mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongod
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('MongoDB connected successfully');
+    mongoose.connection.useDb('Spar');
   })
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error);
@@ -68,15 +69,22 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('users', userSchema);
 
 app.post("/createUser", async (req, res) => {
+  try {  
     console.log(req.body)
     const { email } = req.body;
     console.log('Received email:', email);
+    
     const newUser = new User({
       username: generateRandomString(40),
       email: email,
     });
-    console.log("New User Created")
     await newUser.save();
+    console.log("New User Created")
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Could not create user' });
+  }
   });
 
 app.use(
