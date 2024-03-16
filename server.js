@@ -156,7 +156,7 @@ app.post('/exchangePublicToken', async function (request, response, next) {
       public_token: publicToken,
     };
 
-    const exchangeResponse = await plaidClient.itemPublicTokenExchange(requestPayload);
+    const exchangeResponse = await client.itemPublicTokenExchange(requestPayload);
     const accessToken = exchangeResponse.data.access_token;
     const itemId = exchangeResponse.data.item_id;
 

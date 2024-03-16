@@ -65,8 +65,8 @@ const Plaid = ({ navigation }: any) => {
               console.log(err);
             });
             // Save the access token to mongo user here?
-            
-            navigation.navigate('Success', success);
+            console.log("navigate to success")
+            //navigation.push('Success', success);
           }}
           onExit={(response: LinkExit) => {
             console.log("On Exit, printing link token " + linkToken)
