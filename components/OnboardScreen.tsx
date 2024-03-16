@@ -36,7 +36,7 @@ const OnboardScreen = () => {
       // Extract email from the authentication token
       
       const data = {
-        username: user!.name,
+        email: user!.name,
       };
 
       await axios.post(serverUrl + '/createUser', data);
