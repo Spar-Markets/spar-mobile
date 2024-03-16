@@ -58,7 +58,7 @@ const Plaid = ({ navigation }: any) => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ public_token: success.publicToken }),
+            body: JSON.stringify({ public_token: linkToken }),
             })
             .catch((err) => {
               console.log("Error, printing link token: " + linkToken)

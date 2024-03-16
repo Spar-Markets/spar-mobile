@@ -20,7 +20,6 @@ app.use(bodyParser.json());
 
 mongoose
 // WE should look at saving this in a .env file which should be safer
-
   .connect(
     "mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongodb.net/Spar",
     {}
@@ -113,7 +112,7 @@ const client = new PlaidApi(config);
 
 //Creates a Link token and return it
 app.post('/createLinkToken', async (req, res) => {
-  console.log("called")
+  console.log("Called Link Token Process")
   let payload1 = {};
   // This needs to be fixed for ANDROID, look below for a better explaination
   let payload = {};
@@ -140,7 +139,7 @@ app.post('/createLinkToken', async (req, res) => {
       android_package_name: process.env.PLAID_ANDROID_PACKAGE_NAME,
     };
   }
-  console.log("grabbing token")
+  console.log("Got Token")
   const tokenResponse = await client.linkTokenCreate(payload1);
   console.log(tokenResponse.data)
   res.json(tokenResponse.data);
@@ -162,6 +161,7 @@ app.post('/exchangePublicToken', async function (
     // These values should be saved to a persistent database and
     // associated with the currently signed-in user
     const accessToken = response.data.access_token;
+    console.log(accessToken)
     const itemID = response.data.item_id;
     
     console.log("Success" + accessToken)
