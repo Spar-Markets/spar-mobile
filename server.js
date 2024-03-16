@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('users', userSchema);
 
 app.post("/createUser", async (req, res) => {
-  try {
+
     console.log(req.body)
     const { email } = req.body;
     const newUser = new User({
@@ -71,10 +71,7 @@ app.post("/createUser", async (req, res) => {
     });
     console.log("New User Created")
     await newUser.save();
-  } catch (err) {
-    console.log(err);
-  }
-});
+  });
 
 app.use(
   // FOR DEMO PURPOSES ONLY
