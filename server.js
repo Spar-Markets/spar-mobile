@@ -147,31 +147,30 @@ app.post('/createLinkToken', async (req, res) => {
 
 
 // Exchanges the public token from Plaid Link for an access token
-app.post('/exchangePublicToken', async function (
-  request,
-  response,
-  next,
-) {
-  console.log("checking request body in exhcange" + request.body.public_token)
+app.post('/exchangePublicToken', async function (request, response, next) {
+  console.log("checking request body in exchange: " + request.body.public_token);
   const publicToken = request.body.public_token;
-  try {
-    const response = await client.itemPublicTokenExchange({
-      public_token: publicToken,
-    });
 
-    // These values should be saved to a persistent database and
-    // Associated with the currently signed-in user
-    const accessToken = response.data.access_token;
-    console.log("Access token:" + accessToken)
-    const itemID = response.data.item_id;
-    
-    console.log("Success" + accessToken)
-    res.json({ public_token_exchange: 'complete' });
+  try {
+    const requestPayload = {
+      public_token: publicToken,
+    };
+
+    const exchangeResponse = await plaidClient.itemPublicTokenExchange(requestPayload);
+    const accessToken = exchangeResponse.data.access_token;
+    const itemId = exchangeResponse.data.item_id;
+
+    console.log("Access token: " + accessToken);
+
+    // Send the response with the access token
+    response.json({ access_token: accessToken, item_id: itemId });
   } catch (error) {
-    // handle error
-    console.log("Error exchanging link for access")
+    console.log("Error exchanging link for access:", error);
+    // Handle the error appropriately, e.g., send an error response
+    response.status(500).json({ error: "Error exchanging link for access" });
   }
 });
+
 
 
 // Fetches balance data using the Node client library for Plaid
