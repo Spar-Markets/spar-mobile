@@ -50,7 +50,9 @@ const Plaid = ({ navigation }: any) => {
           }}
           
           onSuccess={async (success: LinkSuccess) => {
-            console.log(linkToken)
+            console.log("This is being printed under the onsuccess" + linkToken)
+            
+            // Fetching access token
             await fetch(`${serverUrl}/exchangePublicToken`, {
             method: "POST",
             headers: {
@@ -62,6 +64,8 @@ const Plaid = ({ navigation }: any) => {
               console.log("Error, printing link token: " + linkToken)
               console.log(err);
             });
+            // Save the access token to mongo user here?
+            
             navigation.navigate('Success', success);
           }}
           onExit={(response: LinkExit) => {

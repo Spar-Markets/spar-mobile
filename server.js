@@ -8,14 +8,79 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const {Configuration, PlaidApi, PlaidEnvironments} = require('plaid');
 
+const mongoose = require('mongoose');
+// WE should look at saving this in a .env file which should be safer
+const uri = 'mongodb+srv://jjquaratiello:Schoolipad1950!@cluster0.xcfppj4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
 const app = express();
 const port = 8000;
+
+// Mongo
+
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('MongoDB connected successfully');
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error);
+  });
+
+// Define a Song schema
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  balance: {
+    type: mongoose.Schema.Types.Decimal128,
+    default: 0.0,
+  },
+  skillRating: {
+    type: mongoose.Schema.Types.Decimal128,
+    default: 50.0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  activematches: {
+    type: [String],
+    default: [],
+    required: true,
+  },
+  plaidPersonalAccess: {
+    type: String,
+    default: "",
+  },
+});
+
+const User = mongoose.model('users', userSchema);
+
+app.post("/createUser", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const newUser = new User({
+      email,
+    });
+    console.log("New User Created")
+    await newUser.save();
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 app.use(
   // FOR DEMO PURPOSES ONLY
   // Use an actual secret key in production
   session({secret: 'bosco', saveUninitialized: true, resave: true}),
 );
+
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -69,17 +134,32 @@ app.post('/createLinkToken', async (req, res) => {
   res.json(tokenResponse.data);
 });
 
-// Exchanges the public token from Plaid Link for an access token
-app.post('/exchangePublicToken', async (req, res, next) => {
-  const exchangeResponse = await client.itemPublicTokenExchange({
-    public_token: req.body.public_token,
-  });
 
-  // FOR DEMO PURPOSES ONLY
-  // Store access_token in DB instead of session storage
-  req.session.access_token = exchangeResponse.data.access_token;
-  res.json(true);
+// Exchanges the public token from Plaid Link for an access token
+app.post('/exchangePublicToken', async function (
+  request,
+  response,
+  next,
+) {
+  const publicToken = request.body.public_token;
+  try {
+    const response = await client.itemPublicTokenExchange({
+      public_token: publicToken,
+    });
+
+    // These values should be saved to a persistent database and
+    // associated with the currently signed-in user
+    const accessToken = response.data.access_token;
+    const itemID = response.data.item_id;
+    
+    console.log("Success" + accessToken)
+    res.json({ public_token_exchange: 'complete' });
+  } catch (error) {
+    console.log("Error exchanging link for access")
+    // handle error
+  }
 });
+
 
 // Fetches balance data using the Node client library for Plaid
 app.post('/Balance', async (req, res, next) => {

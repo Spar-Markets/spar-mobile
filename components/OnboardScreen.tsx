@@ -3,11 +3,13 @@ import { Button, Text, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
+import axios from 'axios';
+import { serverUrl } from '../constants/global';
 
 const OnboardScreen = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { authorize } = useAuth0();
+  const { authorize, user } = useAuth0();
 
   // Function to check if the user is authenticated on app startup
   const checkAuthentication = async () => {
@@ -29,7 +31,16 @@ const OnboardScreen = () => {
   const handleLogin = async () => {
     try {
       await authorize();
+
       setIsAuthenticated(true);
+      // Extract email from the authentication token
+      
+      const data = {
+        username: user!.name,
+      };
+
+      await axios.post(serverUrl + '/createUser', data);
+
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
     } catch (error) {

@@ -8,6 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 var styles = require('../Style/style');
 
 const Home  = ({}) => {
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
 
