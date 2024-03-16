@@ -152,6 +152,7 @@ app.post('/exchangePublicToken', async function (
   response,
   next,
 ) {
+  console.log("checking request body in exhcange" + request.body.public_token)
   const publicToken = request.body.public_token;
   try {
     const response = await client.itemPublicTokenExchange({
@@ -159,16 +160,16 @@ app.post('/exchangePublicToken', async function (
     });
 
     // These values should be saved to a persistent database and
-    // associated with the currently signed-in user
+    // Associated with the currently signed-in user
     const accessToken = response.data.access_token;
-    console.log(accessToken)
+    console.log("Access token:" + accessToken)
     const itemID = response.data.item_id;
     
     console.log("Success" + accessToken)
     res.json({ public_token_exchange: 'complete' });
   } catch (error) {
-    console.log("Error exchanging link for access")
     // handle error
+    console.log("Error exchanging link for access")
   }
 });
 
