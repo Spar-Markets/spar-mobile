@@ -176,7 +176,7 @@ app.post('/Balance', async (req, res, next) => {
   const { access_token }= req.body;
   const balanceResponse = await client.accountsBalanceGet({access_token});
   res.json({
-    Balance: balanceResponse,
+    Balance: balanceResponse.datas,
   });
 });
 
