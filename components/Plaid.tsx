@@ -88,7 +88,7 @@ const Plaid = ({ navigation }: any) => {
               access_token: accessToken
             };
             const response1 = await axios.post(serverUrl+'/Balance', ADATA);
-            console.log(response1)
+            console.log(response1.data.balance)
 
           })
             .catch((err) => {
