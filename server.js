@@ -173,7 +173,7 @@ app.post('/exchangePublicToken', async function (request, response, next) {
 
 // Fetches balance data using the Node client library for Plaid
 app.post('/Balance', async (req, res, next) => {
-  const access_token = req.session.access_token;
+  const access_token = req.body;
   const balanceResponse = await client.accountsBalanceGet({access_token});
   res.json({
     Balance: balanceResponse.data,

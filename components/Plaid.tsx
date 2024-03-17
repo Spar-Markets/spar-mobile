@@ -90,13 +90,7 @@ const Plaid = ({ navigation }: any) => {
               console.log("Error in Success")
               console.log(err);
             });
-            
-
-            
-
-            
-
-
+  
 
             console.log("Navigate to Success")
             //navigation.push('Success', success);
