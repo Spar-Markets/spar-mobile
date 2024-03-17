@@ -171,8 +171,6 @@ app.post('/exchangePublicToken', async function (request, response, next) {
   }
 });
 
-
-
 // Fetches balance data using the Node client library for Plaid
 app.post('/Balance', async (req, res, next) => {
   const access_token = req.session.access_token;
@@ -185,9 +183,6 @@ app.post('/Balance', async (req, res, next) => {
 app.listen(port, () => {
   console.log(`Backend server is running on port ${port}...`);
 });
-
-
-
 
 
 // Function for random string generation:

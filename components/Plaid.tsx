@@ -65,21 +65,28 @@ const Plaid = ({ navigation }: any) => {
               public_token: success.publicToken 
               }),
             })
+            .then(response => response.json()) // Parse the response body as JSON
+            .then(async data => {
+            // Access the values sent back from the server
+            const accessToken = data.access_token;
+            const itemId = data.item_id;
 
+            // Save the access token to mongo user here?
+ 
+            const updatingData = {
+              email: user!.name,
+              newAccessToken: accessToken 
+            };
+            await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
+
+          })
             .catch((err) => {
               console.log("Error in Success")
               console.log(err);
             });
-            // Save the access token to mongo user here?
-            console.log("This is in the response" + response)
 
-            const data = {
-              email: user!.name,
-              newAccessToken: response 
-            };
 
-            await axios.post(serverUrl+'/updateUserAccessToken', data);
-
+            
             console.log("Navigate to Success")
             //navigation.push('Success', success);
           }}
