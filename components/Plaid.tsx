@@ -13,6 +13,21 @@ const Plaid = ({ navigation }: any) => {
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
   const { authorize, user } = useAuth0();
 
+//    Configuration for the Plaid client
+// const config = new Configuration({
+//   basePath: PlaidEnvironments['sandbox'],
+//   baseOptions: {
+//     headers: {
+//       'PLAID-CLIENT-ID': '65833a47f1ae5c001b9d8fee',
+//       'PLAID-SECRET': '3838c18936a0e24249069c952b743a',
+//     },
+//   },
+// });
+
+// //Instantiate the Plaid client with the configuration
+// const client = new PlaidApi(config);
+
+
   const createLinkToken = useCallback(async () => {
     await fetch(serverUrl+"/createLinkToken", {
       method: "POST",
@@ -84,11 +99,21 @@ const Plaid = ({ navigation }: any) => {
             await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
             console.log("logging access token" + accessToken)
             
-            const ADATA = {
-              access_token: accessToken
-            };
-            const response1 = await axios.post(serverUrl+'/Balance', ADATA);
-            console.log(response1.data.balance)
+            
+            await axios.post(serverUrl+'/accounts', updatingData);
+
+            
+
+            // const getBalances = async function (accessToken: any) {
+            //   const accountsBalanceGetReponse = await client.accountsBalanceGet({
+            //     access_token: accessToken
+            //   });
+            //   const balances = accountsBalanceGetReponse.data.accounts[0].balances;
+            //   return balances
+            // }
+            // const balResponse = getBalances(accessToken)
+            // console.log(balResponse)
+
 
           })
             .catch((err) => {
