@@ -80,9 +80,14 @@ const Plaid = ({ navigation }: any) => {
               email: user!.name,
               newAccessToken: accessToken 
             };
-            await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
 
-            const response1 = await axios.post(serverUrl+'/Balance', accessToken);
+            await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
+            console.log("logging access token" + accessToken)
+            
+            const access = {
+              access: accessToken
+            };
+            const response1 = await axios.post(serverUrl+'/Balance', access);
             console.log(response1)
 
           })
