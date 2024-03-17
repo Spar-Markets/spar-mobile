@@ -209,7 +209,7 @@ app.post("/updateUserAccessToken", async (req, res) => {
     // Find the user by username and update the balance
     const user = await User.findOneAndUpdate(
       { email: email },
-      { $set: { newAccessToken: newAccessToken } },
+      { $set: { plaidPersonalAccess: newAccessToken } },
       { new: true } // Return the updated document
     );
 
