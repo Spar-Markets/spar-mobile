@@ -84,10 +84,10 @@ const Plaid = ({ navigation }: any) => {
             await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
             console.log("logging access token" + accessToken)
             
-            const access = {
-              access: accessToken
+            const ADATA = {
+              access_token: accessToken
             };
-            const response1 = await axios.post(serverUrl+'/Balance', access);
+            const response1 = await axios.post(serverUrl+'/Balance', ADATA);
             console.log(response1)
 
           })
