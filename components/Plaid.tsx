@@ -49,25 +49,29 @@ const Plaid = ({ navigation }: any) => {
             noLoadingState: false,
           }}
           
-          onSuccess={async (success: LinkSuccess) => {
+          onSuccess={ (success: LinkSuccess) => {
             console.log("This is being printed under the onsuccess" + linkToken)
-            
+            console.log(success)
+  
             // Fetching access token
-            await fetch(`${serverUrl}/exchangePublicToken`, {
+            fetch(`${serverUrl}/exchangePublicToken`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ public_token: linkToken }),
+            body: JSON.stringify({ 
+              public_token: success.publicToken 
+              }),
             })
             .catch((err) => {
-              console.log("Error, printing link token: " + linkToken)
+              console.log("Error in Success")
               console.log(err);
             });
             // Save the access token to mongo user here?
-            console.log("navigate to success")
+            console.log("Navigate to Success")
             //navigation.push('Success', success);
           }}
+
           onExit={(response: LinkExit) => {
             console.log("On Exit, printing link token " + linkToken)
 
