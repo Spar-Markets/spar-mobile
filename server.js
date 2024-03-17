@@ -206,3 +206,24 @@ function generateRandomString(length) {
 
   return randomString;
 }
+
+app.post("/updateUserAccessToken", async (req, res) => {
+    // Extract username and newBalance from the request body
+  const { email, newAccessToken } = req.body;
+  try {
+    // Find the user by username and update the balance
+    const user = await User.findOneAndUpdate(
+      { email: email },
+      { $set: { newAccessToken: newAccessToken } },
+      { new: true } // Return the updated document
+    );
+
+    // Log another success message to the console
+    console.log("success");
+
+    res.status(201).json({ message: 'User AccessToken Updated' });
+  } catch (error) {
+    console.error('Error AccessToken Failed to Update:', error);
+    res.status(500).json({ error: 'Could not create user' });
+  }
+  });

@@ -4,12 +4,14 @@ import { Platform, View, Text, StyleSheet, Button } from 'react-native';
 import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
+import { useAuth0 } from 'react-native-auth0';
 
 var styles = require('../Style/style');
 
 const Plaid = ({ navigation }: any) => {
   const [linkToken, setLinkToken] = useState("");
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
+  const { authorize, user } = useAuth0();
 
   const createLinkToken = useCallback(async () => {
     await fetch(serverUrl+"/createLinkToken", {
@@ -49,12 +51,12 @@ const Plaid = ({ navigation }: any) => {
             noLoadingState: false,
           }}
           
-          onSuccess={ (success: LinkSuccess) => {
+          onSuccess={ async (success: LinkSuccess) => {
             console.log("This is being printed under the onsuccess" + linkToken)
             console.log(success)
   
             // Fetching access token
-            fetch(`${serverUrl}/exchangePublicToken`, {
+            const response = fetch(`${serverUrl}/exchangePublicToken`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -63,11 +65,21 @@ const Plaid = ({ navigation }: any) => {
               public_token: success.publicToken 
               }),
             })
+
             .catch((err) => {
               console.log("Error in Success")
               console.log(err);
             });
             // Save the access token to mongo user here?
+            console.log("This is in the response" + response)
+
+            const data = {
+              email: user!.name,
+              newAccessToken: response 
+            };
+
+            await axios.post(serverUrl+'/updateUserAccessToken', data);
+
             console.log("Navigate to Success")
             //navigation.push('Success', success);
           }}
