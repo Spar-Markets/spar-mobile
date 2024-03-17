@@ -62,7 +62,10 @@ const Plaid = ({ navigation }: any) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ 
-              public_token: success.publicToken 
+              public_token: success.publicToken, 
+              accounts: success.metadata.accounts,
+              institution: success.metadata.institution,
+              linkSessionId: success.metadata.linkSessionId,
               }),
             })
             .then(response => response.json()) // Parse the response body as JSON
@@ -79,14 +82,22 @@ const Plaid = ({ navigation }: any) => {
             };
             await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
 
+            const response1 = await axios.post(serverUrl+'/Balance', accessToken);
+            console.log(response1)
+
           })
             .catch((err) => {
               console.log("Error in Success")
               console.log(err);
             });
-
+            
 
             
+
+            
+
+
+
             console.log("Navigate to Success")
             //navigation.push('Success', success);
           }}
