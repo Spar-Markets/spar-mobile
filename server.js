@@ -224,8 +224,6 @@ app.post("/updateUserAccessToken", async (req, res) => {
   }
   });
 
-
-
   app.post('/accounts', async function (request, response, next) {
     const { newAccessToken } = request.body 
     try {
