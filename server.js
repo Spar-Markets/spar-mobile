@@ -226,7 +226,7 @@ app.post("/updateUserAccessToken", async (req, res) => {
 
 
 
-  app.get('/accounts', async function (request, response, next) {
+  app.post('/accounts', async function (request, response, next) {
     const { newAccessToken } = request.body 
     try {
       const accountsResponse = await client.accountsGet({
