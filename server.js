@@ -173,13 +173,33 @@ app.post('/exchangePublicToken', async function (request, response, next) {
 
 // Fetches balance data using the Node client library for Plaid
 app.post('/Balance', async (req, res, next) => {
-  const { access_token } = req.body;
-  const balanceResponse = await client.accountsBalanceGet(access_token);
-  const formattedResponse = balanceResponse.data; // Assuming balanceResponse is an Axios response object
-  res.json({
-    Balance: formattedResponse,
-  });
+  try {
+    const { access_token } = req.body;
+    // Ensure that the request body is a JSON object
+    const requestBody = {
+      access_token: access_token
+    };
+
+    // Make a POST request to the Plaid API using Axios
+    const response = await axios.post('https://sandbox.plaid.com/accounts/balance/get', requestBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Plaid-Version': '2020-09-14',
+        'PLAID-CLIENT-ID': '65833a47f1ae5c001b9d8fee',
+        'PLAID-SECRET': '3838c18936a0e24249069c952b743a',
+      }
+    });
+
+    // Send the balance data in the response
+    res.json({
+      Balance: response.data
+    });
+  } catch (error) {
+    console.error('Error fetching balance:', error);
+    res.status(500).json({ error: 'Error fetching balance' });
+  }
 });
+
 
 app.listen(port, () => {
   console.log(`Backend server is running on port ${port}...`);
