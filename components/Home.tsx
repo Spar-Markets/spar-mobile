@@ -1,9 +1,10 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Icon } from 'react-native-elements'
 
 var styles = require('../Style/style');
 
@@ -13,6 +14,7 @@ const Home  = ({}) => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const colorScheme = useColorScheme();
   const [currStyles, setCurrStyles] = useState(darkStyles);
+  const [statusBarHeight, setStatusBarHeight] = useState(0);
 
   // Function to handle user logout
   const handleLogout = useCallback(async () => {
@@ -28,19 +30,27 @@ const Home  = ({}) => {
 
   useEffect(() => {
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
+    NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
+      setStatusBarHeight(response.height);
+    });
   }, [colorScheme]);
 
 return (
     <View style={currStyles.container}>
-      <View>
-        <TouchableOpacity style={{width: 50, height: 50, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center'}}>
-         
-        </TouchableOpacity>
-        <TouchableOpacity>
-
-        </TouchableOpacity>
+      <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight}}>
+        <View style={{flex: 0.5}}>
+          <TouchableOpacity style={{width: 40, height: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginLeft: 12}}>
+            <Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />
+          </TouchableOpacity>
+        </View>
+        <View style={{flex: 0.5, flexDirection: 'row', justifyContent: 'flex-end'}}>
+          <TouchableOpacity style={[colorScheme == "dark" ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 12}]}>
+            {/* deposit or account val */}
+            <Text style={[colorScheme == "dark" ? {color: '#E6E6E6'} : {color: '#181818'}, {fontFamily: 'InterTight-Bold', paddingHorizontal: 25}]}>Deposit +</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View>
+      <View style={{flex: 1}}>
 
       </View>
 
@@ -66,7 +76,6 @@ const darkStyles = StyleSheet.create({
     backgroundColor: "#181818",
     justifyContent: 'center',
     gap: 30,
-    marginTop: StatusBar.currentHeight
   },
   mainTxt: {
     color: 'white',
@@ -95,7 +104,6 @@ const lightStyles = StyleSheet.create({
     backgroundColor: "#E6E6E6",
     justifyContent: 'center',
     gap: 30,
-    marginTop: StatusBar.currentHeight
   },
   mainTxt: {
     color: '#181818',
