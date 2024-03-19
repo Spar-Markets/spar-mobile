@@ -69,7 +69,7 @@ const Plaid = ({ navigation }: any) => {
           onSuccess={ async (success: LinkSuccess) => {
             console.log("This is being printed under the onsuccess" + linkToken)
             console.log(success)
-  
+            
             // Fetching access token
             const response = fetch(`${serverUrl}/exchangePublicToken`, {
             method: "POST",
@@ -122,7 +122,7 @@ const Plaid = ({ navigation }: any) => {
             });
   
 
-            console.log("Navigate to Success")
+            //console.log("Navigate to Success")
             //navigation.push('Success', success);
           }}
 

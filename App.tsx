@@ -34,6 +34,7 @@ const App = (): React.ReactElement => {
           options={{
             // headerShown: false, // Hide header for Onboard
             title: 'Welcome',
+            headerShown: false
           }}
         />
         <Stack.Screen

@@ -1,0 +1,77 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/InterTight-Black.ttf",
+      "sha1": "8e621f18955f2951a6f9737a0a1a0eb4e322f6c0"
+    },
+    {
+      "path": "assets/fonts/InterTight-BlackItalic.ttf",
+      "sha1": "30489e047d9a320549bb52400b882b8d0039a6c9"
+    },
+    {
+      "path": "assets/fonts/InterTight-Bold.ttf",
+      "sha1": "c60ed01f368fcae1cce8ceac862452e591320da6"
+    },
+    {
+      "path": "assets/fonts/InterTight-BoldItalic.ttf",
+      "sha1": "eba3f144808a5dd5a571d4d93c2466d1a57f34ab"
+    },
+    {
+      "path": "assets/fonts/InterTight-ExtraBold.ttf",
+      "sha1": "b3e3b239b64772d69c620e77a62d2b0bc4264266"
+    },
+    {
+      "path": "assets/fonts/InterTight-ExtraBoldItalic.ttf",
+      "sha1": "99708fde06224954b0da7ea4a5fdca93b0d162b4"
+    },
+    {
+      "path": "assets/fonts/InterTight-ExtraLight.ttf",
+      "sha1": "ee2002931c21c32448e6b7bd6b9f6394a23bab56"
+    },
+    {
+      "path": "assets/fonts/InterTight-ExtraLightItalic.ttf",
+      "sha1": "3abfc6ff29a10b6ebc4ecffb9b9388833caa1b31"
+    },
+    {
+      "path": "assets/fonts/InterTight-Italic.ttf",
+      "sha1": "48c340d44e90245546b0aae52b42b9717214763f"
+    },
+    {
+      "path": "assets/fonts/InterTight-Light.ttf",
+      "sha1": "ca8a4d0a832575f459020aae3f191426ec5485fd"
+    },
+    {
+      "path": "assets/fonts/InterTight-LightItalic.ttf",
+      "sha1": "06d2cae9d7604d51b3493e897cba1c47cb4fe38f"
+    },
+    {
+      "path": "assets/fonts/InterTight-Medium.ttf",
+      "sha1": "07cf5cdb9b660146a0935a5cc166ec2a0717a151"
+    },
+    {
+      "path": "assets/fonts/InterTight-MediumItalic.ttf",
+      "sha1": "76a3ca3ce22af4778c95ce340e2611832e38485e"
+    },
+    {
+      "path": "assets/fonts/InterTight-Regular.ttf",
+      "sha1": "63ceeac81a3a036211fba29046e606752fe7ea8e"
+    },
+    {
+      "path": "assets/fonts/InterTight-SemiBold.ttf",
+      "sha1": "77db62dbddcf448fa1b633e6da3b76480f3ca559"
+    },
+    {
+      "path": "assets/fonts/InterTight-SemiBoldItalic.ttf",
+      "sha1": "681b4df1fa5fcbf095d96aa6456a3a929a4d516f"
+    },
+    {
+      "path": "assets/fonts/InterTight-Thin.ttf",
+      "sha1": "eda98be662d4af72cfc097b7f8cf7f6bd872f96d"
+    },
+    {
+      "path": "assets/fonts/InterTight-ThinItalic.ttf",
+      "sha1": "f6ffa5e5d70cf1b967ba17435828e82f19c95c83"
+    }
+  ]
+}

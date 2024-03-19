@@ -26,7 +26,7 @@ const CoreApp = (): React.ReactElement => {
     <SafeAreaProvider>
         {/* <StatusBar barStyle="light-content" backgroundColor="#000000" /> */}
         <Tab.Navigator>
-            <Tab.Screen name="Home" component={Home}/>
+            <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
             <Tab.Screen name="Plaid" component={Plaid}/>
         </Tab.Navigator>
     </SafeAreaProvider>
