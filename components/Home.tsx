@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
@@ -32,10 +32,20 @@ const Home  = ({}) => {
 
 return (
     <View style={currStyles.container}>
+      <View>
+        <TouchableOpacity style={{width: 50, height: 50, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center'}}>
+         
+        </TouchableOpacity>
+        <TouchableOpacity>
+
+        </TouchableOpacity>
+      </View>
+      <View>
+
+      </View>
 
 
 
-      
       {/*}
         {!isAuthenticated ? (
           <TouchableOpacity onPress={handleLogout}>

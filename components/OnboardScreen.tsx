@@ -43,11 +43,12 @@ const OnboardScreen = () => {
         email: user!.name,
       };
       console.log(data)
-      navigation.replace('CoreApp');
       /**
        * @todo make this handle login and make endpoint for it, move createUser
        */
       await axios.post(serverUrl+'/createUser', data);
+
+      navigation.replace('CoreApp');
     
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
