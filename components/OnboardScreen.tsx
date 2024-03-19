@@ -30,7 +30,14 @@ const OnboardScreen = () => {
   // Function to handle user login
   const handleLogin = async () => {
     try {
+
+      // const response = await axios.post(serverUrl]+"/checkUserExist")
+
+
       await authorize();
+      
+      
+      
       setIsAuthenticated(true);
 
       const data = {
