@@ -36,17 +36,26 @@ const OnboardScreen = () => {
 
       await authorize();
       
+      console.log(user)
       
-      
-      setIsAuthenticated(true);
-
       const data = {
-        email: user!.name,
+        email: user!.email,
       };
-      console.log(data)
+   
+      //console.log(data)
+      console.log("Print Before Endpoint")
+      const response = await axios.post(serverUrl+'/checkUserExists', data)
+      console.log(response.data)
+
+      // parse the response here to find out if it exists or not
+
+      if (response.data == true) {
+        setIsAuthenticated(true);
+        navigation.replace('CoreApp');
+      } else {      
+        await axios.post(serverUrl+'/createUser', data);
+      }
       
-      await axios.post(serverUrl+'/createUser', data);
-          
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
     } catch (error) {
@@ -54,14 +63,6 @@ const OnboardScreen = () => {
     }
   };
 
-  // Function to navigate to the next screen
-  const goToNextScreen = () => {
-    navigation.replace('CoreApp');
-  };
-
-  if (isAuthenticated == true) {
-    goToNextScreen()
-  }
 
   return (
     <Auth0Provider
