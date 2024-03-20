@@ -48,17 +48,20 @@ const Plaid = ({ navigation }: any) => {
     }
   },[setAccessToken])
 
-  const getBalance = useCallback(async () => {
+  const getBalance = async () => {
     console.log("In bal: " + accessToken)
     const accessData = {
       newAccessToken: accessToken 
     };
-    const balGot = await axios.post(serverUrl+'/Balance', accessData);
-    console.log(balGot.data.accounts[0].balances.available) 
-  },[])
+    try {
+      const balGot = await axios.post(serverUrl+'/Balance', accessData);
+      console.log(balGot.data.accounts[0].balances.available) 
+    } catch {
+      console.error("bal not good!!!")
+    }
+  }
 
   useEffect(() => {
-
     console.log("Logging User's Name: " + user!.name)
     if (linkToken == "") {
       console.log("Getting Link Token")
