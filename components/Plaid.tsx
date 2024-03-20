@@ -136,6 +136,7 @@ const Plaid = ({ navigation }: any) => {
             <Text style={styles.buttonText}>Open Link</Text>
           </View>
         </PlaidLink>
+        <Text>Hello</Text>
       </View>
     </View>
   );
