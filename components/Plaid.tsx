@@ -114,7 +114,7 @@ const Plaid = ({ navigation }: any) => {
 
             console.log(accessToken)
             const balGot = await axios.post(serverUrl+'/Balance', accessData);
-            console.log("balance " + balGot.data)
+            console.log(balGot.data.accounts[0].balances.available)
 
 
           })
