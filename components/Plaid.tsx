@@ -1,4 +1,3 @@
-import { link } from 'fs';
 import React, {useState, useEffect, useCallback} from 'react';
 import { Platform, View, Text, StyleSheet, Button } from 'react-native';
 import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
@@ -12,25 +11,8 @@ const Plaid = ({ navigation }: any) => {
   const [linkToken, setLinkToken] = useState("");
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
   const { authorize, user } = useAuth0();
-  const [balance, setBalance] = useState(0);
-
-  // Configuration for the Plaid client
-  // const config = new Configuration({
-  //   basePath: PlaidEnvironments['sandbox'],
-  //   baseOptions: {
-  //     headers: {
-  //       'PLAID-CLIENT-ID': '65833a47f1ae5c001b9d8fee',
-  //       'PLAID-SECRET': '3838c18936a0e24249069c952b743a',
-  //     },
-  //   },
-  // });
-
-  // //Instantiate the Plaid client with the configuration
-  // const client = new PlaidApi(config);
-
-
-
-
+  const [balance, setBalance] = useState(null);
+  const [accessToken, setAccessToken] = useState("");
 
 
   const createLinkToken = useCallback(async () => {
@@ -52,13 +34,42 @@ const Plaid = ({ navigation }: any) => {
     });
   }, [setLinkToken])
 
+  const fetchData = useCallback(async () => {
+    const accessData = {
+      email: user!.email
+    };
+
+    try {
+      const response = await axios.post(serverUrl+'/getAccessFromMongo', accessData);
+      console.log("MONGO ACCESS " + response.data )
+      setAccessToken(response.data); // Assuming accessToken is in the response data
+    } catch (error) {
+      console.error('Error fetching access token, user may not have one:', error);
+    }
+  },[setAccessToken])
+
+  const getBalance = async () => {
+    console.log("In bal: " + accessToken)
+    const accessData = {
+      newAccessToken: accessToken 
+    };
+    try {
+      const balGot = await axios.post(serverUrl+'/Balance', accessData);
+      console.log(balGot.data.accounts[0].balances.available) 
+    } catch {
+      console.error("bal not good!!!")
+    }
+  }
+
   useEffect(() => {
     console.log("Logging User's Name: " + user!.name)
     if (linkToken == "") {
       console.log("Getting Link Token")
       createLinkToken();
     }
-  }, [linkToken]);
+    fetchData();
+    getBalance();
+  }, [user, linkToken, createLinkToken,]);
   
   return (
     <View style={{flex: 1}}>
@@ -107,15 +118,6 @@ const Plaid = ({ navigation }: any) => {
 
             // const accRes = await axios.post(serverUrl+'/accounts', updatingData);
             // console.log("Accres " + accRes)
-            
-            const accessData = {
-              newAccessToken: accessToken 
-            };
-
-            console.log(accessToken)
-            const balGot = await axios.post(serverUrl+'/Balance', accessData);
-            console.log(balGot.data.accounts[0].balances.available)
-
 
           })
             .catch((err) => {
@@ -123,7 +125,6 @@ const Plaid = ({ navigation }: any) => {
               console.log(err);
             });
   
-
             //console.log("Navigate to Success")
             //navigation.push('Success', success);
           }}
