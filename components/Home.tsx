@@ -6,8 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
 import GameModesScrollBar from './GameModesScrollBar';
+import axios from 'axios';
+import { serverUrl } from '../constants/global';
 
-var styles = require('../Style/style');
 
 const Home  = () => {
 
@@ -36,6 +37,10 @@ const Home  = () => {
     });
   }, [colorScheme]);
 
+  const handleDeposit = async () => {
+    navigation.push("Deposit");
+  }
+
 return (
     <View style={currStyles.container}>
       <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight + 10}}>
@@ -43,7 +48,7 @@ return (
             <Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />
         </TouchableOpacity>
         <View style={{flex:1.5, justifyContent: 'center', alignItems: 'center'}}></View>
-        <TouchableOpacity style={{borderRadius: 24, height: 40, backgroundColor: '#66FEB7', flex: 1, justifyContent: 'center', alignItems: 'center', marginRight: 8}}>
+        <TouchableOpacity onPress={handleDeposit} style={{borderRadius: 24, height: 40, backgroundColor: '#1ae79c', flex: 1, justifyContent: 'center', alignItems: 'center', marginRight: 8}}>
             <Text style={{fontFamily: 'InterTight-Black'}}>Deposit +</Text>
         </TouchableOpacity>
         <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 24, marginRight: 12}}>

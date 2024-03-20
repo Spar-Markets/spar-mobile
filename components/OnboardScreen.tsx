@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import Auth0, { useAuth0, Auth0Provider } from 'react-native-auth0';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
+import { ReportType } from 'plaid';
 
 const OnboardScreen = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
@@ -64,6 +65,8 @@ const OnboardScreen = () => {
       
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
+      console.log(data.email!)
+      await AsyncStorage.setItem('userEmail', data.email!)
 
     } catch (error) {
       console.error('Error logging in:', error);

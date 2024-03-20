@@ -11,6 +11,7 @@ import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
 import CoreApp from './CoreApp';
 import Profile1 from './components/Profile';
+import Deposit from './components/Deposit';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,7 +48,11 @@ const App = (): React.ReactElement => {
           name="Profile"
           component={Profile1}
           options={{headerShown: false}}
-          
+        />
+        <Stack.Screen
+          name="Deposit"
+          component={Deposit}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
       </NavigationContainer>
