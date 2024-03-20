@@ -4,6 +4,7 @@ import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
 import { useAuth0 } from 'react-native-auth0';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 var styles = require('../Style/style');
 
@@ -34,7 +35,7 @@ const Plaid = ({ navigation }: any) => {
     });
   }, [setLinkToken])
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     const accessData = {
       email: user!.email
     };
@@ -42,14 +43,15 @@ const Plaid = ({ navigation }: any) => {
     try {
       const response = await axios.post(serverUrl+'/getAccessFromMongo', accessData);
       console.log("MONGO ACCESS " + response.data )
-      setAccessToken(response.data); // Assuming accessToken is in the response data
+      setAccessToken(response.data); 
+      // Assuming accessToken is in the response data
     } catch (error) {
       console.error('Error fetching access token, user may not have one:', error);
     }
-  },[setAccessToken])
+  }
 
   const getBalance = async () => {
-    console.log("In bal: " + accessToken)
+    //console.log("In bal: " + accessToken)
     const accessData = {
       newAccessToken: accessToken 
     };
@@ -62,14 +64,14 @@ const Plaid = ({ navigation }: any) => {
   }
 
   useEffect(() => {
-    console.log("Logging User's Name: " + user!.name)
+    //console.log("Logging User's Name: " + user!.name)
     if (linkToken == "") {
       console.log("Getting Link Token")
       createLinkToken();
     }
     fetchData();
     getBalance();
-  }, [user, linkToken, createLinkToken,]);
+  }, [user, linkToken, createLinkToken]);
   
   return (
     <View style={{flex: 1}}>
@@ -115,9 +117,7 @@ const Plaid = ({ navigation }: any) => {
 
             await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
             console.log("Logging Access Token " + accessToken)
-
-            // const accRes = await axios.post(serverUrl+'/accounts', updatingData);
-            // console.log("Accres " + accRes)
+            await AsyncStorage.setItem('plaidAccessToken', accessToken);
 
           })
             .catch((err) => {
