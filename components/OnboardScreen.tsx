@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import Auth0, { useAuth0, Auth0Provider } from 'react-native-auth0';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
-import Auth0Context from 'react-native-auth0/lib/typescript/src/hooks/auth0-context';
 
 const OnboardScreen = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
@@ -53,9 +52,7 @@ const OnboardScreen = () => {
       console.log(response.data)
 
       // parse the response here to find out if it exists or not
-
       // sign up creates user in auth0 but not in mongo
-
 
       if (response.data == true) {
         setIsAuthenticated(true);
