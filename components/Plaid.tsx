@@ -14,7 +14,7 @@ const Plaid = ({ navigation }: any) => {
   const { authorize, user } = useAuth0();
   const [balance, setBalance] = useState(0);
 
-  //    Configuration for the Plaid client
+  // Configuration for the Plaid client
   // const config = new Configuration({
   //   basePath: PlaidEnvironments['sandbox'],
   //   baseOptions: {
