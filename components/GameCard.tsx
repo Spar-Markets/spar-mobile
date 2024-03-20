@@ -12,7 +12,7 @@ const GameCard = (props:any) => {
     const colorScheme = useColorScheme();
 
     return (
-        <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {height: 100, marginHorizontal: 12, borderRadius: 12, marginBottom: 12, flexDirection: 'row'}]}>
+        <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {height: 100, marginHorizontal: 12, borderRadius: 12, marginTop: 12, marginBottom: 12, flexDirection: 'row'}]}>
           <View style={{backgroundColor: '#3B30B9', width: 20, height: '100%', borderTopLeftRadius: 12, borderBottomLeftRadius: 12}}></View>
           <Text style={[colorScheme == "dark" ? darkStyles.txt : lightStyles.txt, {margin: 10}]}>Amount Wagered: ${props.amountWagered}</Text>
         </TouchableOpacity>

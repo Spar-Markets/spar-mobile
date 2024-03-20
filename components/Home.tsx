@@ -39,30 +39,25 @@ const Home  = () => {
 return (
     <View style={currStyles.container}>
       <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight + 10}}>
-        <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginLeft: 12}}>
+        <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 24, marginLeft: 12}}>
             <Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />
         </TouchableOpacity>
-       {/* <View style={{justifyContent: 'center', alignItems: 'center', marginLeft: 12}}>
-          <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontSize: 18, fontFamily: 'InterTight-Black'}]}></Text>
-        </View>*/}
         <View style={{flex:1.5, justifyContent: 'center', alignItems: 'center'}}></View>
-        <TouchableOpacity style={{borderRadius: 10, height: 40, backgroundColor: '#66FEB7', flex: 1, justifyContent: 'center', alignItems: 'center', marginRight: 8}}>
-              <Text style={{fontFamily: 'InterTight-Black'}}>Deposit +</Text>
-            </TouchableOpacity>
-        <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginRight: 12}}>
+        <TouchableOpacity style={{borderRadius: 24, height: 40, backgroundColor: '#66FEB7', flex: 1, justifyContent: 'center', alignItems: 'center', marginRight: 8}}>
+            <Text style={{fontFamily: 'InterTight-Black'}}>Deposit +</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 24, marginRight: 12}}>
             <Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />
-          </TouchableOpacity>
+        </TouchableOpacity>
       </View>
       <View style={[colorScheme == "dark" ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {marginHorizontal: 12, borderRadius: 12}]}>
-        <View style={{marginVertical: 15, marginHorizontal: 15}}>
+        <View style={{marginVertical: 15, marginHorizontal: 15, flexDirection: 'row'}}>
           <View>
             <Text style={{color: '#888888', fontSize: 12, fontFamily: 'InterTight-Black'}}>Account Value</Text>
             <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontSize: 24, fontFamily: 'InterTight-Black'}]}>$1,245.45</Text>
           </View>
-          <View style={{flexDirection: 'row', gap: 10, marginTop: 15}}>
-            {/*<TouchableOpacity style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000000'}, {borderRadius: 10, height: 50, flex: 1, justifyContent: 'center', alignItems: 'center'}]}>
-              <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black'}]}>Withdraw</Text>
-            </TouchableOpacity>*/}
+          <View>
+            
           </View>
         </View>
       </View>
@@ -72,19 +67,6 @@ return (
       <TouchableOpacity style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
         <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Enter Matchmaking</Text>
       </TouchableOpacity>
-
-
-
-      {/*}
-        {!isAuthenticated ? (
-          <TouchableOpacity onPress={handleLogout}>
-            <Text>Log Out</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity>
-            <Text>Logged In</Text>
-          </TouchableOpacity>
-        )}*/}
     </View>
     );
 };
