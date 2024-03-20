@@ -56,16 +56,16 @@ return (
 
 
 
-      {/*}
+      {}
         {!isAuthenticated ? (
           <TouchableOpacity onPress={handleLogout}>
-            <Text>Log Out</Text>
+          <Text>Log Out</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity>
             <Text>Logged In</Text>
           </TouchableOpacity>
-        )}*/}
+        )}
     </View>
     );
 };

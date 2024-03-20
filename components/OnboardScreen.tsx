@@ -52,9 +52,7 @@ const OnboardScreen = () => {
       console.log(response.data)
 
       // parse the response here to find out if it exists or not
-
       // sign up creates user in auth0 but not in mongo
-
 
       if (response.data == true) {
         setIsAuthenticated(true);
