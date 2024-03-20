@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
+import Auth0, { useAuth0, Auth0Provider } from 'react-native-auth0';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
-import { Appearance } from 'react-native';
+import Auth0Context from 'react-native-auth0/lib/typescript/src/hooks/auth0-context';
 
 const OnboardScreen = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
@@ -36,23 +36,35 @@ const OnboardScreen = () => {
   // Function to handle user login
   const handleLogin = async () => {
     try {
-      await authorize();
-      setIsAuthenticated(true);
-
+      
+      const test = await authorize();
+      console.log(test)
+      
+      console.log("User data: " + user);
+      
       const data = {
-        email: user!.name,
+        email: user!.email,
       };
+   
+      //console.log(data)
+      console.log("Print Before Endpoint")
       console.log(data)
+      const response = await axios.post(serverUrl+'/checkUserExists', data)
+      console.log(response.data)
 
-      navigation.replace('CoreApp');
+      // parse the response here to find out if it exists or not
 
-      /**
-       * @todo make this handle login and make endpoint for it, move createUser
-       */
-      await axios.post(serverUrl+'/createUser', data);
+      // sign up creates user in auth0 but not in mongo
 
-     
-    
+
+      if (response.data == true) {
+        setIsAuthenticated(true);
+        navigation.replace('CoreApp');
+      } else {
+        await axios.post(serverUrl+'/createUser', data);
+        navigation.replace('CoreApp');
+      }
+      
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
 
@@ -61,10 +73,6 @@ const OnboardScreen = () => {
     }
   };
 
-  // Function to navigate to the next screen
-  /*const goToNextScreen = () => {
-    navigation.replace('CoreApp');
-  };*/
 
   return (
     <Auth0Provider

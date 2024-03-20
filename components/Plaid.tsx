@@ -48,6 +48,7 @@ const Plaid = ({ navigation }: any) => {
   }, [setLinkToken])
 
   useEffect(() => {
+    console.log(user!.name)
     if (linkToken == "") {
       console.log("Getting Link Token")
       createLinkToken();
