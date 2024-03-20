@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SuccessScreen from './components/SuccessScreen';
 import Plaid from './components/Plaid';
@@ -11,6 +11,8 @@ import { Auth0Provider } from 'react-native-auth0';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
 
 const Auth0Config = {
   domain: "dev-wol45o5xjg0gma8k.us.auth0.com",
@@ -18,6 +20,7 @@ const Auth0Config = {
 };
 
 const CoreApp = (): React.ReactElement => {
+  const colorScheme = useColorScheme();
   return (
     <Auth0Provider
       domain={Auth0Config.domain}
@@ -25,7 +28,17 @@ const CoreApp = (): React.ReactElement => {
     >
     <SafeAreaProvider>
         {/* <StatusBar barStyle="light-content" backgroundColor="#000000" /> */}
-        <Tab.Navigator>
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarStyle: [{
+              height: 90,
+              paddingHorizontal: 5,
+              paddingTop: 5,
+              position: 'absolute',
+              borderTopWidth: 0,
+            }, colorScheme == "dark" ? {backgroundColor: '#181818'} : {backgroundColor: '#E6E6E6'}],
+            })}>
             <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
             <Tab.Screen name="Plaid" component={Plaid}/>
         </Tab.Navigator>

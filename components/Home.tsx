@@ -1,13 +1,15 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules } from 'react-native';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import GameCard from './GameCard';
+import GameModesScrollBar from './GameModesScrollBar';
 
 var styles = require('../Style/style');
 
-const Home  = ({}) => {
+const Home  = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
@@ -36,35 +38,35 @@ const Home  = ({}) => {
 
 return (
     <View style={currStyles.container}>
-      <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight}}>
-        <View style={{flex: 0.5}}>
-          <TouchableOpacity style={{width: 40, height: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginLeft: 12}}>
+      <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight + 10}}>
+        <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 24, marginLeft: 12}}>
             <Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />
-          </TouchableOpacity>
-        </View>
-        <View style={{flex: 0.5, flexDirection: 'row', justifyContent: 'flex-end'}}>
-          <TouchableOpacity style={[colorScheme == "dark" ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 12}]}>
-            {/* deposit or account val */}
-            <Text style={[colorScheme == "dark" ? {color: '#E6E6E6'} : {color: '#181818'}, {fontFamily: 'InterTight-Bold', paddingHorizontal: 25}]}>Deposit +</Text>
-          </TouchableOpacity>
+        </TouchableOpacity>
+        <View style={{flex:1.5, justifyContent: 'center', alignItems: 'center'}}></View>
+        <TouchableOpacity style={{borderRadius: 24, height: 40, backgroundColor: '#66FEB7', flex: 1, justifyContent: 'center', alignItems: 'center', marginRight: 8}}>
+            <Text style={{fontFamily: 'InterTight-Black'}}>Deposit +</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 24, marginRight: 12}}>
+            <Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />
+        </TouchableOpacity>
+      </View>
+      <View style={[colorScheme == "dark" ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {marginHorizontal: 12, borderRadius: 12}]}>
+        <View style={{marginVertical: 15, marginHorizontal: 15, flexDirection: 'row'}}>
+          <View>
+            <Text style={{color: '#888888', fontSize: 12, fontFamily: 'InterTight-Black'}}>Account Value</Text>
+            <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontSize: 24, fontFamily: 'InterTight-Black'}]}>$1,245.45</Text>
+          </View>
+          <View>
+            
+          </View>
         </View>
       </View>
-      <View style={{flex: 1}}>
-
-      </View>
-
-
-
-      {}
-        {!isAuthenticated ? (
-          <TouchableOpacity onPress={handleLogout}>
-          <Text>Log Out</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity>
-            <Text>Logged In</Text>
-          </TouchableOpacity>
-        )}
+      <ScrollView style={{flex: 1}}>
+        <GameModesScrollBar></GameModesScrollBar>
+      </ScrollView>
+      <TouchableOpacity style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Enter Matchmaking</Text>
+      </TouchableOpacity>
     </View>
     );
 };
@@ -91,7 +93,7 @@ const darkStyles = StyleSheet.create({
     borderRadius: 15
   },
   buttonTxt: {
-    color: '#ffffff',
+    color: '#fff',
     fontSize: 20,
     fontFamily: 'InterTight-Black'
   }
@@ -119,7 +121,7 @@ const lightStyles = StyleSheet.create({
     borderRadius: 15
   },
   buttonTxt: {
-    color: '#ffffff',
+    color: '#E6E6E6',
     fontSize: 20,
     fontFamily: 'InterTight-Black'
   }
