@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import Auth0, { useAuth0, Auth0Provider } from 'react-native-auth0';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
+import { ReportType } from 'plaid';
 
 const OnboardScreen = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
@@ -20,7 +21,7 @@ const OnboardScreen = () => {
       const authData = await AsyncStorage.getItem('authData');
       if (authData) {
         setIsAuthenticated(true);
-        navigation.replace('CoreApp');
+        navigation.replace('CoreApp');    
       }
     } catch (error) {
       console.error('Error retrieving authentication data:', error);
@@ -28,8 +29,8 @@ const OnboardScreen = () => {
   };
 
   useEffect(() => {
-    checkAuthentication();
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
+    checkAuthentication();
   }, [colorScheme]);
 
   // Function to handle user login
@@ -40,6 +41,7 @@ const OnboardScreen = () => {
       console.log(test)
       
       console.log("User data: " + user);
+      console.log(user!.name)
       
       const data = {
         email: user!.email,
@@ -52,9 +54,7 @@ const OnboardScreen = () => {
       console.log(response.data)
 
       // parse the response here to find out if it exists or not
-
       // sign up creates user in auth0 but not in mongo
-
 
       if (response.data == true) {
         setIsAuthenticated(true);
@@ -66,11 +66,16 @@ const OnboardScreen = () => {
       
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
+      //console.log(data.email!)
+      await AsyncStorage.setItem('userEmail', data.email!)
+
 
     } catch (error) {
       console.error('Error logging in:', error);
     }
   };
+
+  
 
 
   return (

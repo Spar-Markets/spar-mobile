@@ -10,6 +10,9 @@ import Onboardscreen1 from './components/OnboardScreen';
 import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
 import CoreApp from './CoreApp';
+import Profile1 from './components/Profile';
+import Deposit from './components/Deposit';
+import Transfers from './components/Transfers';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,7 +29,7 @@ const App = (): React.ReactElement => {
     >
     <SafeAreaProvider>
       <NavigationContainer theme={PlaidTheme}>
-        <StatusBar barStyle="light-content" backgroundColor="#000000" />
+        <StatusBar backgroundColor="#000000" />
         <Stack.Navigator>
         <Stack.Screen
           name="Onboardscreen1"
@@ -41,6 +44,21 @@ const App = (): React.ReactElement => {
           name="CoreApp"
           component={CoreApp}
           options={{ headerShown: false}} 
+        />
+        <Stack.Screen
+          name="Profile"
+          component={Profile1}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Deposit"
+          component={Deposit}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Transfers"
+          component={Transfers}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
       </NavigationContainer>

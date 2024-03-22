@@ -1,10 +1,10 @@
-import { link } from 'fs';
 import React, {useState, useEffect, useCallback} from 'react';
 import { Platform, View, Text, StyleSheet, Button } from 'react-native';
 import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
 import { useAuth0 } from 'react-native-auth0';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 var styles = require('../Style/style');
 
@@ -12,20 +12,8 @@ const Plaid = ({ navigation }: any) => {
   const [linkToken, setLinkToken] = useState("");
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
   const { authorize, user } = useAuth0();
-
-//    Configuration for the Plaid client
-// const config = new Configuration({
-//   basePath: PlaidEnvironments['sandbox'],
-//   baseOptions: {
-//     headers: {
-//       'PLAID-CLIENT-ID': '65833a47f1ae5c001b9d8fee',
-//       'PLAID-SECRET': '3838c18936a0e24249069c952b743a',
-//     },
-//   },
-// });
-
-// //Instantiate the Plaid client with the configuration
-// const client = new PlaidApi(config);
+  const [balance, setBalance] = useState(null);
+  const [accessToken, setAccessToken] = useState("");
 
 
   const createLinkToken = useCallback(async () => {
@@ -47,13 +35,43 @@ const Plaid = ({ navigation }: any) => {
     });
   }, [setLinkToken])
 
+  const fetchData = async () => {
+    const accessData = {
+      email: user!.email
+    };
+
+    try {
+      const response = await axios.post(serverUrl+'/getAccessFromMongo', accessData);
+      console.log("MONGO ACCESS " + response.data )
+      setAccessToken(response.data); 
+      // Assuming accessToken is in the response data
+    } catch (error) {
+      console.error('Error fetching access token, user may not have one:', error);
+    }
+  }
+
+  /*const getBalance = async () => {
+    //console.log("In bal: " + accessToken)
+    const accessData = {
+      newAccessToken: accessToken 
+    };
+    try {
+      const balGot = await axios.post(serverUrl+'/Balance', accessData);
+      console.log(balGot.data.accounts[0]) 
+    } catch {
+      console.error("bal not good!!!")
+    }
+  }*/
+
   useEffect(() => {
-    console.log(user!.name)
+    //console.log("Logging User's Name: " + user!.name)
     if (linkToken == "") {
       console.log("Getting Link Token")
       createLinkToken();
     }
-  }, [linkToken]);
+    //fetchData();
+    //getBalance();
+  }, [user, linkToken, createLinkToken]);
   
   return (
     <View style={{flex: 1}}>
@@ -69,7 +87,7 @@ const Plaid = ({ navigation }: any) => {
           
           onSuccess={ async (success: LinkSuccess) => {
             console.log("This is being printed under the onsuccess" + linkToken)
-            console.log(success)
+            // console.log(success)
             
             // Fetching access token
             const response = fetch(`${serverUrl}/exchangePublicToken`, {
@@ -93,28 +111,13 @@ const Plaid = ({ navigation }: any) => {
             // Save the access token to mongo user here?
  
             const updatingData = {
-              email: user!.name,
+              email: user!.email,
               newAccessToken: accessToken 
             };
 
             await axios.post(serverUrl+'/updateUserAccessToken', updatingData);
-            console.log("logging access token" + accessToken)
-            
-            
-            await axios.post(serverUrl+'/accounts', updatingData);
-
-            
-
-            // const getBalances = async function (accessToken: any) {
-            //   const accountsBalanceGetReponse = await client.accountsBalanceGet({
-            //     access_token: accessToken
-            //   });
-            //   const balances = accountsBalanceGetReponse.data.accounts[0].balances;
-            //   return balances
-            // }
-            // const balResponse = getBalances(accessToken)
-            // console.log(balResponse)
-
+            console.log("Logging Access Token " + accessToken)
+            await AsyncStorage.setItem('plaidAccessToken', accessToken);
 
           })
             .catch((err) => {
@@ -122,7 +125,6 @@ const Plaid = ({ navigation }: any) => {
               console.log(err);
             });
   
-
             //console.log("Navigate to Success")
             //navigation.push('Success', success);
           }}
@@ -136,6 +138,7 @@ const Plaid = ({ navigation }: any) => {
             <Text style={styles.buttonText}>Open Link</Text>
           </View>
         </PlaidLink>
+        <Text>Hello</Text>
       </View>
     </View>
   );
