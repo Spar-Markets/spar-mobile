@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView } from 'react-native';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
@@ -8,34 +8,67 @@ import GameCard from './GameCard';
 import GameModesScrollBar from './GameModesScrollBar';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
+import Icon from '@mdi/react';
+import { mdiChevronLeft } from '@mdi/js';
+import { ServerApiVersion } from 'mongodb';
 
 const Deposit = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
+    
 
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [styles, setStyles] = useState(darkStyles);
+    const [currAccessToken, setCurrAccessToken] = useState();
+    const [accountID, setAccountID] = useState("");
+    const [balance, setBalance] = useState("Retrieving...");
+    const [input, setInput] = useState('0.00');
+    
 
     const goBack = () => {
         navigation.goBack();
     };
+    
   
     useEffect(() => {
-      NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
-        setStatusBarHeight(response.height);
-      });
-      colorScheme == "dark" ? setStyles(darkStyles) : setStyles(lightStyles)
-    });
+        NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
+            setStatusBarHeight(response.height);
+        });
+        colorScheme == "dark" ? setStyles(darkStyles) : setStyles(lightStyles)
 
-    const [input, setInput] = useState('0.00');
+        //getAccessToken().then(() => console.log("Token: " + currAccessToken))
+        /*if (l != null) {
+            getAccount();
+            getBalance();
+        }*/
 
+        const fetchData = async () => {
+            try {
+                const email = await AsyncStorage.getItem("userEmail");
+                if (email) {
+                    const response = await axios.post(serverUrl+'/getAccessFromMongo', { email: email });
+                    if (response && response.data) {
+                        const token = response.data
+                        //console.log("Console Token: " + token);
+                        await getAccount(token); // Wait for getAccount to complete
+                        await getBalance(token); // Wait for getBalance to complete
+                        
+                        setCurrAccessToken(token); //only for things outside of useEffect
+                    }
+                }
+                const response = await axios.post(serverUrl+"/getPlaidBalance");
+                console.log(response.data)
+            } catch (error) {
+                console.error("Error fetching access token:", error);
+            }
 
-    const data = {
-      //username: user!.username,
-      newBalance: input
-    };
-
+        };
     
+        fetchData();
+
+
+    }, []);
+
     const handlePress = (value:string) => {
       if (input === '0.00') {
         setInput('')
@@ -75,52 +108,106 @@ const Deposit = () => {
       }
     };
 
-    const handleExit = async () => {
+    const getAccount = async (token:String) => {
         try {
             const accessData = {
-              email: await AsyncStorage.getItem("userEmail")
+                newAccessToken: token
             };
-            const response = await axios.post(serverUrl+'/getAccessFromMongo', accessData);
-            console.log("Mongo Access Token: " + response.data)
-          } catch (error) {
-            console.error('Error fetching access token, user may not have one:', error);
-          }
-        //goBack()
-    }
-    
-    /*const updateBalance = async () => {
-      console.log("Trying", data);
-      try {
-        const response = await axios.post(serverUrl + '/updateBalance', data);
-        console.log(response.data); // Assuming the server responds with the saved data
-        goBack()
-
-      } catch (error) {
-        console.error('Client-side Axios error:', error);
+            const account = await axios.post(serverUrl+'/getAccount', accessData);
+            setAccountID(account.data.data.accounts[0].account_id);
+            console.log(account.data.data.accounts[0].balances)
+        } catch {
+          console.error("Error Getting Accont")
+        }
       }
-    };*/
-    
+
+
+    const handleDeposit = async () => {
+        
+        //GET ACCESS TOKEN FROM MONGO
+        const transferAuthData = {
+            access_token: currAccessToken,
+            account_id: accountID,
+            amount: input,
+            type: "debit",
+            network: 'ach',
+            ach_class: 'ppd',
+            user: {
+                legal_name: "Joseph Quaratiello"
+            }
+        }
+        const authData = await axios.post(serverUrl+"/depositTransfer", transferAuthData);
+        if (authData.data == 'approved') {
+            try {
+                const email = await AsyncStorage.getItem("userEmail");
+                const updateBalData = {
+                    email: email,
+                    deposit: input
+                } 
+                await axios.post(serverUrl+"/updateUserBalance", updateBalData)
+            } catch {
+                console.error("error")
+            }
+        }
+
+        /*//console.log(transferId.data)
+        const simPendingToPostedData = {
+            transfer_id: transferId.data,
+            event_type: 'posted',
+        }
+
+        const simPostedToSettledData = {
+            transfer_id: transferId.data,
+            event_type: 'settled',
+        }*/
+
+        /*console.log("Begin Simming")
+        const postedResponse = await axios.post(serverUrl+"/simTransfer", simPendingToPostedData);
+        console.log(postedResponse.data)
+        const settledData = await axios.post(serverUrl+"/simTransfer", simPostedToSettledData);
+        console.log(settledData)
+        console.log("End Simming")*/
+        
+    }
+
+    const getBalance = async (token:String) => {
+        const accessData = {
+            newAccessToken: token
+        };
+        try {
+            const balGot = await axios.post(serverUrl+'/getBalance', accessData);
+            setBalance(balGot.data.accounts[0].balances.available)
+            console.log(balGot.data.accounts[0]) 
+            //console.log(balGot.data.accounts[0].balances.available)
+        } catch {
+            console.error("Error Getting Balance")
+        }
+    }
+
  
+ 
+
 
 return (
         
     <View style={[colorScheme == "dark" ? {backgroundColor: "#181818"} : {backgroundColor: '#fff'}, {flex: 1}]}>
-    
     <View style={{marginTop: statusBarHeight + 10, marginHorizontal: 15}}>
             <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
                     <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>
                         <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Back</Text>
+                        {/*<Icon path={mdiChevronLeft}/>*/}
                     </TouchableOpacity>
                 </View>
                 <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-                    <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Black', fontSize: 24}]}>Deposit</Text>
+                    <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Black', fontSize: 20}]}>Deposit</Text>
                 </View>
                 <View style={{flex: 1}}/>
             </View>
         </View>
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 60, fontFamily: 'InterTight-Black'}]}>${input}</Text>
+        <Text style={{color: "#888888", fontSize: 16, fontFamily: 'InterTight-Black'}}>Available Funds: {balance}</Text>
       </View>
       <View>
       <View style={{marginHorizontal: 10}}>
@@ -169,9 +256,12 @@ return (
         </TouchableOpacity>
       </View>
       </View>
-      <TouchableOpacity onPress={handleExit} style={{backgroundColor: "#1ae79c", alignItems: 'center', justifyContent: 'center', borderRadius: 50, height: 60, marginBottom: 30, marginTop: 20, marginHorizontal: 15}}>
-        <Text style={{color: '#000', fontFamily: 'InterTight-Black', fontSize: 18}}>Confirm</Text>
-      </TouchableOpacity>
+      
+      <TouchableOpacity onPress={handleDeposit} style={{backgroundColor: "#1ae79c", alignItems: 'center', justifyContent: 'center', borderRadius: 12, height: 80, marginBottom: 30, marginTop: 20, marginHorizontal: 15}}>
+        <Text style={{color: '#000', fontFamily: 'InterTight-Black', fontSize: 18}}>Continue</Text>
+      </TouchableOpacity> 
+      
+      
       </View>
     </View>
     );

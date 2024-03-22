@@ -15,15 +15,14 @@ const GameModesScrollBar = () => {
     
     const GameModeButton = (props:any) => {
         const colorScheme = useColorScheme();
-        
         if (selectedMode == props.text) {
             return (
-                <TouchableOpacity style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {alignItems: 'center', justifyContent: 'center', borderRadius: 12}]} onPress={() => {setSelectedMode(props.text)}}>
+                <TouchableOpacity style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {alignItems: 'center', justifyContent: 'center', borderRadius: 12, height: 40, flex: 1}]} onPress={() => {setSelectedMode(props.text)}}>
                     <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontSize: 12, marginHorizontal: 15,fontFamily: 'InterTight-Black'}]}>{props.text}</Text>
                 </TouchableOpacity>
         )} else {
             return (
-                <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center'}} onPress={() => {setSelectedMode(props.text)}}>
+                <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', flex: 1}} onPress={() => {setSelectedMode(props.text)}}>
                     <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontSize: 12, marginHorizontal: 15,fontFamily: 'InterTight-Black'}]}>{props.text}</Text>
                 </TouchableOpacity>
             )
@@ -32,11 +31,11 @@ const GameModesScrollBar = () => {
 
     return (
         <View>
-            <View style={{height: 25, marginBottom: 15, alignItems: 'center'}}>
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+            <View style={{height: 40, alignItems: 'center'}}>
+                <View style={{flexDirection: 'row', marginHorizontal: 12}}>
                     <GameModeButton text={"HEAD TO HEAD"}></GameModeButton>
                     <GameModeButton text={"TOURNAMENTS"}></GameModeButton>
-                </ScrollView>
+                </View>
             </View>
             {selectedMode == "HEAD TO HEAD" ? <GameCard amountWagered={10}></GameCard> : <View></View>}
             {selectedMode == "TOURNAMENTS" ? <GameCard amountWagered={50}></GameCard> : <View></View>}
