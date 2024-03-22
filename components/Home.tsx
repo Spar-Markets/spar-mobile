@@ -2,12 +2,13 @@ import React, {useState, useEffect, useCallback} from 'react';
 import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
 import GameModesScrollBar from './GameModesScrollBar';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
+import AccountCard from './AccountCard';
 
 
 const Home  = () => {
@@ -17,6 +18,7 @@ const Home  = () => {
   const colorScheme = useColorScheme();
   const [currStyles, setCurrStyles] = useState(darkStyles);
   const [statusBarHeight, setStatusBarHeight] = useState(0);
+  const [balance, setBalance] = useState("0.00");
 
   // Function to handle user logout
   const handleLogout = useCallback(async () => {
@@ -31,11 +33,32 @@ const Home  = () => {
   }, [navigation]);
 
   useEffect(() => {
+    
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
       setStatusBarHeight(response.height);
     });
+    getBalance();
   }, [colorScheme]);
+
+
+  const getBalance = async () => {
+    try {
+      const email = await AsyncStorage.getItem("userEmail")
+      const data = {
+        email: email
+      }
+      const balance = await axios.post(serverUrl+"/getMongoAccount", data)
+      //console.log(balance.data.$numberDecimal)
+      
+      if (balance.data.$numberDecimal >= 0.00) {
+        console.log("Bal from Mongo: " + balance.data.$numberDecimal)
+        setBalance(balance.data.$numberDecimal)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   const handleDeposit = async () => {
     navigation.push("Deposit");
@@ -44,34 +67,40 @@ const Home  = () => {
 return (
     <View style={currStyles.container}>
       <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight + 10}}>
-        <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 24, marginLeft: 12}}>
-            <Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />
-        </TouchableOpacity>
-        <View style={{flex:1.5, justifyContent: 'center', alignItems: 'center'}}></View>
-        <TouchableOpacity onPress={handleDeposit} style={{borderRadius: 24, height: 40, backgroundColor: '#1ae79c', flex: 1, justifyContent: 'center', alignItems: 'center', marginRight: 8}}>
-            <Text style={{fontFamily: 'InterTight-Black'}}>Deposit +</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 24, marginRight: 12}}>
-            <Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />
-        </TouchableOpacity>
-      </View>
-      <View style={[colorScheme == "dark" ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {marginHorizontal: 12, borderRadius: 12}]}>
-        <View style={{marginVertical: 15, marginHorizontal: 15, flexDirection: 'row'}}>
-          <View>
-            <Text style={{color: '#888888', fontSize: 12, fontFamily: 'InterTight-Black'}}>Account Value</Text>
-            <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontSize: 24, fontFamily: 'InterTight-Black'}]}>$1,245.45</Text>
-          </View>
-          <View>
-            
-          </View>
+        <View style={{flex: 1, marginLeft: 12, justifyContent: 'center'}}>
+          <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>Home</Text>
+        </View>
+        <View style={{flex: 1, flexDirection: 'row', gap: 5}}>
+          <View style={{flex: 1}}></View>
+          <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12}}>
+            {/*<Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
+          </TouchableOpacity>
+          <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginRight: 12}}>
+            {/*<Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
+          </TouchableOpacity>
         </View>
       </View>
+      <AccountCard text={balance}></AccountCard>
       <ScrollView style={{flex: 1}}>
         <GameModesScrollBar></GameModesScrollBar>
       </ScrollView>
-      <TouchableOpacity style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Enter Matchmaking</Text>
-      </TouchableOpacity>
+      <View>
+        <View style={{flexDirection: 'row', height: 80, gap: 15}}>
+          <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginLeft: 12, marginBottom: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}]}>
+                <View style={{}}>
+                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 14}]}>Entry Fee</Text>
+                </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginRight: 12, marginBottom: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}]}>
+                <View style={{}}>
+                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 14}]}>Match Length</Text>
+                </View>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Enter Matchmaking</Text>
+        </TouchableOpacity>
+      </View>
     </View>
     );
 };
@@ -81,7 +110,6 @@ const darkStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#181818",
     justifyContent: 'center',
-    gap: 30,
   },
   mainTxt: {
     color: 'white',
@@ -109,7 +137,6 @@ const lightStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#E6E6E6",
     justifyContent: 'center',
-    gap: 30,
   },
   mainTxt: {
     color: '#181818',

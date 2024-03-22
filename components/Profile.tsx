@@ -27,6 +27,10 @@ const Profile  = () => {
     const goBack = () => {
         navigation.goBack();
     };
+
+    const goToTransfers = () => {
+      navigation.push("Transfers");
+    }
   
     useEffect(() => {
       NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
@@ -43,9 +47,12 @@ return (
             </TouchableOpacity>
             <View style={{flex: 1}}></View>
         </View>
-        <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+        <View style={{justifyContent: 'center', alignItems: 'center', flex: 1, gap: 10}}>
             <TouchableOpacity onPress={handleLogout} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>
                 <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Log Out</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={goToTransfers} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>
+                <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Transfers</Text>
             </TouchableOpacity>
         </View>
     </View>

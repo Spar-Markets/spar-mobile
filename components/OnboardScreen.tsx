@@ -21,7 +21,7 @@ const OnboardScreen = () => {
       const authData = await AsyncStorage.getItem('authData');
       if (authData) {
         setIsAuthenticated(true);
-        navigation.replace('CoreApp');
+        navigation.replace('CoreApp');    
       }
     } catch (error) {
       console.error('Error retrieving authentication data:', error);
@@ -29,8 +29,8 @@ const OnboardScreen = () => {
   };
 
   useEffect(() => {
-    checkAuthentication();
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
+    checkAuthentication();
   }, [colorScheme]);
 
   // Function to handle user login
@@ -41,6 +41,7 @@ const OnboardScreen = () => {
       console.log(test)
       
       console.log("User data: " + user);
+      console.log(user!.name)
       
       const data = {
         email: user!.email,
@@ -65,13 +66,16 @@ const OnboardScreen = () => {
       
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
-      console.log(data.email!)
+      //console.log(data.email!)
       await AsyncStorage.setItem('userEmail', data.email!)
+
 
     } catch (error) {
       console.error('Error logging in:', error);
     }
   };
+
+  
 
 
   return (

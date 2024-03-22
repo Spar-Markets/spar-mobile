@@ -50,18 +50,18 @@ const Plaid = ({ navigation }: any) => {
     }
   }
 
-  const getBalance = async () => {
+  /*const getBalance = async () => {
     //console.log("In bal: " + accessToken)
     const accessData = {
       newAccessToken: accessToken 
     };
     try {
       const balGot = await axios.post(serverUrl+'/Balance', accessData);
-      console.log(balGot.data.accounts[0].balances.available) 
+      console.log(balGot.data.accounts[0]) 
     } catch {
       console.error("bal not good!!!")
     }
-  }
+  }*/
 
   useEffect(() => {
     //console.log("Logging User's Name: " + user!.name)
@@ -69,8 +69,8 @@ const Plaid = ({ navigation }: any) => {
       console.log("Getting Link Token")
       createLinkToken();
     }
-    fetchData();
-    getBalance();
+    //fetchData();
+    //getBalance();
   }, [user, linkToken, createLinkToken]);
   
   return (
