@@ -30,7 +30,7 @@ const AccountCard = (props:any) => {
                 <Text style={{fontFamily: 'InterTight-Black', fontSize: 14, color: '#000'}}>Deposit</Text>
                 
             </TouchableOpacity>
-            <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginHorizontal: 12, marginBottom: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}]}>
+            <TouchableOpacity onPress={() => navigation.push("Withdraw")} style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginHorizontal: 12, marginBottom: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}]}>
                 <View style={{}}>
                     <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 14}]}>Withdraw</Text>
                 </View>

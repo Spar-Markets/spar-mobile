@@ -13,6 +13,7 @@ import CoreApp from './CoreApp';
 import Profile1 from './components/Profile';
 import Deposit from './components/Deposit';
 import Transfers from './components/Transfers';
+import Withdraw from './components/Withdraw';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +59,11 @@ const App = (): React.ReactElement => {
         <Stack.Screen
           name="Transfers"
           component={Transfers}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Withdraw"
+          component={Withdraw}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

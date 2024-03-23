@@ -9,9 +9,10 @@ import GameModesScrollBar from './GameModesScrollBar';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import Icon from '@mdi/react';
+import { mdiChevronLeft } from '@mdi/js';
+import { ServerApiVersion } from 'mongodb';
 
-
-const Deposit = () => {
+const Withdraw = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
     
@@ -50,7 +51,7 @@ const Deposit = () => {
                         const token = response.data
                         //console.log("Console Token: " + token);
                         await getAccount(token); // Wait for getAccount to complete
-                        await getBalance(token); // Wait for getBalance to complete
+                        await getBalance(); // Wait for getBalance to complete
                         
                         setCurrAccessToken(token); //only for things outside of useEffect
                     }
@@ -128,7 +129,7 @@ const Deposit = () => {
             access_token: currAccessToken,
             account_id: accountID,
             amount: input,
-            type: "debit",
+            type: "credit",
             network: 'ach',
             ach_class: 'ppd',
             user: {
@@ -141,9 +142,9 @@ const Deposit = () => {
                 const email = await AsyncStorage.getItem("userEmail");
                 const updateBalData = {
                     email: email,
-                    deposit: input
+                    withdraw: input
                 } 
-                await axios.post(serverUrl+"/updateUserBalanceDeposit", updateBalData)
+                await axios.post(serverUrl+"/updateUserBalanceWithdraw", updateBalData)
             } catch {
                 console.error("error")
             }
@@ -169,19 +170,23 @@ const Deposit = () => {
         
     }
 
-    const getBalance = async (token:String) => {
-        const accessData = {
-            newAccessToken: token
-        };
+    const getBalance = async () => {
         try {
-            const balGot = await axios.post(serverUrl+'/getBalance', accessData);
-            setBalance(balGot.data.accounts[0].balances.available)
-            console.log(balGot.data.accounts[0]) 
-            //console.log(balGot.data.accounts[0].balances.available)
-        } catch {
-            console.error("Error Getting Balance")
+          const email = await AsyncStorage.getItem("userEmail")
+          const data = {
+            email: email
+          }
+          const balance = await axios.post(serverUrl+"/getMongoAccount", data)
+          //console.log(balance.data.$numberDecimal)
+          
+          if (balance.data.$numberDecimal >= 0.00) {
+            console.log("Bal from Mongo: " + balance.data.$numberDecimal)
+            setBalance(balance.data.$numberDecimal)
+          }
+        } catch (error) {
+          console.error(error)
         }
-    }
+      }
 
  
  
@@ -199,7 +204,7 @@ return (
                     </TouchableOpacity>
                 </View>
                 <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-                    <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Black', fontSize: 20}]}>Deposit</Text>
+                    <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Black', fontSize: 20}]}>Withdraw</Text>
                 </View>
                 <View style={{flex: 1}}/>
             </View>
@@ -307,4 +312,4 @@ const lightStyles = StyleSheet.create({
     }
 })
 
-export default Deposit;
+export default Withdraw;

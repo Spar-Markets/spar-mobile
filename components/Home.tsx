@@ -11,6 +11,9 @@ import { serverUrl } from '../constants/global';
 import AccountCard from './AccountCard';
 
 
+
+
+
 const Home  = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -19,6 +22,10 @@ const Home  = () => {
   const [currStyles, setCurrStyles] = useState(darkStyles);
   const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [balance, setBalance] = useState("0.00");
+
+  
+
+
 
   // Function to handle user logout
   const handleLogout = useCallback(async () => {
@@ -81,7 +88,7 @@ return (
         </View>
       </View>
       <AccountCard text={balance}></AccountCard>
-      <ScrollView style={{flex: 1}}>
+      <ScrollView style={{flex: 1, marginBottom: 10}} showsVerticalScrollIndicator={false}>
         <GameModesScrollBar></GameModesScrollBar>
       </ScrollView>
       <View>
