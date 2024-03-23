@@ -14,7 +14,6 @@ import Icon from '@mdi/react';
 const Deposit = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
-    
 
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [styles, setStyles] = useState(darkStyles);
@@ -23,11 +22,9 @@ const Deposit = () => {
     const [balance, setBalance] = useState("Retrieving...");
     const [input, setInput] = useState('0.00');
     
-
     const goBack = () => {
         navigation.goBack();
     };
-    
   
     useEffect(() => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
