@@ -25,7 +25,7 @@ const TestGraph = () => {
         navigation.goBack();
     };
 
-    const data = [ {value:50.00}, {value:51}, {value:52},{value:54},{value:58},{value:54},
+    const data = [ {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
         {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
         {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
         {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
@@ -70,7 +70,7 @@ return (
             </View>
             <View style={{marginTop: 30, marginHorizontal: 15}}>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#888888', fontSize: 20}}>AAPL</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}.00</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}</Text>
             </View>
            
             {/*<LineChart data={UIdata} 
