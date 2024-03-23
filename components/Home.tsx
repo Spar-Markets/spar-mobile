@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView } from 'react-native';
+import React, {useState, useEffect, useCallback, useReducer} from 'react';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -10,7 +10,8 @@ import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import AccountCard from './AccountCard';
 import { Dropdown } from 'react-native-element-dropdown';
-
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { EmailTypeEnum } from 'plaid';
 
 const Home  = () => {
 
@@ -24,6 +25,12 @@ const Home  = () => {
   const [value2, setValue2] = useState("Match Length");
   const [isFocus, setIsFocus] = useState(false);
   const [isFocus2, setIsFocus2] = useState(false);
+  const [searchingForMatch, setSearchForMatch] = useState(false)
+  const [activeMatches, setActiveMatches] = useState([]);
+  const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
+  const [skillRating, setSkillRating] = useState(0.0)
+  const [user, setUser] = useState("")
+
 
 
   const data = [
@@ -32,13 +39,90 @@ const Home  = () => {
     { label: '$30', value: '30' },
   ];
   const data2 = [
-    { label: '1  Day', value: '1 Day' },
-    { label: '1  Week', value: '1 Week' },
-    { label: '1  Month', value: '1 Month' },
+    { label: '1 Day', value: '24' },
+    { label: '1 Week', value: '168' },
+    { label: '1 Month', value: '720' },
   ];
   
 
+  const cancelMatchmaking = async () => {
+    //MongoLogic
+    const emailToSend = {
+      email: user
+    }
+    const response = await axios.post(serverUrl + "/cancelMatchmaking", emailToSend)
+    console.log(response)
+    //ON success of mongodb
+    setSearchForMatch(false)
+  }
+
+
+  const cancelAlert = () => {
+    Alert.alert('Cancel Matchmaking?', '', [
+      {
+        text: 'No',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Yes', onPress: () => cancelMatchmaking()},
+    ]);
+  }
   
+
+  const getIsInMatchMaking = async () => {    
+    try {
+      const emailToSend = {
+        email: user
+      }
+      // Make a request to the server to check if the user is in matchmaking
+      const response = await axios.post(serverUrl + "/areTheyMatchmaking", emailToSend);
+      
+      // Check the value of the 'result' field
+      if (response.data.result) {
+        console.log('User is in matchmaking');
+        setSearchForMatch(true)
+
+        // Handle the case when the user is in matchmaking
+      } else {
+        console.log('User is not in matchmaking');
+        setSearchForMatch(false)
+
+        // Handle the case when the user is not in matchmaking
+      }
+    } catch (error) {
+      console.log("ERROR in: 'is user matchmaking'");
+      console.log(error);
+      // Handle the error
+    }
+  };
+
+  const getMatches = async () => {
+    const emailToSend = {
+      email: user
+    }
+    try {
+
+      const response = await axios.post(serverUrl + "/getUserMatches", emailToSend) 
+      // Check the value of the 'result' field
+      if (response.data.result) {
+        setActiveMatches(response.data.matches);
+        console.log(`Has ${response.data.matches.length} matches`);
+        setHasMatches(true)
+        
+        // Handle the case when the user is in matchmaking
+        } else {
+        console.log('User does not have Matches');
+        setHasMatches(false)
+        // Handle the case when the user is not in matchmaking
+      }
+
+    } catch (error) {
+      console.log("This error is in pvp")
+      console.error(error)
+    }   
+  }
+
+
   // Function to handle user logout
   const handleLogout = useCallback(async () => {
     try {
@@ -50,15 +134,6 @@ const Home  = () => {
       console.error('Error logging out:', error);
     }
   }, [navigation]);
-
-
-  useEffect(() => {
-    setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
-    NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
-      setStatusBarHeight(response.height);
-    });
-    getBalance();
-  }, [colorScheme]);
 
 
   const getBalance = async () => {
@@ -82,6 +157,68 @@ const Home  = () => {
   const handleDeposit = async () => {
     navigation.push("Deposit");
   }
+
+  //Matchmaking Function with server connection
+  const handleEnterMatchmaking = async (entryFee: String, matchLength: String) => {
+    const emailToSend = {
+      email: user
+    }
+
+    //Ensure valid game params before starting search
+    if (entryFee == 'Entry Fee' || matchLength == 'Match Length') {
+        Alert.alert("Not Valid Match Params")
+        return
+    }
+    //Changes appearance of the button
+    setSearchForMatch(true)
+    
+    //retrieve user's skill rating
+    try {
+        await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
+            setSkillRating(user.data.skillRating)
+        })
+    } catch (error) {
+        console.error(error)
+    }
+    console.log(entryFee)
+    console.log(matchLength)
+    
+    //Asign current user's values to a player object
+    const player = {
+        email: user,
+        skillRating: skillRating,
+        entryFee: entryFee,
+        matchLength: matchLength
+    }
+    //Pass the players object to the database
+    console.log(player)
+
+    try { const response = await axios.post(serverUrl + "/userToMatchmaking", player)
+    console.log(response)
+    }     
+    catch (error) {
+        console.log(error)
+    }
+  }
+
+  const getEmail = async () => {
+    const email = await AsyncStorage.getItem("userEmail");
+    if (email !== null) {
+      setUser(email); // Assuming setUser updates some state with the email
+    }
+    return email;
+  }
+
+
+  useEffect(() => {
+    getEmail()
+    setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
+    NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
+      setStatusBarHeight(response.height);
+    });
+    getBalance();
+  }, [colorScheme]);
+
 
 return (
     <View style={currStyles.container}>
@@ -154,9 +291,15 @@ return (
           }}
           />  
         </View>
-        <TouchableOpacity style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
+        {searchingForMatch === false && (
+        <TouchableOpacity onPress={ () => handleEnterMatchmaking(value, value2)} style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Enter Matchmaking</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>)}
+        {searchingForMatch === true && (
+          <TouchableOpacity onPress={cancelAlert} style={{backgroundColor: '#AAA0B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Cancel</Text>
+        </TouchableOpacity>)}
+
       </View> 
     </View>
     );
@@ -243,7 +386,7 @@ const darkStyles = StyleSheet.create({
 const lightStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E6E6E6",
+    backgroundColor: "#181818",
     justifyContent: 'center',
   },
   iconStyle: {
@@ -284,7 +427,7 @@ const lightStyles = StyleSheet.create({
     fontFamily: 'InterTight-Black'
   },
   itemsContainer: {
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#181818',
     color: 'white'
   },
   selectedState: {
