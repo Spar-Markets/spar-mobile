@@ -76,9 +76,10 @@ const Home  = () => {
       }
       // Make a request to the server to check if the user is in matchmaking
       const response = await axios.post(serverUrl + "/areTheyMatchmaking", emailToSend);
-      
+      console.log(response.data.result)
       // Check the value of the 'result' field
       if (response.data.result) {
+
         console.log('User is in matchmaking');
         setSearchForMatch(true)
 
@@ -211,6 +212,7 @@ const Home  = () => {
 
 
   useEffect(() => {
+    getIsInMatchMaking()
     getEmail()
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {

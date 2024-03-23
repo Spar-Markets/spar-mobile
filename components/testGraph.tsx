@@ -93,7 +93,7 @@ return (
                     
                 }}/>*/}
 
-            <LineGraph
+            {/*<LineGraph
                 style={{alignSelf: 'center', width: '100%', aspectRatio: 1.4, marginVertical: 20}}
                 animated={true}
                 color={'#1ae79c'}
@@ -106,13 +106,13 @@ return (
                 gradientFillColors={['#7476df5D', '#7476df4D', '#7476df00']}
                 enablePanGesture={true}
                 enableFadeInMask={true}
-                /*onGestureStart={() => hapticFeedback('impactLight')}*/
+                //onGestureStart={() => hapticFeedback('impactLight')}
                 //SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}
-              
+                range={}
                 enableIndicator={true}
                 horizontalPadding={15}
                 indicatorPulsating={true}
-                />
+                />*/}
             
         </View>
     </View>
