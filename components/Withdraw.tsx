@@ -10,7 +10,6 @@ import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import Icon from '@mdi/react';
 import { mdiChevronLeft } from '@mdi/js';
-import { ServerApiVersion } from 'mongodb';
 
 const Withdraw = () => {
     const navigation = useNavigation<any>(); 

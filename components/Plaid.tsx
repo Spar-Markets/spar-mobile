@@ -18,7 +18,7 @@ const Plaid = ({ navigation }: any) => {
 
   const createLinkToken = useCallback(async () => {
     await fetch(serverUrl+"/createLinkToken", {
-      method: "POST",
+    method: "POST",
     headers: {
       "Environment": "sandbox",
       "Content-Type": "application/json"
