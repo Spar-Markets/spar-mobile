@@ -11,7 +11,7 @@ import { serverUrl } from '../constants/global';
 import Icon from '@mdi/react';
 import { LineChart, LineChartBicolor } from 'react-native-gifted-charts';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
-
+import { LineGraph } from 'react-native-graph'
 
 const TestGraph = () => {
     const navigation = useNavigation<any>(); 
@@ -73,7 +73,7 @@ return (
                 <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}.00</Text>
             </View>
            
-            <LineChart data={UIdata} 
+            {/*<LineChart data={UIdata} 
                 color1={'#1ae79c'}  
                 hideRules={true} curved={true} xAxisColor={"#505050"} 
                 thickness={2.5} maxValue={maxValue} yAxisColor={"rgba(0, 0, 0, 0)"} 
@@ -91,7 +91,28 @@ return (
                         setCurrPrice(items[0].value + data[0].value);
                     },
                     
-                }}/>
+                }}/>*/}
+
+            <LineGraph
+                style={{alignSelf: 'center', width: '100%', aspectRatio: 1.4, marginVertical: 20}}
+                animated={true}
+                color={'#1ae79c'}
+                points={Array<number>(100)
+                    .fill(0)
+                    .map((_, index) => ({
+                      date: new Date(index),
+                      value: Math.sin(index),
+                    }))}
+                gradientFillColors={['#7476df5D', '#7476df4D', '#7476df00']}
+                enablePanGesture={true}
+                enableFadeInMask={true}
+                /*onGestureStart={() => hapticFeedback('impactLight')}*/
+                //SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}
+              
+                enableIndicator={true}
+                horizontalPadding={15}
+                indicatorPulsating={true}
+                />
             
         </View>
     </View>
