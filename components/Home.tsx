@@ -11,6 +11,9 @@ import { serverUrl } from '../constants/global';
 import AccountCard from './AccountCard';
 import { Dropdown } from 'react-native-element-dropdown';
 
+
+
+
 const Home  = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,6 +27,7 @@ const Home  = () => {
   const [isFocus, setIsFocus] = useState(false);
   const [isFocus2, setIsFocus2] = useState(false);
 
+
   const data = [
     { label: '$10', value: '10' },
     { label: '$20', value: '20' },
@@ -34,6 +38,8 @@ const Home  = () => {
     { label: '1 Week', value: '1 Week' },
     { label: '1 Month', value: '1 Month' },
   ];
+  
+
   
   // Function to handle user logout
   const handleLogout = useCallback(async () => {
@@ -96,7 +102,7 @@ return (
         </View>
       </View>
       <AccountCard text={balance}></AccountCard>
-      <ScrollView style={{flex: 1}}>
+      <ScrollView style={{flex: 1, marginBottom: 10}} showsVerticalScrollIndicator={false}>
         <GameModesScrollBar></GameModesScrollBar>
       </ScrollView>
       <View>

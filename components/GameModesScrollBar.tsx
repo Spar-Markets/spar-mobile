@@ -37,8 +37,21 @@ const GameModesScrollBar = () => {
                     <GameModeButton text={"TOURNAMENTS"}></GameModeButton>
                 </View>
             </View>
-            {selectedMode == "HEAD TO HEAD" ? <GameCard amountWagered={10}></GameCard> : <View></View>}
-            {selectedMode == "TOURNAMENTS" ? <GameCard amountWagered={50}></GameCard> : <View></View>}
+            {selectedMode == "HEAD TO HEAD" ? 
+                <View>
+                    <GameCard amountWagered={10} mode={"Stock"}></GameCard> 
+                    <GameCard amountWagered={100} mode={"Crypto"}></GameCard> 
+                    <GameCard amountWagered={5} mode={"Stock"}></GameCard> 
+                </View>
+                
+                : <View></View>
+                
+            }
+            {selectedMode == "TOURNAMENTS" ? 
+                <View></View>
+                : <View></View>
+                
+            }
         </View>
     );
 };
