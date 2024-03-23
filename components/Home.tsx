@@ -207,19 +207,20 @@ const Home  = () => {
     if (email !== null) {
       setUser(email); // Assuming setUser updates some state with the email
     }
-    return email;
   }
 
 
   useEffect(() => {
     getEmail()
-    getIsInMatchMaking()
+    if (user !== "") {
+      getIsInMatchMaking()
+    }
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
       setStatusBarHeight(response.height);
     });
     getBalance();
-  }, [colorScheme]);
+  }, [colorScheme, user]);
 
 
 return (
