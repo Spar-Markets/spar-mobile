@@ -211,6 +211,7 @@ const Home  = () => {
 
 
   useEffect(() => {
+    getIsInMatchMaking()
     getEmail()
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
