@@ -27,7 +27,7 @@ const Plaid = ({ navigation }: any) => {
     })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Log Empty Token " + data.link_token)
+      console.log(data.link_token)
       setLinkToken(data.link_token);
     })
     .catch((err) => {
