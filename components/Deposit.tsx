@@ -187,7 +187,7 @@ const Deposit = () => {
 return (
         
     <View style={[colorScheme == "dark" ? {backgroundColor: "#181818"} : {backgroundColor: '#fff'}, {flex: 1}]}>
-    <View style={{marginTop: statusBarHeight + 10, marginHorizontal: 15}}>
+        <View style={{marginTop: statusBarHeight + 10, marginHorizontal: 15}}>
             <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
                     <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>

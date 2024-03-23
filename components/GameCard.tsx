@@ -45,50 +45,11 @@ TODO:
 const GameCard = (props:any) => {
 
     const colorScheme = useColorScheme();
+    const navigation = useNavigation<any>();
 
     return (
-        <TouchableOpacity style={{marginTop: 15, flexDirection: 'row'}}>
-          {/*<View style={{height: 30, backgroundColor: '#3B30B9', flex: 1, marginHorizontal: 12, borderTopLeftRadius: 12, borderTopRightRadius: 12}}></View>*/}
-          {/*<View style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', height: 200}]}>
-            <View style={{flexDirection: 'row', backgroundColor: '#3B30B9', justifyContent: 'space-between',  alignItems: 'center', borderRadius: 12}}>
-              <View style={{flex: 1}}>
-                <Text style={{color: '#fff', fontFamily: 'InterTight-Black', paddingVertical: 10, marginLeft: 12}}>$20</Text>
-              </View>
-              <View style={{flex: 1, alignItems: 'center'}}>
-                <Text style={{color: '#fff', fontFamily: 'InterTight-Black', paddingVertical: 10, fontSize: 18}}>Stocks</Text>
-              </View>
-              <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text style={[colorScheme == 'dark' ? {color: '#fff'} : {color: '#000'}, {fontFamily: 'InterTight-Black', marginRight: 12}]}>15:45:55</Text>
-              </View>
-            </View>
-            <View style={{flex: 1}}></View>
-            <LineChart data={data} data2={data2}
-                color1={'#DE3163'} color2={'#1ae79c'} 
-                hideRules={true} curved={true} xAxisColor={"rgba(0, 0, 0, 0)"} 
-                thickness={3} maxValue={100} yAxisColor={"rgba(0, 0, 0, 0)"} 
-                hideYAxisText={true} height={100} hideDataPoints1={true} 
-                hideDataPoints2={true} spacing={340/data.length}/> 
-    </View>*/}
-
-         {/* <View style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', height: 80, flexDirection:'row'}]}>
-            <View style={{width:80, backgroundColor: '#3B30B9', borderRadius: 12, alignItems: 'center', justifyContent: 'center'}}>
-              <Text style={{color: 'white', fontFamily: 'InterTight-Black', fontSize: 15, flex: 1, marginTop: 15}}>$143.42</Text>
-              <Text style={[{color: '#bbbbbb', fontFamily: 'InterTight-Black', flex: 1}]}>vs.</Text>
-              <Text style={{color: 'white', fontFamily: 'InterTight-Regular', fontSize: 15, marginBottom: 15}}>$134.52</Text>
-            </View>
-            <View style={{flex: 2}}>
-            <LineChart data={data} data2={data2} 
-                color1={'#DE3163'} color2={'#1ae79c'}  
-                hideRules={true} curved={true} xAxisColor={"rgba(0, 0, 0, 0)"} 
-                thickness={2.5} maxValue={100} yAxisColor={"rgba(0, 0, 0, 0)"} 
-                hideYAxisText={true} height={80} hideDataPoints1={true} 
-                hideDataPoints2={true} spacing={150/data.length}/> 
-            </View>
-            <View style={{flex: 1, justifyContent: 'center', alignItems:'center', height: 30, backgroundColor: '#FF999C', borderRadius: 10, marginTop: 5, marginRight: 5}}>
-              <Text style={{color:'#f72027', fontFamily: 'InterTight-Black', fontSize: 12}}>Losing</Text>
-            </View>
-  </View>*/}
-        {/*<View style={{backgroundColor: '#1ae79c', width: 20, height: 120, borderTopLeftRadius: 12, borderBottomLeftRadius: 12, marginLeft: 12}}></View>*/}
+        <TouchableOpacity onPress={() => navigation.push("TestGraph")} style={{marginTop: 15, flexDirection: 'row'}}>
+         
         <View style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {marginHorizontal: 12, borderRadius: 12, height: 120, flex: 1}]}>
           <View style={{flexDirection: 'row', gap: 5}}>
             <View style={[props.mode == "Stock" ? {backgroundColor: '#3b30b9'} : {backgroundColor: '#0578ad'}, {height: 30, marginTop: 5, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginLeft: 5}]}>

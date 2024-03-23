@@ -32,9 +32,9 @@ const Home  = () => {
     { label: '$30', value: '30' },
   ];
   const data2 = [
-    { label: '1 Day', value: '1 Day' },
-    { label: '1 Week', value: '1 Week' },
-    { label: '1 Month', value: '1 Month' },
+    { label: '1  Day', value: '1 Day' },
+    { label: '1  Week', value: '1 Week' },
+    { label: '1  Month', value: '1 Month' },
   ];
   
 
@@ -243,7 +243,7 @@ const darkStyles = StyleSheet.create({
 const lightStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#181818",
+    backgroundColor: "#E6E6E6",
     justifyContent: 'center',
   },
   iconStyle: {
@@ -284,7 +284,7 @@ const lightStyles = StyleSheet.create({
     fontFamily: 'InterTight-Black'
   },
   itemsContainer: {
-    backgroundColor: '#181818',
+    backgroundColor: '#E6E6E6',
     color: 'white'
   },
   selectedState: {
