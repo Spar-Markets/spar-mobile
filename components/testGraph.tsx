@@ -70,7 +70,7 @@ return (
             </View>
             <View style={{marginTop: 30, marginHorizontal: 15}}>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#888888', fontSize: 20}}>AAPL</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}.00</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}</Text>
             </View>
            
             {/*<LineChart data={UIdata} 
