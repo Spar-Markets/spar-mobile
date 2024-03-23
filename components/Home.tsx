@@ -9,7 +9,7 @@ import GameModesScrollBar from './GameModesScrollBar';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import AccountCard from './AccountCard';
-
+import { Dropdown } from 'react-native-element-dropdown';
 
 const Home  = () => {
 
@@ -19,7 +19,22 @@ const Home  = () => {
   const [currStyles, setCurrStyles] = useState(darkStyles);
   const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [balance, setBalance] = useState("0.00");
+  const [value, setValue] = useState("Entry Fee");
+  const [value2, setValue2] = useState("Match Length");
+  const [isFocus, setIsFocus] = useState(false);
+  const [isFocus2, setIsFocus2] = useState(false);
 
+  const data = [
+    { label: '$10', value: '10' },
+    { label: '$20', value: '20' },
+    { label: '$30', value: '30' },
+  ];
+  const data2 = [
+    { label: '1 Day', value: '1 Day' },
+    { label: '1 Week', value: '1 Week' },
+    { label: '1 Month', value: '1 Month' },
+  ];
+  
   // Function to handle user logout
   const handleLogout = useCallback(async () => {
     try {
@@ -32,8 +47,8 @@ const Home  = () => {
     }
   }, [navigation]);
 
+
   useEffect(() => {
-    
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
       setStatusBarHeight(response.height);
@@ -86,30 +101,113 @@ return (
       </ScrollView>
       <View>
         <View style={{flexDirection: 'row', height: 80, gap: 15}}>
-          <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginLeft: 12, marginBottom: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}]}>
-                <View style={{}}>
-                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 14}]}>Entry Fee</Text>
-                </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginRight: 12, marginBottom: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}]}>
-                <View style={{}}>
-                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 14}]}>Match Length</Text>
-                </View>
-          </TouchableOpacity>
+          <Dropdown
+          style={[darkStyles.dropdown, isFocus && { borderColor: '#3B30B9' },
+          value2 == 'Entry Fee' && { borderColor: 'green' }
+        ]} // Apply when specific value is selected
+          placeholderStyle={darkStyles.placeholderStyle}
+          selectedTextStyle={darkStyles.selectedTextStyle}
+          data={data}
+          containerStyle = {darkStyles.itemsContainer}
+          dropdownPosition = 'top'
+          iconStyle={darkStyles.iconStyle}
+          maxHeight={150}
+          labelField="label"
+          valueField="value"
+          autoScroll = {false}
+          itemTextStyle = {darkStyles.text}
+          activeColor = '#2f2f2f'
+          placeholder={!isFocus ? 'Entry Fee' : value}
+          value={value}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setValue(item.value);
+            setIsFocus(false);
+          }} 
+          />
+
+          <Dropdown
+          style={[darkStyles.dropdown2, isFocus2 && { borderColor: '#3B30B9' }]}
+          placeholderStyle={darkStyles.placeholderStyle}
+          selectedTextStyle={darkStyles.selectedTextStyle}
+          data={data2}
+          containerStyle = {darkStyles.itemsContainer}
+          dropdownPosition = 'top'
+          iconStyle= {darkStyles.iconStyle}
+          maxHeight={150}
+          labelField="label"
+          valueField="value"
+          itemTextStyle = {darkStyles.text}
+          activeColor = '#2f2f2f'
+          placeholder={!isFocus2 ? 'Match Length' : value2}
+          value={value2}
+          onFocus={() => setIsFocus2(true)}
+          onBlur={() => setIsFocus2(false)}
+          onChange={item => {
+            setValue2(item.value);
+            setIsFocus2(false);
+          }}
+          />  
         </View>
         <TouchableOpacity style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Enter Matchmaking</Text>
         </TouchableOpacity>
-      </View>
+      </View> 
     </View>
     );
 };
+
 
 const darkStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#181818",
     justifyContent: 'center',
+  },
+  iconStyle: {
+    marginRight: 15,
+    height: 30,
+    width: 30
+  },
+  dropdown: {
+    flex: 1, 
+    marginLeft: 12, 
+    marginBottom: 15, 
+    borderRadius: 12, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    height: 65,
+    borderColor: 'gray', 
+    borderWidth: 1,
+  },
+  dropdown2: {
+    flex: 1, 
+    marginRight: 12, 
+    marginBottom: 15, 
+    borderRadius: 12, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    height: 65,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  text: {
+    color: 'white',
+    fontFamily: 'InterTight-Black'
+  },
+  placeholderStyle: {
+    fontSize: 18,
+    color: 'white',
+    paddingLeft: 20,
+    fontFamily: 'InterTight-Black'
+  },
+  itemsContainer: {
+    backgroundColor: '#181818',
+    color: 'white'
+  },
+  selectedState: {
+    borderColor: 'purple'
   },
   mainTxt: {
     color: 'white',
@@ -125,6 +223,12 @@ const darkStyles = StyleSheet.create({
     padding: 15,
     borderRadius: 15
   },
+  selectedTextStyle: {
+    fontSize: 18,
+    color: 'white',
+    paddingLeft: 20,
+    fontFamily: 'InterTight-Black'
+  },
   buttonTxt: {
     color: '#fff',
     fontSize: 20,
@@ -135,11 +239,52 @@ const darkStyles = StyleSheet.create({
 const lightStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E6E6E6",
+    backgroundColor: "#181818",
     justifyContent: 'center',
   },
+  iconStyle: {
+    marginRight: 15,
+    height: 30,
+    width: 30
+  },
+  dropdown: {
+    flex: 1, 
+    marginLeft: 12, 
+    marginBottom: 15, 
+    borderRadius: 12, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    height: 65,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  dropdown2: {
+    flex: 1, 
+    marginRight: 12, 
+    marginBottom: 15, 
+    borderRadius: 12, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    height: 65,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  text: {
+    color: 'white',
+    fontFamily: 'InterTight-Black'
+  },
+  placeholderStyle: {
+    fontSize: 20,
+    color: 'white',
+    paddingLeft: 20,
+    fontFamily: 'InterTight-Black'
+  },
+  itemsContainer: {
+    backgroundColor: '#181818',
+    color: 'white'
+  },
   mainTxt: {
-    color: '#181818',
+    color: 'white',
     fontSize: 50,
     marginHorizontal: 24,
     fontFamily: 'InterTight-Black'
@@ -152,8 +297,14 @@ const lightStyles = StyleSheet.create({
     padding: 15,
     borderRadius: 15
   },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: 'white',
+    paddingLeft: 20,
+    fontFamily: 'InterTight-Black'
+  },
   buttonTxt: {
-    color: '#E6E6E6',
+    color: '#fff',
     fontSize: 20,
     fontFamily: 'InterTight-Black'
   }
