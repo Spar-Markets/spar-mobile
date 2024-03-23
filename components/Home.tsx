@@ -12,8 +12,6 @@ import AccountCard from './AccountCard';
 import { Dropdown } from 'react-native-element-dropdown';
 
 
-
-
 const Home  = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -261,7 +259,7 @@ const lightStyles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',
     height: 65,
-    borderColor: 'gray',
+    borderColor: 'gray', 
     borderWidth: 1,
   },
   dropdown2: {
@@ -280,7 +278,7 @@ const lightStyles = StyleSheet.create({
     fontFamily: 'InterTight-Black'
   },
   placeholderStyle: {
-    fontSize: 20,
+    fontSize: 18,
     color: 'white',
     paddingLeft: 20,
     fontFamily: 'InterTight-Black'
@@ -288,6 +286,9 @@ const lightStyles = StyleSheet.create({
   itemsContainer: {
     backgroundColor: '#181818',
     color: 'white'
+  },
+  selectedState: {
+    borderColor: 'purple'
   },
   mainTxt: {
     color: 'white',
@@ -304,7 +305,7 @@ const lightStyles = StyleSheet.create({
     borderRadius: 15
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 18,
     color: 'white',
     paddingLeft: 20,
     fontFamily: 'InterTight-Black'
