@@ -9,113 +9,98 @@ import GameModesScrollBar from './GameModesScrollBar';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import Icon from '@mdi/react';
-import { LineChart, LineChartBicolor } from 'react-native-gifted-charts';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
-import { LineGraph } from 'react-native-graph'
+import { LineGraph, GraphPoint } from 'react-native-graph'
+
 
 const TestGraph = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
 
     const [statusBarHeight, setStatusBarHeight] = useState(0);
-    const [currentPrice, setCurrPrice] = useState('50.54');
-    const [maxValue, setMaxValue] = useState(25);
+    const [currentPrice, setCurrPrice] = useState(0);
+    
+    const [pointData, setPointData] = useState<GraphPoint[]>([])
+
     
     const goBack = () => {
         navigation.goBack();
     };
 
-    const data = [ {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-        {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-        {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-        {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-        {value:50}, {value:51}, {value:52},{value:100},{value:75},{value:54}, {value: 61},
-        
-    ]
-  
-    
-    const UIdata = data.map(obj => ({value: obj.value - data[0].value}))
+    const data = {
+        ticker: 'X:BTCUSD'
+    };
     
     useEffect(() => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
             setStatusBarHeight(response.height);
         });
-        
-        const max = Math.max(...UIdata.map(item => item.value));
-        console.log(max)
-        setMaxValue(max);
+
+        const getPrices = async () => {
+            try {
+                const response = await axios.post(serverUrl + "/getOneDayStockData", data)
+                
+                if (response) {
+                   
+                    const points: GraphPoint[] = response.data.map((obj:any) => ({
+                        value: obj.price,
+                        date: new Date(obj.timeField)
+                    }));
+
+                    console.log(points)
+
+                    setPointData(points)
+
+                }
+
+            } catch {
+                console.error("error getting prices")
+            }
+        }
+
+        getPrices();
 
     }, []);
 
   
 
-
+    /*const points: GraphPoint[] = [
+        {
+            date: new Date(2024, 1, 1),
+            value: 10
+        },
+        {
+            date: new Date(2024, 1, 2),
+            value: 15
+        },
+        {
+            date: new Date(2024, 1, 3),
+            value: 5
+        },
+    ];*/
  
 
 
-return (
-    <View style={[colorScheme == "dark" ? {backgroundColor: "#181818"} : {backgroundColor: '#fff'}, {flex: 1}]}>
+    return (
+       <View style={{backgroundColor: '#181818', flex: 1}}>
         <View style={{marginTop: statusBarHeight + 10}}>
-            <View style={{flexDirection: 'row', marginHorizontal: 15}}>
-                <View style={{flex: 1}}>
-                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>
-                        <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Back</Text>
-                        {/*<Icon path={mdiChevronLeft}/>*/}
-                    </TouchableOpacity>
-                </View>
-                <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-                    <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Black', fontSize: 20}]}>Apple</Text>
-                </View>
-                <View style={{flex: 1}}/>
-            </View>
-            <View style={{marginTop: 30, marginHorizontal: 15}}>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#888888', fontSize: 20}}>AAPL</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}</Text>
-            </View>
-           
-            {/*<LineChart data={UIdata} 
-                color1={'#1ae79c'}  
-                hideRules={true} curved={true} xAxisColor={"#505050"} 
-                thickness={2.5} maxValue={maxValue} yAxisColor={"rgba(0, 0, 0, 0)"} 
-                hideYAxisText={true} height={200} hideDataPoints1={true} hideAxesAndRules={true} 
-                spacing={400/data.length} pointerConfig={{
-                    
-                    pointerStripHeight: 0,
-                    pointerStripWidth: 2,
-                    pointerColor: 'white',
-                    pointerStripColor: 'white',
-                    radius: 6,
-                    pointerLabelWidth: 100,
-                    pointerLabelHeight: 90,
-                    pointerLabelComponent: (items: any) => {
-                        setCurrPrice(items[0].value + data[0].value);
-                    },
-                    
-                }}/>*/}
-
-            {/*<LineGraph
-                style={{alignSelf: 'center', width: '100%', aspectRatio: 1.4, marginVertical: 20}}
-                animated={true}
-                color={'#1ae79c'}
-                points={Array<number>(100)
-                    .fill(0)
-                    .map((_, index) => ({
-                      date: new Date(index),
-                      value: Math.sin(index),
-                    }))}
-                gradientFillColors={['#7476df5D', '#7476df4D', '#7476df00']}
-                enablePanGesture={true}
-                enableFadeInMask={true}
-                //onGestureStart={() => hapticFeedback('impactLight')}
-                //SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}
-              
-                enableIndicator={true}
-                horizontalPadding={15}
-                indicatorPulsating={true}
-                />*/}
-            
+        <View style={{marginLeft: 15}}>
+            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>BTC</Text>
+            <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
         </View>
-    </View>
+        <LineGraph
+            style={{width: '100%', height: 300}}
+            points={pointData}
+            animated={true}
+            color={'#1ae79c'}
+            gradientFillColors={['#1ae79c', '#181818']}
+            enablePanGesture
+            onPointSelected={(p) => setCurrPrice(p.value)}
+            onGestureEnd={() => setCurrPrice(pointData[pointData.length - 1].value)}
+        />
+
+        </View>
+       </View> 
     );
 };
 

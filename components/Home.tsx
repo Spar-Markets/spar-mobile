@@ -218,6 +218,7 @@ const Home  = () => {
 
 
   useEffect(() => {
+    getIsInMatchMaking()
     getEmail()
     if (user !== "") {
       getIsInMatchMaking()
