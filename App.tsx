@@ -15,6 +15,8 @@ import Deposit from './components/Deposit';
 import Transfers from './components/Transfers';
 import Withdraw from './components/Withdraw';
 import TestGraph from './components/TestGraph';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +27,7 @@ const Auth0Config = {
 
 const App = (): React.ReactElement => {
   return (
+    <GestureHandlerRootView style={{flex: 1}}>
     <Auth0Provider
       domain={Auth0Config.domain}
       clientId={Auth0Config.clientId}
@@ -76,6 +79,7 @@ const App = (): React.ReactElement => {
       </NavigationContainer>
     </SafeAreaProvider>
     </Auth0Provider>
+    </GestureHandlerRootView>
   );
 };
 
