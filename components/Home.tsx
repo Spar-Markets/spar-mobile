@@ -188,6 +188,7 @@ const Home  = () => {
     
     //Asign current user's values to a player object
     const player = {
+        username: username,
         email: user,
         skillRating: skillRating,
         entryFee: entryFee,
