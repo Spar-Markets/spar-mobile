@@ -30,7 +30,7 @@ const Home  = () => {
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0)
   const [user, setUser] = useState("")
-
+  const [username, setUsername] = useState("")
 
 
   const data = [
@@ -177,6 +177,8 @@ const Home  = () => {
     try {
         await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
             setSkillRating(user.data.skillRating)
+            setUsername(user.data.username)
+
         })
     } catch (error) {
         console.error(error)
