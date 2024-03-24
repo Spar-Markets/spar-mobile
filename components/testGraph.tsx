@@ -11,7 +11,7 @@ import { serverUrl } from '../constants/global';
 import Icon from '@mdi/react';
 import { LineChart, LineChartBicolor } from 'react-native-gifted-charts';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
-
+import { LineGraph } from 'react-native-graph'
 
 const TestGraph = () => {
     const navigation = useNavigation<any>(); 
@@ -25,7 +25,7 @@ const TestGraph = () => {
         navigation.goBack();
     };
 
-    const data = [ {value:50.00}, {value:51}, {value:52},{value:54},{value:58},{value:54},
+    const data = [ {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
         {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
         {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
         {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
@@ -70,10 +70,10 @@ return (
             </View>
             <View style={{marginTop: 30, marginHorizontal: 15}}>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#888888', fontSize: 20}}>AAPL</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}.00</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', fontSize: 30}}>${currentPrice}</Text>
             </View>
            
-            <LineChart data={UIdata} 
+            {/*<LineChart data={UIdata} 
                 color1={'#1ae79c'}  
                 hideRules={true} curved={true} xAxisColor={"#505050"} 
                 thickness={2.5} maxValue={maxValue} yAxisColor={"rgba(0, 0, 0, 0)"} 
@@ -91,7 +91,28 @@ return (
                         setCurrPrice(items[0].value + data[0].value);
                     },
                     
-                }}/>
+                }}/>*/}
+
+            {/*<LineGraph
+                style={{alignSelf: 'center', width: '100%', aspectRatio: 1.4, marginVertical: 20}}
+                animated={true}
+                color={'#1ae79c'}
+                points={Array<number>(100)
+                    .fill(0)
+                    .map((_, index) => ({
+                      date: new Date(index),
+                      value: Math.sin(index),
+                    }))}
+                gradientFillColors={['#7476df5D', '#7476df4D', '#7476df00']}
+                enablePanGesture={true}
+                enableFadeInMask={true}
+                //onGestureStart={() => hapticFeedback('impactLight')}
+                //SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}
+              
+                enableIndicator={true}
+                horizontalPadding={15}
+                indicatorPulsating={true}
+                />*/}
             
         </View>
     </View>

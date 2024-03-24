@@ -30,7 +30,7 @@ const Home  = () => {
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0)
   const [user, setUser] = useState("")
-
+  const [username, setUsername] = useState("")
 
 
   const data = [
@@ -76,9 +76,10 @@ const Home  = () => {
       }
       // Make a request to the server to check if the user is in matchmaking
       const response = await axios.post(serverUrl + "/areTheyMatchmaking", emailToSend);
-      
+      console.log(response.data.result)
       // Check the value of the 'result' field
       if (response.data.result) {
+
         console.log('User is in matchmaking');
         setSearchForMatch(true)
 
@@ -173,25 +174,21 @@ const Home  = () => {
     setSearchForMatch(true)
     
     //retrieve user's skill rating
-    try {
-        await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
-            setSkillRating(user.data.skillRating)
-        })
-    } catch (error) {
-        console.error(error)
-    }
+    
     console.log(entryFee)
     console.log(matchLength)
     
+
     //Asign current user's values to a player object
     const player = {
+        username: username,
         email: user,
         skillRating: skillRating,
         entryFee: entryFee,
         matchLength: matchLength
     }
     //Pass the players object to the database
-    console.log(player)
+    console.log("Log" + player)
 
     try { const response = await axios.post(serverUrl + "/userToMatchmaking", player)
     console.log(response)
@@ -205,20 +202,32 @@ const Home  = () => {
     const email = await AsyncStorage.getItem("userEmail");
     if (email !== null) {
       setUser(email); // Assuming setUser updates some state with the email
+      const emailToSend = {
+        email: email
+      }
+      try {
+        await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
+            setSkillRating(user.data.skillRating)
+            setUsername(user.data.username)
+        })
+      } catch (error) {
+          console.error(error)
+      }
     }
-    return email;
   }
 
 
   useEffect(() => {
-    getIsInMatchMaking()
     getEmail()
+    if (user !== "") {
+      getIsInMatchMaking()
+    }
     setCurrStyles(colorScheme == "dark" ? darkStyles : lightStyles);
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
       setStatusBarHeight(response.height);
     });
     getBalance();
-  }, [colorScheme]);
+  }, [colorScheme, user]);
 
 
 return (
