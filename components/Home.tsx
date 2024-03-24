@@ -174,18 +174,11 @@ const Home  = () => {
     setSearchForMatch(true)
     
     //retrieve user's skill rating
-    try {
-        await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
-            setSkillRating(user.data.skillRating)
-            setUsername(user.data.username)
-
-        })
-    } catch (error) {
-        console.error(error)
-    }
+    
     console.log(entryFee)
     console.log(matchLength)
     
+
     //Asign current user's values to a player object
     const player = {
         username: username,
@@ -195,7 +188,7 @@ const Home  = () => {
         matchLength: matchLength
     }
     //Pass the players object to the database
-    console.log(player)
+    console.log("Log" + player)
 
     try { const response = await axios.post(serverUrl + "/userToMatchmaking", player)
     console.log(response)
@@ -209,6 +202,17 @@ const Home  = () => {
     const email = await AsyncStorage.getItem("userEmail");
     if (email !== null) {
       setUser(email); // Assuming setUser updates some state with the email
+      const emailToSend = {
+        email: email
+      }
+      try {
+        await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
+            setSkillRating(user.data.skillRating)
+            setUsername(user.data.username)
+        })
+      } catch (error) {
+          console.error(error)
+      }
     }
   }
 
