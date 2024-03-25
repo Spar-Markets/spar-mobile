@@ -39,8 +39,8 @@ const GameModesScrollBar = () => {
             </View>
             {selectedMode == "HEAD TO HEAD" ? 
                 <View>
-                    <GameCard amountWagered={10} mode={"Stock"}></GameCard> 
-                    <GameCard amountWagered={100} mode={"Crypto"}></GameCard> 
+                    <GameCard ticker={'AAPL'} amountWagered={10} mode={"Stock"}></GameCard> 
+                    <GameCard ticker={'X:BTCUSD'} amountWagered={100} mode={"Crypto"}></GameCard> 
                     <GameCard amountWagered={5} mode={"Stock"}></GameCard> 
                 </View>
                 

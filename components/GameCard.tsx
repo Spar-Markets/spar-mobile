@@ -48,7 +48,7 @@ const GameCard = (props:any) => {
     const navigation = useNavigation<any>();
 
     return (
-        <TouchableOpacity onPress={() => navigation.push("TestGraph")} style={{marginTop: 15, flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("TestGraph", {ticker:props.ticker})} style={{marginTop: 15, flexDirection: 'row'}}>
          
         <View style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {marginHorizontal: 12, borderRadius: 12, height: 120, flex: 1}]}>
           <View style={{flexDirection: 'row', gap: 5}}>

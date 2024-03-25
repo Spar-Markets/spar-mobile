@@ -9,6 +9,7 @@ import { PlaidTheme } from './Style/style';
 import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import StockSearch from './components/StockSearch';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,7 @@ const CoreApp = (): React.ReactElement => {
             })}>
             <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
             <Tab.Screen name="Plaid" component={Plaid}/>
+            <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false}}/>
         </Tab.Navigator>
     </SafeAreaProvider>
     </Auth0Provider>
