@@ -73,6 +73,7 @@ const StockSearch = () => {
         <StockCard ticker={"NVDA"}></StockCard>
         <StockCard ticker={"NNDM"}></StockCard>
         <StockCard ticker={"GOOG"}></StockCard>
+        <StockCard ticker={"AVGO"}></StockCard>
       </ScrollView>
         
     </View> 

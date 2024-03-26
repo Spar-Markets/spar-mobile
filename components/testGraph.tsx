@@ -22,7 +22,8 @@ const TestGraph = () => {
 
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [currentPrice, setCurrPrice] = useState("");
-    const [currentDate, setCurrentDate] = useState();
+    const [currentDate, setCurrDate] = useState("");
+    const [range, setRange] = useState({})
     
     const [pointData, setPointData] = useState<GraphPoint[]>([])
     const [ticker, setTicker] = useState("");
@@ -61,6 +62,9 @@ const TestGraph = () => {
                     setTicker(response.data.ticker)
 
                     setCurrPrice(String(points[points.length-1].value))
+                    setCurrDate(points[points.length-1].date.toLocaleTimeString("en-US"))
+
+                    
 
                 }
 
@@ -104,7 +108,7 @@ const TestGraph = () => {
         } else {
             setCurrPrice(String(obj.value))
         }
-        setCurrentDate(obj.date)
+        setCurrDate(String(obj.date.toLocaleTimeString("en-US")))
     }
 
     const TimeButton = (timeFrame:string) => {
@@ -126,6 +130,7 @@ const TestGraph = () => {
         
 
        <View style={{backgroundColor: '#181818', flex: 1}}>
+        {pointData.length > 0 ?
         <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
             <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
@@ -141,7 +146,7 @@ const TestGraph = () => {
         <View style={{marginLeft: 12, marginTop: 20}}>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{ticker}</Text>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
-            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}></Text>
+            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
         </View>
         <LineGraph
             style={{width: '100%', height: 400}}
@@ -174,10 +179,9 @@ const TestGraph = () => {
             <Text style={{color: '#999999', fontFamily: 'InterTight-Reg', fontSize: 12}}>{tickerData?.description}</Text>
         </View>
         </ScrollView>
-        </View> 
-        {/*<View style={{justifyContent: 'center', alignItems:'center'}}>
-            <ActivityIndicator size="large" color="#3b30b9" />
-        </View>*/}
+        </View> :
+        <View></View>
+        }
        </View> 
        
     );
