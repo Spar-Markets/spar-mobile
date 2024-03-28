@@ -5,13 +5,14 @@ import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
-import GameModesScrollBar from './GameModesScrollBar';
+import GameModesScrollBar from './ActiveGames';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import AccountCard from './AccountCard';
 import { Dropdown } from 'react-native-element-dropdown';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { EmailTypeEnum } from 'plaid';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Home  = () => {
 
@@ -234,23 +235,14 @@ const Home  = () => {
 return (
     <View style={currStyles.container}>
       <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight + 10}}>
-        <View style={{flex: 1, marginLeft: 12, justifyContent: 'center'}}>
+        <View style={{flex: 1, marginLeft: 15, justifyContent: 'center'}}>
           <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>Home</Text>
-        </View>
-        <View style={{flex: 1, flexDirection: 'row', gap: 5}}>
-          <View style={{flex: 1}}></View>
-          <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12}}>
-            {/*<Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
-          </TouchableOpacity>
-          <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginRight: 12}}>
-            {/*<Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
-          </TouchableOpacity>
         </View>
       </View>
       <AccountCard text={balance}></AccountCard>
-      <ScrollView style={{flex: 1, marginBottom: 10}} showsVerticalScrollIndicator={false}>
+      <View style={{flex: 1, marginBottom: 50, marginTop: 10}}>
         <GameModesScrollBar></GameModesScrollBar>
-      </ScrollView>
+      </View>
       <View>
         <View style={{flexDirection: 'row', height: 80, gap: 15}}>
           <Dropdown
@@ -303,7 +295,7 @@ return (
           />  
         </View>
         {searchingForMatch === false && (
-        <TouchableOpacity onPress={ () => handleEnterMatchmaking(value, value2)} style={{backgroundColor: '#3B30B9', height: 80, marginBottom: 100, marginHorizontal: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
+        <TouchableOpacity onPress={ () => handleEnterMatchmaking(value, value2)} style={{backgroundColor: '#6254ff', height: 80, marginBottom: 100, marginHorizontal: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Enter Matchmaking</Text>
         </TouchableOpacity>)}
         {searchingForMatch === true && (
@@ -320,7 +312,7 @@ return (
 const darkStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#181818",
+    backgroundColor: "#161d29",
     justifyContent: 'center',
   },
   iconStyle: {
@@ -330,7 +322,7 @@ const darkStyles = StyleSheet.create({
   },
   dropdown: {
     flex: 1, 
-    marginLeft: 12, 
+    marginLeft: 15, 
     marginBottom: 15, 
     borderRadius: 12, 
     justifyContent: 'center', 
@@ -341,7 +333,7 @@ const darkStyles = StyleSheet.create({
   },
   dropdown2: {
     flex: 1, 
-    marginRight: 12, 
+    marginRight: 15, 
     marginBottom: 15, 
     borderRadius: 12, 
     justifyContent: 'center', 

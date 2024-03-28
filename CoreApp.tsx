@@ -38,7 +38,7 @@ const CoreApp = (): React.ReactElement => {
               paddingTop: 5,
               position: 'absolute',
               borderTopWidth: 0,
-            }, colorScheme == "dark" ? {backgroundColor: '#181818'} : {backgroundColor: '#E6E6E6'}],
+            }, colorScheme == "dark" ? {backgroundColor: '#161d29'} : {backgroundColor: '#E6E6E6'}],
             })}>
             <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
             <Tab.Screen name="Plaid" component={Plaid}/>

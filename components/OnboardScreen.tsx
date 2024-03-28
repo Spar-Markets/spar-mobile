@@ -19,7 +19,8 @@ const OnboardScreen = () => {
   const checkAuthentication = async () => {
     try {
       const authData = await AsyncStorage.getItem('authData');
-      if (authData) {
+      const userEmail = await AsyncStorage.getItem('userEmail')
+      if (authData && userEmail) {
         setIsAuthenticated(true);
         navigation.replace('CoreApp');    
       }
@@ -46,7 +47,7 @@ const OnboardScreen = () => {
       const data = {
         email: user!.email,
       };
-   
+      
       //console.log(data)
       console.log("Print Before Endpoint")
       console.log(data)
