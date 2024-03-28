@@ -33,6 +33,8 @@ const Home  = () => {
   const [user, setUser] = useState("")
   const [username, setUsername] = useState("")
 
+  const ws = new WebSocket('ws://spar-server.fly.dev');
+
 
   const data = [
     { label: '$10', value: '10' },
@@ -98,45 +100,6 @@ const Home  = () => {
     }
   };
 
-  const getMatches = async () => {
-    const emailToSend = {
-      email: user
-    }
-    try {
-
-      const response = await axios.post(serverUrl + "/getUserMatches", emailToSend) 
-      // Check the value of the 'result' field
-      if (response.data.result) {
-        setActiveMatches(response.data.matches);
-        console.log(`Has ${response.data.matches.length} matches`);
-        setHasMatches(true)
-        
-        // Handle the case when the user is in matchmaking
-        } else {
-        console.log('User does not have Matches');
-        setHasMatches(false)
-        // Handle the case when the user is not in matchmaking
-      }
-
-    } catch (error) {
-      console.log("This error is in pvp")
-      console.error(error)
-    }   
-  }
-
-
-  // Function to handle user logout
-  const handleLogout = useCallback(async () => {
-    try {
-      // Clear authentication state from AsyncStorage
-      await AsyncStorage.removeItem('authData');
-      setIsAuthenticated(false);
-      navigation.replace('Onboardscreen1');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  }, [navigation]);
-
 
   const getBalance = async () => {
     try {
@@ -162,9 +125,8 @@ const Home  = () => {
 
   //Matchmaking Function with server connection
   const handleEnterMatchmaking = async (entryFee: String, matchLength: String) => {
-    const emailToSend = {
-      email: user
-    }
+
+
 
     //Ensure valid game params before starting search
     if (entryFee == 'Entry Fee' || matchLength == 'Match Length') {
@@ -217,10 +179,20 @@ const Home  = () => {
     }
   }
 
-
   useEffect(() => {
     getIsInMatchMaking()
     getEmail()
+
+    ws.onopen = () => {
+      // Connection Opened
+      ws.send('Something');  // send a message
+    };
+
+    ws.onclose = (e) => {
+      ws.send('OnClose');  // send a message
+    };
+
+
     if (user !== "") {
       getIsInMatchMaking()
     }
