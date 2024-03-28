@@ -53,9 +53,10 @@ const AccountCard = (props:any) => {
     
 
     return (
+        <View>
         <View style={{flexDirection: 'row', marginHorizontal: 15}}>
         <View onLayout={onLayout} style={[colorScheme == 'dark' ? {backgroundColor: '#242F42'} : {backgroundColor: '#fff'}, styles.container]}>
-          <View style={{justifyContent: 'center', marginTop: 15}}>
+          <View style={{justifyContent: 'center'}}>
             <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Account Value</Text>
             <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
                 <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${props.text}</Text>
@@ -63,8 +64,58 @@ const AccountCard = (props:any) => {
                     <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+5.55%</Text>
                 </View>
             </View>
-            <View style={{flex: 1}}></View>
-            {/*<LineGraph
+          </View>
+        </View>
+        <TouchableOpacity style={{flex: 0.15, backgroundColor: '#1ae79c', width: 30, marginTop: 8, borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#242F42'}}>+</Text>
+        </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={{height: 80, backgroundColor: '#242F42', marginTop: 8, borderRadius: 12, marginHorizontal: 15, justifyContent: 'center', flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{}}>
+                <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Rating</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
+                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>1321</Text>
+                    <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
+                        <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+56</Text>
+                    </View>
+                </View>
+            </View>
+            <View style={{flex: 1, marginHorizontal: 25}}>
+            <LineGraph
+                style={{height: 50, marginBottom: 12}}
+                points={pointData}
+                animated={true}
+                color={'#1ae79c'}
+                gradientFillColors={['#0e8a5c', '#242F42']}
+                //onPointSelected={(p) => updateVals(p)}
+                lineThickness={5}
+                horizontalPadding={0}
+    />
+            </View>
+        </TouchableOpacity>
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+  container: { 
+    marginRight: 10, 
+    marginTop: 8,
+    height: 80,
+    borderRadius: 12, 
+    flexDirection: 'row',
+    shadowColor: 'black',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    flex: 1,
+    
+  },
+})
+
+
+export default AccountCard;
+
+/*<LineGraph
                 style={{width: touchableWidth, height: 110, marginBottom: 12}}
                 points={pointData}
                 animated={true}
@@ -74,30 +125,4 @@ const AccountCard = (props:any) => {
                 //onPointSelected={(p) => updateVals(p)}
                 lineThickness={5}
                 horizontalPadding={0}
-    />*/}
-          </View>
-        </View>
-        <TouchableOpacity style={{flex: 0.15, backgroundColor: '#1ae79c', width: 30, marginTop: 8, borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#242F42'}}>+</Text>
-        </TouchableOpacity>
-        </View>
-    );
-};
-
-const styles = StyleSheet.create({
-  container: { 
-    marginRight: 10, 
-    marginTop: 8, 
-    marginBottom: 0,
-    height: 80,
-    borderRadius: 12, 
-    flexDirection: 'row',
-    shadowColor: 'black',
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    flex: 1,
-  },
-})
-
-
-export default AccountCard;
+    />*/

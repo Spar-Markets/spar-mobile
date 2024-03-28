@@ -240,7 +240,7 @@ return (
         </View>
       </View>
       <AccountCard text={balance}></AccountCard>
-      <View style={{flex: 1, marginBottom: 50, marginTop: 10}}>
+      <View style={{flex: 1, marginBottom: 10, marginTop: 10}}>
         <GameModesScrollBar></GameModesScrollBar>
       </View>
       <View>
