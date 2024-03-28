@@ -57,7 +57,7 @@ const AccountCard = (props:any) => {
         <View onLayout={onLayout} style={[colorScheme == 'dark' ? {backgroundColor: '#242F42'} : {backgroundColor: '#fff'}, styles.container]}>
           <View style={{justifyContent: 'center', marginTop: 15}}>
             <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Account Value</Text>
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginLeft: 15}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
                 <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${props.text}</Text>
                 <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
                     <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+5.55%</Text>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     shadowColor: 'black',
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    flex: 1
+    flex: 1,
   },
 })
 

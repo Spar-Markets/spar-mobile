@@ -13,6 +13,7 @@ import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointe
 import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import StockCard from './StockCard';
+import { Skeleton } from '@rneui/themed';
 
 
 const StockSearch = () => {
@@ -45,7 +46,7 @@ const StockSearch = () => {
     return (
 
     
-    <View style={{backgroundColor: '#181818', flex: 1}}>
+    <View style={{backgroundColor: '#161d29', flex: 1}}>
     
       <View style={{height: 40, flexDirection: 'row', marginTop: statusBarHeight + 10}}>
         <View style={{flex: 1, marginLeft: 12, justifyContent: 'center'}}>
@@ -62,7 +63,7 @@ const StockSearch = () => {
         </View>
       </View>
       <TextInput 
-        style={{height: 40, color: '#fff', fontFamily: 'InterTight-Black', fontSize: 14, marginHorizontal: 12, marginTop: 15, backgroundColor: '#292929', borderRadius: 12, paddingLeft: 10}}
+        style={{height: 40, color: '#fff', fontFamily: 'InterTight-Black', fontSize: 14, marginHorizontal: 12, marginVertical: 15, backgroundColor: '#242F42', borderRadius: 12, paddingLeft: 10}}
         onChangeText={setStockSearch}
         value={stockSearch}
         placeholder='Search Stocks, Crypto...'

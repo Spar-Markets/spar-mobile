@@ -76,7 +76,7 @@ const StockCard = (props:any) => {
                     points={pointData}
                     animated={true}
                     color={percentChange > 0 ? '#1ae79c' : '#e71a1a'}
-                    gradientFillColors={percentChange > 0 ? ['#0e8a5c', '#181818'] : ['#e71a1a', '#181818']}
+                    gradientFillColors={percentChange > 0 ? ['#0e8a5c', '#242F42'] : ['#e71a1a', '#242F42']}
                 />
                 <View style={{marginRight: 10, gap: 5}}>
                     <View style={{backgroundColor: '#e71a1a', borderRadius: 10, width: 90, alignItems: 'center'}}>

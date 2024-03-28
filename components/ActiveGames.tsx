@@ -7,6 +7,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
 import { serverUrl } from '../constants/global';
 import axios from 'axios'
+import { Skeleton } from '@rneui/themed';
+import LinearGradient from 'react-native-linear-gradient';
 
 const GameModesScrollBar = () => {
 
@@ -121,7 +123,7 @@ const GameModesScrollBar = () => {
             </View>
 
             <ScrollView style={{marginTop: 10, minHeight: 500}}>
-            {selectedMode == "HEAD TO HEAD" ? matchData.map((item, index) => (
+            {selectedMode == "HEAD TO HEAD" && matchData.length > 5 ? matchData.map((item, index) => (
                 <View key={index}>
                     {item && 'wagerAmt' in item && 'user1' in item && (
                     <GameCard amountWagered={item!.wagerAmt} mode={"Stock"} 
@@ -131,7 +133,22 @@ const GameModesScrollBar = () => {
                 </View>
             ))
                 
-                : <View></View>
+                : 
+                <View style={{marginHorizontal: 15}}>
+                <Skeleton
+                    animation="pulse"
+                    style={{marginTop: 10, height: 120, borderRadius: 12, flex: 1}}
+                    
+                />
+                <Skeleton
+                    animation="pulse"
+                    style={{marginTop: 10, height: 120, borderRadius: 12, flex: 1}}
+                />
+                 <Skeleton
+                    animation="pulse"
+                    style={{marginTop: 10, height: 120, borderRadius: 12, flex: 1}}
+                />
+                </View>
                 
             }
             {selectedMode == "TOURNAMENTS" ? 
