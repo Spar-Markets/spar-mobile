@@ -5,7 +5,7 @@ import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
-import GameModesScrollBar from './GameModesScrollBar';
+import GameModesScrollBar from './ActiveGames';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
 

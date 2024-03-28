@@ -67,7 +67,7 @@ const StockCard = (props:any) => {
         {pointData.length > 0 &&
         <TouchableOpacity onPress={() => navigation.navigate("TestGraph", {ticker:props.ticker})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
-            <View style={{height: 80, backgroundColor: "#181818", flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{height: 80, backgroundColor: "#242F42", flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>
                     <Text style={{color: '#fff', fontFamily: 'InterTight-Black', fontSize: 16}}>{props.ticker}</Text>
                 </View>

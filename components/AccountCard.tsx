@@ -4,56 +4,100 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { GraphPoint, LineGraph } from 'react-native-graph';
+import { serverUrl } from '../constants/global';
+import axios from 'axios'
 
-var styles = require('../Style/style');
 
 const AccountCard = (props:any) => {
 
     const colorScheme = useColorScheme();
     const navigation = useNavigation<any>();
+
+    const [pointData, setPointData] = useState<GraphPoint[]>([])
+
+    const [touchableWidth, setTouchableWidth] = useState(0);
+
+    const onLayout = (event:any) => {
+      const { width } = event.nativeEvent.layout;
+      setTouchableWidth(width);
+    };
+
+    useEffect(() => {
+  
+        const getPrices = async () => {
+            try {
+                const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'TSLA'})
+                
+                if (response) {
+                   
+                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
+                        value: obj.price,
+                        date: new Date(obj.timeField)
+                    }));
+
+                    setPointData(points)
+
+
+                    
+
+                }
+            } catch {
+                console.error("error getting prices")
+            }
+        }
+
+        getPrices();
+
+    }, []);
     
 
     return (
-        <View style={{flexDirection: 'row'}}>
-        <TouchableOpacity style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginLeft: 12, marginVertical: 15, borderRadius: 12, flexDirection: 'row'}]}>
-          <View style={{backgroundColor: '#1ae79c', width: 20, height: '100%', borderTopLeftRadius: 12, borderBottomLeftRadius: 12}}></View>
-          <View style={{marginLeft: 15, justifyContent: 'center', marginVertical: 15}}>
-            <Text style={{color: '#888888', fontFamily: 'InterTight-Black', fontSize: 14}}>Account Value</Text>
-            <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${props.text}</Text>
-            <View style={{backgroundColor: '#0d754f', borderRadius: 12, marginTop: 10}}>
-                <Text style={{padding: 10, color: '#1ae79c', fontFamily: 'InterTight-Black', fontSize: 12}}>+$5.67 (10.45%)</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <View style={{flexDirection: 'column', gap: 10, flex: 0.7}}>
-            <TouchableOpacity onPress={() => navigation.push("Deposit")} style={{backgroundColor: '#1ae79c', flex: 1, marginHorizontal: 12, marginTop: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{fontFamily: 'InterTight-Black', fontSize: 14, color: '#000'}}>Deposit</Text>
-                
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.push("Withdraw")} style={[colorScheme == 'dark' ? {backgroundColor: '#292929'} : {backgroundColor: '#fff'}, {flex: 1, marginHorizontal: 12, marginBottom: 15, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}]}>
-                <View style={{}}>
-                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 14}]}>Withdraw</Text>
+        <View style={{flexDirection: 'row', marginHorizontal: 15}}>
+        <View onLayout={onLayout} style={[colorScheme == 'dark' ? {backgroundColor: '#242F42'} : {backgroundColor: '#fff'}, styles.container]}>
+          <View style={{justifyContent: 'center', marginTop: 15}}>
+            <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Account Value</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginLeft: 15}}>
+                <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${props.text}</Text>
+                <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
+                    <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+5.55%</Text>
                 </View>
-            </TouchableOpacity>
+            </View>
+            <View style={{flex: 1}}></View>
+            {/*<LineGraph
+                style={{width: touchableWidth, height: 110, marginBottom: 12}}
+                points={pointData}
+                animated={true}
+                color={'#1ae79c'}
+                gradientFillColors={['#0e8a5c', '#242F42']}
+                enablePanGesture
+                //onPointSelected={(p) => updateVals(p)}
+                lineThickness={5}
+                horizontalPadding={0}
+    />*/}
+          </View>
         </View>
+        <TouchableOpacity style={{flex: 0.15, backgroundColor: '#1ae79c', width: 30, marginTop: 8, borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#242F42'}}>+</Text>
+        </TouchableOpacity>
         </View>
     );
 };
 
-const darkStyles = StyleSheet.create({
-  txt: {
-    color: 'white',
-    fontSize: 12,
-    fontFamily: 'InterTight-Black'
+const styles = StyleSheet.create({
+  container: { 
+    marginRight: 10, 
+    marginTop: 8, 
+    marginBottom: 0,
+    height: 80,
+    borderRadius: 12, 
+    flexDirection: 'row',
+    shadowColor: 'black',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    flex: 1
   },
 })
 
-const lightStyles = StyleSheet.create({
-  txt: {
-    color: 'black',
-    fontSize: 12,
-    fontFamily: 'InterTight-Black'
-  },
-})
 
 export default AccountCard;

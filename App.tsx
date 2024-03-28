@@ -16,6 +16,7 @@ import Transfers from './components/Transfers';
 import Withdraw from './components/Withdraw';
 import TestGraph from './components/TestGraph';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import GameScreen from './components/GameScreen'
 
 
 const Stack = createNativeStackNavigator();
@@ -73,6 +74,11 @@ const App = (): React.ReactElement => {
         <Stack.Screen
           name="TestGraph"
           component={TestGraph}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="GameScreen"
+          component={GameScreen}
           options={{headerShown: false}}
         />
       </Stack.Navigator>
