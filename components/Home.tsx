@@ -33,7 +33,6 @@ const Home  = () => {
   const [user, setUser] = useState("")
   const [username, setUsername] = useState("")
 
-  const ws = new WebSocket('ws://spar-server.fly.dev');
 
 
   const data = [
@@ -180,18 +179,25 @@ const Home  = () => {
   }
 
   useEffect(() => {
-    getIsInMatchMaking()
-    getEmail()
+    const ws = new WebSocket('ws://spar-server.fly.dev:3000');
 
     ws.onopen = () => {
-      // Connection Opened
-      ws.send('Something');  // send a message
+      console.log('Connected to server');
+      ws.send('Hello Server!');
     };
 
-    ws.onclose = (e) => {
-      ws.send('OnClose');  // send a message
+    ws.onmessage = (event) => {
+      console.log(`Received message: ${event.data}`);
     };
 
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error.message || JSON.stringify(error));
+    };
+
+    
+
+    getIsInMatchMaking()
+    getEmail()
 
     if (user !== "") {
       getIsInMatchMaking()
@@ -201,6 +207,10 @@ const Home  = () => {
       setStatusBarHeight(response.height);
     });
     getBalance();
+    return () => {
+      ws.close();
+    };
+
   }, [colorScheme, user]);
 
 
@@ -416,11 +426,11 @@ const lightStyles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#3B30B9',
-    marginHorizontal: 24,
+    marginHorizontal: 24, 
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 15
+    borderRadius: 15 
   },
   selectedTextStyle: {
     fontSize: 18,
