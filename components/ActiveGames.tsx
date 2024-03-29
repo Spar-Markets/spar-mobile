@@ -7,6 +7,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
 import { serverUrl } from '../constants/global';
 import axios from 'axios'
+import { Skeleton } from '@rneui/themed';
+import LinearGradient from 'react-native-linear-gradient';
 
 const GameModesScrollBar = () => {
 
@@ -29,6 +31,7 @@ const GameModesScrollBar = () => {
     const [activeMatches, setActiveMatches] = useState([]);
     const [hasMatches, setHasMatches] = useState(false); 
     const [matchData, setMatchData] = useState<MatchData[]>([])
+    const [isLoading, setIsLoading] = useState(true);
     
     const GameModeButton = (props:any) => {
         const colorScheme = useColorScheme();
@@ -112,7 +115,7 @@ const GameModesScrollBar = () => {
     }
 
     return (
-        <View>
+        <View style={{flex: 1}}>
             <View style={{height: 40, alignItems: 'center'}}>
                 <View style={{flexDirection: 'row', marginHorizontal: 15}}>
                     <GameModeButton text={"HEAD TO HEAD"}></GameModeButton>
@@ -120,18 +123,80 @@ const GameModesScrollBar = () => {
                 </View>
             </View>
 
-            <ScrollView style={{marginTop: 10, minHeight: 500}}>
-            {selectedMode == "HEAD TO HEAD" ? matchData.map((item, index) => (
+            <ScrollView style={{marginTop: 10}} showsVerticalScrollIndicator={false}>
+            {selectedMode == "HEAD TO HEAD" && matchData.length > 0 ? matchData.map((item, index) => (
                 <View key={index}>
                     {item && 'wagerAmt' in item && 'user1' in item && (
                     <GameCard amountWagered={item!.wagerAmt} mode={"Stock"} 
                     yourPercentChange={3.54} opp={item!.user1.name.split("@")[0]} oppPercentChange={1.56}
-                    endDate={new Date(2024, 2, 28, 17, 0)}></GameCard> 
+                    endDate={new Date(2024, 2, 29, 17, 0)}></GameCard> 
                     )}
                 </View>
             ))
                 
-                : <View></View>
+                : 
+                <View style={{marginHorizontal: 15}}>
+                 <Skeleton
+                    animation="pulse"
+                    style={{height: 120, borderRadius: 12, flex: 1, backgroundColor: '#242F42'}}
+                    LinearGradientComponent={() => 
+                        <LinearGradient
+                          colors={['#242F42', '#374c70']} // Example gradient colors, adjust as needed
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            borderRadius: 12,
+                          }}
+                        />
+                    
+                      }
+                />
+                 <Skeleton
+                    animation="pulse"
+                    style={{marginTop: 10, height: 120, borderRadius: 12, flex: 1, backgroundColor: '#242F42'}}
+                    LinearGradientComponent={() => 
+                        <LinearGradient
+                          colors={['#242F42', '#374c70']} // Example gradient colors, adjust as needed
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            borderRadius: 12,
+                          }}
+                        />
+                    
+                      }
+                />
+                 <Skeleton
+                    animation="pulse"
+                    style={{marginTop: 10, height: 120, borderRadius: 12, flex: 1, backgroundColor: '#242F42'}}
+                    LinearGradientComponent={() => 
+                        <LinearGradient
+                          colors={['#242F42', '#374c70']} // Example gradient colors, adjust as needed
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            borderRadius: 12,
+                          }}
+                        />
+                    
+                      }
+                />
+                </View>
                 
             }
             {selectedMode == "TOURNAMENTS" ? 

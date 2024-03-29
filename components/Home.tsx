@@ -169,8 +169,9 @@ const Home  = () => {
       }
       try {
         await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
-            setSkillRating(user.data.skillRating)
+            setSkillRating(user.data.skillRating.$numberDecimal)
             setUsername(user.data.username)
+            setBalance(user.data.balance.$numberDecimal)
         })
       } catch (error) {
           console.error(error)
@@ -221,8 +222,8 @@ return (
           <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>Home</Text>
         </View>
       </View>
-      <AccountCard text={balance}></AccountCard>
-      <View style={{flex: 1, marginBottom: 50, marginTop: 10}}>
+      <AccountCard accountVal={balance} rating={skillRating}></AccountCard>
+      <View style={{flex: 1, marginBottom: 10, marginTop: 10}}>
         <GameModesScrollBar></GameModesScrollBar>
       </View>
       <View>

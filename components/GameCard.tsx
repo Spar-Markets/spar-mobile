@@ -8,32 +8,9 @@ import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-g
 
 var styles = require('../Style/style');
 
-const data = [ {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52}]
+const data2 = [ {value:50}, {value:55}, {value:52},{value:63},{value:70},{value:68},]
 
-const data2 = [ {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68}
-]
+const data = [ {value:50},{value:48},{value:45},{value:35},{value:43},{value:47},]
 
 
 
@@ -50,7 +27,7 @@ const GameCard = (props:any) => {
     const sendData = {
       mode: props.mode,
       amountWagered: props.amountWagered,
-      endTime: props.timeRemaining,
+      endDate: props.endDate.getTime(),
       yourPercentChange: props.yourPercentChange,
       opp: props.opp,
       oppPercentChange: props.oppPercentChange,
@@ -111,7 +88,7 @@ const GameCard = (props:any) => {
           <View style={{flexDirection: 'row'}}>
           <View style={{gap: 10, marginLeft: 10, marginTop: 10, flex: 1}}>
             <View style={{flexDirection: 'row', gap: 5, alignItems:'center'}}>
-              <View style={{backgroundColor: '#FFBB54', height: 7, width: 7, borderRadius: 5}}></View>
+              <View style={{backgroundColor: '#1ae79c', height: 7, width: 7, borderRadius: 5}}></View>
               <View style={{justifyContent: 'center'}}>
                 <Text style={[colorScheme == 'dark' ? {color: '#fff'} : {color: '#000'}, 
                 {fontFamily: 'InterTight-Black', fontSize: 14}]}>You</Text>
@@ -121,7 +98,7 @@ const GameCard = (props:any) => {
               </View>
             </View>
             <View style={{flexDirection: 'row', gap: 5, alignItems:'center'}}>
-            <View style={{backgroundColor: '#E71AA1', height: 7, width: 7, borderRadius: 5}}></View>
+            <View style={{backgroundColor: 'gray', height: 7, width: 7, borderRadius: 5}}></View>
               <View style={{justifyContent: 'center'}}>
                 <Text style={[colorScheme == 'dark' ? {color: '#fff'} : {color: '#000'}, 
                 {fontFamily: 'InterTight-SemiBold', fontSize: 14}]}>{props.opp}</Text>
@@ -133,7 +110,7 @@ const GameCard = (props:any) => {
           </View>
             <View style={{flex: 1.3}}>
               <LineChart data={data} data2={data2} 
-                color1={'#E71AA1'} color2={'#FFBB54'}  
+                color1={'gray'} color2={'#1ae79c'}  
                 hideRules={true} curved={true} xAxisColor={"rgba(0, 0, 0, 0)"} 
                 thickness={2.5} maxValue={100} yAxisColor={"rgba(0, 0, 0, 0)"} 
                 hideYAxisText={true} height={80} hideDataPoints1={true} 
