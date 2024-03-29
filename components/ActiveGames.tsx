@@ -129,7 +129,7 @@ const GameModesScrollBar = () => {
                     {item && 'wagerAmt' in item && 'user1' in item && (
                     <GameCard amountWagered={item!.wagerAmt} mode={"Stock"} 
                     yourPercentChange={3.54} opp={item!.user1.name.split("@")[0]} oppPercentChange={1.56}
-                    endDate={new Date(2024, 2, 28, 17, 0)}></GameCard> 
+                    endDate={new Date(2024, 2, 29, 17, 0)}></GameCard> 
                     )}
                 </View>
             ))

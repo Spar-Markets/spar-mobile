@@ -38,15 +38,13 @@ const AccountCard = (props:any) => {
 
                     setPointData(points)
 
-
-                    
-
                 }
             } catch {
                 console.error("error getting prices")
             }
         }
 
+    
         getPrices();
 
     }, []);
@@ -55,17 +53,17 @@ const AccountCard = (props:any) => {
     return (
         <View>
         <View style={{flexDirection: 'row', marginHorizontal: 15}}>
-        <View onLayout={onLayout} style={[colorScheme == 'dark' ? {backgroundColor: '#242F42'} : {backgroundColor: '#fff'}, styles.container]}>
+        <TouchableOpacity onLayout={onLayout} style={[colorScheme == 'dark' ? {backgroundColor: '#242F42'} : {backgroundColor: '#fff'}, styles.container]}>
           <View style={{justifyContent: 'center'}}>
             <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Account Value</Text>
             <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
-                <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${props.text}</Text>
+                <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${props.accountVal}</Text>
                 <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
                     <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+5.55%</Text>
                 </View>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
         <TouchableOpacity style={{flex: 0.15, backgroundColor: '#1ae79c', width: 30, marginTop: 8, borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#242F42'}}>+</Text>
         </TouchableOpacity>
@@ -74,7 +72,7 @@ const AccountCard = (props:any) => {
             <View style={{}}>
                 <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Rating</Text>
                 <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
-                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>1321</Text>
+                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>{props.rating}</Text>
                     <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
                         <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+56</Text>
                     </View>

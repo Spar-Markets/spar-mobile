@@ -8,32 +8,9 @@ import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-g
 
 var styles = require('../Style/style');
 
-const data = [ {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52}]
+const data2 = [ {value:50}, {value:55}, {value:52},{value:63},{value:70},{value:68},]
 
-const data2 = [ {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68}
-]
+const data = [ {value:50},{value:48},{value:45},{value:35},{value:43},{value:47},]
 
 
 
@@ -50,7 +27,7 @@ const GameCard = (props:any) => {
     const sendData = {
       mode: props.mode,
       amountWagered: props.amountWagered,
-      endTime: props.timeRemaining,
+      endDate: props.endDate.getTime(),
       yourPercentChange: props.yourPercentChange,
       opp: props.opp,
       oppPercentChange: props.oppPercentChange,

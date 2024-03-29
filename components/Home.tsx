@@ -137,25 +137,6 @@ const Home  = () => {
     }
   }, [navigation]);
 
-
-  const getBalance = async () => {
-    try {
-      const email = await AsyncStorage.getItem("userEmail")
-      const data = {
-        email: email
-      }
-      const balance = await axios.post(serverUrl+"/getMongoAccount", data)
-      //console.log(balance.data.$numberDecimal)
-      
-      if (balance.data.$numberDecimal >= 0.00) {
-        console.log("Bal from Mongo: " + balance.data.$numberDecimal)
-        setBalance(balance.data.$numberDecimal)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const handleDeposit = async () => {
     navigation.push("Deposit");
   }
@@ -208,8 +189,9 @@ const Home  = () => {
       }
       try {
         await axios.post(serverUrl + "/getActiveUser", emailToSend).then(user => {
-            setSkillRating(user.data.skillRating)
+            setSkillRating(user.data.skillRating.$numberDecimal)
             setUsername(user.data.username)
+            setBalance(user.data.balance.$numberDecimal)
         })
       } catch (error) {
           console.error(error)
@@ -228,7 +210,6 @@ const Home  = () => {
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
       setStatusBarHeight(response.height);
     });
-    getBalance();
   }, [colorScheme, user]);
 
 
@@ -239,7 +220,7 @@ return (
           <Text style={[colorScheme == "dark" ? {color: '#fff'} : {color: '#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>Home</Text>
         </View>
       </View>
-      <AccountCard text={balance}></AccountCard>
+      <AccountCard accountVal={balance} rating={skillRating}></AccountCard>
       <View style={{flex: 1, marginBottom: 10, marginTop: 10}}>
         <GameModesScrollBar></GameModesScrollBar>
       </View>
