@@ -8,22 +8,21 @@ import GameCard from './GameCard';
 import GameModesScrollBar from './ActiveGames';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
-import Icon from '@mdi/react';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
 import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import StockCard from './StockCard';
 import { Skeleton } from '@rneui/themed';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 
 const StockSearch = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
-
-
-
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [stockSearch, setStockSearch] = useState("");
+    Icon.loadFont();
 
     
     const goBack = () => {
@@ -56,6 +55,8 @@ const StockSearch = () => {
           <View style={{flex: 1}}></View>
           <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12}}>
             {/*<Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
+            <Icon name="user" size={20} color="#ffffff" />
+
           </TouchableOpacity>
           <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginRight: 12}}>
             {/*<Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
