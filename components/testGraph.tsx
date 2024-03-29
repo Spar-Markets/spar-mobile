@@ -117,9 +117,9 @@ const TestGraph = () => {
         <View>
         {timeFrameSelected == timeFrame ?
         <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={{backgroundColor: '#1ae79c', justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}}>
-            <Text style={{color:'#242F42', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
+            <Text style={{color:'#181818', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
         </TouchableOpacity> : 
-        <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={{backgroundColor: '#161d29', justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}}>
+        <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={{backgroundColor: '#181818', justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}}>
             <Text style={{color:'#1ae79c', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
         </TouchableOpacity>
         }
@@ -130,12 +130,12 @@ const TestGraph = () => {
     return (
         
 
-       <View style={{backgroundColor: '#161d29', flex: 1}}>
+       <View style={{backgroundColor: '#181818', flex: 1}}>
         {pointData.length > 0 ?
         <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
             <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
-                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, marginLeft: 15, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginBottom: 10}]}>
+                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, marginLeft: 12, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginBottom: 10}]}>
                         <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Back</Text>
                         {/*<Icon path={mdiChevronLeft}/>*/}
                     </TouchableOpacity>
@@ -144,27 +144,17 @@ const TestGraph = () => {
                 <View style={{flex: 1}}/>
             </View>
         <ScrollView style={{}}>
-        {/*<View style={{marginLeft: 12, marginTop: 20}}>
+        <View style={{marginLeft: 12, marginTop: 20}}>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{ticker}</Text>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
-        </View>*/}
-        <View style={{marginHorizontal: 15, backgroundColor: '#242F42', borderRadius: 12}}>
-        <View style={{marginLeft: 15, marginTop: 15}}>
-            <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14}}>{ticker}</Text>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${currentPrice}</Text>
-                <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
-                    <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+5.55%</Text>
-                </View>
-            </View>
         </View>
         <LineGraph
-            style={{width: '100%', height: 150, marginBottom: 15}}
+            style={{width: '100%', height: 400}}
             points={pointData}
             animated={true}
             color={'#1ae79c'}
-            gradientFillColors={['#0e8a5c', '#242F42']}
+            gradientFillColors={['#0e8a5c', '#181818']}
             enablePanGesture
             onPointSelected={(p) => updateVals(p)}
             enableIndicator={true}
@@ -173,9 +163,9 @@ const TestGraph = () => {
             horizontalPadding={0}
             //onGestureEnd={() => setCurrPrice(String(pointData[pointData.length - 1].value))}
         />
-        </View>
+
         
-        <ScrollView horizontal={true} style={{marginTop: 20, marginRight: 15, marginLeft: 15}} showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal={true} style={{marginTop: 20, marginRight: 10}} showsHorizontalScrollIndicator={false}>
             {TimeButton("1D")}
             {TimeButton("1W")}
             {TimeButton("1M")}
@@ -185,12 +175,10 @@ const TestGraph = () => {
             {TimeButton("5Y")}
             {TimeButton("MAX")}
         </ScrollView>
-
-        {tickerData != null &&
-        <View style={{backgroundColor: '#242F42', height: 160, marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
-            <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
-            <Text style={{fontFamily: 'InterTight-SemiBold', color: 'gray', fontSize: 12, marginHorizontal: 12}}>{tickerData.description}</Text>
-        </View>}
+        <View style={{marginHorizontal:12, marginTop: 15}}>
+            <Text style={{color: '#fff', fontFamily: 'InterTight-Black', fontSize: 16}}>About {ticker}</Text>
+            <Text style={{color: '#999999', fontFamily: 'InterTight-Reg', fontSize: 12}}>{tickerData?.description}</Text>
+        </View>
         </ScrollView>
         </View> :
         <View></View>
