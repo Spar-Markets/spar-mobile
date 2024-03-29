@@ -34,6 +34,7 @@ const Home  = () => {
   const [username, setUsername] = useState("")
 
 
+
   const data = [
     { label: '$10', value: '10' },
     { label: '$20', value: '20' },
@@ -98,44 +99,24 @@ const Home  = () => {
     }
   };
 
-  const getMatches = async () => {
-    const emailToSend = {
-      email: user
-    }
-    try {
 
-      const response = await axios.post(serverUrl + "/getUserMatches", emailToSend) 
-      // Check the value of the 'result' field
-      if (response.data.result) {
-        setActiveMatches(response.data.matches);
-        console.log(`Has ${response.data.matches.length} matches`);
-        setHasMatches(true)
-        
-        // Handle the case when the user is in matchmaking
-        } else {
-        console.log('User does not have Matches');
-        setHasMatches(false)
-        // Handle the case when the user is not in matchmaking
+  const getBalance = async () => {
+    try {
+      const email = await AsyncStorage.getItem("userEmail")
+      const data = {
+        email: email
       }
-
+      const balance = await axios.post(serverUrl+"/getMongoAccount", data)
+      //console.log(balance.data.$numberDecimal)
+      
+      if (balance.data.$numberDecimal >= 0.00) {
+        console.log("Bal from Mongo: " + balance.data.$numberDecimal)
+        setBalance(balance.data.$numberDecimal)
+      }
     } catch (error) {
-      console.log("This error is in pvp")
       console.error(error)
-    }   
-  }
-
-
-  // Function to handle user logout
-  const handleLogout = useCallback(async () => {
-    try {
-      // Clear authentication state from AsyncStorage
-      await AsyncStorage.removeItem('authData');
-      setIsAuthenticated(false);
-      navigation.replace('Onboardscreen1');
-    } catch (error) {
-      console.error('Error logging out:', error);
     }
-  }, [navigation]);
+  }
 
   const handleDeposit = async () => {
     navigation.push("Deposit");
@@ -143,9 +124,8 @@ const Home  = () => {
 
   //Matchmaking Function with server connection
   const handleEnterMatchmaking = async (entryFee: String, matchLength: String) => {
-    const emailToSend = {
-      email: user
-    }
+
+
 
     //Ensure valid game params before starting search
     if (entryFee == 'Entry Fee' || matchLength == 'Match Length') {
@@ -199,10 +179,27 @@ const Home  = () => {
     }
   }
 
-
   useEffect(() => {
+    const ws = new WebSocket('ws://spar-server.fly.dev:3000');
+
+    ws.onopen = () => {
+      console.log('Connected to server');
+      ws.send('Hello Server!');
+    };
+
+    ws.onmessage = (event) => {
+      console.log(`Received message: ${event.data}`);
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error.message || JSON.stringify(error));
+    };
+
+    
+
     getIsInMatchMaking()
     getEmail()
+
     if (user !== "") {
       getIsInMatchMaking()
     }
@@ -210,6 +207,11 @@ const Home  = () => {
     NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
       setStatusBarHeight(response.height);
     });
+    getBalance();
+    return () => {
+      ws.close();
+    };
+
   }, [colorScheme, user]);
 
 
@@ -425,11 +427,11 @@ const lightStyles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#3B30B9',
-    marginHorizontal: 24,
+    marginHorizontal: 24, 
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 15
+    borderRadius: 15 
   },
   selectedTextStyle: {
     fontSize: 18,
