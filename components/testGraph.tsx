@@ -186,10 +186,11 @@ const TestGraph = () => {
             {TimeButton("MAX")}
         </ScrollView>
 
+        {tickerData != null &&
         <View style={{backgroundColor: '#242F42', height: 160, marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
             <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
             <Text style={{fontFamily: 'InterTight-SemiBold', color: 'gray', fontSize: 12, marginHorizontal: 12}}>{tickerData.description}</Text>
-        </View>
+        </View>}
         </ScrollView>
         </View> :
         <View></View>
