@@ -15,15 +15,12 @@ import StockCard from './StockCard';
 import { Skeleton } from '@rneui/themed';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-
-
 const StockSearch = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [stockSearch, setStockSearch] = useState("");
     Icon.loadFont();
-
     
     const goBack = () => {
         navigation.goBack();

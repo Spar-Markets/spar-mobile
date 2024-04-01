@@ -13,8 +13,6 @@ import StockSearch from './components/StockSearch';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
-
 
 const Auth0Config = {
   domain: "dev-wol45o5xjg0gma8k.us.auth0.com",
