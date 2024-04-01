@@ -68,7 +68,6 @@ const StockDetails = () => {
                     setCurrPrice(String(points[points.length-1].value))
                     setCurrDate(points[points.length-1].date.toLocaleTimeString("en-US"))
 
-                    
 
                 }
 
@@ -132,7 +131,6 @@ const StockDetails = () => {
     }
 
     return (
-        
 
        <View style={{backgroundColor: '#161d29', flex: 1}}>
         {pointData.length > 0 ?

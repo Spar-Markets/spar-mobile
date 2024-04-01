@@ -180,20 +180,20 @@ const Home  = () => {
   }
 
   useEffect(() => {
-    const ws = new WebSocket('ws://spar-server.fly.dev:3000');
+    // const ws = new WebSocket('ws://spar-server.fly.dev:3000');
 
-    ws.onopen = () => {
-      console.log('Connected to server');
-      ws.send('Hello Server!');
-    };
+    // ws.onopen = () => {
+    //   console.log('Connected to server');
+    //   ws.send('Hello Server!');
+    // };
 
-    ws.onmessage = (event) => {
-      console.log(`Received message: ${event.data}`);
-    };
+    // ws.onmessage = (event) => {
+    //   console.log(`Received message: ${event.data}`);
+    // };
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error.message || JSON.stringify(error));
-    };
+    // ws.onerror = (error) => {
+    //   console.error('WebSocket error:', error.message || JSON.stringify(error));
+    // };
 
     
 
@@ -208,9 +208,10 @@ const Home  = () => {
       setStatusBarHeight(response.height);
     });
     getBalance();
-    return () => {
-      ws.close();
-    };
+
+    // return () => {
+    //   ws.close();
+    // };
 
   }, [colorScheme, user]);
 
