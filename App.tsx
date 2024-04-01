@@ -14,7 +14,7 @@ import Profile1 from './components/Profile';
 import Deposit from './components/Deposit';
 import Transfers from './components/Transfers';
 import Withdraw from './components/Withdraw';
-import TestGraph from './components/TestGraph';
+import StockDetails from './components/StockDetails';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import GameScreen from './components/GameScreen'
 
@@ -73,7 +73,7 @@ const App = (): React.ReactElement => {
         />
         <Stack.Screen
           name="TestGraph"
-          component={TestGraph}
+          component={StockDetails}
           options={{headerShown: false}}
         />
         <Stack.Screen
