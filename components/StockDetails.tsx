@@ -14,7 +14,7 @@ import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
-const TestGraph = () => {
+const StockDetails = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
 
@@ -30,17 +30,21 @@ const TestGraph = () => {
 
     const [timeFrameSelected, setTimeFrameSelected] = useState("1D")
     const [tickerData, setTickerData] = useState<any>(null)
-
+    const [descMaxHeight, setDescMaxHeight] = useState(150);
+    const [showingMoreDesc, setShowingMoreDesc] = useState(false)
     
     const goBack = () => {
         navigation.goBack();
     };
 
-    
+    const showDesc = () => {
+        if (showingMoreDesc) {
+            setDescMaxHeight(150);
+        } else {
+            setDescMaxHeight(1000);
+        }
+    }
 
-    /*const data = {
-        ticker: route.params?. //'X:BTCUSD'
-    };*/
     
     useEffect(() => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
@@ -143,7 +147,7 @@ const TestGraph = () => {
                 
                 <View style={{flex: 1}}/>
             </View>
-        <ScrollView style={{}}>
+        <ScrollView style={{}} showsVerticalScrollIndicator={false}>
         {/*<View style={{marginLeft: 12, marginTop: 20}}>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{ticker}</Text>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
@@ -187,11 +191,54 @@ const TestGraph = () => {
         </ScrollView>
 
         {tickerData != null &&
-        <View style={{backgroundColor: '#242F42', height: 160, marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
-            <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
-            <Text style={{fontFamily: 'InterTight-SemiBold', color: 'gray', fontSize: 12, marginHorizontal: 12}}>{tickerData.description}</Text>
-        </View>}
+        <View>
+            <View style={{backgroundColor: '#242F42', marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
+                <Text style={{fontFamily: 'InterTight-SemiBold', color: '#aaaaaa', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{tickerData.description}</Text>
+            </View>
+            <View style={{backgroundColor: '#242F42', marginHorizontal: 15, marginTop: 10, borderRadius: 12}}>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>Stats</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Open </Text>}${tickerData.day_open}</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Volume </Text>}{tickerData.day_volume}</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's Low </Text>}${tickerData.day_low}</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's High </Text>}${tickerData.day_high}</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Market Cap </Text>}${tickerData.market_cap}</Text>
+            </View>
+            <View style={{marginHorizontal: 15, marginBottom: 10}}>
+                
+                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginVertical: 15, marginLeft: 15, fontSize: 20}}>News</Text>
+                {tickerData.news.map((item:any, index:any) => (
+                <View key={index} style={{marginHorizontal: 15}}>
+                    {item && 'title' in item && 'publisher' in item && (
+                    <TouchableOpacity style={{}}>
+                        <View style={{flexDirection: 'row', gap: 30}}>
+                        <View style={{flex: 1}}>
+                            <Text style={{color: '#fff', fontFamily: 'InterTight-Bold', fontSize: 11}}>{item.publisher.name}</Text>
+                            <View style={{}}>
+                                <Text style={{color: '#fff', fontFamily: 'InterTight-SemiBold', fontSize: 14}}>{item.title}</Text> 
+                            </View>
+                        </View>
+                        <Image
+                            style={{borderRadius: 12, flex: 0.3}}
+                            source={{uri: item.image_url}}
+                        />
+                        </View>
+                        <View style={{height: 2, backgroundColor: '#242F42', marginVertical: 10}}></View>
+                    </TouchableOpacity>
+                    )}
+                </View>
+                ))}
+                    
+                
+            </View>
+        </View>
+        }
         </ScrollView>
+        <View style={{backgroundColor: '#161d29', marginTop: 10}}>
+        <TouchableOpacity  style={{backgroundColor: '#1ae79c', height: 80, marginBottom: 30, borderRadius: 12, marginHorizontal: 15, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Trade</Text>
+            </TouchableOpacity>
+        </View>
         </View> :
         <View></View>
         }
@@ -201,4 +248,4 @@ const TestGraph = () => {
 };
 
 
-export default TestGraph;
+export default StockDetails;
