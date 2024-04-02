@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Image, ActivityIndicator, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated } from 'react-native';
+import { Image, ActivityIndicator, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -44,6 +44,18 @@ const StockDetails = () => {
             setDescMaxHeight(1000);
         }
     }
+
+    const handlePress = async (url:string) => {
+        // Checking if the link is supported for links with custom schemes (e.g., "https")
+        const supported = await Linking.canOpenURL(url);
+    
+        if (supported) {
+          // Opening the link
+          await Linking.openURL(url);
+        } else {
+          console.error("Don't know how to open URI: " + url);
+        }
+      };
 
     
     useEffect(() => {
@@ -205,10 +217,10 @@ const StockDetails = () => {
             <View style={{marginHorizontal: 15, marginBottom: 10}}>
                 
                 <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginVertical: 15, marginLeft: 15, fontSize: 20}}>News</Text>
-                {tickerData.news.map((item:any, index:any) => (
+                {tickerData.news.slice(0,3).map((item:any, index:any) => (
                 <View key={index} style={{marginHorizontal: 15}}>
                     {item && 'title' in item && 'publisher' in item && (
-                    <TouchableOpacity style={{}}>
+                    <TouchableOpacity onPress={() => handlePress(item.article_url)}>
                         <View style={{flexDirection: 'row', gap: 30}}>
                         <View style={{flex: 1}}>
                             <Text style={{color: '#fff', fontFamily: 'InterTight-Bold', fontSize: 11}}>{item.publisher.name}</Text>
