@@ -12,6 +12,7 @@ import Icon from '@mdi/react';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
 import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import StockDetailGraph from './StockDetailGraph';
 
 
 const StockDetails = () => {
@@ -62,31 +63,14 @@ const StockDetails = () => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
             setStatusBarHeight(response.height);
         });
-        const getPrices = async () => {
+        const getData = async () => {
             try {
-                const response = await axios.post(serverUrl + "/getOneDayStockData", route.params)
-                
-                if (response) {
-                   
-                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                        value: obj.price,
-                        date: new Date(obj.timeField)
-                    }));
-
-                    setPointData(points)
-
-                    setTicker(response.data.ticker)
-
-                    setCurrPrice(String(points[points.length-1].value))
-                    setCurrDate(points[points.length-1].date.toLocaleTimeString("en-US"))
-
-
-                }
 
                 const tickerResponse = await axios.post(serverUrl + "/getTickerDetails", route.params);
 
                 if (tickerResponse) {
                     setTickerData(tickerResponse.data)
+                    //console.log(tickerResponse.data)
                 }
 
             } catch {
@@ -94,7 +78,7 @@ const StockDetails = () => {
             }
         }
 
-        getPrices();
+        getData();
       
 
     }, []);
@@ -116,16 +100,6 @@ const StockDetails = () => {
         },
     ];*/
  
-    const updateVals = (obj:any) => {
-        if (String(obj.value).includes(".") == false) {
-            setCurrPrice(String(obj.value) + ".00")
-        } else if (String(obj.value).split(".")[1].length == 1) {
-            setCurrPrice(String(obj.value) + 0)
-        } else {
-            setCurrPrice(String(obj.value))
-        }
-        setCurrDate(String(obj.date.toLocaleTimeString("en-US")))
-    }
 
     const TimeButton = (timeFrame:string) => {
         return (
@@ -145,7 +119,7 @@ const StockDetails = () => {
     return (
 
        <View style={{backgroundColor: '#161d29', flex: 1}}>
-        {pointData.length > 0 ?
+        {tickerData != null ?
         <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
             <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
@@ -163,31 +137,7 @@ const StockDetails = () => {
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
             <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
         </View>*/}
-        <View style={{marginHorizontal: 15, backgroundColor: '#242F42', borderRadius: 12}}>
-        <View style={{marginLeft: 15, marginTop: 15}}>
-            <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14}}>{ticker}</Text>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${currentPrice}</Text>
-                <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
-                    <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+5.55%</Text>
-                </View>
-            </View>
-        </View>
-        <LineGraph
-            style={{width: '100%', height: 150, marginBottom: 15}}
-            points={pointData}
-            animated={true}
-            color={'#1ae79c'}
-            gradientFillColors={['#0e8a5c', '#242F42']}
-            enablePanGesture
-            onPointSelected={(p) => updateVals(p)}
-            enableIndicator={true}
-            indicatorPulsating={true}
-            lineThickness={4}
-            horizontalPadding={0}
-            //onGestureEnd={() => setCurrPrice(String(pointData[pointData.length - 1].value))}
-        />
-        </View>
+        <StockDetailGraph ticker={tickerData.ticker}/>
         
         <ScrollView horizontal={true} style={{marginTop: 20, marginRight: 15, marginLeft: 15}} showsHorizontalScrollIndicator={false}>
             {TimeButton("1D")}
