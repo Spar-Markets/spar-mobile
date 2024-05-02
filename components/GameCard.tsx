@@ -13,8 +13,6 @@ const data2 = [ {value:50}, {value:55}, {value:52},{value:63},{value:70},{value:
 const data = [ {value:50},{value:48},{value:45},{value:35},{value:43},{value:47},]
 
 
-
-
 /*
 TODO: 
  */

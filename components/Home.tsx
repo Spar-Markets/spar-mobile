@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback, useReducer} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Alert } from 'react-native';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
@@ -14,6 +14,7 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { EmailTypeEnum } from 'plaid';
 import LinearGradient from 'react-native-linear-gradient';
 import io from "socket.io-client";
+import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 
 const Home  = () => {
 
@@ -33,7 +34,10 @@ const Home  = () => {
   const [skillRating, setSkillRating] = useState(0.0)
   const [user, setUser] = useState("")
   const [username, setUsername] = useState("")
-
+  
+  const [linkToken, setLinkToken] = useState("");
+  const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
+  const [accessToken, setAccessToken] = useState("");
 
 
   const data = [
@@ -181,24 +185,6 @@ const Home  = () => {
   }
 
   useEffect(() => {
-    // const ws = new WebSocket('ws://spar-server.fly.dev:3000');
-
-    // ws.onopen = () => {
-    //   console.log('Connected to server');
-    //   ws.send('Hello Server!');
-    // };
-
-    // ws.onmessage = (event) => {
-    //   console.log(`Received message: ${event.data}`);
-    // };
-
-    // ws.onerror = (error) => {
-    //   console.error('WebSocket error:', error.message || JSON.stringify(error));
-    // };
-    
-    // const socket = io('https://spar-server.fly.dev:3000');
-
-
 
 
     getIsInMatchMaking()
@@ -213,9 +199,7 @@ const Home  = () => {
     });
     getBalance();
 
-    // return () => {
-    //   ws.close();
-    // };
+
 
   }, [colorScheme, user]);
 

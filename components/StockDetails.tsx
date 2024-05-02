@@ -8,11 +8,11 @@ import GameCard from './GameCard';
 import GameModesScrollBar from './ActiveGames';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
-import Icon from '@mdi/react';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
 import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import StockDetailGraph from './StockDetailGraph';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 const StockDetails = () => {
@@ -79,12 +79,10 @@ const StockDetails = () => {
         }
 
         getData();
-      
 
     }, []);
 
   
-
     /*const points: GraphPoint[] = [
         {
             date: new Date(2024, 1, 1),
@@ -123,9 +121,9 @@ const StockDetails = () => {
         <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
             <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
-                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, marginLeft: 15, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginBottom: 10}]}>
-                        <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Back</Text>
-                        {/*<Icon path={mdiChevronLeft}/>*/}
+                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: 'transparent'} : {backgroundColor: 'transparent'}, {height: 30,marginHorizontal: 15, marginBottom: 10, alignItems: 'center', display: 'flex', flexDirection: 'row', gap: 10, borderRadius: 12}]}>
+                        <Icon name={'chevron-left'} size= {20} color={"#33aaFF"} style={colorScheme == "dark" ? {color: '#FFF'} : {backgroundColor: '#000'}}/>
+                        <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>Back</Text>
                     </TouchableOpacity>
                 </View>
                 

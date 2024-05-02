@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SuccessScreen from './components/SuccessScreen';
-import Plaid from './components/Plaid';
+import Profile from './components/Profile';
 import { PlaidTheme } from './Style/style';
 import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
@@ -45,8 +45,8 @@ const CoreApp = (): React.ReactElement => {
 
               if (route.name === 'Home') {
                 iconName = focused ? 'home' : 'home';
-              } else if (route.name === 'Plaid') {
-                iconName = focused ? 'credit-card' : 'credit-card';
+              } else if (route.name === 'Profile') {
+                iconName = focused ? 'user' : 'user';
               } else if (route.name === 'Stocks') {
                 iconName = focused ? 'line-chart' : 'line-chart';
               }
@@ -57,8 +57,8 @@ const CoreApp = (): React.ReactElement => {
             
             })}>
             <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
-            <Tab.Screen name="Plaid" component={Plaid}/>
             <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false}}/>
+            <Tab.Screen name="Profile" component={Profile}/>
         </Tab.Navigator>
     </SafeAreaProvider>
     </Auth0Provider>

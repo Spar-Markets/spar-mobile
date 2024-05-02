@@ -4,13 +4,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SuccessScreen from './components/SuccessScreen';
-import Plaid from './components/Plaid';
+import Profile from './components/Profile';
 import { PlaidTheme } from './Style/style';
 import Onboardscreen1 from './components/OnboardScreen';
 import Home from './components/Home';
 import { Auth0Provider } from 'react-native-auth0';
 import CoreApp from './CoreApp';
-import Profile1 from './components/Profile';
 import Deposit from './components/Deposit';
 import Transfers from './components/Transfers';
 import Withdraw from './components/Withdraw';
@@ -53,7 +52,7 @@ const App = (): React.ReactElement => {
         />
         <Stack.Screen
           name="Profile"
-          component={Profile1}
+          component={Profile}
           options={{headerShown: false}}
         />
         <Stack.Screen
