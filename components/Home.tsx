@@ -13,6 +13,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { EmailTypeEnum } from 'plaid';
 import LinearGradient from 'react-native-linear-gradient';
+import io from "socket.io-client";
 
 const Home  = () => {
 
@@ -194,8 +195,11 @@ const Home  = () => {
     // ws.onerror = (error) => {
     //   console.error('WebSocket error:', error.message || JSON.stringify(error));
     // };
-
     
+    // const socket = io('https://spar-server.fly.dev:3000');
+
+
+
 
     getIsInMatchMaking()
     getEmail()

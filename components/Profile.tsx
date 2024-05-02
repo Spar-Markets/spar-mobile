@@ -37,11 +37,14 @@ const Profile  = () => {
       NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
         setStatusBarHeight(response.height);
       });
+
+
+
     });
  
 
 return (
-    <View style={[colorScheme == "dark" ? {backgroundColor: '#181818'} : {backgroundColor: '#fff'}, {flex: 1}]}>
+    <View style={[colorScheme == "dark" ? {backgroundColor: '#161d29'} : {backgroundColor: '#fff'}, {flex: 1}]}>
         <View style={{marginTop: statusBarHeight + 10, marginLeft: 12, flexDirection: 'row'}}>
             <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>
                 <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Back</Text>

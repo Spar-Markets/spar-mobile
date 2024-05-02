@@ -15,7 +15,6 @@ const Plaid = ({ navigation }: any) => {
   const [balance, setBalance] = useState(null);
   const [accessToken, setAccessToken] = useState("");
 
-
   const createLinkToken = useCallback(async () => {
     await fetch(serverUrl+"/createLinkToken", {
     method: "POST",

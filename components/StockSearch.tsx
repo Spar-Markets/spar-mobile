@@ -50,12 +50,12 @@ const StockSearch = () => {
         </View>
         <View style={{flex: 1, flexDirection: 'row', gap: 5}}>
           <View style={{flex: 1}}></View>
-          <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12}}>
+          <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#242F4', justifyContent: 'center', alignItems: 'center', borderRadius: 12}}>
             {/*<Image source={require('../assets/images/account.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
             <Icon name="user" size={20} color="#ffffff" />
 
           </TouchableOpacity>
-          <TouchableOpacity style={{width: 40, backgroundColor: '#3B30B9', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginRight: 12}}>
+          <TouchableOpacity style={{width: 40, backgroundColor: '#242F42', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginRight: 12}}>
             {/*<Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
           </TouchableOpacity>
         </View>
