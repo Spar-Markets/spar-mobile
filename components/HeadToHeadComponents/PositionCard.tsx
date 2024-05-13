@@ -7,11 +7,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
 import { LineGraph, GraphPoint } from 'react-native-graph';
 import axios from 'axios'
-import { serverUrl } from '../constants/global';
+import { serverUrl } from '../../constants/global';
 import { point } from '@shopify/react-native-skia';
+import LinearGradient from 'react-native-linear-gradient';
 
 
-const StockCard = (props:any) => {
+const PositionCard = (props:any) => {
 
     const colorScheme = useColorScheme();
 
@@ -65,29 +66,30 @@ const StockCard = (props:any) => {
     return (
         <View>
         {pointData.length > 0 &&
-        <TouchableOpacity onPress={() => navigation.navigate("TestGraph", {ticker:props.ticker, matchId: props.matchId})} style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("TestGraph", {ticker:props.ticker, matchId: props.matchId, ownStock: props.ownStock})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
-            <View style={{height: 80, backgroundColor: "#111", borderColor: '#444', borderWidth: 2, flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
+            <LinearGradient colors={['#222', '#333', '#444']} style={{height: 80, backgroundColor: "#222", borderWidth: 2, borderColor: '#333', flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>
                     <Text style={{color: '#fff', fontFamily: 'InterTight-Black', fontSize: 16}}>{props.ticker}</Text>
+                    <Text style={{color: '#aaaaaa', fontFamily: 'InterTight-Black', fontSize: 11}}>2 Shares</Text>
                 </View>
                 <LineGraph
                     style={{flex: 1, height: 40, marginLeft: 20, marginRight: 20}}
                     points={pointData}
                     animated={true}
                     color={percentChange > 0 ? '#1ae79c' : '#e71a1a'}
-                    gradientFillColors={percentChange > 0 ? ['#0e8a5c', '#242F42'] : ['#e71a1a', '#242F42']}
+                    //gradientFillColors={percentChange > 0 ? ['#0e8a5c', '#111'] : ['#e71a1a', '#333']}
                 />
                 <View style={{marginRight: 10, gap: 5}}>
                     <View style={{backgroundColor: '#e71a1a', borderRadius: 10, width: 90, alignItems: 'center'}}>
-                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 16, color:'#fff', paddingVertical: 5}}>${recentPrice/*String(pointData[pointData.length-1].value).split(".")[0] + "." + String(pointData[pointData.length-1].value).split(".")[1].substring(0, 2)*/}</Text>
+                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 14, color:'#fff', paddingVertical: 5}}>${recentPrice/*String(pointData[pointData.length-1].value).split(".")[0] + "." + String(pointData[pointData.length-1].value).split(".")[1].substring(0, 2)*/}</Text>
                     </View>
                     {percentChange > 0 ? 
                     <Text style={{fontFamily: 'InterTight-Black', fontSize: 12, color:'#0e8a5c', textAlign: 'right'}}>+{percentChange}%</Text> 
                     : <Text style={{fontFamily: 'InterTight-Black', fontSize: 12, color:'#e71a1a', textAlign: 'right'}}>{percentChange}%</Text>}
                 </View>
-                </View>
-                <View style={{height: 1, backgroundColor: '#292929'}}></View>
+                </LinearGradient>
+                {/*<View style={{height: 1, backgroundColor: '#292929'}}></View>*/}
             </View>
         </TouchableOpacity> }
         </View>
@@ -95,4 +97,4 @@ const StockCard = (props:any) => {
 };
 
 
-export default StockCard;
+export default PositionCard;

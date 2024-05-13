@@ -5,42 +5,15 @@ import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
+import LinearGradient from 'react-native-linear-gradient';
+import { GraphPoint, LineGraph } from 'react-native-graph';
+import { serverUrl } from '../constants/global';
+import axios from 'axios';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 var styles = require('../Style/style');
 
-const data = [ {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:50}, {value:51}, {value:52},{value:54},{value:58},{value:54},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:62},{value:54},{value:43},{value:32},{value:43},{value:36}, {value:45},
-  {value:48},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52}]
 
-const data2 = [ {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68},
-  {value:50},{value:50},{value:51},{value:55},{value:57},{value:58},
-  {value:58},{value:51},{value:54},{value:53},{value:49},{value:48}, {value:52},
-  {value:56},{value:75},{value:68},{value:65},{value:63},{value:68}, {value:62},
-  {value:49},{value:40},{value:45},{value:52},{value:57},{value:62}, {value:68}
-]
-
-
-
-
-/*
-TODO: 
- */
 
 const GameCard = (props:any) => {
 
@@ -50,11 +23,60 @@ const GameCard = (props:any) => {
     const sendData = {
       mode: props.mode,
       amountWagered: props.amountWagered,
-      endTime: props.timeRemaining,
+      endDate: props.endDate.getTime(),
       yourPercentChange: props.yourPercentChange,
       opp: props.opp,
       oppPercentChange: props.oppPercentChange,
+      idIndex: props.idIndex
     }
+
+    const [pointData, setPointData] = useState<GraphPoint[]>([])
+    const [pointData2, setPointData2] = useState<GraphPoint[]>([])
+
+    useEffect(() => {
+  
+      const getPrices = async () => {
+          try {
+              const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'TSLA'})
+              
+              if (response) {
+                 
+                  const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
+                      value: obj.price,
+                      date: new Date(obj.timeField)
+                  }));
+
+                  setPointData(points)
+
+              }
+          } catch {
+              console.error("error getting prices")
+          }
+
+          try {
+            const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'AAPL'})
+            
+            if (response) {
+               
+                const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
+                    value: obj.price,
+                    date: new Date(obj.timeField)
+                }));
+
+                setPointData2(points)
+
+            }
+        } catch {
+            console.error("error getting prices")
+        }
+
+          
+      }
+
+  
+      getPrices();
+
+  }, []);
 
     const calculateTimeRemaining = (endDate:Date) => {
       const endDateTime = new Date(endDate).getTime();
@@ -92,26 +114,12 @@ const GameCard = (props:any) => {
 
     return (
         <TouchableOpacity onPress={() => navigation.navigate("GameScreen", sendData)} style={{marginBottom: 10, flexDirection: 'row'}}>
-         
-        <View style={[colorScheme == 'dark' ? {backgroundColor: '#242F42'} : {backgroundColor: '#fff'}, {marginHorizontal: 15, borderRadius: 12, height: 120, flex: 1, shadowColor: 'black',
-    shadowOpacity: 0.25,
-    shadowRadius: 4,}]}>
-          <View style={{flexDirection: 'row', gap: 5}}>
-            <View style={{backgroundColor: '#6254ff', height: 30, marginTop: 5, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginLeft: 5}}>
-              <Text style={{color:'#fff', fontFamily: 'InterTight-Black', fontSize: 12, paddingHorizontal: 10}}>{props.mode}</Text>
-            </View>
-            <View style={{flex: 1}}></View>
-            <View style={{height: 30, marginTop: 5, alignItems: 'center', backgroundColor: '#242F42', borderRadius: 10, justifyContent: 'center'}}>
-              <Text style={{color:'#fff', fontFamily: 'InterTight-Black', fontSize: 12, paddingHorizontal: 10}}>{timeRemaining}</Text>
-            </View>
-            <View style={{height: 30, marginTop: 5, backgroundColor: '#1ae79c', borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 5}}>
-              <Text style={{color:'#000', fontFamily: 'InterTight-Black', fontSize: 12, paddingHorizontal: 10}}>${props.amountWagered}</Text>
-            </View>
-          </View>
+        <LinearGradient colors={['#272743', '#43436e']} start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}} style={[colorScheme == 'dark' ? {backgroundColor: '#272743'} : {backgroundColor: '#fff'}, {marginLeft: 15, borderRadius: 12,height: 200, width: 180, flex: 1, borderWidth: 2, borderColor: '#3a3a61'}]}>
           <View style={{flexDirection: 'row'}}>
-          <View style={{gap: 10, marginLeft: 10, marginTop: 10, flex: 1}}>
+          <View style={{gap: 10, marginHorizontal: 10, marginTop: 10, flex: 1}}>
             <View style={{flexDirection: 'row', gap: 5, alignItems:'center'}}>
-              <View style={{backgroundColor: '#FFBB54', height: 7, width: 7, borderRadius: 5}}></View>
+            <Icon name={"star"} size= {10} color={"#fff"} style={colorScheme == "dark" ? {color: '#1ae79c'} : {color: '#fff'}}/>
               <View style={{justifyContent: 'center'}}>
                 <Text style={[colorScheme == 'dark' ? {color: '#fff'} : {color: '#000'}, 
                 {fontFamily: 'InterTight-Black', fontSize: 14}]}>You</Text>
@@ -121,26 +129,46 @@ const GameCard = (props:any) => {
               </View>
             </View>
             <View style={{flexDirection: 'row', gap: 5, alignItems:'center'}}>
-            <View style={{backgroundColor: '#E71AA1', height: 7, width: 7, borderRadius: 5}}></View>
+            <View style={{backgroundColor: 'gray', height: 7, width: 7, borderRadius: 5, marginLeft: 1}}></View>
               <View style={{justifyContent: 'center'}}>
                 <Text style={[colorScheme == 'dark' ? {color: '#fff'} : {color: '#000'}, 
-                {fontFamily: 'InterTight-SemiBold', fontSize: 14}]}>{props.opp}</Text>
+                {fontFamily: 'InterTight-Black', fontSize: 14}]}>{props.opp}</Text>
               </View>
-              <View style={{backgroundColor: '#888888', borderRadius: 5}}>
+              <View style={[colorScheme == "dark" ? {backgroundColor: '#888888', } : {backgroundColor:'#cccccc'}, {borderRadius: 5}]}>
                   <Text style={{fontSize: 12, paddingHorizontal: 10, paddingVertical: 3, color: '#000', fontFamily: 'InterTight-Bold'}}>{props.oppPercentChange}%</Text>
               </View>
             </View>
           </View>
-            <View style={{flex: 1.3}}>
-              <LineChart data={data} data2={data2} 
-                color1={'#E71AA1'} color2={'#FFBB54'}  
-                hideRules={true} curved={true} xAxisColor={"rgba(0, 0, 0, 0)"} 
-                thickness={2.5} maxValue={100} yAxisColor={"rgba(0, 0, 0, 0)"} 
-                hideYAxisText={true} height={80} hideDataPoints1={true} 
-                hideDataPoints2={true} spacing={170/data.length}/>
-            </View>
           </View>
-        </View>
+          <View style={{flex: 1}}>
+          <LineGraph
+                style={{position: 'absolute', top: 10, left: 0, right: 0, bottom: 10}}
+                points={pointData}
+                animated={true}
+                color={'#1ae79c'}
+                //gradientFillColors={colorScheme == "dark" ? ['#0e8a5c', '#29292f']:['#0e8a5c', '#fff']}
+                //onPointSelected={(p) => updateVals(p)}
+                lineThickness={3}
+                horizontalPadding={0}/>
+            <LineGraph
+                style={{position: 'absolute', top: 10, left: 0, right: 0, bottom: 10}}
+                points={pointData2}
+                animated={true}
+                color={"#808080"}
+                //gradientFillColors={colorScheme == "dark" ? ['#0e8a5c', '#29292f']:['#0e8a5c', '#fff']}
+                //onPointSelected={(p) => updateVals(p)}
+                lineThickness={3}
+                horizontalPadding={0}/>
+           </View>
+           <View style={{flexDirection: 'row', marginBottom: 5, marginHorizontal: 5, justifyContent: 'center', alignItems: 'center'}}>
+             <Text style={{color: '#fff', fontFamily: 'InterTight-Black'}}>{timeRemaining}</Text>
+             <View style={{flex: 1}}></View>
+             <View style={{backgroundColor: '#fff', borderRadius: 5}}>
+                <Text style={{padding: 3, fontFamily: 'InterTight-Black'}}>${props.amountWagered}</Text>
+             </View>
+           </View>
+        </LinearGradient>
+        
       </TouchableOpacity>
     );
 };
