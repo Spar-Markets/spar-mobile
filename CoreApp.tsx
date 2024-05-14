@@ -11,6 +11,7 @@ import { Auth0Provider } from 'react-native-auth0';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import StockSearch from './components/StockSearch';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Bank from './components/Bank'
 
 const Tab = createBottomTabNavigator();
 
@@ -48,6 +49,8 @@ const CoreApp = (): React.ReactElement => {
                 iconName = focused ? 'user' : 'user';
               } else if (route.name === 'Stocks') {
                 iconName = focused ? 'line-chart' : 'line-chart';
+              } else if (route.name === 'Bank') {
+                iconName = focused ? 'bank' : 'bank';
               }
 
               // You can return any component here, not just an icon
@@ -57,6 +60,7 @@ const CoreApp = (): React.ReactElement => {
             })}>
             <Tab.Screen name="Home" component={Home} options={{headerShown: false, tabBarLabel: ""}}/>
             <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false, tabBarLabel: ""}}/>
+            <Tab.Screen name="Bank" component={Bank} options={{headerShown: false, tabBarLabel: ""}}/>
             <Tab.Screen name="Profile" component={Profile} options={{headerShown: false, tabBarLabel: ""}}/>
         </Tab.Navigator>
     </SafeAreaProvider>
