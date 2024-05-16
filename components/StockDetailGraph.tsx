@@ -9,6 +9,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GraphPoint, LineGraph } from 'react-native-graph';
 import { serverUrl } from '../constants/global';
 import axios from 'axios'
+import LinearGradient from 'react-native-linear-gradient';
 
 
 const StockDetailGraph = (props:any) => {
@@ -38,7 +39,7 @@ const StockDetailGraph = (props:any) => {
     useEffect(() => {
         const getPrices = async () => {
             try {
-                console.log(props.ticker)
+                //console.log(props.ticker)
                 const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
                 if (response) {
                    
@@ -48,7 +49,7 @@ const StockDetailGraph = (props:any) => {
                     }));
 
                     setPointData(points)
-                    console.log(points)
+                    //console.log(points)
 
                     setCurrPrice(String(points[points.length-1].value))
                     setCurrDate(points[points.length-1].date.toLocaleTimeString("en-US"))
@@ -67,9 +68,9 @@ const StockDetailGraph = (props:any) => {
     }, []);
     
     return (
-        <View>
+    <View>
     
-    <View style={{marginHorizontal: 15, backgroundColor: '#242F42', borderRadius: 12}}>
+    <LinearGradient colors={['#222', '#333', '#444']} style={{marginHorizontal: 15, borderColor: '#444', borderWidth: 2, borderRadius: 12}}>
     <View style={{marginLeft: 15, marginTop: 15}}>
     <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14}}>{props.ticker}</Text>
     <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -80,21 +81,21 @@ const StockDetailGraph = (props:any) => {
     </View>
     </View>
     <LineGraph
-    style={{width: '100%', height: 150, marginBottom: 15}}
+    style={{height: 150, marginBottom: 15}}
     points={pointData}
     animated={true}
     color={'#1ae79c'}
-    gradientFillColors={['#0e8a5c', '#242F42']}
+    //gradientFillColors={['#0e8a5c', '#444']}
     enablePanGesture
     onPointSelected={(p) => updateVals(p)}
     enableIndicator={true}
     indicatorPulsating={true}
-    lineThickness={4}
+    lineThickness={3}
     horizontalPadding={0}
     //onGestureEnd={() => setCurrPrice(String(pointData[pointData.length - 1].value))}
     />
-</View>
-</View>
+    </LinearGradient>
+    </View>
     );
 };
 

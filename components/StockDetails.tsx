@@ -2,7 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import { Image, ActivityIndicator, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
 import GameModesScrollBar from './ActiveGames';
@@ -13,6 +13,7 @@ import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import StockDetailGraph from './StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 const StockDetails = () => {
@@ -46,6 +47,8 @@ const StockDetails = () => {
         }
     }
 
+    const matchId = (route.params as {matchId?: string})?.matchId ?? null;
+
     const handlePress = async (url:string) => {
         // Checking if the link is supported for links with custom schemes (e.g., "https")
         const supported = await Linking.canOpenURL(url);
@@ -57,6 +60,7 @@ const StockDetails = () => {
           console.error("Don't know how to open URI: " + url);
         }
       };
+
 
     
     useEffect(() => {
@@ -77,6 +81,7 @@ const StockDetails = () => {
                 console.error("error getting prices")
             }
         }
+        console.log(matchId)
 
         getData();
 
@@ -104,9 +109,9 @@ const StockDetails = () => {
         <View>
         {timeFrameSelected == timeFrame ?
         <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={{backgroundColor: '#1ae79c', justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}}>
-            <Text style={{color:'#242F42', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
+            <Text style={{color:'#111', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
         </TouchableOpacity> : 
-        <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={{backgroundColor: '#161d29', justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}}>
+        <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={{backgroundColor: '#111', justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}}>
             <Text style={{color:'#1ae79c', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
         </TouchableOpacity>
         }
@@ -114,9 +119,32 @@ const StockDetails = () => {
         )
     }
 
+
+
+    /*const buyStock = async () => {
+        const email = await AsyncStorage.getItem("userEmail");
+        try {
+            console.log(email)
+            await axios.post(serverUrl + "/buyStock", {email: email})
+        } catch (error) {
+            console.error(error)
+        }
+    }*/
+
+    const purchaseStock = async () => {
+        try {
+            const email = await AsyncStorage.getItem("userEmail");
+            const buyResponse = await axios.post(serverUrl + "/purchaseStock", {email: email, matchId: matchId, buyPrice: currentPrice, ticker: tickerData.ticker});
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    
+
     return (
 
-       <View style={{backgroundColor: '#161d29', flex: 1}}>
+       <View style={{backgroundColor: '#111', flex: 1}}>
         {tickerData != null ?
         <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
             <View style={{flexDirection: 'row'}}>
@@ -150,18 +178,18 @@ const StockDetails = () => {
 
         {tickerData != null &&
         <View>
-            <View style={{backgroundColor: '#242F42', marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
+            <LinearGradient colors={['#222', '#333', '#444']} style={{borderColor: '#333', borderWidth: 2, marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
                 <Text style={{fontFamily: 'InterTight-SemiBold', color: '#aaaaaa', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{tickerData.description}</Text>
-            </View>
-            <View style={{backgroundColor: '#242F42', marginHorizontal: 15, marginTop: 10, borderRadius: 12}}>
+            </LinearGradient>
+            <LinearGradient colors={['#222', '#333', '#444']} style={{borderColor: '#333', borderWidth: 2, marginHorizontal: 15, marginTop: 10, borderRadius: 12}}>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>Stats</Text>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Open </Text>}${tickerData.day_open}</Text>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Volume </Text>}{tickerData.day_volume}</Text>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's Low </Text>}${tickerData.day_low}</Text>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's High </Text>}${tickerData.day_high}</Text>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Market Cap </Text>}${tickerData.market_cap}</Text>
-            </View>
+            </LinearGradient>
             <View style={{marginHorizontal: 15, marginBottom: 10}}>
                 
                 <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginVertical: 15, marginLeft: 15, fontSize: 20}}>News</Text>
@@ -181,7 +209,7 @@ const StockDetails = () => {
                             source={{uri: item.image_url}}
                         />
                         </View>
-                        <View style={{height: 2, backgroundColor: '#242F42', marginVertical: 10}}></View>
+                        <View style={{height: 2, backgroundColor: '#333', marginVertical: 10}}></View>
                     </TouchableOpacity>
                     )}
                 </View>
@@ -192,10 +220,12 @@ const StockDetails = () => {
         </View>
         }
         </ScrollView>
-        <View style={{backgroundColor: '#161d29', marginTop: 10}}>
-        <TouchableOpacity  style={{backgroundColor: '#1ae79c', height: 80, marginBottom: 30, borderRadius: 12, marginHorizontal: 15, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: 'white', fontSize: 20, fontFamily: 'InterTight-Black'}}>Trade</Text>
-            </TouchableOpacity>
+        <View style={{backgroundColor: '#111', marginTop: 10}}>
+        <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: tickerData.ticker, matchId: matchId})}} style={{height: 80, marginBottom: 30, borderRadius: 12, marginHorizontal: 15, justifyContent: 'center', alignItems: 'center'}}>
+            <LinearGradient colors={['#1ae79c', '#13ad75', '#109464']} style={{borderColor: '#13ad75', borderWidth: 2, flex: 1, width: '100%', borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={{color: '#fff', fontSize: 20, fontFamily: 'InterTight-Black'}}>Buy</Text>
+            </LinearGradient>
+        </TouchableOpacity>
         </View>
         </View> :
         <View></View>

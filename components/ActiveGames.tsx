@@ -9,8 +9,9 @@ import { serverUrl } from '../constants/global';
 import axios from 'axios'
 import { Skeleton } from '@rneui/themed';
 import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const GameModesScrollBar = () => {
+const ActiveGames = (props:any) => {
 
     interface MatchData {
         wagerAmt: number;
@@ -114,26 +115,36 @@ const GameModesScrollBar = () => {
         return `${hours}:${minutes}:${seconds}`;
     }
 
+
+
     return (
         <View style={{flex: 1}}>
-            <View style={{height: 40, alignItems: 'center'}}>
+            {/*<View style={{height: 40, alignItems: 'center'}}>
                 <View style={{flexDirection: 'row', marginHorizontal: 15}}>
                     <GameModeButton text={"HEAD TO HEAD"}></GameModeButton>
                     <GameModeButton text={"TOURNAMENTS"}></GameModeButton>
                 </View>
-            </View>
-
-            <ScrollView style={{marginTop: 10}} showsVerticalScrollIndicator={false}>
-            {selectedMode == "HEAD TO HEAD" && matchData.length > 0 ? matchData.map((item, index) => (
-                <View key={index}>
-                    {item && 'wagerAmt' in item && 'user1' in item && (
-                    <GameCard amountWagered={item!.wagerAmt} mode={"Stock"} 
-                    yourPercentChange={3.54} opp={item!.user1.name.split("@")[0]} oppPercentChange={1.56}
-                    endDate={new Date(2024, 2, 29, 17, 0)}></GameCard> 
-                    )}
-                </View>
-            ))
+            </View>*/}
+            <ScrollView style={{marginTop: 0}} horizontal={true} showsHorizontalScrollIndicator={false}>
+                   {/* <TouchableOpacity style={{marginBottom: 10, flexDirection: 'row'}}>
+                        <View style={[colorScheme == 'dark' ? {backgroundColor: '#6254ff'} : {backgroundColor: '#fff'}, {marginLeft: 15, borderRadius: 6, justifyContent: 'center', alignItems: 'center', flex: 1, shadowColor: 'black', height: 200, width: 100}]}>
+                            <View style={{width: 80, height: 80, borderRadius: 50, justifyContent: 'center', alignItems: 'center'}}>
+                                <Icon name={"plus"} size= {36} color={"#fff"} style={colorScheme == "dark" ? {color: '#fff'} : {color: '#fff'}}/>
+                            </View>
+                        </View>
+        </TouchableOpacity>*/}
+                {matchData.length > 0 ? 
+                matchData.map((item, index) => (
+               
+                    <View key={index} style={{flexDirection: 'row'}}>
+                        {item && 'wagerAmt' in item && 'user1' in item && (
+                        <GameCard amountWagered={item!.wagerAmt} mode={"Stock"} idIndex={index}
+                        yourPercentChange={3.54} opp={item!.user1.name.split("@")[0]} oppPercentChange={1.56}
+                        endDate={new Date(2024, 4, 10, 12, 0)}></GameCard> 
+                        )}
+                    </View>
                 
+                ))
                 : 
                 <View style={{marginHorizontal: 15}}>
                  <Skeleton
@@ -213,4 +224,4 @@ const GameModesScrollBar = () => {
 
 
 
-export default GameModesScrollBar;
+export default ActiveGames;

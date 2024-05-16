@@ -16,6 +16,8 @@ import Withdraw from './components/Withdraw';
 import StockDetails from './components/StockDetails';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import GameScreen from './components/GameScreen'
+import InGameStockSearch from './components/InGameStockSearch';
+import StockOrder from './components/HeadToHeadComponents/StockOrder';
 
 
 const Stack = createNativeStackNavigator();
@@ -79,6 +81,18 @@ const App = (): React.ReactElement => {
           name="GameScreen"
           component={GameScreen}
           options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="InGameStockSearch"
+          component={InGameStockSearch}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="StockOrder"
+          component={StockOrder}
+          options={{headerShown: false}}
+          
+          
         />
       </Stack.Navigator>
       </NavigationContainer>

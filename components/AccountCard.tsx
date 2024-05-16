@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GraphPoint, LineGraph } from 'react-native-graph';
 import { serverUrl } from '../constants/global';
 import axios from 'axios'
+import LinearGradient from 'react-native-linear-gradient';
 
 
 const AccountCard = (props:any) => {
@@ -48,49 +49,56 @@ const AccountCard = (props:any) => {
         getPrices();
 
     }, []);
-    
+
+    const [timeFrameSelected, setTimeFrameSelected] = useState("1D")
+
+    const TimeButton = (timeFrame:string) => {
+        return (
+        <View>
+        {timeFrameSelected == timeFrame ?
+        <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={{backgroundColor: '#1ae79c', justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}}>
+            <Text style={{color:'#000', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
+        </TouchableOpacity> : 
+        <TouchableOpacity onPress={() => setTimeFrameSelected(timeFrame)} style={[colorScheme=="dark" ? {backgroundColor: '#000'} : {backgroundColor:'#eee'}, {justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginHorizontal: 5}]}>
+            <Text style={{color:'#1ae79c', paddingHorizontal: 10, paddingVertical: 5, fontFamily: 'InterTight-Black', fontSize: 15}}>{timeFrame}</Text>
+        </TouchableOpacity>
+        }
+        </View>
+        )
+    }
 
     return (
         <View>
-        <View style={{flexDirection: 'row', marginHorizontal: 15}}>
-        <TouchableOpacity onLayout={onLayout} style={[colorScheme == 'dark' ? {backgroundColor: '#242F42'} : {backgroundColor: '#fff'}, styles.container]}>
-          <View style={{justifyContent: 'center'}}>
-            <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Account Value</Text>
-            <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
-                <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>${props.accountVal}</Text>
-                <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
-                    <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+5.55%</Text>
-                </View>
+        <TouchableOpacity style={[colorScheme == "dark" ? {backgroundColor: '#bfeab9'}:{backgroundColor:'#fff'}, {borderRadius: 12, width: 100, height: 100, 
+        marginHorizontal: 15, justifyContent: 'center', alignItems: 'center'}]}>
+            <View style={{alignItems: 'center'}}>
+                <Text style={{color: '#000', fontFamily: 'InterTight-SemiBold', fontSize: 14}}>Rating</Text>
+                <Text style={[colorScheme == 'dark' ? {color:'#000'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>{props.rating}</Text>
             </View>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={{flex: 0.15, backgroundColor: '#1ae79c', width: 30, marginTop: 8, borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#242F42'}}>+</Text>
-        </TouchableOpacity>
-        </View>
-        <TouchableOpacity style={{height: 80, backgroundColor: '#242F42', marginTop: 8, borderRadius: 12, marginHorizontal: 15, justifyContent: 'center', flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{}}>
-                <Text style={{color: '#888888', fontFamily: 'InterTight-SemiBold', fontSize: 14, marginLeft: 15}}>Rating</Text>
-                <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
-                    <Text style={[colorScheme == 'dark' ? {color:'#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 24}]}>{props.rating}</Text>
-                    <View style={{backgroundColor: '#1ae79c', borderRadius: 5, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5, marginLeft: 10, height: 20}}>
-                        <Text style={{color: '#242F42', fontFamily: 'InterTight-Bold', fontSize: 12}}>+56</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={{flex: 1, marginHorizontal: 25}}>
+            {/*<View style={{flex: 1}}>
+            
             <LineGraph
-                style={{height: 50, marginBottom: 12}}
+                style={{height: 40, width: 100}}
                 points={pointData}
                 animated={true}
                 color={'#1ae79c'}
-                gradientFillColors={['#0e8a5c', '#242F42']}
+                //gradientFillColors={colorScheme == "dark" ? ['#0e8a5c', '#222']:['#0e8a5c', '#fff']}
                 //onPointSelected={(p) => updateVals(p)}
-                lineThickness={5}
+                lineThickness={1}
                 horizontalPadding={0}
-    />
-            </View>
+       
+            </View>*/}
         </TouchableOpacity>
+       {/*<ScrollView horizontal={true} style={{marginTop: 10, marginRight: 10, marginLeft: 10}} showsHorizontalScrollIndicator={false}>
+            {TimeButton("1D")}
+            {TimeButton("1W")}
+            {TimeButton("1M")}
+            {TimeButton("3M")}
+            {TimeButton("YTD")}
+            {TimeButton("1Y")}
+            {TimeButton("5Y")}
+            {TimeButton("MAX")}
+        </ScrollView>*/}
         </View>
     );
 };
