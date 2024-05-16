@@ -11,6 +11,8 @@ import { Auth0Provider } from 'react-native-auth0';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import StockSearch from './components/StockSearch';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Change from './components/change';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -59,6 +61,8 @@ const CoreApp = (): React.ReactElement => {
             <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
             <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false}}/>
             <Tab.Screen name="Profile" component={Profile}/>
+            <Tab.Screen name="change" component={Change}/>
+
         </Tab.Navigator>
     </SafeAreaProvider>
     </Auth0Provider>
