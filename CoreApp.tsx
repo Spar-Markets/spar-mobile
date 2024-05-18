@@ -60,6 +60,7 @@ const CoreApp = (): React.ReactElement => {
             })}>
             <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
             <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false}}/>
+            <Tab.Screen name="Bank" component={Bank} options={{headerShown: false}}/>
             <Tab.Screen name="Profile" component={Profile}/>
         </Tab.Navigator>
     </SafeAreaProvider>
