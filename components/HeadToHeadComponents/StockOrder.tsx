@@ -14,7 +14,6 @@ import Icon from '@mdi/react';
 const StockOrder = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
-
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [styles, setStyles] = useState(darkStyles);
     const [currAccessToken, setCurrAccessToken] = useState();
@@ -191,9 +190,6 @@ return (
     </View>
     );
 };
-
-
-
 
 const darkStyles = StyleSheet.create({
     row: {

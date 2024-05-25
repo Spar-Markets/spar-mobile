@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import StockCard from './StockCard';
 import { Skeleton } from '@rneui/themed';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import StockCardGame from './HeadToHeadComponents/StockCardGame';
 
 const StockSearch = () => {
     const navigation = useNavigation<any>(); 

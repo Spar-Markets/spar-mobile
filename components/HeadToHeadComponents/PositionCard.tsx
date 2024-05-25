@@ -11,13 +11,9 @@ import { serverUrl } from '../../constants/global';
 import { point } from '@shopify/react-native-skia';
 import LinearGradient from 'react-native-linear-gradient';
 
-
 const PositionCard = (props:any) => {
-
     const colorScheme = useColorScheme();
-
     const navigation = useNavigation<any>();
-
     const [pointData, setPointData] = useState<GraphPoint[]>([])
     const [tickerData, setTickerData] = useState<any>(null)
     const [percentChange, setPercentChange] = useState(0.0);
@@ -27,7 +23,7 @@ const PositionCard = (props:any) => {
         const getPrices = async () => {
             try {
                 const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
-            
+             
                 if (response) {
                
                     const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
@@ -47,26 +43,21 @@ const PositionCard = (props:any) => {
         const getDetails = async () => {
             try {
                 const response = await axios.post(serverUrl + "/getTickerDetails", {ticker: props.ticker})
-                
                 if (response) {
                     setTickerData(response.data)
                 }
             } catch {
                 console.error("error getting details")
-        
             }
         }
         getPrices();
         getDetails();
-        
-
-
     }, [])
   
     return (
         <View>
         {pointData.length > 0 &&
-        <TouchableOpacity onPress={() => navigation.navigate("TestGraph", {ticker:props.ticker, matchId: props.matchId, ownStock: props.ownStock})} style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("StockDetailsInGame", {ticker:props.ticker, matchId: props.matchId, ownStock: props.ownStock})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
             <LinearGradient colors={['#222', '#333', '#444']} style={{height: 80, backgroundColor: "#222", borderWidth: 2, borderColor: '#333', flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>
@@ -95,6 +86,5 @@ const PositionCard = (props:any) => {
         </View>
     );
 };
-
 
 export default PositionCard;

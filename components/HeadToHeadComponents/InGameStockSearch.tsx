@@ -4,14 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import GameCard from './GameCard';
-import GameModesScrollBar from './ActiveGames';
+import GameCard from '../GameCard';
+import GameModesScrollBar from '../ActiveGames';
 import axios from 'axios';
-import { serverUrl } from '../constants/global';
+import { serverUrl } from '../../constants/global';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
 import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import StockCard from './StockCard';
+import StockCardGame from '../HeadToHeadComponents/StockCardGame';
 import { Skeleton } from '@rneui/themed';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -103,7 +103,7 @@ const InGameStockSearch = () => {
         </View>
       </View> :
         <ScrollView>
-            <StockCard ticker={"AAPL"} matchId={activeMatchId}></StockCard>
+            <StockCardGame ticker={"AAPL"} matchId={activeMatchId}></StockCardGame>
         </ScrollView>
       }
       </View>

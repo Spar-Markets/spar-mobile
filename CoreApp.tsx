@@ -58,9 +58,10 @@ const CoreApp = (): React.ReactElement => {
             },
             
             })}>
-            <Tab.Screen name="Home" component={Home} options={{headerShown: false}}/>
-            <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false}}/>
-            <Tab.Screen name="Profile" component={Profile}/>
+            <Tab.Screen name="Home" component={Home} options={{headerShown: false, tabBarLabel: ""}}/>
+            <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false, tabBarLabel: ""}}/>
+            <Tab.Screen name="Bank" component={Bank} options={{headerShown: false, tabBarLabel: ""}}/>
+            <Tab.Screen name="Profile" component={Profile} options={{headerShown: false, tabBarLabel: ""}}/>
         </Tab.Navigator>
     </SafeAreaProvider>
     </Auth0Provider>
