@@ -8,8 +8,7 @@ import GameCard from '../GameCard';
 import GameModesScrollBar from '../ActiveGames';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
-import Icon from '@mdi/react';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const StockOrder = () => {
     const navigation = useNavigation<any>(); 
@@ -20,10 +19,13 @@ const StockOrder = () => {
     const [accountID, setAccountID] = useState("");
     const [balance, setBalance] = useState("Retrieving...");
     const [input, setInput] = useState('0.00');
-    
+    const [orderTotal, setTotal] = useState('0.00');
+    const [stockPrice, setPrice] = useState('1.00');
+
     const goBack = () => {
         navigation.goBack();
     };
+    Icon.loadFont();
 
     const route = useRoute();
     const ticker = (route.params as { ticker?: string})?.ticker ?? "";
@@ -73,6 +75,7 @@ const StockOrder = () => {
       }
       else {
         setInput((prevInput) => prevInput + value);
+
       }
     };
   
@@ -93,23 +96,26 @@ const StockOrder = () => {
     };
 
 
+useEffect(() => {
+  setTotal(String(Number(input)*Number(stockPrice)))
+
+}, [input])
 
 
 return (
         
     <View style={[colorScheme == "dark" ? {backgroundColor: "#111"} : {backgroundColor: '#fff'}, {flex: 1}]}>
         <View style={{marginTop: statusBarHeight + 10, marginHorizontal: 15}}>
-            <View style={{flexDirection: 'row'}}>
+        <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
-                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>
-                        <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Back</Text>
-                        {/*<Icon path={mdiChevronLeft}/>*/}
+                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: 'transparent'} : {backgroundColor: 'transparent'}, {height: 30, marginBottom: 10, alignItems: 'center', display: 'flex', flexDirection: 'row', gap: 10, borderRadius: 12}]}>
+                        <Icon name={'chevron-left'} size= {20} color={"#33aaFF"} style={colorScheme == "dark" ? {color: '#FFF'} : {backgroundColor: '#000'}}/>
+                        <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>Back</Text>
                     </TouchableOpacity>
-                </View>
+                </View>                
                 <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
                     <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Bold', fontSize: 20}]}>Buy {ticker}</Text>
                     <Text style={[colorScheme == "dark" ? {color: "#1ae79c"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Bold', fontSize: 16}]}>Market Order</Text>
-                    
                 </View>
                 <View style={{flex: 1}}/>
             </View>
@@ -129,7 +135,7 @@ return (
       <View style={{alignItems: 'center', flexDirection: 'row', marginHorizontal: 20, marginTop: 20}}>
         <Text style={[colorScheme == "dark" ? {color: "#aaa"} : {color: '#aaa'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>Order Total</Text>
         <View style={{flex: 1}}></View>
-        <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>{"$14,530"}</Text>
+        <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>{orderTotal}</Text>
       </View>
       </View>
       <View style={{flex: 1}}></View>

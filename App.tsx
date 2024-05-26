@@ -14,11 +14,11 @@ import Deposit from './components/Deposit';
 import Transfers from './components/Transfers';
 import Withdraw from './components/Withdraw';
 import StockDetails from './components/StockDetails';
-import StockDetailsInGame from './components/HeadToHeadComponents/StockDetailsInGame';
+import StockDetailsInGame from './components/InGameComponents/StockDetailsInGame';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import GameScreen from './components/GameScreen'
-import InGameStockSearch from './components/HeadToHeadComponents/InGameStockSearch';
-import StockOrder from './components/HeadToHeadComponents/StockOrder';
+import GameScreen from './components/InGameComponents/GameScreen'
+import InGameStockSearch from './components/InGameComponents/InGameStockSearch';
+import StockOrder from './components/InGameComponents/StockOrder';
 
 const Stack = createNativeStackNavigator();
 

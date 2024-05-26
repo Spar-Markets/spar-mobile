@@ -11,7 +11,7 @@ import { serverUrl } from '../../constants/global';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
 import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import StockCardGame from '../HeadToHeadComponents/StockCardGame';
+import StockCardGame from '../InGameComponents/StockCardGame';
 import { Skeleton } from '@rneui/themed';
 import Icon from 'react-native-vector-icons/FontAwesome';
 

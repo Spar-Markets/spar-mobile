@@ -152,9 +152,9 @@ const StockDetailsInGame = () => {
                         <Icon name={'chevron-left'} size= {20} color={"#33aaFF"} style={colorScheme == "dark" ? {color: '#FFF'} : {backgroundColor: '#000'}}/>
                         <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>Back</Text>
                     </TouchableOpacity>
-                </View>
-                
-                <View style={{flex: 1}}/>
+                </View>   
+                <View style={{flex: 3}}/>
+
             </View>
         <ScrollView style={{}} showsVerticalScrollIndicator={false}>
         {/*<View style={{marginLeft: 12, marginTop: 20}}>

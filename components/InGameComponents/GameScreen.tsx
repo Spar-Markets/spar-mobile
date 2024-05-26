@@ -4,13 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import GameCard from './GameCard';
-import GameModesScrollBar from './ActiveGames';
+import GameCard from '../GameCard';
+import GameModesScrollBar from '../ActiveGames';
 import axios from 'axios';
-import { serverUrl } from '../constants/global';
+import { serverUrl } from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LineChart } from 'react-native-gifted-charts';
-import PositionCard from './HeadToHeadComponents/PositionCard';
+import PositionCard from './PositionCard';
 import LinearGradient from 'react-native-linear-gradient';
 
 const socket = new WebSocket('wss://music-api-grant.fly.dev')
@@ -132,7 +132,6 @@ const GameScreen = () => {
             }
         }*/
     }
-    
     
 
     const data2 = [ {value:50}, {value:55}, {value:52},{value:63},{value:70},
