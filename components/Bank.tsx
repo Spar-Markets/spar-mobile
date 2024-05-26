@@ -142,7 +142,7 @@ const Bank = ({ navigation }: any) => {
                 console.log(response);
             }}>
             <View style={styles.buttonContainer}>
-                <Text style={styles.buttonText}>Open Link</Text>
+                <Text style={styles.buttonText}>Link Your Bank</Text>
             </View>
             </PlaidLink>
             </View>

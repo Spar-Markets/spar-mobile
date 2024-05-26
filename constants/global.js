@@ -1,4 +1,4 @@
-const ip = 'https://spar-server.fly.dev';
+const ip = 'https://music-api-grant.fly.dev';
 const port = 3000;
 // const mongoPort = 8000;
 

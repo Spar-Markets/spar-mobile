@@ -14,7 +14,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import StockCard from './StockCard';
 import { Skeleton } from '@rneui/themed';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import StockCardGame from './HeadToHeadComponents/StockCardGame';
 
 const StockSearch = () => {
     const navigation = useNavigation<any>(); 
@@ -62,11 +61,11 @@ const StockSearch = () => {
         </View>
         <View style={{flex: 1, flexDirection: 'row', gap: 5}}>
           <View style={{flex: 1}}></View>
-          <TouchableOpacity onPress={() => navigation.push("Profile")} style={{width: 40, backgroundColor: '#242F42', justifyContent: 'center', alignItems: 'center', borderRadius: 12}}>
-            <Icon name="user" size={20} color="#ffffff" />
+          <TouchableOpacity onPress={() => navigation.push()} style={{width: 40, backgroundColor: '#242F42', justifyContent: 'center', alignItems: 'center', borderRadius: 12}}>
+            <Icon name="?" size={20} color="#ffffff" />
           </TouchableOpacity>
           <TouchableOpacity style={{width: 40, backgroundColor: '#242F42', justifyContent: 'center', alignItems: 'center', borderRadius: 12, marginRight: 12}}>
-            {/*<Image source={require('../assets/images/noti.png')} resizeMode='contain' style={{flex: 0.6}} />*/}
+            <Icon name="?" size={20} color="#ffffff" />
           </TouchableOpacity>
         </View>
       </View>
