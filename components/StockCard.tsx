@@ -23,6 +23,7 @@ const StockCard = (props:any) => {
     const [recentPrice, setRecentPrice] = useState(0.0);
 
     useEffect(() => {
+        
         const getPrices = async () => {
             try {
                 const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
@@ -42,6 +43,8 @@ const StockCard = (props:any) => {
                 console.error("error getting prices")
             }
         }
+
+
 
         const getDetails = async () => {
             try {
