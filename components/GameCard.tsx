@@ -34,45 +34,51 @@ const GameCard = (props:any) => {
     const [pointData2, setPointData2] = useState<GraphPoint[]>([])
 
     useEffect(() => {
-  
+      // !!!! RAGTAG: this is for the users graphs as a placeholder. It shows the aapl and tsla most recent trading day charts -GRANT
       const getPrices = async () => {
-          try {
-              const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'TSLA'})
-              
-              if (response) {
-                 
-                  const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                      value: obj.price,
-                      date: new Date(obj.timeField)
-                  }));
-
-                  setPointData(points)
-
-              }
-          } catch {
-              console.error("error getting prices")
-          }
-
-          try {
-            const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'AAPL'})
+        try {
+            const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['AAPL'])
             
-            if (response) {
-               
-                const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                    value: obj.price,
-                    date: new Date(obj.timeField)
-                }));
+            console.log("here we have the api response:", response)
 
-                setPointData2(points)
+            // Check if response is successful and has data
+            if (response && response.data && response.data['AAPL']) {
+                const tickerData = response.data['AAPL']
+                console.log("Here's the stock prices", tickerData);
 
+                // Map the data to the format expected by the graphing library
+                const points = tickerData.map(tickerData => ({
+                    value: tickerData.price,
+                    date: new Date(tickerData.timeField)
+                })); 
+                
+                setPointData(points);
             }
-        } catch {
-            console.error("error getting prices")
+        } catch (error){  
+            console.error(error, "error getting prices")
         }
-
+        try {
+          const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['TSLA'])
           
-      }
+          console.log("here we have the api response:", response)
 
+          // Check if response is successful and has data
+          if (response && response.data && response.data['TSLA']) {
+              const tickerData = response.data['TSLA']
+              console.log("Here's the stock prices", tickerData);
+
+              // Map the data to the format expected by the graphing library
+              const points = tickerData.map(tickerData => ({
+                  value: tickerData.price,
+                  date: new Date(tickerData.timeField)
+              })); 
+              
+              setPointData2(points);
+          }
+      } catch (error){  
+          console.error(error, "error getting prices")
+      }
+    }
   
       getPrices();
 

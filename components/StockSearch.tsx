@@ -82,7 +82,7 @@ const StockSearch = () => {
       </ScrollView>
     </View> 
     
-    );
+    ); 
 };
 
 

@@ -82,7 +82,7 @@ const StockDetails = () => {
         }
         console.log(matchId)
 
-        getData();
+        // getData();
 
     }, []);
 

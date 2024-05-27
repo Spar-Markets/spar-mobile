@@ -25,38 +25,42 @@ const StockCardGame = (props:any) => {
     useEffect(() => {
         const getPrices = async () => {
             try {
-                const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
-            
-                if (response) {
-               
-                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                        value: obj.price,
-                        date: new Date(obj.timeField)
-                    }));
-                    //console.log(points)
-                    setPointData(points)
-                    setPercentChange(Math.round(((points[points.length-1].value - points[0].value)/points[0].value)*100*100)/100)
-                    setRecentPrice(Math.round(points[points.length-1].value*100)/100)
+                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
+                
+                console.log("here we have the api response:", response)
+
+                // Check if response is successful and has data
+                if (response && response.data && response.data[props.ticker]) {
+                    const tickerData = response.data[props.ticker]
+                    console.log("Here's the stock prices", tickerData);
+    
+                    // Map the data to the format expected by the graphing library
+                    const points = tickerData.map(tickerData => ({
+                        value: tickerData.price,
+                        date: new Date(tickerData.timeField)
+                    })); 
+    
+                    setPointData(points);
                 }
-            } catch {
-                console.error("error getting prices")
+            } catch (error){  
+                console.error(error, "error getting prices")
             }
         }
 
-        const getDetails = async () => {
-            try {
-                const response = await axios.post(serverUrl + "/getTickerDetails", {ticker: props.ticker})
+        // const getDetails = async () => {
+        //     try {
+        //         const response = await axios.post(serverUrl + "/getTickerDetails", {ticker: props.ticker})
                 
-                if (response) {
-                    setTickerData(response.data)
-                }
-            } catch {
-                console.error("error getting details")
+        //         if (response) {
+        //             setTickerData(response.data)
+        //         }
+        //     } catch {
+        //         console.error("error getting details")
         
-            }
-        }
+        //     }
+        // }
         getPrices();
-        getDetails();
+        // getDetails();
         
     }, [])
   

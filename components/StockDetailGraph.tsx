@@ -39,29 +39,27 @@ const StockDetailGraph = (props:any) => {
     useEffect(() => {
         const getPrices = async () => {
             try {
-                //console.log(props.ticker)
-                const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
-                if (response) {
-                   
-                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                        value: obj.price,
-                        date: new Date(obj.timeField)
-                    }));
+                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
+                
+                console.log("here we have the api response:", response)
 
-                    setPointData(points)
-                    //console.log(points)
-
-                    setCurrPrice(String(points[points.length-1].value))
-                    setCurrDate(points[points.length-1].date.toLocaleTimeString("en-US"))
-
-
+                // Check if response is successful and has data
+                if (response && response.data && response.data[props.ticker]) {
+                    const tickerData = response.data[props.ticker]
+                    console.log("Here's the stock prices", tickerData);
+    
+                    // Map the data to the format expected by the graphing library
+                    const points = tickerData.map(tickerData => ({
+                        value: tickerData.price,
+                        date: new Date(tickerData.timeField)
+                    })); 
+    
+                    setPointData(points);
                 }
-
-            } catch {
-                console.error("error getting prices")
+            } catch (error){  
+                console.error(error, "error getting prices")
             }
         }
-
         getPrices();
       
 

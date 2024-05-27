@@ -12,7 +12,7 @@ import { point } from '@shopify/react-native-skia';
 
 
 const StockCard = (props:any) => {
-
+ 
     const colorScheme = useColorScheme();
 
     const navigation = useNavigation<any>();
@@ -21,49 +21,53 @@ const StockCard = (props:any) => {
     const [tickerData, setTickerData] = useState<any>(null)
     const [percentChange, setPercentChange] = useState(0.0);
     const [recentPrice, setRecentPrice] = useState(0.0);
-
+ 
     useEffect(() => {
-        
         const getPrices = async () => {
             try {
-                const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
-            
-                if (response) {
-               
-                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                        value: obj.price,
-                        date: new Date(obj.timeField)
-                    }));
-                    //console.log(points)
-                    setPointData(points)
-                    setPercentChange(Math.round(((points[points.length-1].value - points[0].value)/points[0].value)*100*100)/100)
-                    setRecentPrice(Math.round(points[points.length-1].value*100)/100)
-                }
-            } catch {
-                console.error("error getting prices")
-            }
-        }
-
-
-
-        const getDetails = async () => {
-            try {
-                const response = await axios.post(serverUrl + "/getTickerDetails", {ticker: props.ticker})
+                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
                 
-                if (response) {
-                    setTickerData(response.data)
+                console.log("here we have the api response:", response)
+
+                // Check if response is successful and has data
+                if (response && response.data && response.data[props.ticker]) {
+                    const tickerData = response.data[props.ticker]
+                    console.log("Here's the stock prices", tickerData);
+    
+                    // Map the data to the format expected by the graphing library
+                    const points = tickerData.map(tickerData => ({
+                        value: tickerData.price,
+                        date: new Date(tickerData.timeField)
+                    })); 
+    
+                    setPointData(points);
                 }
-            } catch {
-                console.error("error getting details")
-        
+            } catch (error){  
+                console.error(error, "error getting prices")
             }
         }
-        getPrices();
-        getDetails();
+
+
+        // const getDetails = async () => {
+        //     try {
+        //         const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", {ticker: props.ticker})
+                
+        //         if (response) {
+        //             setTickerData(response.data)
+        //         }
+        //     } catch {
+        //         console.error("error getting details")
+        
+        //     }
+        // }
+
+
+        getPrices(); 
+        // getDetails();
         
 
 
-    }, [])
+    }, [props.ticker]);
   
     return (
         <View>
@@ -81,6 +85,7 @@ const StockCard = (props:any) => {
                     color={percentChange > 0 ? '#1ae79c' : '#e71a1a'}
                     gradientFillColors={percentChange > 0 ? ['#0e8a5c', '#242F42'] : ['#e71a1a', '#242F42']}
                 />
+
                 <View style={{marginRight: 10, gap: 5}}>
                     <View style={{backgroundColor: '#e71a1a', borderRadius: 10, width: 90, alignItems: 'center'}}>
                         <Text style={{fontFamily: 'InterTight-Black', fontSize: 16, color:'#fff', paddingVertical: 5}}>${recentPrice/*String(pointData[pointData.length-1].value).split(".")[0] + "." + String(pointData[pointData.length-1].value).split(".")[1].substring(0, 2)*/}</Text>
