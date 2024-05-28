@@ -46,8 +46,6 @@ const StockDetails = () => {
         }
     }
 
-    const matchId = (route.params as {matchId?: string})?.matchId ?? null;
-
     const handlePress = async (url:string) => {
         // Checking if the link is supported for links with custom schemes (e.g., "https")
         const supported = await Linking.canOpenURL(url);
@@ -60,7 +58,6 @@ const StockDetails = () => {
         }
       };
 
-
     
     useEffect(() => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
@@ -68,40 +65,26 @@ const StockDetails = () => {
         });
         const getData = async () => {
             try {
-
+                console.log(route.params)
                 const tickerResponse = await axios.post(serverUrl + "/getTickerDetails", route.params);
+                console.log("ticker response;",tickerResponse.data);
+                console.log("ticker response details;",tickerResponse.data.detailsResponse);
+                console.log("ticker response price details:" + tickerResponse.data.priceDetails);
+                console.log("ticker response news:" + tickerResponse.data.news);
+
 
                 if (tickerResponse) {
-                    setTickerData(tickerResponse.data)
-                    //console.log(tickerResponse.data)
+                    setTickerData(tickerResponse)
                 }
 
             } catch {
-                console.error("error getting prices")
+                console.error("Error getting details ")
             }
         }
-        console.log(matchId)
 
-        // getData();
+        getData();
 
-    }, []);
-
-  
-    /*const points: GraphPoint[] = [
-        {
-            date: new Date(2024, 1, 1),
-            value: 10
-        },
-        {
-            date: new Date(2024, 1, 2),
-            value: 15
-        },
-        {
-            date: new Date(2024, 1, 3),
-            value: 5
-        },
-    ];*/
-  
+    }, []);  
 
     const TimeButton = (timeFrame:string) => {
         return (
@@ -118,29 +101,10 @@ const StockDetails = () => {
         )
     }
 
-    /*const buyStock = async () => {
-        const email = await AsyncStorage.getItem("userEmail");
-        try {
-            console.log(email)
-            await axios.post(serverUrl + "/buyStock", {email: email})
-        } catch (error) {
-            console.error(error)
-        }
-    }*/
-
-    const purchaseStock = async () => {
-        try {
-            const email = await AsyncStorage.getItem("userEmail");
-            const buyResponse = await axios.post(serverUrl + "/purchaseStock", {email: email, matchId: matchId, buyPrice: currentPrice, ticker: tickerData.ticker});
-        } catch (error) {
-            console.log(error)
-        }
-    }    
-
     return (
 
        <View style={{backgroundColor: '#111', flex: 1}}>
-        {tickerData != null ?
+        {tickerData.data.detailsResponse != null ?
         <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
             <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
@@ -171,7 +135,7 @@ const StockDetails = () => {
             {TimeButton("MAX")}
         </ScrollView>
 
-        {tickerData != null &&
+        {tickerData.data.priceDetails != null &&
         <View>
             <LinearGradient colors={['#222', '#333', '#444']} style={{borderColor: '#333', borderWidth: 2, marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
                 <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
@@ -188,7 +152,7 @@ const StockDetails = () => {
             <View style={{marginHorizontal: 15, marginBottom: 10}}>
                 
                 <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginVertical: 15, marginLeft: 15, fontSize: 20}}>News</Text>
-                {tickerData.news.slice(0,3).map((item:any, index:any) => (
+                {tickerData.data.news.slice(0,3).map((item:any, index:any) => (
                 <View key={index} style={{marginHorizontal: 15}}>
                     {item && 'title' in item && 'publisher' in item && (
                     <TouchableOpacity onPress={() => handlePress(item.article_url)}>
