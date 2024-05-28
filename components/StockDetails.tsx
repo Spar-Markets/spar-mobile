@@ -33,6 +33,7 @@ const StockDetails = () => {
     const [tickerData, setTickerData] = useState<any>(null)
     const [descMaxHeight, setDescMaxHeight] = useState(150);
     const [showingMoreDesc, setShowingMoreDesc] = useState(false)
+        
     
     const goBack = () => {
         navigation.goBack();
@@ -58,6 +59,7 @@ const StockDetails = () => {
         }
       };
 
+   
     
     useEffect(() => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
@@ -65,27 +67,27 @@ const StockDetails = () => {
         });
         const getData = async () => {
             try {
-                console.log(route.params)
+                console.log("creammmmmroute.params",route.params)
                 const tickerResponse = await axios.post(serverUrl + "/getTickerDetails", route.params);
-                console.log("ticker response;",tickerResponse.data);
+                console.log("ticker response data;",tickerResponse.data);
                 console.log("ticker response details;",tickerResponse.data.detailsResponse);
                 console.log("ticker response price details:" + tickerResponse.data.priceDetails);
                 console.log("ticker response news:" + tickerResponse.data.news);
 
-
+                console.log("ticker response jackson wants: " + tickerResponse);
                 if (tickerResponse) {
+                    console.log("fricker", tickerResponse)
                     setTickerData(tickerResponse)
+                    console.log("Set ticker data, updated state");              
                 }
-
-            } catch {
-                console.error("Error getting details ")
+           } catch {
+                    console.error("Error getting details ")
             }
         }
 
         getData();
 
     }, []);  
-
     const TimeButton = (timeFrame:string) => {
         return (
         <View>
@@ -103,87 +105,63 @@ const StockDetails = () => {
 
     return (
 
-       <View style={{backgroundColor: '#111', flex: 1}}>
-        {tickerData.data.detailsResponse != null ?
-        <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
-            <View style={{flexDirection: 'row'}}>
-                <View style={{flex: 1}}>
-                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: 'transparent'} : {backgroundColor: 'transparent'}, {height: 30,marginHorizontal: 15, marginBottom: 10, alignItems: 'center', display: 'flex', flexDirection: 'row', gap: 10, borderRadius: 12}]}>
-                        <Icon name={'chevron-left'} size= {20} color={"#33aaFF"} style={colorScheme == "dark" ? {color: '#FFF'} : {backgroundColor: '#000'}}/>
-                        <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>Back</Text>
-                    </TouchableOpacity>
-                </View>
-                
-                <View style={{flex: 1}}/>
-            </View>
-        <ScrollView style={{}} showsVerticalScrollIndicator={false}>
-        {/*<View style={{marginLeft: 12, marginTop: 20}}>
-            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{ticker}</Text>
-            <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
-            <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
-        </View>*/}
-        <StockDetailGraph ticker={tickerData.ticker}/>
-        
-        <ScrollView horizontal={true} style={{marginTop: 20, marginRight: 15, marginLeft: 15}} showsHorizontalScrollIndicator={false}>
-            {TimeButton("1D")}
-            {TimeButton("1W")}
-            {TimeButton("1M")}
-            {TimeButton("3M")}
-            {TimeButton("YTD")}
-            {TimeButton("1Y")}
-            {TimeButton("5Y")}
-            {TimeButton("MAX")}
-        </ScrollView>
-
-        {tickerData.data.priceDetails != null &&
-        <View>
-            <LinearGradient colors={['#222', '#333', '#444']} style={{borderColor: '#333', borderWidth: 2, marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
-                <Text style={{fontFamily: 'InterTight-SemiBold', color: '#aaaaaa', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{tickerData.description}</Text>
-            </LinearGradient>
-            <LinearGradient colors={['#222', '#333', '#444']} style={{borderColor: '#333', borderWidth: 2, marginHorizontal: 15, marginTop: 10, borderRadius: 12}}>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>Stats</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Open </Text>}${tickerData.day_open}</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Volume </Text>}{tickerData.day_volume}</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's Low </Text>}${tickerData.day_low}</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's High </Text>}${tickerData.day_high}</Text>
-                <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Market Cap </Text>}${tickerData.market_cap}</Text>
-            </LinearGradient>
-            <View style={{marginHorizontal: 15, marginBottom: 10}}>
-                
-                <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginVertical: 15, marginLeft: 15, fontSize: 20}}>News</Text>
-                {tickerData.data.news.slice(0,3).map((item:any, index:any) => (
-                <View key={index} style={{marginHorizontal: 15}}>
-                    {item && 'title' in item && 'publisher' in item && (
-                    <TouchableOpacity onPress={() => handlePress(item.article_url)}>
-                        <View style={{flexDirection: 'row', gap: 30}}>
+        <View style={{backgroundColor: '#111', flex: 1}}>
+                {tickerData != null ?
+                <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
+                    <View style={{flexDirection: 'row'}}>
                         <View style={{flex: 1}}>
-                            <Text style={{color: '#fff', fontFamily: 'InterTight-Bold', fontSize: 11}}>{item.publisher.name}</Text>
-                            <View style={{}}>
-                                <Text style={{color: '#fff', fontFamily: 'InterTight-SemiBold', fontSize: 14}}>{item.title}</Text> 
-                            </View>
+                            <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: 'transparent'} : {backgroundColor: 'transparent'}, {height: 30,marginHorizontal: 15, marginBottom: 10, alignItems: 'center', display: 'flex', flexDirection: 'row', gap: 10, borderRadius: 12}]}>
+                                <Icon name={'chevron-left'} size= {20} color={"#33aaFF"} style={colorScheme == "dark" ? {color: '#FFF'} : {backgroundColor: '#000'}}/>
+                                <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>Back</Text>
+                            </TouchableOpacity>
                         </View>
-                        <Image
-                            style={{borderRadius: 12, flex: 0.3}}
-                            source={{uri: item.image_url}}
-                        />
-                        </View>
-                        <View style={{height: 2, backgroundColor: '#333', marginVertical: 10}}></View>
-                    </TouchableOpacity>
-                    )}
-                </View>
-                ))}
-            </View>
-        </View>
-        }
-        </ScrollView>
+                        
+                        <View style={{flex: 1}}/>
+                    </View>
+                <ScrollView style={{}} showsVerticalScrollIndicator={false}>
+                    {/*<View style={{marginLeft: 12, marginTop: 20}}>
+                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{ticker}</Text>
+                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
+                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
+                    </View>*/}
 
-        </View> :
+                    <StockDetailGraph ticker={route.params.ticker}/>
+                    
+                    <ScrollView horizontal={true} style={{marginTop: 20, marginRight: 15, marginLeft: 15}} showsHorizontalScrollIndicator={false}>
+                        {TimeButton("1D")}
+                        {TimeButton("1W")}
+                        {TimeButton("1M")}
+                        {TimeButton("3M")}
+                        {TimeButton("YTD")}
+                        {TimeButton("1Y")}
+                        {TimeButton("5Y")}
+                        {TimeButton("MAX")}
+                    </ScrollView>
+                    
+                    <View>
+                        <LinearGradient colors={['#222', '#333', '#444']} style={{borderColor: '#333', borderWidth: 2, marginHorizontal: 15, marginTop: 20, borderRadius: 12}}>
+                            <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>About {ticker}</Text>
+                            <Text style={{fontFamily: 'InterTight-SemiBold', color: '#aaaaaa', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{tickerData.description}</Text>
+                        </LinearGradient>
+                        <LinearGradient colors={['#222', '#333', '#444']} style={{borderColor: '#333', borderWidth: 2, marginHorizontal: 15, marginTop: 10, borderRadius: 12}}>
+                            <Text style={{fontFamily: 'InterTight-Black', color: '#fff', marginTop: 15, marginLeft: 15}}>Stats</Text>
+                            <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Open </Text>}${tickerData.day_open}</Text>
+                            <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Volume </Text>}{tickerData.day_volume}</Text>
+                            <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's Low </Text>}${tickerData.day_low}</Text>
+                            <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 3}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Today's High </Text>}${tickerData.day_high}</Text>
+                            <Text style={{fontFamily: 'InterTight-Black', color: '#1ae79c', fontSize: 12, marginHorizontal: 15, marginBottom: 15}}>{<Text style={{color: '#aaaaaa', fontFamily: 'InterTight-SemiBold'}}>Market Cap </Text>}${tickerData.market_cap}</Text>
+                        </LinearGradient>
+
+                    </View>
+                
+                </ScrollView>
+        
+            </View>     
+            :      
         <View></View>
         }
-       </View> 
-    );
-};
-
-
+        </View>
+        );
+    }
+    
 export default StockDetails;

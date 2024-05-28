@@ -1,21 +1,20 @@
-
-
 import React, {useState, useEffect, useCallback} from 'react';
 import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, TouchableWithoutFeedback, Touchable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GraphPoint, LineGraph } from 'react-native-graph';
 import { serverUrl } from '../constants/global';
 import axios from 'axios'
 import LinearGradient from 'react-native-linear-gradient';
 
-
 const StockDetailGraph = (props:any) => {
 
     const colorScheme = useColorScheme();
     const navigation = useNavigation<any>();
+
+    const route = useRoute();
 
     const [pointData, setPointData] = useState<GraphPoint[]>([])
 
@@ -39,13 +38,18 @@ const StockDetailGraph = (props:any) => {
     useEffect(() => {
         const getPrices = async () => {
             try {
+                interface TickerPricestamp {
+                    price: number,
+                    timeField: number
+                }
+
                 const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
                 
-                console.log("here we have the api response:", response)
+                console.log("Here we have the api response:", response)
 
                 // Check if response is successful and has data
                 if (response && response.data && response.data[props.ticker]) {
-                    const tickerData = response.data[props.ticker]
+                    const tickerData: TickerPricestamp[] = response.data[props.ticker]
                     console.log("Here's the stock prices", tickerData);
     
                     // Map the data to the format expected by the graphing library
@@ -53,13 +57,17 @@ const StockDetailGraph = (props:any) => {
                         value: tickerData.price,
                         date: new Date(tickerData.timeField)
                     })); 
-    
+
+                    console.log(tickerData[tickerData.length - 1]);
+
                     setPointData(points);
                 }
             } catch (error){  
                 console.error(error, "error getting prices")
             }
         }
+
+
         getPrices();
       
 

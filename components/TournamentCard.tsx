@@ -34,50 +34,10 @@ const TournamentCard = (props:any) => {
 
     const screenWidth = Dimensions.get("window").width;
 
-    useEffect(() => {
+  //   useEffect(() => {
   
-      const getPrices = async () => {
-          try {
-              const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'TSLA'})
-              
-              if (response) {
-                 
-                  const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                      value: obj.price,
-                      date: new Date(obj.timeField)
-                  }));
 
-                  setPointData(points)
-
-              }
-          } catch {
-              console.error("error getting prices")
-          }
-
-          try {
-            const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'AAPL'})
-            
-            if (response) {
-               
-                const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                    value: obj.price,
-                    date: new Date(obj.timeField)
-                }));
-
-                setPointData2(points)
-
-            }
-        } catch {
-            console.error("error getting prices")
-        }
-
-          
-      }
-
-  
-      getPrices();
-
-  }, []);
+  // }, []);
 
     const calculateTimeRemaining = (startDate:Date) => {
       const endDateTime = new Date(startDate).getTime();
