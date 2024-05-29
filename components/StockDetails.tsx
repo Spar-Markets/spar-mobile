@@ -15,6 +15,12 @@ import StockDetailGraph from './StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 
+// interface for RouteParams, so we can expect the format of the params being passed in
+// when you navigate to this page. (just an object with a ticker)
+interface RouteParams {
+    ticker: string;
+}
+
 const StockDetails = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
@@ -65,6 +71,15 @@ const StockDetails = () => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
             setStatusBarHeight(response.height);
         });
+
+
+        // get params either in the expected format, or allow it to be undefined
+        const params = route.params as RouteParams | undefined;
+
+        // update ticker state with the passed in ticker from the route.
+        // set it to empty string if no ticker provided or undefined.
+        setTicker(params?.ticker || '');
+
         const getData = async () => {
             try {
                 console.log("creammmmmroute.params",route.params)
@@ -125,7 +140,7 @@ const StockDetails = () => {
                         <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
                     </View>*/}
 
-                    <StockDetailGraph ticker={route.params.ticker}/>
+                    <StockDetailGraph ticker={ticker}/>
                     
                     <ScrollView horizontal={true} style={{marginTop: 20, marginRight: 15, marginLeft: 15}} showsHorizontalScrollIndicator={false}>
                         {TimeButton("1D")}
