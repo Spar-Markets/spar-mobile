@@ -10,7 +10,6 @@ import axios from 'axios'
 import { serverUrl } from '../constants/global';
 import { point } from '@shopify/react-native-skia';
 
-
 const StockCard = (props:any) => {
  
     const colorScheme = useColorScheme();

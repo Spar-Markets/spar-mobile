@@ -67,21 +67,18 @@ const StockDetails = () => {
         });
         const getData = async () => {
             try {
-                console.log("creammmmmroute.params",route.params)
                 const tickerResponse = await axios.post(serverUrl + "/getTickerDetails", route.params);
                 console.log("ticker response data;",tickerResponse.data);
                 console.log("ticker response details;",tickerResponse.data.detailsResponse);
                 console.log("ticker response price details:" + tickerResponse.data.priceDetails);
                 console.log("ticker response news:" + tickerResponse.data.news);
 
-                console.log("ticker response jackson wants: " + tickerResponse);
                 if (tickerResponse) {
-                    console.log("fricker", tickerResponse)
-                    setTickerData(tickerResponse)
+                    setTickerData(tickerResponse.data)
                     console.log("Set ticker data, updated state");              
                 }
            } catch {
-                    console.error("Error getting details ")
+                    console.error("Error getting details")
             }
         }
 
@@ -106,7 +103,7 @@ const StockDetails = () => {
     return (
 
         <View style={{backgroundColor: '#111', flex: 1}}>
-                {tickerData != null ?
+                {(tickerData != null && route.params != undefined) ?
                 <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
                     <View style={{flexDirection: 'row'}}>
                         <View style={{flex: 1}}>
