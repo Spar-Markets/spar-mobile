@@ -10,7 +10,7 @@ import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const StockOrder = () => {
+const StockOrder = (props: any) => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
     const [statusBarHeight, setStatusBarHeight] = useState(0);

@@ -20,6 +20,7 @@ import {GraphPoint, LineGraph} from 'react-native-graph';
 import {serverUrl} from '../constants/global';
 import axios from 'axios';
 import LinearGradient from 'react-native-linear-gradient';
+import getPrices from "../utility/getPrices"
 
 const StockDetailGraph = (props: any) => {
   const colorScheme = useColorScheme();
@@ -48,39 +49,16 @@ const StockDetailGraph = (props: any) => {
   };
 
   useEffect(() => {
-    const getPrices = async () => {
-      try {
-        interface TickerPricestamp {
-          price: number;
-          timeField: number;
+    const run = async () =>{
+        const points = await getPrices(props.ticker);
+        if (points != undefined) {
+            setPointData(points);
+            setEndPrice(String(points[points.length - 1].value));
         }
+    }
 
-        const response = await axios.post(
-          serverUrl + '/getMostRecentOneDayPrices',
-          [props.ticker],
-        );
+    run();
 
-        // Check if response is successful and has data
-        if (response && response.data && response.data[props.ticker]) {
-          const tickerData: TickerPricestamp[] = response.data[props.ticker];
-
-          // Map the data to the format expected by the graphing library
-          const points = tickerData.map(tickerData => ({
-            value: tickerData.price,
-            date: new Date(tickerData.timeField),
-          }));
-
-          // TODO Need to set the current price here
-
-          setPointData(points);
-          setEndPrice(String(points[points.length - 1].value));
-        }
-      } catch (error) {
-        console.error(error, 'Error getting prices');
-      }
-    };
-
-    getPrices();
   }, []);
 
   return (

@@ -9,6 +9,8 @@ import { LineGraph, GraphPoint } from 'react-native-graph';
 import axios from 'axios'
 import { serverUrl } from '../constants/global';
 import { point } from '@shopify/react-native-skia';
+import getPrices from "../utility/getPrices"
+
 
 const StockCard = (props:any) => {
  
@@ -21,50 +23,22 @@ const StockCard = (props:any) => {
     const [recentPrice, setRecentPrice] = useState(0.0);
  
     useEffect(() => {
-        const getPrices = async () => {
-            try {
-                interface TickerPricestamp {
-                    price: number,
-                    timeField: number
-                }
-
-                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
-                
-
-
-                // Check if response is successful and has data
-                if (response && response.data && response.data[props.ticker]) {
-                    const tickerData: TickerPricestamp[] = response.data[props.ticker]
-    
-    
-                    // Map the data to the format expected by the graphing library
-                    const points = tickerData.map(tickerData => ({
-                        value: tickerData.price,
-                        date: new Date(tickerData.timeField)
-                    })); 
-
-                    console.log(tickerData[tickerData.length - 1]);
-
-                    setRecentPrice(Number(tickerData[tickerData.length-1].price));
-                    setPointData(points);
-                }
-            } catch (error){  
-                console.error(error, "error getting prices")
+        const run = async () =>{
+            const points = await getPrices(props.ticker);
+            if (points != undefined) {
+                setPointData(points);
+                setRecentPrice(points[points.length - 1].value);
             }
         }
-
-
-        getPrices(); 
-        // getDetails();
+    
+        run();
         
-
-
     }, [props.ticker]);
   
     return (
         <View>
         {pointData.length > 0 &&
-        <TouchableOpacity onPress={() => navigation.navigate("StockDetails", {ticker:props.ticker})} style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("StockDetails", {ticker:props.ticker, tradable: false})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
             <View style={{height: 80, backgroundColor: "#111", borderColor: '#444', borderWidth: 2, flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>

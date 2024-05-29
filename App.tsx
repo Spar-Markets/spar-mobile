@@ -73,11 +73,6 @@ const App = (): React.ReactElement => {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="StockDetailsInGame"
-          component={StockDetailsInGame}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
           name="StockDetails"
           component={StockDetails}
           options={{headerShown: false}}

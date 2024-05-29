@@ -22,23 +22,35 @@ const PositionCard = (props:any) => {
     useEffect(() => {
         const getPrices = async () => {
             try {
-                const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
-             
-                if (response) {
-               
-                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                        value: obj.price,
-                        date: new Date(obj.timeField)
-                    }));
-                    //console.log(points)
-                    setPointData(points)
-                    setPercentChange(Math.round(((points[points.length-1].value - points[0].value)/points[0].value)*100*100)/100)
-                    setRecentPrice(Math.round(points[points.length-1].value*100)/100)
+                interface TickerPricestamp {
+                    price: number,
+                    timeField: number
                 }
-            } catch {
-                console.error("error getting prices")
+
+                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
+                
+
+                // Check if response is successful and has data
+                if (response && response.data && response.data[props.ticker]) {
+                    const tickerData: TickerPricestamp[] = response.data[props.ticker]
+    
+    
+                    // Map the data to the format expected by the graphing library
+                    const points = tickerData.map(tickerData => ({
+                        value: tickerData.price,
+                        date: new Date(tickerData.timeField)
+                    })); 
+
+                    console.log(tickerData[tickerData.length - 1]);
+
+                    setRecentPrice(Number(tickerData[tickerData.length-1].price));
+                    setPointData(points);
+                }
+            } catch (error){  
+                console.error(error, "stock game card error getting prices")
             }
         }
+
 
         const getDetails = async () => {
             try {
@@ -57,7 +69,7 @@ const PositionCard = (props:any) => {
     return (
         <View>
         {pointData.length > 0 &&
-        <TouchableOpacity onPress={() => navigation.navigate("StockDetailsInGame", {ticker:props.ticker, matchId: props.matchId, ownStock: props.ownStock})} style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("StockDetails", {ticker:props.ticker, matchId: props.matchId, ownStock: props.ownStock, tradable: true})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
             <LinearGradient colors={['#222', '#333', '#444']} style={{height: 80, backgroundColor: "#222", borderWidth: 2, borderColor: '#333', flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>

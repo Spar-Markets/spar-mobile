@@ -8,6 +8,7 @@ import { GraphPoint, LineGraph } from 'react-native-graph';
 import { serverUrl } from '../constants/global';
 import axios from 'axios'
 import LinearGradient from 'react-native-linear-gradient';
+import getPrices from "../utility/getPrices"
 
 
 const AccountCard = (props:any) => {
@@ -25,28 +26,14 @@ const AccountCard = (props:any) => {
     };
 
     useEffect(() => {
-  
-        const getPrices = async () => {
-            try {
-                const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker:'TSLA'})
-                
-                if (response) {
-                   
-                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                        value: obj.price,
-                        date: new Date(obj.timeField)
-                    }));
-
-                    setPointData(points)
-
-                }
-            } catch {
-                console.error("error getting prices")
+        const run = async () =>{
+            const points = await getPrices(props.ticker);
+            if (points != undefined) {
+                setPointData(points);
             }
         }
-
     
-        getPrices();
+        run();
 
     }, []);
 

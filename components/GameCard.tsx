@@ -13,8 +13,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 var styles = require('../Style/style');
 
-
-
 const GameCard = (props:any) => {
 
     const colorScheme = useColorScheme();
@@ -38,7 +36,6 @@ const GameCard = (props:any) => {
       const getPrices = async () => {
         try {
             const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['AAPL'])
-            
 
             // Check if response is successful and has data
             if (response && response.data && response.data['AAPL']) {
@@ -53,8 +50,10 @@ const GameCard = (props:any) => {
                 setPointData(points);
             }
         } catch (error){  
-            console.error(error, "error getting prices")
+            console.error(error, "game card error getting prices")
         }
+
+        
         try {
           const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['TSLA'])
         
@@ -72,7 +71,7 @@ const GameCard = (props:any) => {
               setPointData2(points);
           }
       } catch (error){  
-          console.error(error, "error getting prices")
+          console.error(error, "game card 2 error getting prices")
       }
     }
   
