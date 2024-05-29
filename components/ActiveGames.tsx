@@ -24,7 +24,6 @@ const ActiveGames = (props:any) => {
             assets: [string]
         };
         createdAt: Date;
-        
     }
 
     const colorScheme = useColorScheme();
@@ -86,6 +85,7 @@ const ActiveGames = (props:any) => {
         if (activeMatches.length > 0) {
             const getMatchData = async () => {
                 try {
+                    // initalize match data
                     const md = [];
                     for (const id of activeMatches) {
                         const matchDataResponse = await axios.post(serverUrl + "/getMatchData", { matchId: id })
@@ -99,7 +99,7 @@ const ActiveGames = (props:any) => {
             }
             getMatchData();
         } else {
-            console.log("hello")
+            console.log("User have 0 Matches")
         }
     }, [activeMatches])
 
@@ -114,8 +114,6 @@ const ActiveGames = (props:any) => {
     
         return `${hours}:${minutes}:${seconds}`;
     }
-
-
 
     return (
         <View style={{flex: 1}}>
@@ -133,7 +131,7 @@ const ActiveGames = (props:any) => {
                             </View>
                         </View>
         </TouchableOpacity>*/}
-                {matchData.length > 0 ? 
+        {matchData.length > 0 ? 
                 matchData.map((item, index) => (
                
                     <View key={index} style={{flexDirection: 'row'}}>

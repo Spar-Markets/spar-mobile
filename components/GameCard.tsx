@@ -39,13 +39,11 @@ const GameCard = (props:any) => {
         try {
             const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['AAPL'])
             
-            console.log("here we have the api response:", response)
 
             // Check if response is successful and has data
             if (response && response.data && response.data['AAPL']) {
                 const tickerData = response.data['AAPL']
-                console.log("Here's the stock prices", tickerData);
-
+        
                 // Map the data to the format expected by the graphing library
                 const points = tickerData.map(tickerData => ({
                     value: tickerData.price,
@@ -59,13 +57,11 @@ const GameCard = (props:any) => {
         }
         try {
           const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['TSLA'])
-          
-          console.log("here we have the api response:", response)
+        
 
           // Check if response is successful and has data
           if (response && response.data && response.data['TSLA']) {
               const tickerData = response.data['TSLA']
-              console.log("Here's the stock prices", tickerData);
 
               // Map the data to the format expected by the graphing library
               const points = tickerData.map(tickerData => ({

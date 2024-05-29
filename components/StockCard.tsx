@@ -30,12 +30,12 @@ const StockCard = (props:any) => {
 
                 const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
                 
-                console.log("Here we have the api response:", response)
+
 
                 // Check if response is successful and has data
                 if (response && response.data && response.data[props.ticker]) {
                     const tickerData: TickerPricestamp[] = response.data[props.ticker]
-                    console.log("Here's the stock prices", tickerData);
+    
     
                     // Map the data to the format expected by the graphing library
                     const points = tickerData.map(tickerData => ({
