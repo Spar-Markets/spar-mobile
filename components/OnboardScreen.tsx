@@ -61,14 +61,16 @@ const OnboardScreen = () => {
         setIsAuthenticated(true);
         navigation.replace('CoreApp');
       } else {
-        await axios.post(serverUrl+'/createUser', data);
+        const response = await axios.post(serverUrl+'/createUser', data);
+        console.log("userID" + response.data.UserDetails.userID);
+        await AsyncStorage.setItem("uniqueUserId", response.data.UserDetails.userID);
+        await AsyncStorage.setItem('userEmail', response.data.UserDetails.email)
+
         navigation.replace('CoreApp');
       }
-      
+  
       // Save authentication state to AsyncStorage
       await AsyncStorage.setItem('authData', 'authenticated');
-      //console.log(data.email!)
-      await AsyncStorage.setItem('userEmail', data.email!)
 
 
     } catch (error) {

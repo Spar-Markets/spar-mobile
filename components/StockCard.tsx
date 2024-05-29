@@ -30,7 +30,7 @@ const StockCard = (props:any) => {
                 setRecentPrice(points[points.length - 1].value);
             }
         }
-    
+
         run();
         
     }, [props.ticker]);
