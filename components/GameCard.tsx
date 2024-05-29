@@ -31,15 +31,21 @@ const GameCard = (props:any) => {
     const [pointData, setPointData] = useState<GraphPoint[]>([])
     const [pointData2, setPointData2] = useState<GraphPoint[]>([])
 
+    interface TickerPricestamp {
+      price: number,
+      timeField: number
+  }
+
     useEffect(() => {
       // !!!! RAGTAG: this is for the users graphs as a placeholder. It shows the aapl and tsla most recent trading day charts -GRANT
       const getPrices = async () => {
         try {
+
             const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['AAPL'])
 
             // Check if response is successful and has data
             if (response && response.data && response.data['AAPL']) {
-                const tickerData = response.data['AAPL']
+                const tickerData: TickerPricestamp[] = response.data['AAPL']
         
                 // Map the data to the format expected by the graphing library
                 const points = tickerData.map(tickerData => ({
@@ -60,7 +66,7 @@ const GameCard = (props:any) => {
 
           // Check if response is successful and has data
           if (response && response.data && response.data['TSLA']) {
-              const tickerData = response.data['TSLA']
+              const tickerData: TickerPricestamp[] = response.data['TSLA']
 
               // Map the data to the format expected by the graphing library
               const points = tickerData.map(tickerData => ({
