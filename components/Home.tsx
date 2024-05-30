@@ -168,6 +168,7 @@ const Home  = () => {
     const player = {
         username: username,
         email: user,
+        userID: AsyncStorage.getItem("userID"),
         skillRating: skillRating,
         entryFee: entryFee,
         matchLength: matchLength
