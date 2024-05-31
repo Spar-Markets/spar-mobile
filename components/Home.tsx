@@ -175,9 +175,10 @@ const Home = () => {
 
     console.log(entryFee);
     console.log(matchLength);
-    console.log("userID", String(AsyncStorage.getItem('userID')))
 
     const userID = await AsyncStorage.getItem('userID');
+    console.log("userID", userID)
+
     //Asign current user's values to a player object
     const player = {
       username:  username,

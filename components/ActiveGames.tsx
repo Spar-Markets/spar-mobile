@@ -16,11 +16,11 @@ const ActiveGames = (props:any) => {
     interface MatchData {
         wagerAmt: number;
         user1: {
-            name: string;
+            userID: string;
             assets: [string]
         };
         user2: {
-            name: string;
+            userID: string;
             assets: [string]
         };
         createdAt: Date;
@@ -48,52 +48,45 @@ const ActiveGames = (props:any) => {
             )
         }
     }
-    const fetchMatchIds = async (userID:String) => {
+    const fetchMatchIds = async () => {
         try {
+            const userID = await AsyncStorage.getItem('userID');
+
             const response = await axios.post(serverUrl + "/getUserMatches", {userID});
-            //console.log("Matches: ", response.data);
+            // console.log("Matches: ", response.data);
             setActiveMatches(response.data);
         } catch (error) {
             console.error("Error fetching matches:", error);
         } 
     }
     
-    const getMatches = async () => {
-        try {
-            const userID = await AsyncStorage.getItem('userID');
-            if (userID) {
-                await fetchMatchIds(userID);
-            } else {
-                console.log("userID not found in AsyncStorage");
-            }
-        } catch (error) {
-            console.error("Error getting userID from AsyncStorage:", error);
-        }
-    }
-    
     useEffect(() => {
-        getMatches()
+        console.log("about to run fetchMatchIds");
+        fetchMatchIds();
+        console.log("fetched ids");
     }, []);
 
     useEffect(() => {
+        console.log("about to run 2nd useeffect");
         if (activeMatches.length > 0) {
             const getMatchData = async () => {
                 try {
                     // initalize match data
                     const md = [];
+                    console.log("about to init match data")
                     for (const id of activeMatches) {
-                        const matchDataResponse = await axios.post(serverUrl + "/getMatchData", {id})
+                        const matchDataResponse = await axios.post(serverUrl + "/getMatchData", { matchId: id })
                         md.push(matchDataResponse.data)
                     }
-                    console.log(md)
+                    console.log("match data: " + md)
                     setMatchData(md);
-                } catch {
-
+                } catch (error) {
+                    console.log("in get match data error" + error)
                 }
             }
             getMatchData();
         } else {
-            console.log("User have 0 Matches")
+            console.log("User has 0 Matches")
         }
     }, [activeMatches])
 
@@ -131,7 +124,7 @@ const ActiveGames = (props:any) => {
                     <View key={index} style={{flexDirection: 'row'}}>
                         {item && 'wagerAmt' in item && 'user1' in item && (
                         <GameCard amountWagered={item!.wagerAmt} mode={"Stock"} idIndex={index}
-                        yourPercentChange={3.54} opp={item!.user1.name.split("@")[0]} oppPercentChange={1.56}
+                        yourPercentChange={3.54} opp={item!.user1.userID} oppPercentChange={1.56}
                         endDate={new Date(2024, 4, 10, 12, 0)}></GameCard> 
                         )}
                     </View>
