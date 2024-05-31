@@ -88,9 +88,9 @@ const Home = () => {
   const cancelMatchmaking = async () => {
     //MongoLogic
     const userID = await AsyncStorage.getItem('userID');
-    const response = await axios.post(
-      serverUrl + '/cancelMatchmaking', {userID}
-    );
+    const response = await axios.post(serverUrl + '/cancelMatchmaking', {
+      userID,
+    });
     console.log(response);
     //ON success of mongodb
     setSearchForMatch(false);
@@ -112,10 +112,9 @@ const Home = () => {
       const userID = await AsyncStorage.getItem('userID');
       console.log(userID);
       // Make a request to the server to check if the user is in matchmaking
-      const response = await axios.post(
-        serverUrl + '/areTheyMatchmaking',
-        {userID}
-      );
+      const response = await axios.post(serverUrl + '/areTheyMatchmaking', {
+        userID,
+      });
       console.log(response.data.result);
       // Check the value of the 'result' field
       if (response.data.result) {
@@ -177,13 +176,13 @@ const Home = () => {
     console.log(matchLength);
 
     const userID = await AsyncStorage.getItem('userID');
-    console.log("userID", userID)
+    console.log('userID', userID);
 
     //Asign current user's values to a player object
     const player = {
-      username:  username,
+      username: username,
       userID: userID,
-      skillRating:skillRating,
+      skillRating: skillRating,
       entryFee: entryFee,
       matchLength: matchLength,
     };
