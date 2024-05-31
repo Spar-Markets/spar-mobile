@@ -31,7 +31,7 @@ const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<GraphPoint[]>([]);
 
   const [touchableWidth, setTouchableWidth] = useState(0);
-
+  const [timeframe, setTimeframe] = useState("1D")
   const [displayPrice, setDisplayPrice] = useState('');
 
   const [currDate, setCurrDate] = useState('');
@@ -50,7 +50,7 @@ const StockDetailGraph = (props: any) => {
 
   useEffect(() => {
     const run = async () =>{
-        const points = await getPrices(props.ticker);
+        const points = await getPrices(props.ticker, props.timeframe);
         if (points != undefined) {
             setPointData(points);
             setEndPrice(String(points[points.length - 1].value));

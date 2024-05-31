@@ -53,7 +53,7 @@ const ActiveGames = (props:any) => {
             const userID = await AsyncStorage.getItem('userID');
 
             const response = await axios.post(serverUrl + "/getUserMatches", {userID});
-            // console.log("Matches: ", response.data);
+            console.log("Matches: ", response.data);
             setActiveMatches(response.data);
         } catch (error) {
             console.error("Error fetching matches:", error);
@@ -61,27 +61,22 @@ const ActiveGames = (props:any) => {
     }
     
     useEffect(() => {
-        console.log("about to run fetchMatchIds");
         fetchMatchIds();
-        console.log("fetched ids");
     }, []);
 
     useEffect(() => {
-        console.log("about to run 2nd useeffect");
         if (activeMatches.length > 0) {
             const getMatchData = async () => {
                 try {
                     // initalize match data
                     const md = [];
-                    console.log("about to init match data")
                     for (const id of activeMatches) {
                         const matchDataResponse = await axios.post(serverUrl + "/getMatchData", { matchId: id })
                         md.push(matchDataResponse.data)
                     }
-                    console.log("match data: " + md)
                     setMatchData(md);
                 } catch (error) {
-                    console.log("in get match data error" + error)
+                    console.error("in get match data error" + error)
                 }
             }
             getMatchData();

@@ -24,7 +24,7 @@ const StockCard = (props:any) => {
  
     useEffect(() => {
         const run = async () =>{
-            const points = await getPrices(props.ticker);
+            const points = await getPrices( props.ticker, "1D");
             if (points != undefined) {
                 setPointData(points);
                 setRecentPrice(points[points.length - 1].value);
@@ -38,7 +38,7 @@ const StockCard = (props:any) => {
     return (
         <View>
         {pointData.length > 0 &&
-        <TouchableOpacity onPress={() => navigation.navigate("StockDetails", {ticker:props.ticker, tradable: false})} style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("StockDetails", {ticker:props.ticker, tradable: props.tradable})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
             <View style={{height: 80, backgroundColor: "#111", borderColor: '#444', borderWidth: 2, flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>

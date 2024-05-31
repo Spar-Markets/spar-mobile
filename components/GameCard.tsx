@@ -41,7 +41,7 @@ const GameCard = (props:any) => {
       const getPrices = async () => {
         try {
 
-            const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['AAPL'])
+            const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", {ticker: ['AAPL'], timeframe: "1D"})
 
             // Check if response is successful and has data
             if (response && response.data && response.data['AAPL']) {
@@ -61,7 +61,7 @@ const GameCard = (props:any) => {
 
         
         try {
-          const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", ['TSLA'])
+          const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", {ticker: ['TSLA'], timerframe: "1D"})
         
 
           // Check if response is successful and has data

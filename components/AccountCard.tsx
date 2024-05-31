@@ -27,7 +27,7 @@ const AccountCard = (props:any) => {
 
     useEffect(() => {
         const run = async () =>{
-            const points = await getPrices(props.ticker);
+            const points = await getPrices(props.ticker, "1D");
             if (points != undefined) {
                 setPointData(points);
             }

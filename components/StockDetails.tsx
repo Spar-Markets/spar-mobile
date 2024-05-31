@@ -32,6 +32,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import StockDetailGraph from './StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
+import { JsiSkImage } from '@shopify/react-native-skia';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
@@ -244,7 +245,7 @@ const StockDetails = () => {
                         <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
                     </View>*/}
 
-            <StockDetailGraph ticker={ticker} />
+            <StockDetailGraph ticker={ticker} timeframe={timeFrameSelected}/>
 
             <ScrollView
               horizontal={true}
@@ -466,7 +467,7 @@ const StockDetails = () => {
             </View>
           </ScrollView>
 
-          {params.tradable != false ? 
+          {params.tradable == true ? 
               <View style={{backgroundColor: '#111', marginBottom: 50, display: "flex", flexDirection: 'row', gap: 10}}>
               <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: tickerData.ticker, matchId: params.matchId, tradeType: "Buy"})}} style={{flex: 1}}>
                   <LinearGradient colors={['#1ae79c', '#13ad75', '#109464']} style={{borderColor: '#13ad75', borderWidth: 2, width: '100%', borderRadius: 12, justifyContent: 'center', alignItems: 'center', height: 75}}>

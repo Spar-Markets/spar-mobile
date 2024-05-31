@@ -103,7 +103,7 @@ const InGameStockSearch = () => {
         </View>
       </View> :
         <ScrollView>
-            <StockCard ticker={"AAPL"} matchId={activeMatchId}></StockCard>
+            <StockCard ticker={"AAPL"} matchId={activeMatchId} tradable={true}></StockCard>
         </ScrollView>
       }
       </View>
