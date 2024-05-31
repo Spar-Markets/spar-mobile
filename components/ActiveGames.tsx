@@ -50,7 +50,7 @@ const ActiveGames = (props:any) => {
     }
     const fetchMatchIds = async (userID:String) => {
         try {
-            const response = await axios.post(serverUrl + "/getUserMatches", { userID: userID });
+            const response = await axios.post(serverUrl + "/getUserMatches", userID);
             //console.log("Matches: ", response.data);
             setActiveMatches(response.data);
         } catch (error) {
@@ -60,21 +60,15 @@ const ActiveGames = (props:any) => {
     
     const getMatches = async () => {
         try {
-            const userEmail = await AsyncStorage.getItem('userEmail');
-            if (userEmail) {
-                await fetchMatchIds(userEmail);
+            const userID = await AsyncStorage.getItem('userID');
+            if (userID) {
+                await fetchMatchIds(userID);
             } else {
-                console.log("User email not found in AsyncStorage");
+                console.log("userID not found in AsyncStorage");
             }
         } catch (error) {
-            console.error("Error getting user email from AsyncStorage:", error);
+            console.error("Error getting userID from AsyncStorage:", error);
         }
-
-        /*try {
-            for (const id of activeMatches) {
-                const matchData = await axios.post(serverUrl + "/getMatchData", { matchId: id })
-            }
-        }*/
     }
     
     useEffect(() => {
@@ -88,7 +82,7 @@ const ActiveGames = (props:any) => {
                     // initalize match data
                     const md = [];
                     for (const id of activeMatches) {
-                        const matchDataResponse = await axios.post(serverUrl + "/getMatchData", { matchId: id })
+                        const matchDataResponse = await axios.post(serverUrl + "/getMatchData", id)
                         md.push(matchDataResponse.data)
                     }
                     console.log(md)

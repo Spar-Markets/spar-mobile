@@ -64,7 +64,7 @@ const OnboardScreen = () => {
         const response = await axios.post(serverUrl+'/createUser', data);
         console.log("userID" + response.data.UserDetails.userID);
         try {
-          await AsyncStorage.setItem("uniqueUserId", String(response.data.UserDetails.userID));
+          await AsyncStorage.setItem("userID", String(response.data.UserDetails.userID));
           await AsyncStorage.setItem('userEmail', response.data.UserDetails.email)
         } catch (error) {
           console.error("Error setting userId or email to async storage:" + error);

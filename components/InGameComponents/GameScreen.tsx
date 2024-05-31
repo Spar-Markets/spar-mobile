@@ -101,11 +101,11 @@ const GameScreen = () => {
 
     const fetchMatchIdAndData = async (userID:String) => {
         try {
-            const response = await axios.post(serverUrl + "/getUserMatches", { userID: userID });
+            const response = await axios.post(serverUrl + "/getUserMatches", userID);
             //console.log("Matches: ", response.data);
             setActiveMatchId(response.data[idIndex!]);
             //console.log(response.data[idIndex!])
-            const match = await axios.post(serverUrl + "/getMatchData", {matchId: response.data[idIndex!]})
+            const match = await axios.post(serverUrl + "/getMatchData", response.data[idIndex!])
             setActiveMatch(match.data)
             console.log(match.data)
         } catch (error) {
@@ -115,9 +115,9 @@ const GameScreen = () => {
     
     const getMatch = async () => {
         try {
-            const userEmail = await AsyncStorage.getItem('userEmail');
-            if (userEmail) {
-                await fetchMatchIdAndData(userEmail);
+            const userID = await AsyncStorage.getItem('userID');
+            if (userID) {
+                await fetchMatchIdAndData(userID);
             } else {
                 console.log("User email not found in AsyncStorage");
             }
@@ -125,12 +125,6 @@ const GameScreen = () => {
         } catch (error) {
             console.error("Error getting user email from AsyncStorage:", error);
         }
-
-        /*try {
-            for (const id of activeMatches) {
-                const matchData = await axios.post(serverUrl + "/getMatchData", { matchId: id })
-            }
-        }*/
     }
     
 

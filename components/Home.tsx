@@ -87,7 +87,7 @@ const Home = () => {
 
   const cancelMatchmaking = async () => {
     //MongoLogic
-    const userID = await AsyncStorage.getItem('uniqueUserID');
+    const userID = await AsyncStorage.getItem('userID');
     const response = await axios.post(
       serverUrl + '/cancelMatchmaking', userID
     );
@@ -109,13 +109,11 @@ const Home = () => {
 
   const getIsInMatchMaking = async () => {
     try {
-      const emailToSend = {
-        email: user,
-      };
+      const userID = AsyncStorage.getItem('userID')
       // Make a request to the server to check if the user is in matchmaking
       const response = await axios.post(
         serverUrl + '/areTheyMatchmaking',
-        emailToSend,
+        userID
       );
       console.log(response.data.result);
       // Check the value of the 'result' field
@@ -176,9 +174,9 @@ const Home = () => {
 
     console.log(entryFee);
     console.log(matchLength);
-    console.log("userID", String(AsyncStorage.getItem('uniqueUserId')))
+    console.log("userID", String(AsyncStorage.getItem('userID')))
 
-    const userID = await AsyncStorage.getItem('uniqueUserId');
+    const userID = await AsyncStorage.getItem('userID');
     //Asign current user's values to a player object
     const player = {
       username:  username,
@@ -237,19 +235,6 @@ const Home = () => {
     );
     getBalance();
   }, [colorScheme, user]);
-
-  /*const testData = {
-    labels: ["January", "February", "March", "April", "May", "June"],
-    datasets: [
-      {
-        data: [20, 45, 28, 80, 99, 43, 20, 45, 28, 80, 99, 43, 20, 45, 28, 80, 99, 43, 20, 45, 28, 80, 99, 43
-        ,20, 45, 28, 80, 99, 43,20, 45, 28, 80, 99, 43,20, 45, 28, 80, 99, 43,20, 45, 28, 80, 99, 43,20, 45, 28, 80, 99, 43, 20, 45, 28, 80, 99, 43, 20, 45, 28, 80, 99, 43, 20, 45, 28, 80, 99, 43, 20, 45, 28, 80, 99, 43],
-        color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
-        strokeWidth: 2 // optional
-      }
-    ],
-    legend: ["Rainy Days"] // optional
-  };*/
 
   return (
     <View
