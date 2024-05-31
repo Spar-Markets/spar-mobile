@@ -99,9 +99,9 @@ const GameScreen = () => {
     }, [isFocused]);
 
 
-    const fetchMatchIdAndData = async (email:String) => {
+    const fetchMatchIdAndData = async (userID:String) => {
         try {
-            const response = await axios.post(serverUrl + "/getUserMatches", { email: email });
+            const response = await axios.post(serverUrl + "/getUserMatches", { userID: userID });
             //console.log("Matches: ", response.data);
             setActiveMatchId(response.data[idIndex!]);
             //console.log(response.data[idIndex!])

@@ -48,9 +48,9 @@ const ActiveGames = (props:any) => {
             )
         }
     }
-    const fetchMatchIds = async (email:String) => {
+    const fetchMatchIds = async (userID:String) => {
         try {
-            const response = await axios.post(serverUrl + "/getUserMatches", { email: email });
+            const response = await axios.post(serverUrl + "/getUserMatches", { userID: userID });
             //console.log("Matches: ", response.data);
             setActiveMatches(response.data);
         } catch (error) {

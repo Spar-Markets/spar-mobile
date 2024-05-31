@@ -176,8 +176,9 @@ const Home  = () => {
     //Pass the players object to the database
     console.log("Log" + player)
 
-    try { const response = await axios.post(serverUrl + "/userToMatchmaking", player)
-    console.log(response)
+    try {
+      const response = await axios.post(serverUrl + "/userToMatchmaking", player)
+      console.log(response)
     }     
     catch (error) {
         console.log(error)
@@ -305,7 +306,7 @@ return (
 
 
       </ScrollView>
-      {/*<View>
+      <View>
         <View style={{flexDirection: 'row', height: 80, gap: 15}}>
           <Dropdown
           style={[darkStyles.dropdown, isFocus && { borderColor: '#6254ff' },
@@ -369,7 +370,7 @@ return (
           <ActivityIndicator size="small" color="#1ae79c" />
         </TouchableOpacity>)}
 
-        </View> */}
+        </View>
     </View>
     );
 };
