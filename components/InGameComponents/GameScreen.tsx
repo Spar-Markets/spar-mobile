@@ -101,11 +101,11 @@ const GameScreen = () => {
 
     const fetchMatchIdAndData = async (userID:String) => {
         try {
-            const response = await axios.post(serverUrl + "/getUserMatches", userID);
+            const response = await axios.post(serverUrl + "/getUserMatches", {userID});
             //console.log("Matches: ", response.data);
             setActiveMatchId(response.data[idIndex!]);
             //console.log(response.data[idIndex!])
-            const match = await axios.post(serverUrl + "/getMatchData", response.data[idIndex!])
+            const match = await axios.post(serverUrl + "/getMatchData", { matchId: response.data[idIndex!]})
             setActiveMatch(match.data)
             console.log(match.data)
         } catch (error) {

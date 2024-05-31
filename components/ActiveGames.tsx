@@ -50,7 +50,7 @@ const ActiveGames = (props:any) => {
     }
     const fetchMatchIds = async (userID:String) => {
         try {
-            const response = await axios.post(serverUrl + "/getUserMatches", userID);
+            const response = await axios.post(serverUrl + "/getUserMatches", {userID});
             //console.log("Matches: ", response.data);
             setActiveMatches(response.data);
         } catch (error) {
@@ -82,7 +82,7 @@ const ActiveGames = (props:any) => {
                     // initalize match data
                     const md = [];
                     for (const id of activeMatches) {
-                        const matchDataResponse = await axios.post(serverUrl + "/getMatchData", id)
+                        const matchDataResponse = await axios.post(serverUrl + "/getMatchData", {id})
                         md.push(matchDataResponse.data)
                     }
                     console.log(md)

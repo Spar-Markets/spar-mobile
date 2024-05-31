@@ -89,7 +89,7 @@ const Home = () => {
     //MongoLogic
     const userID = await AsyncStorage.getItem('userID');
     const response = await axios.post(
-      serverUrl + '/cancelMatchmaking', userID
+      serverUrl + '/cancelMatchmaking', {userID}
     );
     console.log(response);
     //ON success of mongodb
@@ -109,11 +109,12 @@ const Home = () => {
 
   const getIsInMatchMaking = async () => {
     try {
-      const userID = AsyncStorage.getItem('userID')
+      const userID = await AsyncStorage.getItem('userID');
+      console.log(userID);
       // Make a request to the server to check if the user is in matchmaking
       const response = await axios.post(
         serverUrl + '/areTheyMatchmaking',
-        userID
+        {userID}
       );
       console.log(response.data.result);
       // Check the value of the 'result' field
