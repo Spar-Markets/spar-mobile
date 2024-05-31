@@ -87,12 +87,9 @@ const Home = () => {
 
   const cancelMatchmaking = async () => {
     //MongoLogic
-    const emailToSend = {
-      email: user,
-    };
+    const userID = await AsyncStorage.getItem('uniqueUserID');
     const response = await axios.post(
-      serverUrl + '/cancelMatchmaking',
-      emailToSend,
+      serverUrl + '/cancelMatchmaking', userID
     );
     console.log(response);
     //ON success of mongodb
@@ -179,11 +176,13 @@ const Home = () => {
 
     console.log(entryFee);
     console.log(matchLength);
+    console.log("userID", String(AsyncStorage.getItem('uniqueUserId')))
 
+    const userID = await AsyncStorage.getItem('uniqueUserId');
     //Asign current user's values to a player object
     const player = {
       username:  username,
-      userID: String(AsyncStorage.getItem('uniqueUserID')),
+      userID: userID,
       skillRating:skillRating,
       entryFee: entryFee,
       matchLength: matchLength,

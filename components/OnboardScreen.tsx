@@ -48,7 +48,7 @@ const OnboardScreen = () => {
         email: user!.email,
       };
       
-      //console.log(data)
+      //console.log(data) 
       console.log("Print Before Endpoint")
       console.log(data)
       const response = await axios.post(serverUrl+'/checkUserExists', data)
@@ -63,8 +63,13 @@ const OnboardScreen = () => {
       } else {
         const response = await axios.post(serverUrl+'/createUser', data);
         console.log("userID" + response.data.UserDetails.userID);
-        await AsyncStorage.setItem("uniqueUserId", response.data.UserDetails.userID);
-        await AsyncStorage.setItem('userEmail', response.data.UserDetails.email)
+        try {
+          await AsyncStorage.setItem("uniqueUserId", String(response.data.UserDetails.userID));
+          await AsyncStorage.setItem('userEmail', response.data.UserDetails.email)
+        } catch (error) {
+          console.error("Error setting userId or email to async storage:" + error);
+        }
+        
 
         navigation.replace('CoreApp');
       }
