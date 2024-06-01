@@ -20,7 +20,7 @@ const StockOrder = (props: any) => {
     const [balance, setBalance] = useState("Retrieving...");
     const [input, setInput] = useState('0.00');
     const [orderTotal, setTotal] = useState('0.00');
-    const [stockPrice, setPrice] = useState('1.00');
+    const [stockPrice, setPrice] = useState(190.00);
 
     const goBack = () => {
         navigation.goBack();
@@ -31,10 +31,10 @@ const StockOrder = (props: any) => {
     const ticker = (route.params as { ticker?: string})?.ticker ?? "";
     const matchId = (route.params as { matchId?: string})?.matchId ?? "";
 
-    const purchaseStock = async () => {
+    const purchaseStock = async (buyPrice: number) => {
         try {
-            const email = await AsyncStorage.getItem("userEmail");
-            const buyResponse = await axios.post(serverUrl + "/purchaseStock", {email: email, matchId: matchId, ticker: ticker});
+            const userID = await AsyncStorage.getItem("userID");
+            const buyResponse = await axios.post(serverUrl + "/purchaseStock", {userID: userID, matchId: matchId, ticker: ticker, buyPrice: buyPrice, shares: 100 });
         } catch (error) {
             console.log(error)
         }
@@ -129,7 +129,7 @@ return (
       <View style={{alignItems: 'center', flexDirection: 'row', marginHorizontal: 20, marginTop: 20}}>
         <Text style={[colorScheme == "dark" ? {color: "#aaa"} : {color: '#aaa'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>Market Price</Text>
         <View style={{flex: 1}}></View>
-        <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>$176.99</Text>
+        <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>{stockPrice}</Text>
       </View>
       <View style={{height: 1, backgroundColor: '#aaa', marginHorizontal: 20, marginTop: 15}}></View>
       <View style={{alignItems: 'center', flexDirection: 'row', marginHorizontal: 20, marginTop: 20}}>
@@ -187,7 +187,7 @@ return (
       </View>
       </View>
       
-      <TouchableOpacity onPress={() => {purchaseStock(); navigation.navigate("GameScreen")}} style={{backgroundColor: "#1ae79c", alignItems: 'center', justifyContent: 'center', borderRadius: 12, height: 80, marginBottom: 30, marginTop: 20, marginHorizontal: 15}}>
+      <TouchableOpacity onPress={() => {purchaseStock(stockPrice); navigation.navigate("GameScreen")}} style={{backgroundColor: "#1ae79c", alignItems: 'center', justifyContent: 'center', borderRadius: 12, height: 80, marginBottom: 30, marginTop: 20, marginHorizontal: 15}}>
         <Text style={{color: '#000', fontFamily: 'InterTight-Black', fontSize: 18}}>Confirm Buy</Text>
       </TouchableOpacity> 
       
