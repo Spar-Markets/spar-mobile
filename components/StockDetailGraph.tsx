@@ -20,7 +20,7 @@ import {GraphPoint, LineGraph} from 'react-native-graph';
 import {serverUrl} from '../constants/global';
 import axios from 'axios';
 import LinearGradient from 'react-native-linear-gradient';
-import getPrices from "../utility/getPrices"
+import getPrices from '../utility/getPrices';
 
 const StockDetailGraph = (props: any) => {
   const colorScheme = useColorScheme();
@@ -31,35 +31,45 @@ const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<GraphPoint[]>([]);
 
   const [touchableWidth, setTouchableWidth] = useState(0);
-  const [timeframe, setTimeframe] = useState("1D")
+  const [timeframe, setTimeframe] = useState('1D');
   const [displayPrice, setDisplayPrice] = useState('');
 
   const [currDate, setCurrDate] = useState('');
   const [endPrice, setEndPrice] = useState('');
 
   const updateVals = (obj: any) => {
-    if (String(obj.value).includes('.') == false) {
-      setDisplayPrice(String(obj.value) + '.00');
-    } else if (String(obj.value).split('.')[1].length == 1) {
-      setDisplayPrice(String(obj.value) + 0);
+    const newValue = Math.round(obj.value * 100) / 100;
+
+    if (String(newValue).includes('.') == false) {
+      setDisplayPrice(String(newValue) + '.00');
+    } else if (String(newValue).split('.')[1].length == 1) {
+      setDisplayPrice(String(newValue) + 0);
     } else {
-      setDisplayPrice(String(obj.value));
+      setDisplayPrice(String(newValue));
     }
     //setCurrDate(String(obj.date.toLocaleTimeString("en-US")))
   };
 
   useEffect(() => {
-    const run = async () =>{
-        const points = await getPrices(props.ticker, props.timeframe);
-        if (points != undefined) {
-            setPointData(points);
-            setEndPrice(String(points[points.length - 1].value));
+    const run = async () => {
+      const points = await getPrices(props.ticker, props.timeframe);
+      console.log('PRICES POINTS!! ', points);
+      if (points != undefined) {
+        setPointData(points);
+        if (String(points[points.length - 1].value).includes('.') == false) {
+          setEndPrice(String(points[points.length - 1].value) + '.00');
+        } else if (
+          String(points[points.length - 1].value).split('.')[1].length == 1
+        ) {
+          setEndPrice(String(points[points.length - 1].value) + 0);
+        } else {
+          setEndPrice(String(points[points.length - 1].value));
         }
-    }
+      }
+    };
 
     run();
-
-  }, []);
+  }, [props.timeframe]);
 
   return (
     <View>

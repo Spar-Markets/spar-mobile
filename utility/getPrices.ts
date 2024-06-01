@@ -8,12 +8,13 @@ const getPrices = async (ticker: string, timeframe: string) => {
         price: number;
         timeField: number;
       }
-
+      console.log("getprices", ticker, timeframe)
       const response = await axios.post(
         serverUrl + '/getMostRecentOneDayPrices',
-        {ticker: ticker,
-        timeframe}
+        {ticker: String(ticker),
+        timeframe: timeframe}
       )
+      console.log("pass")
       for (let i = 0; i < ticker.length; i++) {
         // Check if response is successful and has data
         if (response && response.data && response.data[ticker]) {
@@ -30,7 +31,7 @@ const getPrices = async (ticker: string, timeframe: string) => {
         }
       }
     } catch (error) {
-      console.error('getPrices error getting prices');
+      console.error('getPrices error getting prices', error);
     }
   };
 
