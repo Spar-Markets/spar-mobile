@@ -55,6 +55,7 @@ const StockCard = (props: any) => {
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('StockDetails', {
+              matchId: props.matchId,
               ticker: props.ticker,
               tradable: props.tradable,
             })

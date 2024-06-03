@@ -104,6 +104,8 @@ const StockDetails = () => {
   // get params either in the expected format, or allow it to be undefined
   const params = route.params as RouteParams | undefined;
 
+  console.log("params: " + params?.matchId);
+
   useEffect(() => {
     NativeModules.StatusBarManager.getHeight(
       (response: {height: React.SetStateAction<number>}) => {
@@ -469,12 +471,12 @@ const StockDetails = () => {
 
           {params.tradable == true ? 
               <View style={{backgroundColor: '#111', marginBottom: 50, display: "flex", flexDirection: 'row', gap: 10}}>
-              <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: tickerData.ticker, matchId: params.matchId, tradeType: "Buy"})}} style={{flex: 1}}>
+              <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: params.ticker, matchId: params.matchId, tradeType: "Buy"})}} style={{flex: 1}}>
                   <LinearGradient colors={['#1ae79c', '#13ad75', '#109464']} style={{borderColor: '#13ad75', borderWidth: 2, width: '100%', borderRadius: 12, justifyContent: 'center', alignItems: 'center', height: 75}}>
                       <Text style={{color: '#fff', fontSize: 20, fontFamily: 'InterTight-Black'}}>Buy</Text>
                   </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: tickerData.ticker, matchId: params.matchId, tradeType: "Sell"})}} style={{flex: 1}}>
+              <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: params.ticker, matchId: params.matchId, tradeType: "Sell"})}} style={{flex: 1}}>
                   <LinearGradient colors={['#FFFFFF', '#FFFFFF', '#FFFFFF']} style={{borderColor: '#FFFFFF', borderWidth: 2, width: '100%', borderRadius: 12, height: 75, justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={{color: '#000', fontSize: 20, fontFamily: 'InterTight-Black'}}>Sell</Text>
                   </LinearGradient>

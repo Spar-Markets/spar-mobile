@@ -10,6 +10,12 @@ import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+interface stockOrderParams {
+  ticker: string,
+  matchId: string,
+  tradeType: string
+}
+
 const StockOrder = (props: any) => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
@@ -18,23 +24,30 @@ const StockOrder = (props: any) => {
     const [currAccessToken, setCurrAccessToken] = useState();
     const [accountID, setAccountID] = useState("");
     const [balance, setBalance] = useState("Retrieving...");
-    const [input, setInput] = useState('0.00');
+    const [numberShares, setNumberShares] = useState('0.00');
     const [orderTotal, setTotal] = useState('0.00');
     const [stockPrice, setPrice] = useState(190.00);
 
-    const goBack = () => {
+    const goBack = () => { 
         navigation.goBack();
     };
     Icon.loadFont();
 
     const route = useRoute();
-    const ticker = (route.params as { ticker?: string})?.ticker ?? "";
-    const matchId = (route.params as { matchId?: string})?.matchId ?? "";
+    const params = route.params as stockOrderParams | undefined;
+    console.log("StockOrder params:", params);
+    if (params == undefined) {
+      console.error("STOCKORDER: params undefined");
+      throw new Error("params passed when navigating to Stock Order are in incorrect format.");
+    }
+    const { ticker, matchId, tradeType } = params;
+    // const ticker = (route.params as { ticker?: string})?.ticker ?? "";
+    // const matchId = (route.params as { matchId?: string})?.matchId ?? "";
 
     const purchaseStock = async (buyPrice: number) => {
         try {
             const userID = await AsyncStorage.getItem("userID");
-            const buyResponse = await axios.post(serverUrl + "/purchaseStock", {userID: userID, matchId: matchId, ticker: ticker, buyPrice: buyPrice, shares: 100 });
+            const buyResponse = await axios.post(serverUrl + "/purchaseStock", {userID: userID, matchId: matchId, ticker: ticker, buyPrice: buyPrice, shares: numberShares });
         } catch (error) {
             console.log(error)
         }
@@ -56,50 +69,50 @@ const StockOrder = (props: any) => {
     }, []);
 
     const handlePress = (value:string) => {
-      if (input === '0.00') {
-        setInput('')
-        setInput((prevInput) => prevInput + value);
+      if (numberShares === '0.00') {
+        setNumberShares('')
+        setNumberShares((prevInput) => prevInput + value);
         
       }
-      if (value === '0' && input === '0.00') {
-        setInput('0.00')
+      if (value === '0' && numberShares === '0.00') {
+        setNumberShares('0.00')
       } 
-      if (input.includes('.') && input.split('.')[1].length >= 2) {
+      if (numberShares.includes('.') && numberShares.split('.')[1].length >= 2) {
         return;
       }
-      if(input.length === 5 && input.includes('.') === false) {
+      if(numberShares.length === 5 && numberShares.includes('.') === false) {
         return;
       }
-      if(input.includes('.') && input.split('.').length === 5) {
+      if(numberShares.includes('.') && numberShares.split('.').length === 5) {
         return;
       }
       else {
-        setInput((prevInput) => prevInput + value);
+        setNumberShares((prevInput) => prevInput + value);
 
       }
     };
   
     const handleDelete = () => {
-      if (input !== '0.00') {
-        setInput((prevInput) => prevInput.slice(0, -1));
+      if (numberShares !== '0.00') {
+        setNumberShares((prevInput) => prevInput.slice(0, -1));
       }
-      if (input.length === 1) {
-        setInput('0.00')
+      if (numberShares.length === 1) {
+        setNumberShares('0.00')
       }
        
     };
   
     const handleDecimal = () => {
-      if (!input.includes('.')) {
-        setInput((prevInput) => prevInput + '.');
+      if (!numberShares.includes('.')) {
+        setNumberShares((prevInput) => prevInput + '.');
       }
     };
 
 
 useEffect(() => {
-  setTotal(String(Number(input)*Number(stockPrice)))
+  setTotal(String(Number(numberShares)*Number(stockPrice)))
 
-}, [input])
+}, [numberShares])
 
 
 return (
@@ -124,7 +137,7 @@ return (
       <View style={{alignItems: 'center', flexDirection: 'row', marginHorizontal: 20}}>
         <Text style={[colorScheme == "dark" ? {color: "#aaa"} : {color: '#aaa'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>Shares</Text>
         <View style={{flex: 1}}></View>
-        <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>{input}</Text>
+        <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>{numberShares}</Text>
       </View>
       <View style={{alignItems: 'center', flexDirection: 'row', marginHorizontal: 20, marginTop: 20}}>
         <Text style={[colorScheme == "dark" ? {color: "#aaa"} : {color: '#aaa'}, {fontSize: 20, fontFamily: 'InterTight-Black'}]}>Market Price</Text>
