@@ -20,6 +20,8 @@ const PositionCard = (props:any) => {
     const [recentPrice, setRecentPrice] = useState(0.0);
 
     useEffect(() => {
+        console.log("Entered Position card useeffect");
+        console.log(props.ticker, props.matchId, props.ownStock);
         const getPrices = async () => {
             try {
                 interface TickerPricestamp {
@@ -27,7 +29,8 @@ const PositionCard = (props:any) => {
                     timeField: number
                 }
 
-                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", [props.ticker])
+                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", {ticker: props.ticker, timeframe: "1D"})
+                console.log("after api request");
                 
 
                 // Check if response is successful and has data

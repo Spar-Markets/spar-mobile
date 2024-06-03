@@ -23,6 +23,7 @@ const GameScreen = () => {
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [activeMatchId, setActiveMatchId] = useState();
     const [activeMatch, setActiveMatch] = useState<any>();
+    const [userNumber, setUserNumber] = useState<string>("");
     
     const goBack = () => {
         navigation.goBack();
@@ -107,7 +108,12 @@ const GameScreen = () => {
             //console.log(response.data[idIndex!])
             const match = await axios.post(serverUrl + "/getMatchData", { matchId: response.data[idIndex!]})
             setActiveMatch(match.data)
-            console.log(match.data)
+            if (userID == match.data.user1.userID) {
+                setUserNumber("user1");
+            } else if (userID == match.data.user2.userID) {
+                setUserNumber("user2")
+            }
+            console.log("Match data:", match.data)
         } catch (error) {
             console.error("Error fetching matches:", error);
         } 
@@ -206,15 +212,23 @@ return (
                 </View>
             </LinearGradient>
             <Text style={[colorScheme == "dark" ? {color: '#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 20, marginBottom: 10, marginTop: 15}]}>Positions</Text>
+            {userNumber != "" &&
+            
             <ScrollView style={{marginHorizontal: -15}}>
                 {activeMatch.user1.assets.map((item:any, index:any) => (
                 <View key={index}>
+
                     {item && 'ticker' in item && (
                     <PositionCard ticker={item.ticker} matchId={activeMatchId} ownStock={true}></PositionCard>
                 )}
+
                 </View>
                 ))}
             </ScrollView>
+            
+            }
+
+
             <View style={{flex: 1}}></View>
             <TouchableOpacity onPress={() => {navigation.navigate("InGameStockSearch", {activeMatchId});}} style={{backgroundColor: '#6254ff', height: 80, marginBottom: 30, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
             <LinearGradient colors={['#6254ff', '#4e42cf', '#3b31a3']} style={{flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center', borderColor: '#4e42cf', borderWidth:2, borderRadius: 12}}>
