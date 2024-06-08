@@ -1,18 +1,13 @@
-import React, {useState, useEffect, useCallback, useLayoutEffect} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, TouchableWithoutFeedback, Touchable } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
+import React, {useState, useEffect } from 'react';
+import { Text, TouchableOpacity, View, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
 import { LineGraph, GraphPoint } from 'react-native-graph';
 import axios from 'axios'
 import { serverUrl } from '../../constants/global';
-import { point } from '@shopify/react-native-skia';
 import LinearGradient from 'react-native-linear-gradient';
 
 const PositionCard = (props:any) => {
-    const colorScheme = useColorScheme();
+
     const navigation = useNavigation<any>();
     const [pointData, setPointData] = useState<GraphPoint[]>([])
     const [tickerData, setTickerData] = useState<any>(null)
@@ -20,23 +15,35 @@ const PositionCard = (props:any) => {
     const [recentPrice, setRecentPrice] = useState(0.0);
 
     useEffect(() => {
+        console.log("Entered Position card useeffect");
+        console.log(props.ticker, props.matchId, props.ownStock);
         const getPrices = async () => {
             try {
-                const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
-             
-                if (response) {
-               
-                    const points: GraphPoint[] = response.data.prices.map((obj:any) => ({
-                        value: obj.price,
-                        date: new Date(obj.timeField)
-                    }));
-                    //console.log(points)
-                    setPointData(points)
-                    setPercentChange(Math.round(((points[points.length-1].value - points[0].value)/points[0].value)*100*100)/100)
-                    setRecentPrice(Math.round(points[points.length-1].value*100)/100)
+                interface TickerPricestamp {
+                    price: number,
+                    timeField: number
                 }
-            } catch {
-                console.error("error getting prices")
+
+                const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", {ticker: props.ticker, timeframe: "1D"})
+                console.log("after api request");
+                
+                // Check if response is successful and has data
+                if (response && response.data && response.data[props.ticker]) {
+                    const tickerData: TickerPricestamp[] = response.data[props.ticker]
+    
+                    // Map the data to the format expected by the graphing library
+                    const points = tickerData.map(tickerData => ({
+                        value: tickerData.price,
+                        date: new Date(tickerData.timeField)
+                    })); 
+
+                    console.log(tickerData[tickerData.length - 1]);
+
+                    setRecentPrice(Number(tickerData[tickerData.length-1].price));
+                    setPointData(points);
+                }
+            } catch (error){  
+                console.error(error, "stock game card error getting prices")
             }
         }
 
@@ -57,12 +64,12 @@ const PositionCard = (props:any) => {
     return (
         <View>
         {pointData.length > 0 &&
-        <TouchableOpacity onPress={() => navigation.navigate("StockDetailsInGame", {ticker:props.ticker, matchId: props.matchId, ownStock: props.ownStock})} style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("StockDetails", {ticker:props.ticker, matchId: props.matchId, ownStock: props.ownStock, tradable: true})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
             <LinearGradient colors={['#222', '#333', '#444']} style={{height: 80, backgroundColor: "#222", borderWidth: 2, borderColor: '#333', flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>
                     <Text style={{color: '#fff', fontFamily: 'InterTight-Black', fontSize: 16}}>{props.ticker}</Text>
-                    <Text style={{color: '#aaaaaa', fontFamily: 'InterTight-Black', fontSize: 11}}>2 Shares</Text>
+                    <Text style={{color: '#aaaaaa', fontFamily: 'InterTight-Black', fontSize: 11}}>{props.shares} Shares</Text>
                 </View>
                 <LineGraph
                     style={{flex: 1, height: 40, marginLeft: 20, marginRight: 20}}

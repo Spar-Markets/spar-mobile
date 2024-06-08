@@ -7,12 +7,11 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {LineGraph, GraphPoint} from 'react-native-graph';
-import getPrices from '../utility/getPrices';
+import getPrices from '../../utility/getPrices';
 
 const StockCard = (props: any) => {
-
+  const colorScheme = useColorScheme();
   const navigation = useNavigation<any>();
-
   const [pointData, setPointData] = useState<GraphPoint[]>([]);
   const [percentChange, setPercentChange] = useState(0.0);
   const [recentPrice, setRecentPrice] = useState(0.0);

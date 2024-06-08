@@ -1,11 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
-import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import GameCard from '../GameCard';
-import GameModesScrollBar from '../ActiveGames';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -23,6 +19,7 @@ const GameScreen = () => {
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [activeMatchId, setActiveMatchId] = useState();
     const [activeMatch, setActiveMatch] = useState<any>();
+    const [userNumber, setUserNumber] = useState<string>("");
     
     const goBack = () => {
         navigation.goBack();
@@ -47,7 +44,6 @@ const GameScreen = () => {
         const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
         // Format seconds with leading zero if necessary
         const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-        
         
         return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
       };
@@ -99,15 +95,20 @@ const GameScreen = () => {
     }, [isFocused]);
 
 
-    const fetchMatchIdAndData = async (email:String) => {
+    const fetchMatchIdAndData = async (userID:String) => {
         try {
-            const response = await axios.post(serverUrl + "/getUserMatches", { email: email });
+            const response = await axios.post(serverUrl + "/getUserMatches", {userID});
             //console.log("Matches: ", response.data);
             setActiveMatchId(response.data[idIndex!]);
             //console.log(response.data[idIndex!])
-            const match = await axios.post(serverUrl + "/getMatchData", {matchId: response.data[idIndex!]})
+            const match = await axios.post(serverUrl + "/getMatchData", { matchId: response.data[idIndex!]})
             setActiveMatch(match.data)
-            console.log(match.data)
+            if (userID == match.data.user1.userID) {
+                setUserNumber("user1");
+            } else if (userID == match.data.user2.userID) {
+                setUserNumber("user2")
+            }
+            console.log("Match data:", match.data)
         } catch (error) {
             console.error("Error fetching matches:", error);
         } 
@@ -115,9 +116,9 @@ const GameScreen = () => {
     
     const getMatch = async () => {
         try {
-            const userEmail = await AsyncStorage.getItem('userEmail');
-            if (userEmail) {
-                await fetchMatchIdAndData(userEmail);
+            const userID = await AsyncStorage.getItem('userID');
+            if (userID) {
+                await fetchMatchIdAndData(userID);
             } else {
                 console.log("User email not found in AsyncStorage");
             }
@@ -125,12 +126,6 @@ const GameScreen = () => {
         } catch (error) {
             console.error("Error getting user email from AsyncStorage:", error);
         }
-
-        /*try {
-            for (const id of activeMatches) {
-                const matchData = await axios.post(serverUrl + "/getMatchData", { matchId: id })
-            }
-        }*/
     }
     
 
@@ -212,15 +207,23 @@ return (
                 </View>
             </LinearGradient>
             <Text style={[colorScheme == "dark" ? {color: '#fff'}:{color:'#000'}, {fontFamily: 'InterTight-Black', fontSize: 20, marginBottom: 10, marginTop: 15}]}>Positions</Text>
+            {userNumber != "" &&
+            
             <ScrollView style={{marginHorizontal: -15}}>
                 {activeMatch.user1.assets.map((item:any, index:any) => (
                 <View key={index}>
+
                     {item && 'ticker' in item && (
-                    <PositionCard ticker={item.ticker} matchId={activeMatchId} ownStock={true}></PositionCard>
+                    <PositionCard ticker={item.ticker} matchId={activeMatchId} ownStock={true} shares={item.totalShares}></PositionCard>
                 )}
+
                 </View>
                 ))}
             </ScrollView>
+            
+            }
+
+
             <View style={{flex: 1}}></View>
             <TouchableOpacity onPress={() => {navigation.navigate("InGameStockSearch", {activeMatchId});}} style={{backgroundColor: '#6254ff', height: 80, marginBottom: 30, borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
             <LinearGradient colors={['#6254ff', '#4e42cf', '#3b31a3']} style={{flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center', borderColor: '#4e42cf', borderWidth:2, borderRadius: 12}}>
