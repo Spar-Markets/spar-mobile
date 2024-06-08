@@ -1,45 +1,21 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {
-  Image,
-  StatusBar,
-  StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   useColorScheme,
-  NativeModules,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Touchable,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {GraphPoint, LineGraph} from 'react-native-graph';
-import {serverUrl} from '../constants/global';
-import axios from 'axios';
 import LinearGradient from 'react-native-linear-gradient';
 import getPrices from '../utility/getPrices';
 
 const StockDetailGraph = (props: any) => {
   const colorScheme = useColorScheme();
-  const navigation = useNavigation<any>();
-
-  const route = useRoute();
-
   const [pointData, setPointData] = useState<GraphPoint[]>([]);
-
-  const [touchableWidth, setTouchableWidth] = useState(0);
-  const [timeframe, setTimeframe] = useState('1D');
   const [displayPrice, setDisplayPrice] = useState('');
-
-  const [currDate, setCurrDate] = useState('');
   const [endPrice, setEndPrice] = useState('');
 
   const updateVals = (obj: any) => {
     const newValue = Math.round(obj.value * 100) / 100;
-
     if (String(newValue).includes('.') == false) {
       setDisplayPrice(String(newValue) + '.00');
     } else if (String(newValue).split('.')[1].length == 1) {
@@ -47,7 +23,6 @@ const StockDetailGraph = (props: any) => {
     } else {
       setDisplayPrice(String(newValue));
     }
-    //setCurrDate(String(obj.date.toLocaleTimeString("en-US")))
   };
 
   useEffect(() => {

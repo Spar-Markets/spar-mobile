@@ -1,26 +1,16 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
-  Image,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   useColorScheme,
   NativeModules,
-  ScrollView,
-  Animated,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
 import {useNavigation} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import GameCard from './GameCard';
-import GameModesScrollBar from './ActiveGames';
 import axios from 'axios';
 import {serverUrl} from '../constants/global';
-import Icon from '@mdi/react';
-import {mdiChevronLeft} from '@mdi/js';
 
 const Withdraw = () => {
   const navigation = useNavigation<any>();
@@ -45,12 +35,6 @@ const Withdraw = () => {
     );
     colorScheme == 'dark' ? setStyles(darkStyles) : setStyles(lightStyles);
 
-    //getAccessToken().then(() => console.log("Token: " + currAccessToken))
-    /*if (l != null) {
-            getAccount();
-            getBalance();
-        }*/
-
     const fetchData = async () => {
       try {
         const email = await AsyncStorage.getItem('userEmail');
@@ -60,7 +44,6 @@ const Withdraw = () => {
           });
           if (response && response.data) {
             const token = response.data;
-            //console.log("Console Token: " + token);
             await getAccount(token); // Wait for getAccount to complete
             await getBalance(); // Wait for getBalance to complete
 

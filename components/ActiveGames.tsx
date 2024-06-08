@@ -1,25 +1,17 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {
-  Image,
-  StatusBar,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
   useColorScheme,
-  NativeModules,
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
-import {useNavigation} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';
 import {serverUrl} from '../constants/global';
 import axios from 'axios';
 import {Skeleton} from '@rneui/themed';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ActiveGames = (props: any) => {
   interface MatchData {

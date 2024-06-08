@@ -1,11 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
-import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import GameCard from '../GameCard';
-import GameModesScrollBar from '../ActiveGames';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -48,7 +44,6 @@ const GameScreen = () => {
         const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
         // Format seconds with leading zero if necessary
         const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-        
         
         return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
       };
@@ -219,7 +214,7 @@ return (
                 <View key={index}>
 
                     {item && 'ticker' in item && (
-                    <PositionCard ticker={item.ticker} matchId={activeMatchId} ownStock={true}></PositionCard>
+                    <PositionCard ticker={item.ticker} matchId={activeMatchId} ownStock={true} shares={item.totalShares}></PositionCard>
                 )}
 
                 </View>

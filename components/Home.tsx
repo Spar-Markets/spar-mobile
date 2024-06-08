@@ -1,7 +1,5 @@
-import React, {useState, useEffect, useCallback, useReducer} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
-  Image,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,33 +12,19 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
 import {
-  useFocusEffect,
-  useIsFocused,
-  useNavigation,
+  useNavigation
 } from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import GameCard from './GameCard';
 import ActiveGames from './ActiveGames';
 import axios from 'axios';
 import {serverUrl} from '../constants/global';
-import AccountCard from './AccountCard';
 import {Dropdown} from 'react-native-element-dropdown';
-import {get} from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-import {EmailTypeEnum} from 'plaid';
-import LinearGradient from 'react-native-linear-gradient';
-import io from 'socket.io-client';
-import {PlaidLink, LinkExit, LinkSuccess} from 'react-native-plaid-link-sdk';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import WagerEarn from './PromotionBanners/WagerEarn';
 import {Dimensions} from 'react-native';
-import {LineChart} from 'react-native-chart-kit';
-import DailyChallengeCard from './DailyChallengeCard';
 import TournamentCard from './TournamentCard';
 
 const Home = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const colorScheme = useColorScheme();
   const [currStyles, setCurrStyles] = useState(darkStyles);
@@ -51,15 +35,11 @@ const Home = () => {
   const [isFocus, setIsFocus] = useState(false);
   const [isFocus2, setIsFocus2] = useState(false);
   const [searchingForMatch, setSearchForMatch] = useState(false);
-  const [activeMatches, setActiveMatches] = useState([]);
-  const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
   const [user, setUser] = useState('');
   const [username, setUsername] = useState('');
 
-  const [linkToken, setLinkToken] = useState('');
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
-  const [accessToken, setAccessToken] = useState('');
 
   const screenWidth = Dimensions.get('window').width;
 

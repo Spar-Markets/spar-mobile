@@ -1,58 +1,17 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {
-  Image,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  useColorScheme,
-  NativeModules,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Touchable,
   Dimensions,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
-import {useNavigation} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {
-  BarChart,
-  LineChart,
-  PieChart,
-  PopulationPyramid,
-} from 'react-native-gifted-charts';
 import LinearGradient from 'react-native-linear-gradient';
-import {GraphPoint, LineGraph} from 'react-native-graph';
-import {serverUrl} from '../constants/global';
-import axios from 'axios';
-
-var styles = require('../Style/style');
 
 const TournamentCard = (props: any) => {
-  const colorScheme = useColorScheme();
-  const navigation = useNavigation<any>();
-
-  const sendData = {
-    mode: props.mode,
-    amountWagered: props.amountWagered,
-    endDate: props.startDate.getTime(),
-    yourPercentChange: props.yourPercentChange,
-    opp: props.opp,
-    oppPercentChange: props.oppPercentChange,
-    idIndex: props.idIndex,
-  };
-
-  const [pointData, setPointData] = useState<GraphPoint[]>([]);
-  const [pointData2, setPointData2] = useState<GraphPoint[]>([]);
 
   const screenWidth = Dimensions.get('window').width;
-
-  //   useEffect(() => {
-
-  // }, []);
-
+  // this function isn't working form what I can figure so this needs to be implemented and created/finished 
   const calculateTimeRemaining = (startDate: Date) => {
     const endDateTime = new Date(startDate).getTime();
     const currentTime = new Date().getTime();

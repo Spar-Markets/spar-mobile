@@ -1,11 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import GameCard from '../GameCard';
-import GameModesScrollBar from '../ActiveGames';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -21,9 +17,6 @@ const StockOrder = (props: any) => {
     const colorScheme = useColorScheme();
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [styles, setStyles] = useState(darkStyles);
-    const [currAccessToken, setCurrAccessToken] = useState();
-    const [accountID, setAccountID] = useState("");
-    const [balance, setBalance] = useState("Retrieving...");
     const [numberShares, setNumberShares] = useState('0.00');
     const [orderTotal, setTotal] = useState('0.00');
     const [stockPrice, setPrice] = useState(190.00);

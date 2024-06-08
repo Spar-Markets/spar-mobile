@@ -1,18 +1,13 @@
-import React, {useState, useEffect, useCallback, useLayoutEffect} from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, TouchableWithoutFeedback, Touchable } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
+import React, {useState, useEffect } from 'react';
+import { Text, TouchableOpacity, View, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
 import { LineGraph, GraphPoint } from 'react-native-graph';
 import axios from 'axios'
 import { serverUrl } from '../../constants/global';
-import { point } from '@shopify/react-native-skia';
 import LinearGradient from 'react-native-linear-gradient';
 
 const PositionCard = (props:any) => {
-    const colorScheme = useColorScheme();
+
     const navigation = useNavigation<any>();
     const [pointData, setPointData] = useState<GraphPoint[]>([])
     const [tickerData, setTickerData] = useState<any>(null)
@@ -32,11 +27,9 @@ const PositionCard = (props:any) => {
                 const response = await axios.post(serverUrl + "/getMostRecentOneDayPrices", {ticker: props.ticker, timeframe: "1D"})
                 console.log("after api request");
                 
-
                 // Check if response is successful and has data
                 if (response && response.data && response.data[props.ticker]) {
                     const tickerData: TickerPricestamp[] = response.data[props.ticker]
-    
     
                     // Map the data to the format expected by the graphing library
                     const points = tickerData.map(tickerData => ({
@@ -53,7 +46,6 @@ const PositionCard = (props:any) => {
                 console.error(error, "stock game card error getting prices")
             }
         }
-
 
         const getDetails = async () => {
             try {
@@ -77,7 +69,7 @@ const PositionCard = (props:any) => {
             <LinearGradient colors={['#222', '#333', '#444']} style={{height: 80, backgroundColor: "#222", borderWidth: 2, borderColor: '#333', flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>
                     <Text style={{color: '#fff', fontFamily: 'InterTight-Black', fontSize: 16}}>{props.ticker}</Text>
-                    <Text style={{color: '#aaaaaa', fontFamily: 'InterTight-Black', fontSize: 11}}>2 Shares</Text>
+                    <Text style={{color: '#aaaaaa', fontFamily: 'InterTight-Black', fontSize: 11}}>{props.shares} Shares</Text>
                 </View>
                 <LineGraph
                     style={{flex: 1, height: 40, marginLeft: 20, marginRight: 20}}

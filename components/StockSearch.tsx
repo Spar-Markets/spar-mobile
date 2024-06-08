@@ -1,30 +1,14 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {
-  Image,
-  StatusBar,
-  StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   useColorScheme,
   NativeModules,
   ScrollView,
-  Animated,
   TextInput,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import GameCard from './GameCard';
-import GameModesScrollBar from './ActiveGames';
-import axios from 'axios';
-import {serverUrl} from '../constants/global';
-import {Pointer} from 'react-native-gifted-charts/src/Components/common/Pointer';
-import {LineGraph, GraphPoint} from 'react-native-graph';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {useNavigation } from '@react-navigation/native';
 import StockCard from './StockCard';
-import {Skeleton} from '@rneui/themed';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const StockSearch = () => {
@@ -37,10 +21,6 @@ const StockSearch = () => {
   const goBack = () => {
     navigation.goBack();
   };
-
-  /*const data = {
-        ticker: route.params?. //'X:BTCUSD'
-    };*/
 
   useEffect(() => {
     NativeModules.StatusBarManager.getHeight(

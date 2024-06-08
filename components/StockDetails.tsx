@@ -1,38 +1,23 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Image,
-  ActivityIndicator,
-  StatusBar,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
   useColorScheme,
   NativeModules,
   ScrollView,
-  Animated,
   Linking,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
 import {
-  CommonActions,
-  useFocusEffect,
-  useNavigation,
+  useNavigation, 
   useRoute,
 } from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import GameCard from './GameCard';
-import GameModesScrollBar from './ActiveGames';
 import axios from 'axios';
-import {serverUrl} from '../constants/global';
-import {Pointer} from 'react-native-gifted-charts/src/Components/common/Pointer';
-import {LineGraph, GraphPoint} from 'react-native-graph';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import { serverUrl } from '../constants/global';
 import StockDetailGraph from './StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
-import { JsiSkImage } from '@shopify/react-native-skia';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
@@ -47,32 +32,14 @@ interface RouteParams {
 const StockDetails = () => {
   const navigation = useNavigation<any>();
   const colorScheme = useColorScheme();
-
   const route = useRoute();
-
   const [statusBarHeight, setStatusBarHeight] = useState(0);
-  const [currentPrice, setCurrPrice] = useState('');
-  const [currentDate, setCurrDate] = useState('');
-  const [range, setRange] = useState({});
-
-  const [pointData, setPointData] = useState<GraphPoint[]>([]);
   const [ticker, setTicker] = useState('');
-
   const [timeFrameSelected, setTimeFrameSelected] = useState('1D');
   const [tickerData, setTickerData] = useState<any>(null);
-  const [descMaxHeight, setDescMaxHeight] = useState(150);
-  const [showingMoreDesc, setShowingMoreDesc] = useState(false);
 
   const goBack = () => {
     navigation.goBack();
-  };
-
-  const showDesc = () => {
-    if (showingMoreDesc) {
-      setDescMaxHeight(150);
-    } else {
-      setDescMaxHeight(1000);
-    }
   };
 
   function formatLargeNumber(number: number) {
@@ -196,8 +163,6 @@ const StockDetails = () => {
       </View>
     );
   };
-
-  
 
   return (
     <View style={{backgroundColor: '#111', flex: 1}}>

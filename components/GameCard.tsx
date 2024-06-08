@@ -1,34 +1,17 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
-  Image,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   useColorScheme,
-  NativeModules,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Touchable,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth0, Auth0Provider} from 'react-native-auth0';
 import {useNavigation} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {
-  BarChart,
-  LineChart,
-  PieChart,
-  PopulationPyramid,
-} from 'react-native-gifted-charts';
 import LinearGradient from 'react-native-linear-gradient';
 import {GraphPoint, LineGraph} from 'react-native-graph';
 import {serverUrl} from '../constants/global';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
-var styles = require('../Style/style');
 
 const GameCard = (props: any) => {
   const colorScheme = useColorScheme();
