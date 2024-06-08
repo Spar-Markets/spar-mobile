@@ -4,21 +4,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import GameCard from './GameCard';
-import GameModesScrollBar from './ActiveGames';
+import GameCard from '../GameCard';
+import GameModesScrollBar from '../ActiveGames';
 import axios from 'axios';
-import { serverUrl } from '../constants/global';
+import { serverUrl } from '../../constants/global';
 import { Pointer } from 'react-native-gifted-charts/src/Components/common/Pointer';
 import { LineGraph, GraphPoint } from 'react-native-graph'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import StockDetailGraph from './StockDetailGraph';
+import StockDetailGraph from '../StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 
-const StockDetails = () => {
+const StockDetailsInGame = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
-
+ 
     const route = useRoute();
 
     const [statusBarHeight, setStatusBarHeight] = useState(0);
@@ -101,7 +101,7 @@ const StockDetails = () => {
             value: 5
         },
     ];*/
-  
+ 
 
     const TimeButton = (timeFrame:string) => {
         return (
@@ -117,6 +117,8 @@ const StockDetails = () => {
         </View>
         )
     }
+
+
 
     /*const buyStock = async () => {
         const email = await AsyncStorage.getItem("userEmail");
@@ -135,7 +137,9 @@ const StockDetails = () => {
         } catch (error) {
             console.log(error)
         }
-    }    
+    }
+
+    
 
     return (
 
@@ -148,9 +152,9 @@ const StockDetails = () => {
                         <Icon name={'chevron-left'} size= {20} color={"#33aaFF"} style={colorScheme == "dark" ? {color: '#FFF'} : {backgroundColor: '#000'}}/>
                         <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>Back</Text>
                     </TouchableOpacity>
-                </View>
-                
-                <View style={{flex: 1}}/>
+                </View>   
+                <View style={{flex: 3}}/>
+
             </View>
         <ScrollView style={{}} showsVerticalScrollIndicator={false}>
         {/*<View style={{marginLeft: 12, marginTop: 20}}>
@@ -209,17 +213,26 @@ const StockDetails = () => {
                     )}
                 </View>
                 ))}
+                    
+                
             </View>
         </View>
         }
         </ScrollView>
-
+        <View style={{backgroundColor: '#111', marginTop: 10}}>
+        <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: tickerData.ticker, matchId: matchId})}} style={{height: 80, marginBottom: 30, borderRadius: 12, marginHorizontal: 15, justifyContent: 'center', alignItems: 'center'}}>
+            <LinearGradient colors={['#1ae79c', '#13ad75', '#109464']} style={{borderColor: '#13ad75', borderWidth: 2, flex: 1, width: '100%', borderRadius: 12, justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={{color: '#fff', fontSize: 20, fontFamily: 'InterTight-Black'}}>Buy</Text>
+            </LinearGradient>
+        </TouchableOpacity>
+        </View>
         </View> :
         <View></View>
         }
        </View> 
+       
     );
 };
 
 
-export default StockDetails;
+export default StockDetailsInGame;

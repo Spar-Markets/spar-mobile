@@ -1,18 +1,28 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Platform, Text, View, useColorScheme, NativeModules, SafeAreaView } from 'react-native';
+import { Pressable, Platform, Image, Button, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, TextInput, SafeAreaView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
+import { useNavigation } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import GameCard from './GameCard';
+import GameModesScrollBar from './ActiveGames';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { rgbaColor } from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
+import CircularProgress from 'react-native-circular-progress-indicator';
+import { SvgXml } from 'react-native-svg';
+
 import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
  
+
 var styles = require('../Style/style');
 
 const Bank = ({ navigation }: any) => {
     const [linkToken, setLinkToken] = useState("");
     const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
     const { authorize, user } = useAuth0();
+    const [balance, setBalance] = useState(null);
     const [accessToken, setAccessToken] = useState("");
     const colorScheme = useColorScheme();
 
@@ -63,10 +73,13 @@ const Bank = ({ navigation }: any) => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
           setStatusBarHeight(response.height);
         });
+        //console.log("Logging User's Name: " + user!.name)
         if (linkToken == "") {
           console.log("Getting Link Token")
           createLinkToken();
         }
+        //fetchData();
+        //getBalance();
       }, [user, linkToken, createLinkToken]);
 
     return (

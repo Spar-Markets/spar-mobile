@@ -1,18 +1,28 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {Text, View, ToastAndroid, Platform, Alert} from 'react-native';
+import {
+  Text,
+  View,
+  ToastAndroid,
+  Platform,
+  Alert,
+} from 'react-native';
 
 var styles = require('../Style/style');
 
-const SuccessScreen = ({navigation, route}: any) => {
+const SuccessScreen = ({ navigation, route }: any) => {
   const [data, setData] = useState(null);
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <View style={styles.heading}>
         <Text style={styles.titleText}>Balance Response</Text>
       </View>
       <View style={styles.body}>
-        <Text style={styles.baseText}>{JSON.stringify(data)}</Text>
+        <Text style={styles.baseText}>
+            {
+              JSON.stringify(data)
+            }
+        </Text>
       </View>
     </View>
   );

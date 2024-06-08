@@ -7,11 +7,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
 import { LineGraph, GraphPoint } from 'react-native-graph';
 import axios from 'axios'
-import { serverUrl } from '../constants/global';
+import { serverUrl } from '../../constants/global';
 import { point } from '@shopify/react-native-skia';
 
 
-const StockCard = (props:any) => {
+const StockCardGame = (props:any) => {
 
     const colorScheme = useColorScheme();
 
@@ -23,7 +23,6 @@ const StockCard = (props:any) => {
     const [recentPrice, setRecentPrice] = useState(0.0);
 
     useEffect(() => {
-        
         const getPrices = async () => {
             try {
                 const response = await axios.post(serverUrl + "/getOneDayStockData", {ticker: props.ticker})
@@ -44,8 +43,6 @@ const StockCard = (props:any) => {
             }
         }
 
-
-
         const getDetails = async () => {
             try {
                 const response = await axios.post(serverUrl + "/getTickerDetails", {ticker: props.ticker})
@@ -61,14 +58,12 @@ const StockCard = (props:any) => {
         getPrices();
         getDetails();
         
-
-
     }, [])
   
     return (
         <View>
         {pointData.length > 0 &&
-        <TouchableOpacity onPress={() => navigation.navigate("StockDetails", {ticker:props.ticker, matchId: props.matchId})} style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => navigation.navigate("StockDetailsInGame", {ticker:props.ticker, matchId: props.matchId})} style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
             <View style={{height: 80, backgroundColor: "#111", borderColor: '#444', borderWidth: 2, flex: 1, marginHorizontal: 12, marginVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{marginLeft: 20, width: 60}}>
@@ -98,4 +93,4 @@ const StockCard = (props:any) => {
 };
 
 
-export default StockCard;
+export default StockCardGame;
