@@ -12,9 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  useNavigation
-} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import ActiveGames from './ActiveGames';
 import axios from 'axios';
 import {serverUrl} from '../constants/global';
@@ -24,7 +22,6 @@ import {Dimensions} from 'react-native';
 import TournamentCard from './TournamentCard';
 
 const Home = () => {
-
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const colorScheme = useColorScheme();
   const [currStyles, setCurrStyles] = useState(darkStyles);
@@ -134,7 +131,7 @@ const Home = () => {
   };
 
   const handleDeposit = async () => {
-    navigation.push('Deposit');
+    navigation.push('Feed');
   };
 
   //Matchmaking Function with server connection
@@ -258,6 +255,7 @@ const Home = () => {
         </TouchableOpacity>
         <View style={{flex: 1}}></View>
         <TouchableOpacity
+          onPress={() => navigation.push('Feed')}
           style={{
             backgroundColor: '#272743',
             alignItems: 'center',
@@ -475,6 +473,9 @@ const Home = () => {
               Cancel Matchmaking
             </Text>
             <ActivityIndicator size="small" color="#1ae79c" />
+            <TouchableOpacity onPress={() => navigation.push('Feed')}>
+              Hello
+            </TouchableOpacity>
           </TouchableOpacity>
         )}
       </View>

@@ -18,6 +18,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GameScreen from './components/InGameComponents/GameScreen';
 import InGameStockSearch from './components/InGameComponents/InGameStockSearch';
 import StockOrder from './components/InGameComponents/StockOrder';
+import Feed from './components/Feed';
 
 const Stack = createNativeStackNavigator();
 
@@ -73,6 +74,11 @@ const App = (): React.ReactElement => {
               <Stack.Screen
                 name="StockDetails"
                 component={StockDetails}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Feed"
+                component={Feed}
                 options={{headerShown: false}}
               />
               <Stack.Screen
