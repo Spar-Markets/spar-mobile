@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import GameCard from './GameCard';
+import GameCard from './HomeComponents/GameCard';
 import {serverUrl} from '../constants/global';
 import axios from 'axios';
 import {Skeleton} from '@rneui/themed';

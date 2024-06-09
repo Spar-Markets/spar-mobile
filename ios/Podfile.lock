@@ -1136,7 +1136,7 @@ PODS:
     - React-perflogger (= 0.73.2)
   - RNCAsyncStorage (1.22.3):
     - React-Core
-  - RNGestureHandler (2.15.0):
+  - RNGestureHandler (2.16.2):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1149,7 +1149,7 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - RNSVG (15.2.0):
+  - RNSVG (15.3.0):
     - React-Core
   - RNVectorIcons (10.0.3):
     - glog
@@ -1456,14 +1456,14 @@ SPEC CHECKSUMS:
   React-utils: f5bc61e7ea3325c0732ae2d755f4441940163b85
   ReactCommon: 45b5d4f784e869c44a6f5a8fad5b114ca8f78c53
   RNCAsyncStorage: 10591b9e0a91eaffee14e69b3721009759235125
-  RNGestureHandler: deda62b8339496ba721a45e0f3e2d7a319932cee
+  RNGestureHandler: 48c9d38f57c7761b4153def57b718f491f4bbb4b
   RNReanimated: 3e23d4be380e295e504b7b3b3a357df60e1168a2
   RNScreens: b582cb834dc4133307562e930e8fa914b8c04ef2
-  RNSVG: 43b64ed39c14ce830d840903774154ca0c1f27ec
+  RNSVG: a48668fd382115bc89761ce291a81c4ca5f2fd2e
   RNVectorIcons: 210f910e834e3485af40693ad4615c1ec22fc02b
   SimpleKeychain: f8707c8e97b38c6a6e687b17732afc9bcef06439
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  Yoga: 13c8ef87792450193e117976337b8527b49e8c03
+  Yoga: e64aa65de36c0832d04e8c7bd614396c77a80047
 
 PODFILE CHECKSUM: 7254ed6bc6485c3232ffd9a3185077bcc66b3d09
 
