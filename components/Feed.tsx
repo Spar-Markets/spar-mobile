@@ -1,21 +1,30 @@
-// src/PhotoInputPage.js
-import React, {useState} from 'react';
-import {View, TextInput, Button, Image, Text, StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  TextInput,
+  Button,
+  Image,
+  Text,
+  FlatList,
+  StyleSheet,
+} from 'react-native';
 import {
   launchImageLibrary,
   ImageLibraryOptions,
   Asset,
 } from 'react-native-image-picker';
+import axios from 'axios';
+import {serverUrl} from '../constants/global';
 
 const Feed = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [photo, setPhoto] = useState<Asset | null>(null);
+  const [photos, setPhotos] = useState([]);
 
   const selectPhoto = () => {
     const options: ImageLibraryOptions = {
       mediaType: 'photo',
-      quality: 1,
     };
 
     launchImageLibrary(options, response => {
@@ -27,17 +36,45 @@ const Feed = () => {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (title && description && photo) {
-      // Handle the submission logic here
-      console.log('Title:', title);
-      console.log('Description:', description);
-      console.log('Photo:', photo.uri);
-      // You can add your API call or any other logic here
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('photo', {
+        uri: photo.uri,
+        type: photo.type,
+        name: photo.fileName,
+      });
+
+      try {
+        await axios.post('', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        alert('Photo uploaded successfully');
+        fetchPhotos();
+      } catch (error) {
+        alert('Error uploading photo');
+      }
     } else {
       alert('Please complete all fields');
     }
   };
+
+  const fetchPhotos = async () => {
+    try {
+      const response = await axios.get(serverUrl + '');
+      setPhotos(response.data);
+    } catch (error) {
+      console.log('Error fetching photos', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPhotos();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -58,11 +95,7 @@ const Feed = () => {
       />
       <Button title="Select Photo" onPress={selectPhoto} />
       {photo && <Image source={{uri: photo.uri}} style={styles.photo} />}
-      <Button
-        title="Submit"
-        onPress={handleSubmit}
-        style={styles.submitButton}
-      />
+      <Button title="Submit" onPress={handleSubmit} />
     </View>
   );
 };
@@ -88,6 +121,17 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginTop: 16,
+  },
+  photoContainer: {
+    marginVertical: 16,
+  },
+  photoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  photoDescription: {
+    fontSize: 14,
+    color: 'gray',
   },
   submitButton: {
     marginTop: 16,

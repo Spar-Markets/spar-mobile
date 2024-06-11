@@ -53,10 +53,14 @@ const InGameStockSearch = () => {
     navigation.goBack();
   };
   const route = useRoute();
-  const activeMatchId =
-    (route.params as {activeMatchId?: string})?.activeMatchId ?? null;
+
+  // joe this is stupid code
+  // but to explain it, it grabs active matchId and buying power if they exist,
+  // otherwise they set it to null
+  const {activeMatchId, buyingPower} =
+    (route.params as {activeMatchId?: string; buyingPower?: number}) ?? null;
+
   Icon.loadFont();
-  // const socket = new WebSocket('wss://music-api-grant.fly.dev')
 
   useEffect(() => {
     NativeModules.StatusBarManager.getHeight(
@@ -70,11 +74,11 @@ const InGameStockSearch = () => {
   const updateTickerList = async () => {
     const response = await axios.get(serverUrl + '/getTickerList');
     setListOfTickers(response.data);
-  }
+  };
 
   useEffect(() => {
     updateTickerList();
-  }, [])
+  }, []);
 
   const handleSearch = async (text: string) => {
     setStockSearch(text);
@@ -222,6 +226,7 @@ const InGameStockSearch = () => {
             <StockCard
               ticker={'AAPL'}
               matchId={activeMatchId}
+              buyingPower={buyingPower}
               tradable={true}></StockCard>
           </View>
         )}

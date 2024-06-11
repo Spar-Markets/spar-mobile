@@ -7,7 +7,7 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
-import {useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import StockCard from './StockCard';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -28,21 +28,6 @@ const StockSearch = () => {
         setStatusBarHeight(response.height);
       },
     );
-
-    const socket = new WebSocket('wss://music-api-grant.fly.dev');
-
-    socket.onopen = () => {
-      console.log('Opened');
-    };
-
-    socket.onmessage = event => {
-      console.log('Message received:', event.data);
-      setProp(event.data);
-    };
-
-    socket.onclose = () => {
-      console.log('Connection closed');
-    };
   }, []);
 
   return (

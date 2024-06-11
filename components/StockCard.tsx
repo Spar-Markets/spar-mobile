@@ -1,16 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  useColorScheme,
-} from 'react-native';
+import {Text, TouchableOpacity, View, useColorScheme} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {LineGraph, GraphPoint} from 'react-native-graph';
 import getPrices from '../utility/getPrices';
 
 const StockCard = (props: any) => {
-
   const navigation = useNavigation<any>();
 
   const [pointData, setPointData] = useState<GraphPoint[]>([]);
@@ -36,6 +30,7 @@ const StockCard = (props: any) => {
           onPress={() =>
             navigation.navigate('StockDetails', {
               matchId: props.matchId,
+              buyingPower: props.buyingPower,
               ticker: props.ticker,
               tradable: props.tradable,
             })

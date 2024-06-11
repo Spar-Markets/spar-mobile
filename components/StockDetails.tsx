@@ -9,12 +9,9 @@ import {
   ScrollView,
   Linking,
 } from 'react-native';
-import {
-  useNavigation, 
-  useRoute,
-} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
-import { serverUrl } from '../constants/global';
+import {serverUrl} from '../constants/global';
 import StockDetailGraph from './StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,10 +19,11 @@ import LinearGradient from 'react-native-linear-gradient';
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
 interface RouteParams {
-  ticker: string,
-  tradable: boolean,
-  canSell: boolean,
-  matchId: string
+  ticker: string;
+  tradable: boolean;
+  canSell: boolean;
+  matchId: string;
+  buyingPower: number;
 }
 
 // apply stockdetails props interface so it knows its formatted correctly
@@ -71,7 +69,34 @@ const StockDetails = () => {
   // get params either in the expected format, or allow it to be undefined
   const params = route.params as RouteParams | undefined;
 
-  console.log("params: " + params?.matchId);
+  console.log('stock details, params: ' + params?.matchId);
+
+  useEffect(() => {
+    const ticker = String(params?.ticker);
+
+    const ws = new WebSocket('wss://music-api-grant.fly.dev');
+
+    ws.onopen = () => {
+      console.log('Connected to server');
+      ws.send(ticker);
+    };
+
+    ws.onmessage = event => {
+      console.log(`Received message: ${event.data}`);
+    };
+
+    ws.onerror = error => {
+      console.error('WebSocket error:', error.message || JSON.stringify(error));
+    };
+
+    // close websocket once component unmounts
+    return () => {
+      if (ws) {
+        ws.close(1000, 'Closing websocket connection due to page being closed');
+        console.log('Closed websocket connection due to page closing');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     NativeModules.StatusBarManager.getHeight(
@@ -91,7 +116,7 @@ const StockDetails = () => {
       try {
         const tickerResponse = await axios.post(
           serverUrl + '/getTickerDetails',
-          { ticker: params?.ticker},
+          {ticker: params?.ticker},
         );
         console.log('ticker response data;', tickerResponse.data);
         console.log(
@@ -114,6 +139,7 @@ const StockDetails = () => {
 
     getData();
   }, []);
+
   const TimeButton = (timeFrame: string) => {
     return (
       <View>
@@ -212,7 +238,7 @@ const StockDetails = () => {
                         <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
                     </View>*/}
 
-            <StockDetailGraph ticker={ticker} timeframe={timeFrameSelected}/>
+            <StockDetailGraph ticker={ticker} timeframe={timeFrameSelected} />
 
             <ScrollView
               horizontal={true}
@@ -434,23 +460,80 @@ const StockDetails = () => {
             </View>
           </ScrollView>
 
-          {params.tradable == true ? 
-              <View style={{backgroundColor: '#111', marginBottom: 50, display: "flex", flexDirection: 'row', gap: 10}}>
-              <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: params.ticker, matchId: params.matchId, tradeType: "Buy"})}} style={{flex: 1}}>
-                  <LinearGradient colors={['#1ae79c', '#13ad75', '#109464']} style={{borderColor: '#13ad75', borderWidth: 2, width: '100%', borderRadius: 12, justifyContent: 'center', alignItems: 'center', height: 75}}>
-                      <Text style={{color: '#fff', fontSize: 20, fontFamily: 'InterTight-Black'}}>Buy</Text>
-                  </LinearGradient>
+          {params.tradable == true ? (
+            <View
+              style={{
+                backgroundColor: '#111',
+                marginBottom: 50,
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 10,
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('StockOrder', {
+                    ticker: params.ticker,
+                    matchId: params.matchId,
+                    tradeType: 'Buy',
+                    buyingPower: params.buyingPower,
+                  });
+                }}
+                style={{flex: 1}}>
+                <LinearGradient
+                  colors={['#1ae79c', '#13ad75', '#109464']}
+                  style={{
+                    borderColor: '#13ad75',
+                    borderWidth: 2,
+                    width: '100%',
+                    borderRadius: 12,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 75,
+                  }}>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 20,
+                      fontFamily: 'InterTight-Black',
+                    }}>
+                    Buy
+                  </Text>
+                </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {navigation.navigate("StockOrder", {ticker: params.ticker, matchId: params.matchId, tradeType: "Sell"})}} style={{flex: 1}}>
-                  <LinearGradient colors={['#FFFFFF', '#FFFFFF', '#FFFFFF']} style={{borderColor: '#FFFFFF', borderWidth: 2, width: '100%', borderRadius: 12, height: 75, justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={{color: '#000', fontSize: 20, fontFamily: 'InterTight-Black'}}>Sell</Text>
-                  </LinearGradient>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('StockOrder', {
+                    ticker: params.ticker,
+                    matchId: params.matchId,
+                    tradeType: 'Sell',
+                  });
+                }}
+                style={{flex: 1}}>
+                <LinearGradient
+                  colors={['#FFFFFF', '#FFFFFF', '#FFFFFF']}
+                  style={{
+                    borderColor: '#FFFFFF',
+                    borderWidth: 2,
+                    width: '100%',
+                    borderRadius: 12,
+                    height: 75,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: '#000',
+                      fontSize: 20,
+                      fontFamily: 'InterTight-Black',
+                    }}>
+                    Sell
+                  </Text>
+                </LinearGradient>
               </TouchableOpacity>
-              </View>
-              :
-              <View></View>
-
-          }
+            </View>
+          ) : (
+            <View></View>
+          )}
         </View>
       ) : (
         <View></View>
