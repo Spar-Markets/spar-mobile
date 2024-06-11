@@ -14,32 +14,11 @@ import axios from 'axios';
 import {serverUrl} from '../../constants/global';
 import StockCard from '../StockCard';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {Search} from 'js-search';
 
 interface stockObject {
   ticker: string;
   companyName: string;
 }
-
-// sample stock data -- will read in actual data later
-// const data: stockObject[] = [
-//   {
-//     ticker: 'AAPL',
-//     companyName: 'Apple Inc.',
-//   },
-//   {
-//     ticker: 'MSFT',
-//     companyName: 'Microsoft',
-//   },
-//   {
-//     ticker: 'TSLA',
-//     companyName: 'Tesla Motors',
-//   },
-//   {
-//     ticker: 'ABBS',
-//     companyName: 'Aaplbees',
-//   },
-// ];
 
 const InGameStockSearch = () => {
   const navigation = useNavigation<any>();
@@ -68,36 +47,30 @@ const InGameStockSearch = () => {
         setStatusBarHeight(response.height);
       },
     );
+    console.log('getting ticker list');
+    getTickerList();
     console.log('ingamestocksearch activematchid', activeMatchId);
   }, []);
 
-  const updateTickerList = async () => {
-    const response = await axios.get(serverUrl + '/getTickerList');
-    setListOfTickers(response.data);
+  const getTickerList = async () => {
+    const list = await AsyncStorage.getItem('tickersList');
+    console.log('printing list', list);
+    if (list != null && list != undefined) {
+      setListOfTickers(JSON.parse(list));
+    } else {
+      // Call endpoint
+      console.log("list is null so we're calling the server");
+      const response = await axios.get(serverUrl + '/getTickerList');
+      console.log('gettickerlist', response);
+      // setListOfTickers(response.tickers);
+    }
   };
-
-  useEffect(() => {
-    updateTickerList();
-  }, []);
 
   const handleSearch = async (text: string) => {
     setStockSearch(text);
     if (text) {
       // if there is search data, perform the search
-      // Initialize the search instance
-      const search = new Search('ticker');
-
-      // Add indexes to search across both ticker and companyName
-      search.addIndex('ticker');
-      search.addIndex('companyName');
-
-      // Add array of data
-      search.addDocuments(listOfTickers);
-
-      // Get search results (array of objects)
-      const results: stockObject[] = search.search(text) as stockObject[];
-
-      setSearchResults(results);
+      // TODO: implement js-search
     }
   };
 
@@ -216,7 +189,7 @@ const InGameStockSearch = () => {
               keyExtractor={item => item.ticker}
               renderItem={({item}) => (
                 <View>
-                  <Text style={{color: '#FFFFFF'}}>
+                  <Text>
                     {item.ticker} - {item.companyName}
                   </Text>
                 </View>
