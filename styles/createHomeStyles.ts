@@ -69,7 +69,7 @@ const createHomeStyles = (theme: any, width: number) => {
     gap: {
       height: 6,
       backgroundColor: theme.colors.primary,
-      marginVertical: 10
+      marginBottom: 10
     },
 
     // DiscoverCard

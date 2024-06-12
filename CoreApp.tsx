@@ -7,7 +7,6 @@ import SuccessScreen from './components/SuccessScreen';
 import Profile from './components/Profile';
 import { PlaidTheme } from './styles/style';
 import Home from './components/HomeComponents/Home';
-import { Auth0Provider } from 'react-native-auth0';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import StockSearch from './components/StockSearch';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -19,12 +18,6 @@ import { useStatusBarHeight } from './components/ContextComponents/StatusBarHeig
 import { useDimensions } from './components/ContextComponents/DimensionsContext';
 
 const Tab = createBottomTabNavigator();
-
-
-const Auth0Config = {
-  domain: "dev-wol45o5xjg0gma8k.us.auth0.com",
-  clientId: "o8K4SMbnC2Y059k4PZ1gkpCaj3Hb8dgP"
-};
 
 const CoreApp = (): React.ReactElement => {
   Icon.loadFont();

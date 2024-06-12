@@ -9,7 +9,6 @@ import Profile from './components/Profile';
 import {PlaidTheme} from './styles/style';
 import Onboardscreen1 from './components/OnboardScreen';
 import Home from './components/HomeComponents/Home';
-import {Auth0Provider} from 'react-native-auth0';
 import CoreApp from './CoreApp';
 import Deposit from './components/Deposit';
 import Transfers from './components/Transfers';
@@ -29,6 +28,7 @@ import Feed from './components/FeedComponents/Feed';
 import { Provider } from 'react-redux';
 import { store } from './FeedManagment/store';
 import CreatePost from './components/FeedComponents/CreatePost';
+import Login from './components/OnboardComponents/Login';
 
 
 
@@ -37,16 +37,11 @@ import CreatePost from './components/FeedComponents/CreatePost';
 
 const Stack = createNativeStackNavigator();
 
-const Auth0Config = {
-  domain: 'dev-wol45o5xjg0gma8k.us.auth0.com',
-  clientId: 'o8K4SMbnC2Y059k4PZ1gkpCaj3Hb8dgP',
-};
-
 const AppContent = (): React.ReactElement => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <Provider store={store}>
+  <Provider store={store}>
     <GestureHandlerRootView style={{flex: 1}}>
         <SafeAreaProvider>
           <NavigationContainer theme={theme}>
@@ -55,7 +50,7 @@ const AppContent = (): React.ReactElement => {
                     headerShown: false,
                     gestureEnabled: true,
                     gestureDirection: 'horizontal',
-                }}>
+              }}>
               <Stack.Screen
                 name="CoreApp"
                 component={CoreApp}
@@ -140,19 +135,19 @@ const AppContent = (): React.ReactElement => {
           </NavigationContainer>
         </SafeAreaProvider>
     </GestureHandlerRootView>
-    </Provider>
+  </Provider>
   )
 }
 
 const App = (): React.ReactElement => {
   return (
-    <ThemeProvider>
-      <DimensionsProvider>
-        <StatusBarHeightProvider>
-          <AppContent/>
-        </StatusBarHeightProvider>
-      </DimensionsProvider>
-    </ThemeProvider>
+      <ThemeProvider>
+        <DimensionsProvider>
+          <StatusBarHeightProvider>
+            <AppContent/>
+          </StatusBarHeightProvider>
+        </DimensionsProvider>
+      </ThemeProvider>
   );
 };
 

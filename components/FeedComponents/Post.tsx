@@ -62,8 +62,6 @@ const Post = (props:any) => {
         
     }
 
-    const [categoryBtnBackground, setCategoryBtnBackground] = useState("")
-
     const categoryButton = (category: string) => {
 
         const categoryStyles: CategoryStyles = {

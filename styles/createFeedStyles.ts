@@ -81,7 +81,8 @@ const createFeedStyles = (theme: any, width: number) => {
         marginTop: 10
     },
     messageText: {
-        color: theme.colors.secondaryText
+        color: theme.colors.secondaryText,
+        marginTop: 5
     },
     mainPic: {
         marginTop: 10
@@ -109,12 +110,24 @@ const createFeedStyles = (theme: any, width: number) => {
         backgroundColor: theme.colors.primary,
         paddingHorizontal: 10,
         paddingTop: 10,
-        paddingBottom: 14,
-        borderRadius: 10
-    },
-    commentInput: {
+        paddingBottom: 10,
+        borderTopLeftRadius: 10,
+        borderBottomLeftRadius: 10,
+        marginLeft: 20,
         color: theme.colors.text,
-        fontSize: 16,
+    },
+    postButton: {
+        backgroundColor: theme.colors.accent, 
+        marginRight: 20,
+        borderTopRightRadius: 10,
+        borderBottomRightRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    postButtonText: {
+        paddingHorizontal: 10,
+        fontWeight:'bold',
+        color: theme.colors.background
     },
     addButton: {
         width: 60,
@@ -196,6 +209,21 @@ const createFeedStyles = (theme: any, width: number) => {
         backgroundColor: theme.colors.background,
         flex: 1,
     },
+
+    //comment 
+    commentContainer: {
+        marginTop: 10,
+    },
+    commentVotesText: {
+        color: theme.colors.text,
+        fontWeight: 'bold',
+        fontSize: 16
+    },
+    gap: {
+        height: 2,
+        backgroundColor: theme.colors.primary,
+        marginBottom: 5
+    }
     
   });
 };
