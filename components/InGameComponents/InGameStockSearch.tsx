@@ -13,6 +13,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
 import {serverUrl} from '../../constants/global';
 import StockCard from '../StockCard';
+import {Search} from 'js-search';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface stockObject {
@@ -32,14 +33,10 @@ const InGameStockSearch = () => {
     navigation.goBack();
   };
   const route = useRoute();
-
-  // joe this is stupid code
-  // but to explain it, it grabs active matchId and buying power if they exist,
-  // otherwise they set it to null
   const {activeMatchId, buyingPower} =
     (route.params as {activeMatchId?: string; buyingPower?: number}) ?? null;
-
   Icon.loadFont();
+  // const socket = new WebSocket('wss://music-api-grant.fly.dev')
 
   useEffect(() => {
     NativeModules.StatusBarManager.getHeight(
@@ -47,30 +44,39 @@ const InGameStockSearch = () => {
         setStatusBarHeight(response.height);
       },
     );
-    console.log('getting ticker list');
-    getTickerList();
     console.log('ingamestocksearch activematchid', activeMatchId);
   }, []);
 
-  const getTickerList = async () => {
-    const list = await AsyncStorage.getItem('tickersList');
-    console.log('printing list', list);
-    if (list != null && list != undefined) {
-      setListOfTickers(JSON.parse(list));
-    } else {
-      // Call endpoint
-      console.log("list is null so we're calling the server");
-      const response = await axios.get(serverUrl + '/getTickerList');
-      console.log('gettickerlist', response);
-      // setListOfTickers(response.tickers);
-    }
+  const updateTickerList = async () => {
+    const response = await axios.get(serverUrl + '/getTickerList');
+    setListOfTickers(response.data);
   };
+
+  useEffect(() => {
+    updateTickerList();
+  }, []);
 
   const handleSearch = async (text: string) => {
     setStockSearch(text);
     if (text) {
       // if there is search data, perform the search
-      // TODO: implement js-search
+      // Initialize the search instance
+      const search = new Search('ticker');
+
+      // Add indexes to search across both ticker and companyName
+      search.addIndex('ticker');
+      search.addIndex('companyName');
+
+      // Add array of data
+      search.addDocuments(listOfTickers);
+
+      // Get search results (array of objects)
+      const results: stockObject[] = search.search(text) as stockObject[];
+
+      // get first 5 results
+      const firstFiveResults: stockObject[] = results.slice(0, 5);
+
+      setSearchResults(firstFiveResults);
     }
   };
 
@@ -189,18 +195,17 @@ const InGameStockSearch = () => {
               keyExtractor={item => item.ticker}
               renderItem={({item}) => (
                 <View>
-                  <Text>
+                  {/* <Text style={{color: '#FFFFFF'}}>
                     {item.ticker} - {item.companyName}
-                  </Text>
+                  </Text> */}
+                  <StockCard
+                    ticker={item.ticker}
+                    matchId={activeMatchId}
+                    buyingPower={buyingPower}
+                    tradable={true}></StockCard>
                 </View>
               )}
             />
-
-            <StockCard
-              ticker={'AAPL'}
-              matchId={activeMatchId}
-              buyingPower={buyingPower}
-              tradable={true}></StockCard>
           </View>
         )}
       </View>

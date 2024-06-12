@@ -123,11 +123,12 @@ const GameScreen = () => {
       setActiveMatch(match.data);
       if (userID == match.data.user1.userID) {
         setUserNumber('user1');
+        setBuyingPower(match.data.user1.buyingPower);
       } else if (userID == match.data.user2.userID) {
         setUserNumber('user2');
+        setBuyingPower(match.data.user2.buyingPower);
       }
       console.log('Match data:', match.data);
-      setBuyingPower(match.data.buyingPower);
     } catch (error) {
       console.error('Error fetching matches:', error);
     }

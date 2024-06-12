@@ -78,7 +78,7 @@ const StockDetails = () => {
 
     ws.onopen = () => {
       console.log('Connected to server');
-      ws.send(ticker);
+      ws.send(JSON.stringify({ticker: ticker, status: 'add'}));
     };
 
     ws.onmessage = event => {
@@ -92,6 +92,9 @@ const StockDetails = () => {
     // close websocket once component unmounts
     return () => {
       if (ws) {
+        // sending ticker on ws close to remove it from interested list
+        ws.send(JSON.stringify({ticker: ticker, status: 'delete'}));
+
         ws.close(1000, 'Closing websocket connection due to page being closed');
         console.log('Closed websocket connection due to page closing');
       }
