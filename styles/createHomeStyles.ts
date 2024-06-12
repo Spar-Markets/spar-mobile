@@ -52,6 +52,7 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     toggleButton: {
       flex: 1,
+      height: '100%',
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -66,9 +67,9 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // Gap
     gap: {
-      height: 3,
+      height: 6,
       backgroundColor: theme.colors.primary,
-      marginVertical: 20
+      marginVertical: 10
     },
 
     // DiscoverCard
@@ -255,7 +256,7 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     //deposit bar
     depositsContainer: {
-      backgroundColor: theme.colors.backgroundColor,
+      backgroundColor: theme.colors.background,
       alignItems: 'center',
       justifyContent: 'center'
     },
@@ -278,7 +279,7 @@ const createHomeStyles = (theme: any, width: number) => {
       color: theme.colors.background,
       fontWeight: 'bold',
       fontSize: 18,
-      padding: 10
+      padding: 15
     },
 
   });

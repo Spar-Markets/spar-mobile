@@ -10,7 +10,8 @@ const createGlobalStyles = (theme: any, width: number) => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 10
+        marginBottom: 10,
+        marginHorizontal: 10
     },
     headerText: {
         color: theme.colors.text,

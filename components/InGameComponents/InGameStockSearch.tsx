@@ -53,7 +53,7 @@ const InGameStockSearch = () => {
     navigation.goBack();
   };
   const route = useRoute();
-  const activeMatchId =
+  const activeMatchId = 
     (route.params as {activeMatchId?: string})?.activeMatchId ?? null;
   Icon.loadFont();
   // const socket = new WebSocket('wss://music-api-grant.fly.dev')

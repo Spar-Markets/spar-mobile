@@ -24,7 +24,13 @@ export const darkColors = {
         cryptoUpAccent: '#60ECFF',
         stockDownAccent: '#FF6060',
         optionsDownAccent: '#FF6099',
-        cryptoDownAccent: '#FF8660'
+        cryptoDownAccent: '#FF8660',
+        discussion: '#dd0000',
+        meme: '#00dd00',
+        news: '#0000dd',
+        dub: '#dd00dd',
+        question: '#00dddd'
+
 
         
     }
@@ -51,7 +57,12 @@ export const lightColors = {
         cryptoUpAccent: '#60ECFF',
         stockDownAccent: '#FF6060',
         optionsDownAccent: '#FF6099',
-        cryptoDownAccent: '#FF8660'
+        cryptoDownAccent: '#FF8660',
+        discussion: '#dd0000',
+        meme: '#00dd00',
+        news: '#0000dd',
+        dub: '#dd00dd',
+        question: '#00dddd'
     }
 }
 

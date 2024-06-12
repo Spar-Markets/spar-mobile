@@ -246,7 +246,7 @@ const Home = () => {
       </TouchableOpacity>
     </View>
     <View style={styles.depositsContainer}>
-      <View style={{flexDirection: 'row', margin: 20}}>
+      <View style={{flexDirection: 'row', alignItems: 'center', marginHorizontal: 20}}>
       <View>
         <Text style={styles.balance}>$545.43</Text>
         <Text style={styles.fundText}>Available Funds</Text>

@@ -11,7 +11,6 @@ const createHTHStyles = (theme: any, width: number) => {
       backgroundColor: theme.colors.background,
       flex: 1,
       justifyContent: 'center',
-      marginHorizontal: 20
     },
     hthHeaderContainer: {
         flexDirection: 'row',

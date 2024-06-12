@@ -73,7 +73,7 @@ const EnterMatch = () => {
     return (
             <View style={styles.container}>
                 <PageHeader text="Matchmaking"/>
-                <ScrollView>
+                <ScrollView style={{marginHorizontal: 20}}>
                     <View style={styles.matchParamsContainer}>
                         <View>
                             <View style={styles.labelTextContainer}>

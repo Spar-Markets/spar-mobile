@@ -23,6 +23,17 @@ import { ThemeProvider, useTheme } from './components/ContextComponents/ThemeCon
 import { StatusBarHeightProvider } from './components/ContextComponents/StatusBarHeightContext';
 import { DimensionsProvider } from './components/ContextComponents/DimensionsContext';
 import EnterMatch from './components/HeadToHeadComponents/EnterMatch';
+import CommentPage from './components/FeedComponents/CommentPage';
+import Feed from './components/FeedComponents/Feed';
+
+import { Provider } from 'react-redux';
+import { store } from './FeedManagment/store';
+import CreatePost from './components/FeedComponents/CreatePost';
+
+
+
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -35,10 +46,8 @@ const AppContent = (): React.ReactElement => {
   const { theme, toggleTheme } = useTheme();
 
   return (
+    <Provider store={store}>
     <GestureHandlerRootView style={{flex: 1}}>
-      <Auth0Provider
-        domain={Auth0Config.domain}
-        clientId={Auth0Config.clientId}>
         <SafeAreaProvider>
           <NavigationContainer theme={theme}>
             <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'}/>
@@ -47,15 +56,6 @@ const AppContent = (): React.ReactElement => {
                     gestureEnabled: true,
                     gestureDirection: 'horizontal',
                 }}>
-              {/*<Stack.Screen
-                name="Onboardscreen1"
-                component={Onboardscreen1}
-                options={{
-                  // headerShown: false, // Hide header for Onboard
-                  title: 'Welcome',
-                  headerShown: false,
-                }}
-              />*/}
               <Stack.Screen
                 name="CoreApp"
                 component={CoreApp}
@@ -109,11 +109,38 @@ const AppContent = (): React.ReactElement => {
                   animation: 'slide_from_right',
                 }}
               />
+              <Stack.Screen
+                name="Feed"
+                component={Feed}
+                options={{headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'horizontal',
+                  animation: 'slide_from_right',
+                }}
+              />
+              <Stack.Screen
+                name="CommentPage"
+                component={CommentPage}
+                options={{headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'horizontal',
+                  animation: 'slide_from_right',
+                }}
+              />
+              <Stack.Screen
+                name="CreatePost"
+                component={CreatePost}
+                options={{headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'horizontal',
+                  animation: 'slide_from_bottom',
+                }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaProvider>
-      </Auth0Provider>
     </GestureHandlerRootView>
+    </Provider>
   )
 }
 
