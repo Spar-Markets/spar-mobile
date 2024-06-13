@@ -74,9 +74,9 @@ const CommentPage = () => {
                 </TouchableOpacity>
                 }
             </View>
+            {/*<Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>
             <Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>
-            <Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>
-            <Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>
+            <Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>*/}
         </ScrollView>
         <View style={{flex: 1}}></View>
     </View>

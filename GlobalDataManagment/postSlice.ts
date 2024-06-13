@@ -59,42 +59,35 @@ const postsSlice = createSlice({
         }
       }
     },
-    setUpvoteStatus(state, action: PayloadAction<{ postId: string; isUpvoted: boolean }>) {
+    updatePostVotes: (state, action: PayloadAction<PostType>) => {
+      const index = state.findIndex(post => post.postId === action.payload.postId);
+      if (index !== -1) {
+        state[index].votes = action.payload.votes;
+      }
+    },
+    setUpvoteStatus(state, action) {
       const post = state.find((p) => p.postId === action.payload.postId);
       if (post) {
         post.isUpvoted = action.payload.isUpvoted;
       }
     },
-    setDownvoteStatus(state, action: PayloadAction<{ postId: string; isDownvoted: boolean }>) {
+    setDownvoteStatus(state, action) {
       const post = state.find((p) => p.postId === action.payload.postId);
       if (post) {
         post.isDownvoted = action.payload.isDownvoted;
       }
     },
-    addPost(state, action: PayloadAction<PostType>) {
+    addPost(state, action) {
       state.unshift(action.payload);
     },
-    setPosts(state, action: PayloadAction<PostType[]>) {
+    setPosts(state, action) {
       return action.payload;
-    }
+    },
+    
+    
   },
-  /* DB implementation
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchPosts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchPosts.fulfilled, (state, action: PayloadAction<PostType[]>) => {
-        state.loading = false;
-        state.posts = action.payload;
-      })
-      .addCase(fetchPosts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to fetch posts';
-      });
-  },*/
 });
 
-export const { upvotePost, downvotePost, setDownvoteStatus, setUpvoteStatus, addPost, setPosts } = postsSlice.actions;
+export const { upvotePost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts } = postsSlice.actions;
 export default postsSlice.reducer;
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Image, ScrollView, Easing } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
@@ -35,50 +35,83 @@ const Post = (props:any) => {
  
     const dispatch = useDispatch();
     const userData = useSelector((state:any) => state.user.userData);
-
+    const post = useSelector((state: any) => state.posts.find((p: PostType) => p.postId === props.postId));
+    
     const setVote = async () => {
         try {
-            const newVoteStatus = await axios.post(serverUrl + "/getVoteStatus", { uid: userData.userID, postId: props.postId})
-            if (newVoteStatus.data.voteType === "up") {
+            const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { uid: userData.userID, postId: props.postId });
+            console.log("Vote Status: " + newVoteStatus.data.voteType)
+            if (newVoteStatus.data.voteType === 'up') {
                 dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
                 dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
-            } else if (newVoteStatus.data.voteType === "down") {
+            } else if (newVoteStatus.data.voteType === 'down') {
                 dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
-                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true}));
+                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
             } else {
                 dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
                 dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
             }
         } catch {
-            console.log("error getting vote status")
+            console.log('Error getting vote status');
         }
-    } 
+    };
+
+    const upvotePosition = useRef(new Animated.Value(0)).current;
+    const downvotePosition = useRef(new Animated.Value(0)).current;
+
+    const animateButton = (buttonPosition: Animated.Value, direction: 'up' | 'down') => {
+        const toValue = direction === 'up' ? -10 : 10;
+        Animated.sequence([
+          Animated.timing(buttonPosition, {
+            toValue,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(buttonPosition, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.in(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]).start();
+    };
 
     const upvote = async () => {
-      dispatch(upvotePost(props.postId));
-      try {
-        const response = await axios.post(serverUrl + "/upvotePost", { uid: userData.userID, postId: props.postId})
-        console.log("Response:", response.data)
-      } catch {
-        console.log("error upvoting in mongo")
-      }
+        console.log("Upvoted")
+        if (!props.isUpvoted) {
+            animateButton(upvotePosition, "up");
+        }
+        dispatch(upvotePost(props.postId));
+        try {
+            const response = await axios.post(serverUrl + "/upvotePost", { uid: userData.userID, postId: props.postId})
+            console.log("Response:", response.data)
+        } catch {
+            console.log("error upvoting in mongo")
+        }
+        
+
     };
   
     const downvote = async () => {
+        console.log("DOWNVOTED")
+        if (!props.isDownvoted) {
+            animateButton(downvotePosition, "down");
+        }
+        dispatch(downvotePost(props.postId));
+        try {
+            const reponse = await axios.post(serverUrl + "/downvotePost", { uid: userData.userID, postId: props.postId})
+            console.log("Response: ", reponse)
+        } catch {
+            console.log("error upvoting in mongo")
+        }
         
-      dispatch(downvotePost(props.postId));
-      try {
-        const reponse = await axios.post(serverUrl + "/downvotePost", { uid: userData.userID, postId: props.postId})
-        console.log("Response: ", reponse)
-      } catch {
-        console.log("error upvoting in mongo")
-      }
-      
+
     };
 
     useEffect(() => {
-        setVote()
-    }, [props.postId, props.isDownvoted, props.isUpvoted]);
+        setVote();
+    }, []);
     
     const navigateToComments = () => {
         navigation.navigate("CommentPage", {
@@ -136,13 +169,17 @@ const Post = (props:any) => {
                     </TouchableOpacity>
                     <View style={{flex: 1}}></View>
 
-                    <View style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.primary, paddingHorizontal: 10}}>
+                    <View style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10}}>
                         <TouchableOpacity onPress={upvote}>
-                            <Icon name="arrow-up" style={props.isUpvoted ? {color: theme.colors.stockUpAccent} : {color: theme.colors.secondaryText}} size={24}/>
+                            <Animated.View style={{ transform: [{ translateY: upvotePosition }] }}>
+                                <Icon name="arrow-up" style={post.isUpvoted ? {color: theme.colors.stockUpAccent} : {color: theme.colors.secondaryText}} size={24}/>
+                            </Animated.View>
                         </TouchableOpacity>
-                        <Text style={styles.votesText}>{props.votes}</Text>
+                        <Text style={styles.votesText}>{post.votes}</Text>
                         <TouchableOpacity onPress={downvote}>
-                            <Icon name="arrow-down" style={props.isDownvoted ? {color: theme.colors.stockDownAccent} : {color: theme.colors.secondaryText}} size={24}/>
+                            <Animated.View style={{ transform: [{ translateY: downvotePosition }] }}>
+                                <Icon name="arrow-down" style={post?.isDownvoted ? { color: theme.colors.stockDownAccent } : { color: theme.colors.secondaryText }} size={24} />
+                            </Animated.View>
                         </TouchableOpacity>
                     </View>
                              

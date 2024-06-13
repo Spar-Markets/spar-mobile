@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import axios from 'axios'
 import { serverUrl } from '../../constants/global';
-import { setPosts } from '../../GlobalDataManagment/postSlice';
+import { setPosts, updatePostVotes } from '../../GlobalDataManagment/postSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useUserDetails from '../../hooks/useUserDetails';
 
@@ -44,8 +44,27 @@ const Feed: React.FC = () => {
   const fetchPosts = async () => {
     try {
       const response = await axios.get(serverUrl + "/posts");
+      const fetchedPosts: PostType[] = response.data.posts;
 
-      dispatch(setPosts(response.data.posts));
+      // Filter out posts that are already in the Redux store and update existing posts
+      const newPosts: PostType[] = [];
+      const updatedPosts: PostType[] = [];
+
+      fetchedPosts.forEach(fetchedPost => {
+        const existingPost = posts.find(post => post.postId === fetchedPost.postId);
+        if (existingPost) {
+          if (existingPost.votes !== fetchedPost.votes) {
+            updatedPosts.push(fetchedPost);
+          }
+        } else {
+          newPosts.push(fetchedPost);
+        }
+      });
+
+      if (newPosts.length > 0 || updatedPosts.length > 0) {
+        dispatch(setPosts([...newPosts, ...posts]));
+        updatedPosts.forEach(post => dispatch(updatePostVotes(post)));
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
