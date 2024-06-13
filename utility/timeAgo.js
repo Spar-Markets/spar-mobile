@@ -9,33 +9,33 @@ function timeAgo(date) {
   const secondsPast = Math.floor((now - date) / 1000);
 
   if (secondsPast < 60) {
-    return `${secondsPast} sec ago`;
+    return `${secondsPast}sec`;
   }
   if (secondsPast < 3600) {
     const minutes = Math.floor(secondsPast / 60);
-    return `${minutes} min ago`;
+    return `${minutes}m`;
   }
   if (secondsPast < 86400) {
     const hours = Math.floor(secondsPast / 3600);
-    return `${hours} hr ago`;
+    return `${hours}hr`;
   }
   if (secondsPast < 604800) {
     // less than 7 days
     const days = Math.floor(secondsPast / 86400);
-    return `${days} days ago`;
+    return `${days}d`;
   }
   if (secondsPast < 2419200) {
     // less than 4 weeks
     const weeks = Math.floor(secondsPast / 604800);
-    return `${weeks} weeks ago`;
+    return `${weeks}w`;
   }
   if (secondsPast < 29030400) {
     // less than 12 months
     const months = Math.floor(secondsPast / 2419200);
-    return `${months} months ago`;
+    return `${months}m`;
   }
   const years = Math.floor(secondsPast / 29030400);
-  return `${years} years ago`;
+  return `${years}y`;
 }
 
 module.exports = timeAgo;
