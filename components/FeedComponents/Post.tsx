@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Image, ScrollView } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
@@ -9,9 +9,12 @@ import Gap from '../HomeComponents/Gap';
 import { useNavigation } from '@react-navigation/native';
 import PostType from '../../types/PostType';
 import timeAgo from '../../utility/timeAgo';
+import axios from 'axios'
+import { useSelector } from 'react-redux';
 
 import { useDispatch } from 'react-redux';
-import { upvotePost, downvotePost } from '../../FeedManagment/postSlice';
+import { upvotePost, downvotePost, setUpvoteStatus, setDownvoteStatus } from '../../GlobalDataManagment/postSlice';
+import { serverUrl } from '../../constants/global';
 
 interface PostProps extends PostType {
     navigateToComments: () => void;
@@ -29,20 +32,52 @@ const Post = (props:any) => {
     const styles = createFeedStyles(theme, width)
 
     const navigation = useNavigation<any>();
-
-    const [typeColor, setTypeColor] = useState(theme.colors.discussion)
  
     const dispatch = useDispatch();
+    const userData = useSelector((state:any) => state.user.userData);
 
-    const upvote = () => {
+    const upvote = async () => {
       dispatch(upvotePost(props.postId));
-      console.log("upvoted")
+      try {
+        const response = await axios.post(serverUrl + "/upvotePost", { uid: userData.userID, postId: props.postId})
+        console.log("Response:", response.data)
+      } catch {
+        console.log("error upvoting in mongo")
+      }
     };
   
-    const downvote = () => {
+    const downvote = async () => {
       dispatch(downvotePost(props.postId));
+      try {
+        const reponse = await axios.post(serverUrl + "/downvotePost", { uid: userData.userID, postId: props.postId})
+        console.log("Response: ", reponse)
+      } catch {
+        console.log("error upvoting in mongo")
+      }
     };
 
+    useEffect(() => {
+        const setVote = async () => {
+            try {
+                const newVoteStatus = await axios.post(serverUrl + "/getVoteStatus", { uid: userData.userID, postId: props.postId})
+                if (newVoteStatus.data.voteType === "up") {
+                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
+                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                } else if (newVoteStatus.data.voteType === "down") {
+                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true}));
+                } else {
+                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                }
+
+            } catch {
+                console.log("error getting vote status")
+            }
+        } 
+        setVote()
+    }, []);
+    
     const navigateToComments = () => {
         navigation.navigate("CommentPage", {
             postId: props.postId,
@@ -105,11 +140,11 @@ const Post = (props:any) => {
 
                     <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
                         <TouchableOpacity onPress={upvote}>
-                            <Icon name="arrow-circle-o-up" style={props.isUpvoted ? {color: theme.colors.text} : {color: theme.colors.secondaryText}} size={32}/>
+                            <Icon name="chevron-up" style={props.isUpvoted ? {color: theme.colors.stockUpAccent} : {color: theme.colors.secondaryText}} size={32}/>
                         </TouchableOpacity>
                         <Text style={styles.votesText}>{props.votes}</Text>
                         <TouchableOpacity onPress={downvote}>
-                            <Icon name="arrow-circle-o-down" style={props.isDownvoted ? {color: theme.colors.text} : {color: theme.colors.secondaryText}} size={32}/>
+                            <Icon name="chevron-down" style={props.isDownvoted ? {color: theme.colors.stockDownAccent} : {color: theme.colors.secondaryText}} size={32}/>
                         </TouchableOpacity>
                     </View>
                              

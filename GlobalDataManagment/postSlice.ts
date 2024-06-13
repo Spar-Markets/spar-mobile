@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios'
+import { serverUrl } from '../constants/global';
 
 type PostType = {
   postId: string; // Ensure postId is a string
@@ -19,6 +21,7 @@ type PostsState = PostType[];
 
 const initialState: PostsState = [];
 
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
@@ -29,6 +32,7 @@ const postsSlice = createSlice({
         if (!post.isUpvoted && !post.isDownvoted) {
           post.votes += 1;
           post.isUpvoted = true;
+          
         } else if (post.isUpvoted) {
           post.votes -= 1;
           post.isUpvoted = false;
@@ -53,6 +57,18 @@ const postsSlice = createSlice({
           post.isDownvoted = true;
           post.isUpvoted = false;
         }
+      }
+    },
+    setUpvoteStatus(state, action: PayloadAction<{ postId: string; isUpvoted: boolean }>) {
+      const post = state.find((p) => p.postId === action.payload.postId);
+      if (post) {
+        post.isUpvoted = action.payload.isUpvoted;
+      }
+    },
+    setDownvoteStatus(state, action: PayloadAction<{ postId: string; isDownvoted: boolean }>) {
+      const post = state.find((p) => p.postId === action.payload.postId);
+      if (post) {
+        post.isDownvoted = action.payload.isDownvoted;
       }
     },
     addPost(state, action: PayloadAction<PostType>) {
@@ -80,5 +96,5 @@ const postsSlice = createSlice({
   },*/
 });
 
-export const { upvotePost, downvotePost, addPost, setPosts } = postsSlice.actions;
+export const { upvotePost, downvotePost, setDownvoteStatus, setUpvoteStatus, addPost, setPosts } = postsSlice.actions;
 export default postsSlice.reducer;

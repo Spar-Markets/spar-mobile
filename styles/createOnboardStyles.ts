@@ -6,11 +6,13 @@ const createOnboardStyles = (theme: any, width: number) => {
   return StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background
-    },
-    onboardContainer: {
+        backgroundColor: theme.colors.background,
         marginTop: statusBarHeight + 50,
         marginHorizontal: 20,
+        gap: 10
+    },
+    inputsContainer: {
+
     },
     mainText: {
         color: theme.colors.text,
@@ -19,24 +21,23 @@ const createOnboardStyles = (theme: any, width: number) => {
         textAlign: 'left'
     },
     inputContainer: {
-        padding: 5,
         backgroundColor: theme.colors.primary,
-        marginTop: 20,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: theme.colors.tertiary
+        borderColor: theme.colors.tertiary,
+        justifyContent: 'center'
     },
     textInputType: {
         color: theme.colors.text,
         fontSize: 14,
         marginLeft: 10,
-        marginVertical: 5
+        marginTop: 10,
+        fontWeight: 'bold'
     },
     inputText: {
         height: 40, 
         paddingHorizontal: 10, 
         color: theme.colors.text,
-        paddingVertical: 10,
         fontSize: 20
     },
     signUpBtn: {
@@ -45,6 +46,7 @@ const createOnboardStyles = (theme: any, width: number) => {
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        marginBottom: 50
     },
     signUpText: {
         fontSize: 16,
@@ -54,7 +56,16 @@ const createOnboardStyles = (theme: any, width: number) => {
     btnsContainer: {
         marginBottom: 50,
         marginHorizontal: 20
-    }
+    },
+    splashContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    spalshText: {
+        fontSize: 24,
+        color: theme.colors.text,
+    },
     
   });
 };

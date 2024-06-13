@@ -11,7 +11,7 @@ import PageHeader from '../GlobalComponents/PageHeader';
 import { useRoute } from '@react-navigation/native';
 import Post from './Post';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../FeedManagment/store';
+import { RootState } from '../../GlobalDataManagment/store';
 import Comment from './Comment';
 
 //expected format of post

@@ -15,11 +15,12 @@ import Post from './Post';
 import { useNavigation } from '@react-navigation/native';
 import PostType from '../../types/PostType';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../FeedManagment/store';
+import { RootState } from '../../GlobalDataManagment/store';
 import axios from 'axios'
 import { serverUrl } from '../../constants/global';
-import { setPosts } from '../../FeedManagment/postSlice';
+import { setPosts } from '../../GlobalDataManagment/postSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import useUserDetails from '../../hooks/useUserDetails';
 
 
 const Feed: React.FC = () => {

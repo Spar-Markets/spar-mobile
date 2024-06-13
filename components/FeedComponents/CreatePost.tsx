@@ -8,8 +8,9 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import { useDispatch } from 'react-redux';
-import { addPost } from '../../FeedManagment/postSlice';
+import { addPost } from '../../GlobalDataManagment/postSlice';
 import generateRandomString from '../../utility/generateRandomString';
+import useUserDetails from '../../hooks/useUserDetails';
 
 const CreatePost = (props: any) => {
 
@@ -17,6 +18,8 @@ const CreatePost = (props: any) => {
     const { theme } = useTheme();
     const { width } = useDimensions();
     const styles = createFeedStyles(theme, width)
+
+    const { user, userData, loading, error } = useUserDetails();
 
     const navigation = useNavigation<any>();
     const dispatch = useDispatch();
@@ -82,10 +85,11 @@ const CreatePost = (props: any) => {
 
     const confirmPost = async () => {
         try {
+            //find cryptographically strong method, crypto cant be used in RN
             const postId = generateRandomString(40);
             const localPostData = {
                 postId: postId,
-                username: "Rzonance", //fix to be current logged in user through AUTH
+                username: userData!.username, //fix to be current logged in user through AUTH
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,
@@ -100,7 +104,7 @@ const CreatePost = (props: any) => {
 
             const mongoPostData = {
                 postId: postId,
-                username: "Rzonance", //fix to be current logged in user through AUTH
+                username: userData!.username,
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,

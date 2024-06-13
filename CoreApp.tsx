@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar, View, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SuccessScreen from './components/SuccessScreen';
-import Profile from './components/Profile';
+import Profile from './components/ProfileComponents/Profile';
 import { PlaidTheme } from './styles/style';
 import Home from './components/HomeComponents/Home';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';

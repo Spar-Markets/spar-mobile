@@ -95,7 +95,9 @@ const createFeedStyles = (theme: any, width: number) => {
     votesText: {
         color: theme.colors.text,
         fontWeight: 'bold',
-        fontSize: 20
+        fontSize: 20,
+        width: 20,
+        textAlign: 'center'
     },
 
 
@@ -220,9 +222,10 @@ const createFeedStyles = (theme: any, width: number) => {
         fontSize: 16
     },
     gap: {
-        height: 2,
+        height: 1,
         backgroundColor: theme.colors.primary,
-        marginBottom: 5
+        marginTop: 3,
+        marginBottom: 12
     }
     
   });

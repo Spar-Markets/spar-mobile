@@ -5,7 +5,7 @@ import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CircularProgress from 'react-native-circular-progress-indicator';
 import { SvgXml } from 'react-native-svg';
-import { serverUrl } from '../constants/global';
+import { serverUrl } from '../../constants/global';
 import axios from 'axios';
  
 const Profile  = ({ navigation }: any) => {
@@ -121,7 +121,7 @@ return (
             />
         </Pressable>
           <Image
-            source={require('../assets/images/joe_cute.jpg')}
+            source={require('../../assets/images/joe_cute.jpg')}
             style={{height: 125, width: 125, borderRadius: 100}}
           />
           <SvgXml
@@ -171,7 +171,7 @@ return (
             }}
           />
           <Image
-            source={require('../assets/images/silverbadge.png')}
+            source={require('../../assets/images/silverbadge.png')}
             style={{
               position: 'absolute',
               height: 70,
