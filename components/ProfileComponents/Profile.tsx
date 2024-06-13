@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { Pressable, Platform, Image, Button, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, TextInput, SafeAreaView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
+
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CircularProgress from 'react-native-circular-progress-indicator';
 import { SvgXml } from 'react-native-svg';
@@ -11,7 +11,6 @@ import axios from 'axios';
 const Profile  = ({ navigation }: any) => {
   const [linkToken, setLinkToken] = useState("");
   const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
-  const { authorize, user } = useAuth0();
   const [accessToken, setAccessToken] = useState("");
   const colorScheme = useColorScheme();
   const [username, setUsername] = useState("jjquaratiello") 
@@ -96,7 +95,7 @@ const Profile  = ({ navigation }: any) => {
     }
     //fetchData();
     //getBalance();
-  }, [user, linkToken, createLinkToken]);
+  }, [linkToken, createLinkToken]);
 
   const profilePlusSvgCode = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="16.5" cy="16.5" r="15.5" fill="#161D29"/>

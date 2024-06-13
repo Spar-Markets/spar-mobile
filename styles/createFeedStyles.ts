@@ -88,15 +88,15 @@ const createFeedStyles = (theme: any, width: number) => {
         marginTop: 10
     },
     postBottomContainer: {
-        height: 50,
         flexDirection: 'row',
         gap: 20,
+        marginBottom: 10
     },
     votesText: {
         color: theme.colors.text,
         fontWeight: 'bold',
         fontSize: 20,
-        width: 20,
+        width: 30,
         textAlign: 'center'
     },
 

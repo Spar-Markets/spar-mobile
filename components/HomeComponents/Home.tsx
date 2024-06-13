@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useCallback, useReducer, useRef} from 'react';
 import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, NativeModules, ScrollView, Alert, Platform, ActivityIndicator, Dimensions, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GameCard from './GameCard';

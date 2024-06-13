@@ -3,7 +3,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { View, Image, StyleSheet, TextInput, Text, ScrollView, FlatList, ListRenderItem } from 'react-native';
+import { View, Image, StyleSheet, TextInput, Text, ScrollView, FlatList, ListRenderItem, RefreshControl } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
@@ -31,23 +31,28 @@ const Feed: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [refreshing, setRefreshing] = useState(false); 
   
   const posts = useSelector((state: RootState) => state.posts || []);
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();  
 
-  //Get posts from database and make compatible with redux
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await axios.get(serverUrl + "/posts");
-        dispatch(setPosts(response.data.posts));
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
-    };
-    fetchPosts();
+  const userData = useSelector((state:any) => state.user.userData);
 
+  //Get posts from database and make compatible with redux
+
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get(serverUrl + "/posts");
+
+      dispatch(setPosts(response.data.posts));
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
     const getUser = async () => {
         try {
             const email = await AsyncStorage.getItem("userEmail")
@@ -60,7 +65,13 @@ const Feed: React.FC = () => {
     getUser()
 
 
-  }, [dispatch]);
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchPosts();
+    setRefreshing(false);
+  };
 
   const renderItem: ListRenderItem<PostType> = ({ item }) => (
     <View key={item.postId}>
@@ -94,7 +105,17 @@ const Feed: React.FC = () => {
         data={posts}
         renderItem={renderItem}
         keyExtractor={(item) => item.postId}
-        contentContainerStyle={{ paddingBottom: 100 }}> 
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[theme.colors.accent]}
+            tintColor={theme.colors.accent}
+          />
+        }
+        >
+           
       </FlatList>
       <View style={{flexDirection: 'row', margin: 20}}>
         <View style={{flex:1}}></View>   

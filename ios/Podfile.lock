@@ -1,12 +1,4 @@
 PODS:
-  - A0Auth0 (3.2.1):
-    - Auth0 (= 2.7.2)
-    - JWTDecode (= 3.1.0)
-    - React-Core
-    - SimpleKeychain (= 1.1.0)
-  - Auth0 (2.7.2):
-    - JWTDecode (~> 3.1)
-    - SimpleKeychain (~> 1.1)
   - boost (1.83.0)
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -81,7 +73,6 @@ PODS:
   - hermes-engine (0.73.8):
     - hermes-engine/Pre-built (= 0.73.8)
   - hermes-engine/Pre-built (0.73.8)
-  - JWTDecode (3.1.0)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
   - Plaid (5.1.0)
@@ -1157,12 +1148,10 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - SimpleKeychain (1.1.0)
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
-  - A0Auth0 (from `../node_modules/react-native-auth0`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -1251,7 +1240,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - Auth0
     - CocoaAsyncSocket
     - Flipper
     - Flipper-Boost-iOSX
@@ -1262,16 +1250,12 @@ SPEC REPOS:
     - Flipper-PeerTalk
     - FlipperKit
     - fmt
-    - JWTDecode
     - libevent
     - OpenSSL-Universal
     - Plaid
-    - SimpleKeychain
     - SocketRocket
 
 EXTERNAL SOURCES:
-  A0Auth0:
-    :path: "../node_modules/react-native-auth0"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   BVLinearGradient:
@@ -1393,8 +1377,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  A0Auth0: 47cb14c87d549b95b92242675ff2198ccd9dcbc5
-  Auth0: 28cb24cb19ebd51f0b07751f16d83b59f4019532
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
@@ -1412,7 +1394,6 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: b12d9bb1b7cee546f5e48212e7ea7e3c1665a367
-  JWTDecode: 3eaab1e06b6f4dcbdd6716aff09ba4c2104ca8b7
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   Plaid: 41841853b526d9e88cf0a214d1e5d77692044c4a
@@ -1467,7 +1448,6 @@ SPEC CHECKSUMS:
   RNScreens: 17e2f657f1b09a71ec3c821368a04acbb7ebcb46
   RNSVG: a48668fd382115bc89761ce291a81c4ca5f2fd2e
   RNVectorIcons: 73ab573085f65a572d3b6233e68996d4707fd505
-  SimpleKeychain: f8707c8e97b38c6a6e687b17732afc9bcef06439
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 2a16e58450c48e110211dae1159fb114bbcdcfc0
 
