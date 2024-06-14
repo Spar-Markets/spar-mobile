@@ -77,8 +77,8 @@ const CreatePost = (props: any) => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardWillShow', (event: KeyboardEvent) => {
             Animated.spring(animatedMargin, {
                 toValue: event.endCoordinates.height + 20, // Add extra space here
-                speed: 12,
-                bounciness: 0,
+                speed: 14,
+                bounciness: 1,
                 useNativeDriver: false
             }).start();
         });
@@ -86,8 +86,8 @@ const CreatePost = (props: any) => {
         const keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', () => {
             Animated.spring(animatedMargin, {
                 toValue: 70, // Keep some space at the bottom when keyboard is hidden
-                speed:12,
-                bounciness: 0,
+                speed:14,
+                bounciness: 1,
                 useNativeDriver: false
             }).start();
         });

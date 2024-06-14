@@ -36,13 +36,17 @@ const Comment = React.memo((props:any) => {
                 <Text style={{color: theme.colors.secondaryText, fontWeight: 'bold'}}>Reply</Text>
             </TouchableOpacity>
             <View style={{flex: 1}}></View>
-            <View style={{flexDirection: 'row', gap: 5, alignItems:'center'}}>
-                <TouchableOpacity>
-                    <Icon name="arrow-circle-o-up" style={props.isUpvoted ? {color: theme.colors.text} : {color: theme.colors.secondaryText}} size={24}/>
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', paddingHorizontal: 10, paddingVertical: 5 }}>
+                <TouchableOpacity style={{paddingRight: 5}}>
+                    <Animated.View>
+                    <Icon name="arrow-up" style={/*post.isUpvoted ? { color: theme.colors.stockUpAccent } : */{ color: theme.colors.secondaryText }} size={20} />
+                    </Animated.View>
                 </TouchableOpacity>
-                    <Text style={styles.commentVotesText}>2</Text>
-                <TouchableOpacity>
-                    <Icon name="arrow-circle-o-down" style={props.isDownvoted ? {color: theme.colors.text} : {color: theme.colors.secondaryText}} size={24}/>
+                <Text style={styles.votesText}>56</Text>
+                <TouchableOpacity style={{paddingLeft: 5}}>
+                    <Animated.View>
+                    <Icon name="arrow-down" style={/*post?.isDownvoted ? { color: theme.colors.stockDownAccent } :*/ { color: theme.colors.secondaryText }} size={20} />
+                    </Animated.View>
                 </TouchableOpacity>
             </View>
           </View>

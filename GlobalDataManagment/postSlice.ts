@@ -69,7 +69,7 @@ const postsSlice = createSlice({
     addPost(state, action: PayloadAction<PostType>) {
       const newPost = { ...action.payload, postedTimeAgo: timeAgo(new Date(action.payload.postedTime)) };
       state.unshift(newPost);
-      newPost.numComments = newPost.comments.length
+      //newPost.numComments = newPost.comments.length
     },
     setPosts(state, action: PayloadAction<PostType[]>) {
       const newPosts = action.payload.reverse(); // Reverse the order of fetched posts
@@ -81,14 +81,12 @@ const postsSlice = createSlice({
             ...state[existingPostIndex],
             ...newPost,
             postedTimeAgo: timeAgo(new Date(newPost.postedTime)),
-            numComments: newPost.comments.length
           };
         } else {
           // Add new post
           state.unshift({
             ...newPost,
             postedTimeAgo: timeAgo(new Date(newPost.postedTime)),
-            numComments: newPost.comments.length
           });
         }
       });
@@ -97,12 +95,29 @@ const postsSlice = createSlice({
       const { postId, comment } = action.payload;
       const post = state.find((p) => p.postId === postId);
       if (post) {
-        post.comments.unshift(comment);
+        if (post.comments) {
+          post.comments.push(comment);
+        }
+        post.numComments += 1;
+      }
+    },
+    setCommentsForPost(state, action: PayloadAction<{ postId: string; comments: CommentType[] }>) {
+      const { postId, comments } = action.payload;
+      const post = state.find((p) => p.postId === postId);
+      if (post) {
+        console.log("Comments", comments)
+        post.comments = comments; // Directly set comments to avoid duplication issues
         post.numComments = post.comments.length;
+      }
+    },
+    clearCommentsForPost(state, action: PayloadAction<string>) {
+      const post = state.find((p) => p.postId === action.payload);
+      if (post) {
+        post.comments = [];
       }
     },
   },
 });
 
-export const { upvotePost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
+export const { upvotePost, clearCommentsForPost, setCommentsForPost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
 export default postsSlice.reducer;

@@ -11,7 +11,7 @@ import generateRandomString from '../../utility/generateRandomString';
 import useUserDetails from '../../hooks/useUserDetails';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
-import { addCommentToPost } from '../../GlobalDataManagment/postSlice';
+import { addCommentToPost, clearCommentsForPost, setCommentsForPost } from '../../GlobalDataManagment/postSlice';
 import CommentType from '../../types/CommentType';
 import Post from './Post';
 import Comment from './Comment';
@@ -89,13 +89,36 @@ const CommentPage = () => {
     }
   };
 
-    //keyboard animation
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await axios.post(`${serverUrl}/getComments`, { postId: params?.postId });
+        const comments: CommentType[] = response.data.comments.map((comment: any) => ({
+          ...comment,
+          postedTimeAgo: timeAgo(new Date(comment.postedTime))
+        }));
+        console.log(comments)
+        dispatch(setCommentsForPost({ postId: params!.postId, comments }));
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+
+    fetchComments();
+
+
+    return () => {
+        dispatch(clearCommentsForPost(params!.postId));
+    };
+  }, [params, dispatch]);
+
+//keyboard animation
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardWillShow', (event: KeyboardEvent) => {
         Animated.spring(animatedMargin, {
             toValue: event.endCoordinates.height + 20, // Add extra space here
-            speed: 12,
-            bounciness: 0,
+            speed: 14,
+            bounciness: 1,
             useNativeDriver: false
         }).start();
     });
@@ -103,8 +126,8 @@ const CommentPage = () => {
     const keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', () => {
         Animated.spring(animatedMargin, {
             toValue: 70, // Keep some space at the bottom when keyboard is hidden
-            speed:12,
-            bounciness: 0,
+            speed:14,
+            bounciness: 1,
             useNativeDriver: false
         }).start();
     });
@@ -129,14 +152,16 @@ const CommentPage = () => {
   return (
     <View style={styles.commentsContainer}>
         <PageHeader text="Comments" />
+
+        {/* skeleton code for loading */}
         <FlatList
-            data={post?.comments}
+            data={post?.comments ? post?.comments.slice().reverse() : []}
             renderItem={renderItem}
             keyExtractor={(item) => item.commentId}
             contentContainerStyle={{ flexGrow: 1 }}
             ListHeaderComponent={
                 <View>
-                <Post {...post}/>
+                <Post {...post} onComment={true}/>
                 <View style={{height: 6, backgroundColor: theme.colors.primary, marginTop: 10}}></View>
                 </View>}
         />

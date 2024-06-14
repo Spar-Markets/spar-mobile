@@ -95,8 +95,7 @@ const createFeedStyles = (theme: any, width: number) => {
     votesText: {
         color: theme.colors.text,
         fontWeight: 'bold',
-        fontSize: 16,
-        width: 30,
+        fontSize: 14,
         textAlign: 'center'
     },
 

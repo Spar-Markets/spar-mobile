@@ -69,7 +69,7 @@ const Feed: React.FC = () => {
   const renderItem: ListRenderItem<PostType> = ({ item }) => {
     return (
       <View key={item.postId}>
-        <Post {...item} />
+        <Post {...item} onComment={false}/>
         <Gap />
       </View>
     );
