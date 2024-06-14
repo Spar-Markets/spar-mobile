@@ -1,3 +1,5 @@
+import CommentType from './CommentType'
+
 export default interface PostType {
   postId: string; 
   username: string;
@@ -12,4 +14,5 @@ export default interface PostType {
   isUpvoted: boolean;
   isDownvoted: boolean;
   postedTimeAgo: string; // Add this line
+  comments: CommentType[]
 }

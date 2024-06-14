@@ -8,16 +8,19 @@ import timeAgo from '../../utility/timeAgo';
 import Gap from '../HomeComponents/Gap';
 import CommentGap from './CommentGap';
 
-const Comment = (props:any) => {
+const Comment = React.memo((props:any) => {
 
     // Layour and Style Initilization
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createFeedStyles(theme, width)
+
+    useEffect(() => {
+        console.log("COMMENT RENDERED: " + props.body)
+    })
     
     return (
     <View style={styles.commentContainer}>
-        <CommentGap/>
         <View style={{marginHorizontal: 20}}>
           <View>
             <View style={styles.postTopContainer}>
@@ -43,26 +46,9 @@ const Comment = (props:any) => {
                 </TouchableOpacity>
             </View>
           </View>
-          {/*<View>
-          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 5, gap: 5}}>
-                <Icon name="comment" style={{color: theme.colors.secondaryText}} size={24}/>
-                <Text style={{color: theme.colors.secondaryText}}>{props.numComments}</Text>
-            </TouchableOpacity>
-            <View style={{flex: 1}}></View>
-
-            <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-                <TouchableOpacity>
-                    <Icon name="arrow-circle-o-up" style={props.isUpvoted ? {color: theme.colors.text} : {color: theme.colors.secondaryText}} size={32}/>
-                </TouchableOpacity>
-                <Text style={styles.votesText}>{props.votes}</Text>
-                <TouchableOpacity>
-                    <Icon name="arrow-circle-o-down" style={props.isDownvoted ? {color: theme.colors.text} : {color: theme.colors.secondaryText}} size={32}/>
-                </TouchableOpacity>
-            </View>
-            </View>*/}
         </View> 
     </View>
     )
-}
+})
 
 export default Comment;

@@ -91,7 +91,7 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
   }, [animateButton, dispatch, downvotePosition, post.isDownvoted, post.postId, userData.userID]);
 
   return (
-    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10 }}>
+    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10, paddingVertical: 5 }}>
       <TouchableOpacity onPress={upvote}>
         <Animated.View style={{ transform: [{ translateY: upvotePosition }] }}>
           <Icon name="arrow-up" style={post.isUpvoted ? { color: theme.colors.stockUpAccent } : { color: theme.colors.secondaryText }} size={24} />

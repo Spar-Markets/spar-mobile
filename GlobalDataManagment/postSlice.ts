@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import timeAgo from '../utility/timeAgo';
 import PostType from '../types/PostType';
+import CommentType from '../types/CommentType';
 
 type PostsState = PostType[];
 
@@ -68,6 +69,7 @@ const postsSlice = createSlice({
     addPost(state, action: PayloadAction<PostType>) {
       const newPost = { ...action.payload, postedTimeAgo: timeAgo(new Date(action.payload.postedTime)) };
       state.unshift(newPost);
+      newPost.numComments = newPost.comments.length
     },
     setPosts(state, action: PayloadAction<PostType[]>) {
       const newPosts = action.payload.reverse(); // Reverse the order of fetched posts
@@ -78,19 +80,29 @@ const postsSlice = createSlice({
           state[existingPostIndex] = {
             ...state[existingPostIndex],
             ...newPost,
-            postedTimeAgo: timeAgo(new Date(newPost.postedTime))
+            postedTimeAgo: timeAgo(new Date(newPost.postedTime)),
+            numComments: newPost.comments.length
           };
         } else {
           // Add new post
           state.unshift({
             ...newPost,
-            postedTimeAgo: timeAgo(new Date(newPost.postedTime))
+            postedTimeAgo: timeAgo(new Date(newPost.postedTime)),
+            numComments: newPost.comments.length
           });
         }
       });
     },
+    addCommentToPost(state, action: PayloadAction<{ postId: string; comment: CommentType }>) {
+      const { postId, comment } = action.payload;
+      const post = state.find((p) => p.postId === postId);
+      if (post) {
+        post.comments.unshift(comment);
+        post.numComments = post.comments.length;
+      }
+    },
   },
 });
 
-export const { upvotePost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts } = postsSlice.actions;
+export const { upvotePost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
 export default postsSlice.reducer;

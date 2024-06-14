@@ -7,7 +7,9 @@
 function timeAgo(date) {
   const now = new Date();
   const secondsPast = Math.floor((now - date) / 1000);
-
+  if (secondsPast == 0) {
+    return 'Just Now';
+  }
   if (secondsPast < 60) {
     return `${secondsPast}sec`;
   }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Keyboard, KeyboardEvent, TextInput, ScrollView, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard, KeyboardEvent, TextInput, ScrollView, Animated, StyleSheet } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { addPost } from '../../GlobalDataManagment/postSlice';
 import generateRandomString from '../../utility/generateRandomString';
 import useUserDetails from '../../hooks/useUserDetails';
+import CommentType from "../../types/CommentType"
 
 const CreatePost = (props: any) => {
 
@@ -34,25 +35,38 @@ const CreatePost = (props: any) => {
             setSelectedCategory(category);
         }
 
-        const isSelectedStyle = {
-            backgroundColor: color,
-            borderRadius: 50,
-            marginLeft: 10,
-            borderWidth: 1,
-            borderColor: color
-        }
-
-        const isNotSelectedStyle = {
-            backgroundColor: theme.colors.background,
-            borderWidth: 1,
-            borderColor: color,
-            borderRadius: 50,
-            marginLeft: 10
-        }
+        const btnStyles = StyleSheet.create({
+            selectedText: {
+                color: theme.colors.text,
+                fontWeight: 'bold',
+                paddingVertical: 5, 
+                paddingHorizontal: 10 
+            },
+            notSelectedText: {
+                color: color,
+                fontWeight: 'bold', 
+                paddingVertical: 5, 
+                paddingHorizontal: 10 
+            },
+            selectedBtn: {
+                backgroundColor: color,
+                borderRadius: 50,
+                marginLeft: 10,
+                borderWidth: 1,
+                borderColor: color
+            },
+            notSelectedBtn: {
+                backgroundColor: theme.colors.primary,
+                borderWidth: 1,
+                borderColor: color,
+                borderRadius: 50,
+                marginLeft: 10
+            }
+        })
 
         return (
-            <TouchableOpacity onPress={handlePress} style={category === selectedCategory ? isSelectedStyle : isNotSelectedStyle}>
-                <Text style={{ color: theme.colors.text, fontWeight: 'bold', paddingVertical: 5, paddingHorizontal: 10 }}>{category}</Text>
+            <TouchableOpacity onPress={handlePress} style={category === selectedCategory ? btnStyles.selectedBtn : btnStyles.notSelectedBtn}>
+                <Text style={category === selectedCategory ? btnStyles.selectedText : btnStyles.notSelectedText}>{category}</Text>
             </TouchableOpacity>
         )
     }
@@ -61,17 +75,19 @@ const CreatePost = (props: any) => {
     //keyboard animation
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardWillShow', (event: KeyboardEvent) => {
-            Animated.timing(animatedMargin, {
+            Animated.spring(animatedMargin, {
                 toValue: event.endCoordinates.height + 20, // Add extra space here
-                duration: 400,
+                speed: 12,
+                bounciness: 0,
                 useNativeDriver: false
             }).start();
         });
 
         const keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', () => {
-            Animated.timing(animatedMargin, {
+            Animated.spring(animatedMargin, {
                 toValue: 70, // Keep some space at the bottom when keyboard is hidden
-                duration: 400,
+                speed:12,
+                bounciness: 0,
                 useNativeDriver: false
             }).start();
         });
@@ -99,7 +115,9 @@ const CreatePost = (props: any) => {
                 votes: 0,
                 hasImage: false,
                 isUpvoted: false,
-                isDownvoted: false
+                isDownvoted: false,
+                postedTimeAgo: "",
+                comments: []
             };
 
             const mongoPostData = {
@@ -164,7 +182,6 @@ const CreatePost = (props: any) => {
                         value={postTextInput}
                         style={styles.createPostTextInputContainer}
                         selectionColor={theme.colors.accent}
-                        maxLength={100}
                         multiline
                         
                     />

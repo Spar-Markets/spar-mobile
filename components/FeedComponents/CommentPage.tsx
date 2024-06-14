@@ -1,86 +1,168 @@
-
-//This page and feed use redux to maintain local changes to upvotes and comment etc locally since 
-//feed if local until forced refresh
-
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, ScrollView, TextInput } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, TextInput, FlatList, Keyboard, Animated, KeyboardEvent } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
 import PageHeader from '../GlobalComponents/PageHeader';
 import { useRoute } from '@react-navigation/native';
-import Post from './Post';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
+import generateRandomString from '../../utility/generateRandomString';
+import useUserDetails from '../../hooks/useUserDetails';
+import axios from 'axios';
+import { serverUrl } from '../../constants/global';
+import { addCommentToPost } from '../../GlobalDataManagment/postSlice';
+import CommentType from '../../types/CommentType';
+import Post from './Post';
 import Comment from './Comment';
+import CommentGap from './CommentGap';
+import Gap from '../HomeComponents/Gap';
+import timeAgo from '../../utility/timeAgo';
 
-//expected format of post
+// Expected format of post
 interface RouteParams {
-    postId: string
-    username: string,
-    postedTime: string,
-    type: string,
-    title: string,
-    body: string,
-    numComments: number,
-    numReposts: number,
-    votes: number,
-    hasImage: boolean,
-    isUpvoted: boolean,
-    isDownvoted: boolean
+  postId: string;
+  username: string;
+  postedTime: string;
+  type: string;
+  title: string;
+  body: string;
+  numComments: number;
+  numReposts: number;
+  votes: number;
+  hasImage: boolean;
+  isUpvoted: boolean;
+  isDownvoted: boolean;
 }
-
 
 const CommentPage = () => {
+  // Layout and Style Initialization
+  const { theme } = useTheme();
+  const { width } = useDimensions();
+  const styles = createFeedStyles(theme, width);
+  const route = useRoute();
+  const params = route.params as RouteParams | undefined;
+  const { userData } = useUserDetails();
 
-    // Layout and Style Initilization
-    const { theme } = useTheme();
-    const { width, height } = useDimensions();
-    const styles = createFeedStyles(theme, width)
-    const route = useRoute();
+  const post = useSelector((state: RootState) =>
+    state.posts.find((p) => p.postId === params?.postId)
+  );
 
-    const params = route.params as RouteParams | undefined;
- 
+  const dispatch = useDispatch();
+  const [commentInput, setCommentInput] = useState('');
 
-    const post = useSelector((state: RootState) =>
-        state.posts.find((p) => p.postId === params?.postId)
-    );
+  const animatedMargin = useRef(new Animated.Value(70)).current;
 
-    const [commentInput, setCommentInput] = useState("")
-    
-    return (
-    <View style={styles.commentsContainer}>
-        <PageHeader text={"Comments"}></PageHeader>
-        <View style={{height: 20}}></View>
-        <ScrollView>
-            <Post {...post}></Post>
-            <View style={{flexDirection: 'row'}}>
-                <TextInput
-                    placeholder="Comment something..."
-                    placeholderTextColor={theme.colors.tertiary}
-                    onChangeText={setCommentInput}
-                    value={commentInput}
-                    style={[styles.commentInputContainer, {flex: 1}]}
-                    selectionColor={theme.colors.accent}
-                    maxLength={250}
-                    multiline
-                />
-                {commentInput.length > 0 ?
-                <TouchableOpacity style={styles.postButton}>
-                    <Text style={styles.postButtonText}>Post</Text>
-                </TouchableOpacity> :
-                <TouchableOpacity style={[styles.postButton, {backgroundColor: theme.colors.tertiary}]}>
-                    <Text style={styles.postButtonText}>Post</Text>
-                </TouchableOpacity>
-                }
-            </View>
-            {/*<Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>
-            <Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>
-            <Comment username={"Rzonance"} postedTime={new Date()} body={"I dont know about all that bro"}></Comment>*/}
-        </ScrollView>
-        <View style={{flex: 1}}></View>
+  const confirmComment = async () => {
+    try {
+      const commentId = generateRandomString(40);
+      const localCommentData: CommentType = {
+        commentId: commentId,
+        postId: params!.postId,
+        username: userData!.username,
+        uid: userData!.userID,
+        postedTime: new Date(Date.now()),
+        body: commentInput,
+        votes: 0,
+        isUpvoted: false,
+        isDownvoted: false,
+        postedTimeAgo: "",
+        replies: []
+      };
+
+      const mongoCommentData = {
+        postId: params!.postId,
+        commentId: commentId,
+        username: userData!.username,
+        uid: userData!.userID,
+        postedTime: Date.now(),
+        body: commentInput,
+      };
+
+      const response = await axios.post(serverUrl + '/commentOnPost', mongoCommentData);
+      console.log(response.data);
+
+      dispatch(addCommentToPost({ postId: params!.postId, comment: localCommentData }));
+      setCommentInput('');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+    //keyboard animation
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardWillShow', (event: KeyboardEvent) => {
+        Animated.spring(animatedMargin, {
+            toValue: event.endCoordinates.height + 20, // Add extra space here
+            speed: 12,
+            bounciness: 0,
+            useNativeDriver: false
+        }).start();
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', () => {
+        Animated.spring(animatedMargin, {
+            toValue: 70, // Keep some space at the bottom when keyboard is hidden
+            speed:12,
+            bounciness: 0,
+            useNativeDriver: false
+        }).start();
+    });
+
+    return () => {
+        keyboardDidShowListener.remove();
+        keyboardDidHideListener.remove();
+    };
+  }, []);
+
+
+
+  const renderItem = ({ item }: { item: CommentType }) => (
+    <View>
+        <Comment {...item} />
+        <View style={{height: 10}}></View>
+        <CommentGap/>
     </View>
-    )
-}
+  );
+
+
+  return (
+    <View style={styles.commentsContainer}>
+        <PageHeader text="Comments" />
+        <FlatList
+            data={post?.comments}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.commentId}
+            contentContainerStyle={{ flexGrow: 1 }}
+            ListHeaderComponent={
+                <View>
+                <Post {...post}/>
+                <View style={{height: 6, backgroundColor: theme.colors.primary, marginTop: 10}}></View>
+                </View>}
+        />
+        <Animated.View style={[{flexDirection: 'row', marginBottom: 50, borderTopWidth: 1, borderColor: theme.colors.accent}, {marginBottom: animatedMargin}]}>
+            <TextInput
+            placeholder="Comment something..."
+            placeholderTextColor={theme.colors.tertiary}
+            onChangeText={setCommentInput}
+            value={commentInput}
+            style={[styles.commentInputContainer, { flex: 1 }]}
+            selectionColor={theme.colors.accent}
+            maxLength={250}
+            multiline
+            />
+            {commentInput.length > 0 ? (
+            <TouchableOpacity style={styles.postButton} onPress={confirmComment}>
+                <Text style={styles.postButtonText}>Post</Text>
+            </TouchableOpacity>
+            ) : (
+            <TouchableOpacity style={[styles.postButton, { backgroundColor: theme.colors.tertiary }]}>
+                <Text style={styles.postButtonText}>Post</Text>
+            </TouchableOpacity>
+            )}
+        </Animated.View>
+    </View>
+  );
+};
 
 export default CommentPage;

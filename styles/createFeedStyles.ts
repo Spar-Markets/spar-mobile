@@ -90,12 +90,12 @@ const createFeedStyles = (theme: any, width: number) => {
     postBottomContainer: {
         flexDirection: 'row',
         gap: 20,
-        marginBottom: 10
+        marginVertical: 10
     },
     votesText: {
         color: theme.colors.text,
         fontWeight: 'bold',
-        fontSize: 20,
+        fontSize: 16,
         width: 30,
         textAlign: 'center'
     },
@@ -105,29 +105,30 @@ const createFeedStyles = (theme: any, width: number) => {
     commentsContainer: {
         paddingTop: statusBarHeight + 10,
         backgroundColor: theme.colors.background,
-        flex: 1,
-        justifyContent: 'center',
+        flex: 1
     },
     commentInputContainer: {
         backgroundColor: theme.colors.primary,
         paddingHorizontal: 10,
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingTop: 12,
+        paddingBottom: 12,
         borderTopLeftRadius: 10,
         borderBottomLeftRadius: 10,
-        marginLeft: 20,
+        marginLeft: 5,
         color: theme.colors.text,
+        marginTop: 20, 
     },
     postButton: {
         backgroundColor: theme.colors.accent, 
-        marginRight: 20,
+        marginRight: 5,
         borderTopRightRadius: 10,
         borderBottomRightRadius: 10,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop: 20, 
     },
     postButtonText: {
-        paddingHorizontal: 10,
+        paddingHorizontal: 30,
         fontWeight:'bold',
         color: theme.colors.background
     },
@@ -146,7 +147,7 @@ const createFeedStyles = (theme: any, width: number) => {
     //create post
     createPostContainer: {
         paddingTop: statusBarHeight + 10,
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.primary,
         flex: 1,
     },
     headerContainer: {
