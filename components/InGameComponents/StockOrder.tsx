@@ -15,7 +15,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface stockOrderParams {
   ticker: string;
-  matchId: string;
+  matchID: string;
   tradeType: string;
   buyingPower: number;
 }
@@ -43,9 +43,9 @@ const StockOrder = (props: any) => {
       'params passed when navigating to Stock Order are in incorrect format.',
     );
   }
-  const {ticker, matchId, tradeType} = params;
+  const {ticker, matchID, tradeType} = params;
   // const ticker = (route.params as { ticker?: string})?.ticker ?? "";
-  // const matchId = (route.params as { matchId?: string})?.matchId ?? "";
+  // const matchID = (route.params as { matchID?: string})?.matchID ?? "";
 
   const purchaseStock = async (buyPrice: number) => {
     try {
@@ -53,7 +53,7 @@ const StockOrder = (props: any) => {
 
       const buyResponse = await axios.post(serverUrl + '/purchaseStock', {
         userID: userID,
-        matchId: matchId,
+        matchID: matchID,
         ticker: ticker,
         buyPrice: buyPrice,
         shares: numberShares,

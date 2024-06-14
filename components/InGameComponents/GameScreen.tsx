@@ -25,10 +25,12 @@ const GameScreen = () => {
   const route = useRoute();
 
   const [statusBarHeight, setStatusBarHeight] = useState(0);
-  const [activeMatchId, setActiveMatchId] = useState();
+  const [activeMatchID, setActiveMatchID] = useState(null);
   const [activeMatch, setActiveMatch] = useState<any>();
   const [userNumber, setUserNumber] = useState<string>('');
   const [buyingPower, setBuyingPower] = useState(0);
+  const [userPortfolioValue, setUserPortfolioValue] = useState(0);
+  const [opponentPortfolioValue, setOpponentPortfolioValue] = useState(0);
 
   const goBack = () => {
     navigation.goBack();
@@ -73,6 +75,7 @@ const GameScreen = () => {
       }
     }, 1000);
     getMatch();
+
     return () => clearInterval(timer);
   }, [endDate, idIndex]);
 
@@ -84,20 +87,58 @@ const GameScreen = () => {
         setStatusBarHeight(response.height);
       },
     );
-
-    socket.onopen = () => {
-      console.log('Opened');
-    };
-
-    socket.onmessage = event => {
-      console.log('Message received:', event.data);
-      setMatchesData(event.data);
-    };
-
-    socket.onclose = () => {
-      console.log('Connection closed');
-    };
   }, []);
+
+  // this is to get the live portfolio value
+  useEffect(() => {
+    if (activeMatchID != null) {
+      const ws = new WebSocket('wss://music-api-grant.fly.dev');
+
+      ws.onopen = () => {
+        console.log('Connected to server');
+        ws.send(
+          JSON.stringify({
+            matchID: activeMatchID,
+            type: 'match',
+            status: 'add',
+          }),
+        );
+      };
+
+      ws.onmessage = event => {
+        console.log(`Received message: ${event.data}`);
+      };
+
+      ws.onerror = error => {
+        console.error(
+          'WebSocket error:',
+          error.message || JSON.stringify(error),
+        );
+      };
+
+      // close websocket once component unmounts
+      return () => {
+        if (ws) {
+          // sending ticker on ws close to remove it from interested list
+          ws.send(
+            JSON.stringify({
+              matchID: activeMatchID,
+              type: 'match',
+              status: 'delete',
+            }),
+          );
+
+          ws.close(
+            1000,
+            'Closing websocket connection due to page being closed',
+          );
+          console.log('Closed websocket connection due to page closing');
+        }
+      };
+    } else {
+      console.log('game screen activematchID is nothing but should update ');
+    }
+  }, [activeMatchID]);
 
   const [rerenderKey, setRerenderKey] = useState(0);
   const isFocused = useIsFocused();
@@ -108,17 +149,17 @@ const GameScreen = () => {
     }
   }, [isFocused]);
 
-  const fetchMatchIdAndData = async (userID: String) => {
+  const fetchMatchIDAndData = async (userID: String) => {
     try {
       const response = await axios.post(serverUrl + '/getUserMatches', {
         userID,
       });
       //console.log("Matches: ", response.data);
-      setActiveMatchId(response.data[idIndex!]);
+      setActiveMatchID(response.data[idIndex!]);
 
       //console.log(response.data[idIndex!])
       const match = await axios.post(serverUrl + '/getMatchData', {
-        matchId: response.data[idIndex!],
+        matchID: response.data[idIndex!],
       });
       setActiveMatch(match.data);
       if (userID == match.data.user1.userID) {
@@ -138,7 +179,7 @@ const GameScreen = () => {
     try {
       const userID = await AsyncStorage.getItem('userID');
       if (userID) {
-        await fetchMatchIdAndData(userID);
+        await fetchMatchIDAndData(userID);
       } else {
         console.log('User email not found in AsyncStorage');
       }
@@ -474,7 +515,7 @@ const GameScreen = () => {
                   {item && 'ticker' in item && (
                     <PositionCard
                       ticker={item.ticker}
-                      matchId={activeMatchId}
+                      matchID={activeMatchID}
                       ownStock={true}
                       shares={item.totalShares}
                       buyingPower={buyingPower}></PositionCard>
@@ -488,7 +529,7 @@ const GameScreen = () => {
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('InGameStockSearch', {
-                activeMatchId,
+                activeMatchID,
                 buyingPower,
               });
             }}

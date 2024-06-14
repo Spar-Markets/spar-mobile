@@ -89,7 +89,7 @@ const ActiveGames = (props: any) => {
       );
     }
   };
-  const fetchMatchIds = async () => {
+  const fetchMatchIDs = async () => {
     try {
       const userID = await AsyncStorage.getItem('userID');
 
@@ -104,7 +104,7 @@ const ActiveGames = (props: any) => {
   };
 
   useEffect(() => {
-    fetchMatchIds();
+    fetchMatchIDs();
   }, []);
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const ActiveGames = (props: any) => {
           for (const id of activeMatches) {
             const matchDataResponse = await axios.post(
               serverUrl + '/getMatchData',
-              {matchId: id},
+              {matchID: id},
             );
             md.push(matchDataResponse.data);
           }

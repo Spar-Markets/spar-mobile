@@ -33,8 +33,8 @@ const InGameStockSearch = () => {
     navigation.goBack();
   };
   const route = useRoute();
-  const {activeMatchId, buyingPower} =
-    (route.params as {activeMatchId?: string; buyingPower?: number}) ?? null;
+  const {activeMatchID, buyingPower} =
+    (route.params as {activeMatchID?: string; buyingPower?: number}) ?? null;
   Icon.loadFont();
   // const socket = new WebSocket('wss://music-api-grant.fly.dev')
 
@@ -44,7 +44,7 @@ const InGameStockSearch = () => {
         setStatusBarHeight(response.height);
       },
     );
-    console.log('ingamestocksearch activematchid', activeMatchId);
+    console.log('ingamestocksearch activematchiD', activeMatchID);
   }, []);
 
   const updateTickerList = async () => {
@@ -200,7 +200,7 @@ const InGameStockSearch = () => {
                   </Text> */}
                   <StockCard
                     ticker={item.ticker}
-                    matchId={activeMatchId}
+                    matchID={activeMatchID}
                     buyingPower={buyingPower}
                     tradable={true}></StockCard>
                 </View>

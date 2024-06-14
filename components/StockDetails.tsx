@@ -22,7 +22,7 @@ interface RouteParams {
   ticker: string;
   tradable: boolean;
   canSell: boolean;
-  matchId: string;
+  matchID: string;
   buyingPower: number;
 }
 
@@ -69,7 +69,7 @@ const StockDetails = () => {
   // get params either in the expected format, or allow it to be undefined
   const params = route.params as RouteParams | undefined;
 
-  console.log('stock details, params: ' + params?.matchId);
+  console.log('stock details, params: ' + params?.matchID);
 
   useEffect(() => {
     const ticker = String(params?.ticker);
@@ -476,7 +476,7 @@ const StockDetails = () => {
                 onPress={() => {
                   navigation.navigate('StockOrder', {
                     ticker: params.ticker,
-                    matchId: params.matchId,
+                    matchID: params.matchID,
                     tradeType: 'Buy',
                     buyingPower: params.buyingPower,
                   });
@@ -507,7 +507,7 @@ const StockDetails = () => {
                 onPress={() => {
                   navigation.navigate('StockOrder', {
                     ticker: params.ticker,
-                    matchId: params.matchId,
+                    matchID: params.matchID,
                     tradeType: 'Sell',
                   });
                 }}
