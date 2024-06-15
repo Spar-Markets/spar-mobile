@@ -76,12 +76,12 @@ const createFeedStyles = (theme: any, width: number) => {
     },
     subjectText: {
         color: theme.colors.text,
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: 'bold',
         marginTop: 10
     },
     messageText: {
-        color: theme.colors.secondaryText,
+        color: theme.colors.text,
         marginTop: 5
     },
     mainPic: {

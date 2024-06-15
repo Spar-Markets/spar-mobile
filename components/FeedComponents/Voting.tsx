@@ -51,8 +51,7 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     }
     dispatch(upvotePost(post.postId));
     try {
-      //console.log("userID:", userData.userID, " postId:", postId)
-      const response = await axios.post(serverUrl + "/upvotePost", { userID: userData.userID, postId });
+      const response = await axios.post(serverUrl + "/upvotePost", { userID: userData.userID, postId: post.postId });
       console.log("Response:", response.data);
     } catch (error) {
       console.log("error upvoting in mongo", error);
@@ -71,6 +70,7 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     dispatch(downvotePost(post.postId));
     try {
       const response = await axios.post(serverUrl + "/downvotePost", { userID: userData.userID, postId: post.postId });
+      console.log("Response:", response.data);
     } catch {
       console.log("error downvoting in mongo");
     }
