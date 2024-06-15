@@ -1,18 +1,16 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { Platform, Text, View, useColorScheme, NativeModules, SafeAreaView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {PlaidLink, LinkExit, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { serverUrl } from '../constants/global';
 import axios from 'axios';
  
-var styles = require('../Style/style');
+var styles = require('../styles/style');
 
 const Bank = ({ navigation }: any) => {
     const [linkToken, setLinkToken] = useState("");
     const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
-    const { authorize, user } = useAuth0();
     const [accessToken, setAccessToken] = useState("");
     const colorScheme = useColorScheme();
 
@@ -35,7 +33,7 @@ const Bank = ({ navigation }: any) => {
         });
       }, [setLinkToken])
 
-      const fetchData = async () => {
+      /*const fetchData = async () => {
         const accessData = {
           email: user!.email
         };
@@ -48,7 +46,7 @@ const Bank = ({ navigation }: any) => {
         } catch (error) {
           console.error('Error fetching access token, user may not have one:', error);
         }
-      }
+      }*/
       const [statusBarHeight, setStatusBarHeight] = useState(0);
 
       const goBack = () => {
@@ -67,7 +65,7 @@ const Bank = ({ navigation }: any) => {
           console.log("Getting Link Token")
           createLinkToken();
         }
-      }, [user, linkToken, createLinkToken]);
+      }, [ linkToken, createLinkToken]);
 
     return (
         <SafeAreaView>
@@ -105,7 +103,7 @@ const Bank = ({ navigation }: any) => {
                 // Save the access token to mongo user here?
     
                 const updatingData = {
-                email: user!.email,
+                //email: user!.email,
                 newAccessToken: accessToken 
                 };
 
