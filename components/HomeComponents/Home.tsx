@@ -42,12 +42,12 @@ const Home = () => {
 
   /*const { user } = useAuth()
 
-  const [uid, setUid] = useState<string | undefined>(undefined);
-  const { userData, error } = useUserData(uid);
+  const [userID, setuserID] = useState<string | undefined>(undefined);
+  const { userData, error } = useUserData(userID);
 
   useEffect(() => {
     if (user) {
-      setUid((user as any).uid)
+      setuserID((user as any).userID)
     }
   }, [user]);*/
   
@@ -187,7 +187,7 @@ const Home = () => {
 
   const getActiveUserEmail = async () => {
     if (user) {
-      console.log((user as any).uid)
+      console.log((user as any).userID)
     }
   }
 

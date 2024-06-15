@@ -10,11 +10,12 @@ import { useNavigation } from '@react-navigation/native';
 import PostType from '../../types/PostType';
 import timeAgo from '../../utility/timeAgo';
 import axios from 'axios'
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { upvotePost, downvotePost, setUpvoteStatus, setDownvoteStatus } from '../../GlobalDataManagment/postSlice';
 import { serverUrl } from '../../constants/global';
 import Voting from './Voting';
+import { Skeleton } from '@rneui/themed';
 
 
 interface PostProps extends PostType {
@@ -32,6 +33,9 @@ const Post = (props:any) => {
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createFeedStyles(theme, width)
+
+    const userData = useSelector((state: any) => state.user.userData, shallowEqual);
+    const dispatch = useDispatch();
 
     const navigation = useNavigation<any>();
     
@@ -54,6 +58,34 @@ const Post = (props:any) => {
         
     }
 
+    const [loading, setLoading] = useState(true)
+
+    // Sets initial votes on rerender
+    useEffect(() => {
+        const setVote = async () => {
+        try {
+            console.log("userID:", userData.userID, " postId:", props.postId)
+            const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: userData.userID, postId: props.postId });
+            if (newVoteStatus.data.voteType === 'up') {
+                dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
+                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+            } else if (newVoteStatus.data.voteType === 'down') {
+                dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
+            } else {
+                dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+            }
+            setLoading(false)
+        } catch (error) {
+            console.error('Error getting vote status:', error);
+            setLoading(false)
+        }
+        };
+
+        setVote();
+    }, [dispatch, props.postId, userData.userID]);
+
     const categoryButton = (category: string) => {
 
         const categoryStyles: CategoryStyles = {
@@ -65,42 +97,45 @@ const Post = (props:any) => {
        };
   
         return (
-            <View style={[categoryStyles[category] || {}, {borderRadius: 50}]}>
-                <Text style={{ color: theme.colors.text, fontWeight: 'bold', paddingVertical: 5, paddingHorizontal: 10 }}>{category}</Text>
+            <View style={[categoryStyles[category] || {}, {borderRadius: 50, height: 25, justifyContent: 'center'}]}>
+                <Text style={{ color: theme.colors.text, fontWeight: 'bold', paddingHorizontal: 10 }}>{category}</Text>
+            </View>
+        )
+    }
+
+    if (loading) {
+        return (
+            <View style={styles.postsContainer}>
+                <View>
+                    <TouchableOpacity onPress={navigateToComments}> 
+                    <View style={styles.postTopContainer}>
+                        <Skeleton animation={"wave"} style={[styles.postPic, {backgroundColor: theme.colors.primary}]} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+                        <Skeleton animation={"wave"} width={100} height={25} style={{marginLeft: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+                        <View style={{flex: 1}}></View>
+                        <Skeleton animation={"wave"} width={100} height={25} style={{marginLeft: 10, backgroundColor: theme.colors.primary, borderRadius: 50}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}/>
+                    </View>
+                    <Skeleton animation={"wave"} height={25} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+                    <Skeleton animation={"wave"} height={25} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+                    <Skeleton animation={"wave"} height={25} width={120} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+                    {props.hasImage === true && <Image style={styles.mainPic} source={require("../../assets/images/testPost.png")}/>}
+                    </TouchableOpacity> 
+                    <View style={styles.postBottomContainer}>
+                        {/*Used to remake post on comment page without recalling db*/}
+                        <Skeleton animation={"wave"} height={35} width={60} style={{backgroundColor: theme.colors.primary, borderRadius: 50}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+                        <View style={{flex: 1}}></View>
+    
+                        <Skeleton animation={"wave"} height={35} width={100} style={{backgroundColor: theme.colors.primary, borderRadius: 50}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>         
+                    </View>
+                </View>
             </View>
         )
     }
     
     return (
-    
-
-    <View style={styles.postsContainer}>
-        {props.onComment == false ?
-        <View>
-            <TouchableOpacity onPress={navigateToComments}> 
-            <View style={styles.postTopContainer}>
-                <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
-                <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
-                <View style={{flex: 1}}></View>
-                {categoryButton(props.type)}
-            </View>
-            <Text style={styles.subjectText}>{props.title}</Text>
-            <Text style={styles.messageText}>{props.body}</Text>
-            {props.hasImage === true && <Image style={styles.mainPic} source={require("../../assets/images/testPost.png")}/>}
-            </TouchableOpacity> 
-            <View style={styles.postBottomContainer}>
-                {/*Used to remake post on comment page without recalling db*/}
-                <TouchableOpacity onPress={navigateToComments} style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10 }}>
-                    <Icon name="comments" style={{color: theme.colors.secondaryText}} size={20}/>
-                    <Text style={{color: theme.colors.secondaryText, fontSize: 14, fontWeight: 'bold'}}>{props.numComments}</Text>
-                </TouchableOpacity>
-                <View style={{flex: 1}}></View>
-
-                <Voting postId={props.postId}/>             
-            </View>
-        </View> :  
-        <View>
-            <View> 
+        <View style={styles.postsContainer}>
+            {props.onComment == false ?
+            <View>
+                <TouchableOpacity onPress={navigateToComments}> 
                 <View style={styles.postTopContainer}>
                     <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
                     <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
@@ -110,20 +145,43 @@ const Post = (props:any) => {
                 <Text style={styles.subjectText}>{props.title}</Text>
                 <Text style={styles.messageText}>{props.body}</Text>
                 {props.hasImage === true && <Image style={styles.mainPic} source={require("../../assets/images/testPost.png")}/>}
-            </View> 
-            <View style={styles.postBottomContainer}>
-                {/*Used to remake post on comment page without recalling db*/}
-                <View style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10 }}>
-                    <Icon name="comments" style={{color: theme.colors.secondaryText}} size={20}/>
-                    <Text style={{color: theme.colors.secondaryText, fontSize: 14, fontWeight: 'bold'}}>{props.numComments}</Text>
-                </View>
-                <View style={{flex: 1}}></View>
+                </TouchableOpacity> 
+                <View style={styles.postBottomContainer}>
+                    {/*Used to remake post on comment page without recalling db*/}
+                    <TouchableOpacity onPress={navigateToComments} style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10 }}>
+                        <Icon name="comments" style={{color: theme.colors.secondaryText}} size={20}/>
+                        <Text style={{color: theme.colors.secondaryText, fontSize: 14, fontWeight: 'bold'}}>{props.numComments}</Text>
+                    </TouchableOpacity>
+                    <View style={{flex: 1}}></View>
 
-                <Voting postId={props.postId}/>             
+                    <Voting postId={props.postId}/>             
+                </View>
+            </View> :  
+            <View>
+                <View> 
+                    <View style={styles.postTopContainer}>
+                        <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
+                        <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
+                        <View style={{flex: 1}}></View>
+                        {categoryButton(props.type)}
+                    </View>
+                    <Text style={styles.subjectText}>{props.title}</Text>
+                    <Text style={styles.messageText}>{props.body}</Text>
+                    {props.hasImage === true && <Image style={styles.mainPic} source={require("../../assets/images/testPost.png")}/>}
+                </View> 
+                <View style={styles.postBottomContainer}>
+                    {/*Used to remake post on comment page without recalling db*/}
+                    <View style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10 }}>
+                        <Icon name="comments" style={{color: theme.colors.secondaryText}} size={20}/>
+                        <Text style={{color: theme.colors.secondaryText, fontSize: 14, fontWeight: 'bold'}}>{props.numComments}</Text>
+                    </View>
+                    <View style={{flex: 1}}></View>
+
+                    <Voting postId={props.postId}/>             
+                </View>
             </View>
+            }
         </View>
-        }
-    </View>
     )
 }
 

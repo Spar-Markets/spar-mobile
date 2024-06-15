@@ -3,15 +3,15 @@ import useAuth from './useAuth';
 
 const useAuthenticatedUser = () => {
   const { user } = useAuth();
-  const [uid, setUid] = useState<string | undefined>(undefined);
+  const [userID, setuserID] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (user) {
-      setUid((user as any).uid);
+      setuserID((user as any).uid); //called uid cause firebase object needs uid 
     }
   }, [user]);
 
-  return { uid, user };
+  return { userID, user };
 };
 
 export default useAuthenticatedUser;

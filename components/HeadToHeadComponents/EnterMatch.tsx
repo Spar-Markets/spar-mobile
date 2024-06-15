@@ -7,9 +7,7 @@ import createGlobalStyles from '../../styles/createGlobalStyles';
 import { useNavigation } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import PageHeader from '../GlobalComponents/PageHeader';
-import { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
 
 const EnterMatch = () => {
     const { theme } = useTheme();
@@ -29,6 +27,7 @@ const EnterMatch = () => {
     const prizePool = parseFloat(efValue.replace('$', '')) * 2;
     const prize = prizePool - prizePool / 11;
 
+    //rules to display
     const ruleMessage = (title:string, message:string) => (
         <View>
             <Text style={{ color: theme.colors.text, fontWeight: 'bold' }}>{title}</Text>

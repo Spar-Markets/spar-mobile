@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { View, TouchableOpacity, Animated, Text, Easing } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
@@ -21,29 +21,6 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
   const { theme } = useTheme();
   const { width } = useDimensions();
   const styles = createFeedStyles(theme, width);
-
-  // Sets initial votes on rerender
-  useEffect(() => {
-    const setVote = async () => {
-      try {
-        const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { uid: userData.userID, postId: postId });
-        if (newVoteStatus.data.voteType === 'up') {
-          dispatch(setUpvoteStatus({ postId, isUpvoted: true }));
-          dispatch(setDownvoteStatus({ postId, isDownvoted: false }));
-        } else if (newVoteStatus.data.voteType === 'down') {
-          dispatch(setUpvoteStatus({ postId, isUpvoted: false }));
-          dispatch(setDownvoteStatus({ postId, isDownvoted: true }));
-        } else {
-          dispatch(setUpvoteStatus({ postId, isUpvoted: false }));
-          dispatch(setDownvoteStatus({ postId, isDownvoted: false }));
-        }
-      } catch (error) {
-        console.error('Error getting vote status:', error);
-      }
-    };
-
-    setVote();
-  }, [dispatch, postId, userData.userID]);
 
   const animateButton = useCallback((buttonPosition: Animated.Value, direction: 'up' | 'down') => {
     const toValue = direction === 'up' ? -10 : 10;
@@ -74,7 +51,8 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     }
     dispatch(upvotePost(post.postId));
     try {
-      const response = await axios.post(serverUrl + "/upvotePost", { uid: userData.userID, postId });
+      //console.log("userID:", userData.userID, " postId:", postId)
+      const response = await axios.post(serverUrl + "/upvotePost", { userID: userData.userID, postId });
       console.log("Response:", response.data);
     } catch (error) {
       console.log("error upvoting in mongo", error);
@@ -92,11 +70,12 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     }
     dispatch(downvotePost(post.postId));
     try {
-      const response = await axios.post(serverUrl + "/downvotePost", { uid: userData.userID, postId: post.postId });
+      const response = await axios.post(serverUrl + "/downvotePost", { userID: userData.userID, postId: post.postId });
     } catch {
       console.log("error downvoting in mongo");
     }
   }, [animateButton, dispatch, downvotePosition, post.isDownvoted, post.postId, userData.userID]);
+
 
   return (
     <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10, paddingVertical: 5 }}>

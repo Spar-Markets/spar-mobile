@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
-import {LineChart} from "react-native-chart-kit"
+//import {LineChart} from "react-native-chart-kit"
 import Timer from './Timer';
 
 

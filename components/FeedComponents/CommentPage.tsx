@@ -60,7 +60,7 @@ const CommentPage = () => {
         commentId: commentId,
         postId: params!.postId,
         username: userData!.username,
-        uid: userData!.userID,
+        userID: userData!.userID,
         postedTime: new Date(Date.now()),
         body: commentInput,
         votes: 0,
@@ -74,7 +74,7 @@ const CommentPage = () => {
         postId: params!.postId,
         commentId: commentId,
         username: userData!.username,
-        uid: userData!.userID,
+        userID: userData!.userID,
         postedTime: Date.now(),
         body: commentInput,
       };

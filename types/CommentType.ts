@@ -2,7 +2,7 @@ export default interface CommentType {
     postId: string; 
     commentId: string;
     username: string;
-    uid: string;
+    userID: string;
     postedTime: Date;
     body: string;
     votes: number,
