@@ -16,16 +16,16 @@ interface UserData {
   username: string;
 }
 
-const useUserData = (uid?: string) => {
+const useUserData = (userID?: string) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (uid) {
+    if (userID) {
       const fetchUserData = async () => {
         try {
-          const response = await axios.post(`${serverUrl}/getActiveUser`, { uid });
+          const response = await axios.post(`${serverUrl}/getActiveUser`, { userID });
           //console.log('Fetched User Data:', response.data);
           setUserData(response.data);
         } catch (error) {
@@ -39,7 +39,7 @@ const useUserData = (uid?: string) => {
     } else {
       setLoading(false);
     }
-  }, [uid]);
+  }, [userID]);
 
   return { userData, loading, error };
 };
