@@ -41,7 +41,7 @@ const SignupScreen = (props:any) => {
                     //console.log(credentials)
                     const response = await axios.post(serverUrl + '/createUser', {
                         email: (credentials.user as any).email,
-                        userID: (credentials.user as any).userID,
+                        userID: (credentials.user as any).uid,
                         username: username
                     });
                    // console.log(response.data)
