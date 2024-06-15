@@ -63,14 +63,18 @@ const Home = () => {
   ];
 
   const cancelMatchmaking = async () => {
-    //MongoLogic
-    const userID = await AsyncStorage.getItem('userID');
-    const response = await axios.post(serverUrl + '/cancelMatchmaking', {
-      userID,
-    });
-    console.log(response);
-    //ON success of mongodb
-    setSearchForMatch(false);
+    try {
+      //MongoLogic
+      const userID = await AsyncStorage.getItem('userID');
+      const response = await axios.post(serverUrl + '/cancelMatchmaking', {
+        userID,
+      });
+      console.log(response);
+      //ON success of mongodb
+      setSearchForMatch(false);
+    } catch (error) {
+      console.error('Error in cancelMatchmaking in home.tsx:', error);
+    }
   };
 
   const cancelAlert = () => {
@@ -126,7 +130,7 @@ const Home = () => {
         setBalance(balance.data.$numberDecimal);
       }
     } catch (error) {
-      console.error(error);
+      console.error('hello', error);
     }
   };
 
@@ -173,38 +177,37 @@ const Home = () => {
       );
       console.log(response);
     } catch (error) {
-      console.log(error);
+      console.log('In Home', error);
     }
   };
 
-  const getEmail = async () => {
-    const email = await AsyncStorage.getItem('userEmail');
-    if (email !== null) {
-      setUser(email); // Assuming setUser updates some state with the email
-      const emailToSend = {
-        email: email,
+  const getUserAttributes = async () => {
+    const userID = await AsyncStorage.getItem('userID');
+
+    if (userID !== null) {
+      console.log('userID', userID);
+      setUser(userID); // Assuming setUser updates some state with the email
+      getIsInMatchMaking();
+
+      const userIDToSend = {
+        userID: userID,
       };
       try {
         await axios
-          .post(serverUrl + '/getActiveUser', emailToSend)
+          .post(serverUrl + '/getActiveUser', userIDToSend)
           .then(user => {
             setSkillRating(user.data.skillRating.$numberDecimal);
             setUsername(user.data.username);
             setBalance(user.data.balance.$numberDecimal);
           });
       } catch (error) {
-        console.error(error);
+        console.error('Home', error);
       }
     }
   };
 
   useEffect(() => {
-    getIsInMatchMaking();
-    getEmail();
-
-    if (user !== '') {
-      getIsInMatchMaking();
-    }
+    getUserAttributes();
     setCurrStyles(colorScheme == 'dark' ? darkStyles : lightStyles);
     NativeModules.StatusBarManager.getHeight(
       (response: {height: React.SetStateAction<number>}) => {
@@ -212,7 +215,7 @@ const Home = () => {
       },
     );
     getBalance();
-  }, [colorScheme, user]);
+  }, [colorScheme]);
 
   return (
     <View

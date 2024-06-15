@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {LineChart} from 'react-native-gifted-charts';
 import PositionCard from './PositionCard';
 import LinearGradient from 'react-native-linear-gradient';
+import {act} from 'react-test-renderer';
 
 const socket = new WebSocket('wss://music-api-grant.fly.dev');
 
@@ -26,7 +27,7 @@ const GameScreen = () => {
 
   const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [activeMatchID, setActiveMatchID] = useState(null);
-  const [activeMatch, setActiveMatch] = useState<any>();
+  const [activeMatch, setActiveMatch] = useState<any>(null);
   const [userNumber, setUserNumber] = useState<string>('');
   const [buyingPower, setBuyingPower] = useState(0);
   const [userPortfolioValue, setUserPortfolioValue] = useState(0);
@@ -66,6 +67,21 @@ const GameScreen = () => {
     calculateTimeRemaining(new Date(endDate)),
   );
 
+  async function getSnapshots() {
+    try {
+      // get the match snapshots
+      console.log('sdfds', activeMatchID);
+      const snapshots = await axios.post(serverUrl + '/getSnapshots', {
+        matchID: activeMatchID,
+      });
+      console.log(snapshots);
+      // TODO: implement logic to display snapshots for correct user
+      // e.g. is active user "user1" or "user2" + display UI accordingly
+    } catch (error) {
+      console.error('error in getSnapshots() on GameScreen.tsx:', error);
+    }
+  }
+
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeRemaining(calculateTimeRemaining(new Date(endDate)));
@@ -80,6 +96,14 @@ const GameScreen = () => {
   }, [endDate, idIndex]);
 
   const [matchesData, setMatchesData] = useState();
+
+  useEffect(() => {
+    if (activeMatch != '') {
+      getSnapshots();
+    } else {
+      console.log();
+    }
+  }, [activeMatch]);
 
   useEffect(() => {
     NativeModules.StatusBarManager.getHeight(
