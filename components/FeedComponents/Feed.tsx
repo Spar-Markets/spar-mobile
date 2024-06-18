@@ -94,7 +94,6 @@ const Feed: React.FC = () => {
           <View style={{ flex: 1 }}></View>
         </View>
       </View>
-      <Text style={styles.headerText}>Feed</Text>
       <FlatList 
         data={posts}
         renderItem={renderItem}

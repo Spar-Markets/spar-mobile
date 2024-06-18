@@ -13,7 +13,7 @@ import CoreApp from './CoreApp';
 import Deposit from './components/Deposit';
 import Transfers from './components/Transfers';
 import Withdraw from './components/Withdraw';
-import StockDetails from './components/StockDetails';
+import StockDetails from './components/StockComponents/StockDetails';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GameScreen from './components/InGameComponents/GameScreen';
 import InGameStockSearch from './components/InGameComponents/InGameStockSearch';

@@ -11,10 +11,14 @@ import {
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
-import {serverUrl} from '../constants/global';
+import {serverUrl} from '../../constants/global';
 import StockDetailGraph from './StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
+import PageHeader from '../GlobalComponents/PageHeader';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
+import createStockStyles from '../../styles/createStockStyles';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
@@ -36,9 +40,9 @@ const StockDetails = () => {
   const [timeFrameSelected, setTimeFrameSelected] = useState('1D');
   const [tickerData, setTickerData] = useState<any>(null);
 
-  const goBack = () => {
-    navigation.goBack();
-  };
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
+  const styles = createStockStyles(theme, width);
 
   function formatLargeNumber(number: number) {
     if (number >= 1e12) {
@@ -123,7 +127,7 @@ const StockDetails = () => {
         );
         console.log('ticker response data;', tickerResponse.data);
         console.log(
-          'ticker response details;',
+          'ticker response details:',
           tickerResponse.data.detailsResponse,
         );
         console.log(
@@ -133,7 +137,7 @@ const StockDetails = () => {
 
         if (tickerResponse) {
           // This sets all the data
-          setTickerData(tickerResponse);
+          setTickerData(tickerResponse.data);
         }
       } catch {
         console.error('Error getting details in StockDetails.tsx');
@@ -196,54 +200,13 @@ const StockDetails = () => {
   return (
     <View style={{backgroundColor: '#111', flex: 1}}>
       {tickerData != null && params != undefined ? (
-        <View style={{marginTop: statusBarHeight + 10, flex: 1}}>
-          <View style={{flexDirection: 'row'}}>
-            <View style={{flex: 1}}>
-              <TouchableOpacity
-                onPress={goBack}
-                style={[
-                  colorScheme == 'dark'
-                    ? {backgroundColor: 'transparent'}
-                    : {backgroundColor: 'transparent'},
-                  {
-                    height: 30,
-                    marginHorizontal: 15,
-                    marginBottom: 10,
-                    alignItems: 'center',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 10,
-                    borderRadius: 12,
-                  },
-                ]}>
-                <Icon
-                  name={'chevron-left'}
-                  size={20}
-                  color={'#33aaFF'}
-                  style={
-                    colorScheme == 'dark'
-                      ? {color: '#FFF'}
-                      : {backgroundColor: '#000'}
-                  }
-                />
-                <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
-                  Back
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={{flex: 1}} />
-          </View>
+        <View style={styles.stockDetailsContainer}>
+          <PageHeader text={"Stock Details"}></PageHeader>
           <ScrollView style={{}} showsVerticalScrollIndicator={false}>
-            {/*<View style={{marginLeft: 12, marginTop: 20}}>
-                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{ticker}</Text>
-                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 35, color: '#fff'}}>${currentPrice}</Text>
-                        <Text style={{fontFamily: 'InterTight-Black', fontSize: 20, color: '#888888'}}>{currentDate}</Text>
-                    </View>*/}
-
-            <StockDetailGraph ticker={ticker} timeframe={timeFrameSelected} />
-
-            <ScrollView
+            <View style={{height: 200}}>
+              <StockDetailGraph ticker={ticker} timeframe={timeFrameSelected} iconUrl={tickerData.detailsResponse.results.branding.icon_url + "?apiKey=vLyw12bgkKE1ICVMl72E4YBpJwpmmCwh"} name={tickerData.detailsResponse.results.name}/>
+            </View>
+            {/*<ScrollView
               horizontal={true}
               style={{marginTop: 20, marginRight: 15, marginLeft: 15}}
               showsHorizontalScrollIndicator={false}>
@@ -255,18 +218,10 @@ const StockDetails = () => {
               {TimeButton('1Y')}
               {TimeButton('5Y')}
               {TimeButton('MAX')}
-            </ScrollView>
+              </ScrollView>*/}
 
-            <View>
-              <LinearGradient
-                colors={['#222', '#333', '#444']}
-                style={{
-                  borderColor: '#333',
-                  borderWidth: 2,
-                  marginHorizontal: 15,
-                  marginTop: 20,
-                  borderRadius: 12,
-                }}>
+            {/*<View>
+              <View>
                 <Text
                   style={{
                     fontFamily: 'InterTight-Black',
@@ -286,7 +241,7 @@ const StockDetails = () => {
                   }}>
                   {tickerData.data.detailsResponse.results.description}
                 </Text>
-              </LinearGradient>
+              </View>
               <LinearGradient
                 colors={['#222', '#333', '#444']}
                 style={{
@@ -460,7 +415,7 @@ const StockDetails = () => {
                     )}
                   </View>
                 ))}
-            </View>
+            </View>*/}
           </ScrollView>
 
           {params.tradable == true ? (
@@ -533,7 +488,7 @@ const StockDetails = () => {
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
-            </View>
+            </View> 
           ) : (
             <View></View>
           )}

@@ -18,6 +18,8 @@ const createFeedStyles = (theme: any, width: number) => {
       alignItems: 'center',
       gap: 10,
       marginHorizontal: 20,
+      marginBottom: 20,
+
     },
     headerText: {
         color: theme.colors.text,

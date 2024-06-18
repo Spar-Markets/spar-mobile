@@ -10,6 +10,8 @@ import { auth } from '../../firebase/firebase';
 import useAuth from '../../hooks/useAuth';
 import axios from 'axios'
 import { serverUrl } from '../../constants/global';
+import useUserDetails from '../../hooks/useUserDetails';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const SignupScreen = (props:any) => {
@@ -27,7 +29,7 @@ const SignupScreen = (props:any) => {
     const [username, setUsername] = useState("")
     const [passwordInput, setPasswordInput] = useState("")
     const [passwordConfirmInput, setPasswordConfirmInput] = useState("")
-
+   
     /**
      * Creates user in firebase auth and in mongoDB
      * @todo need to do username check against database...
@@ -39,11 +41,19 @@ const SignupScreen = (props:any) => {
                     //check for username uniquesness needs to be here before auth flow
                     const credentials = await createUserWithEmailAndPassword(auth, emailInput, passwordInput)
                     //console.log(credentials)
-                    const response = await axios.post(serverUrl + '/createUser', {
+                    if (credentials.user) {
+                        const response = await axios.post(serverUrl + '/createUser', {
                         email: (credentials.user as any).email,
                         userID: (credentials.user as any).uid,
                         username: username
-                    });
+                        })
+                        
+                        //sets userID globally in async
+                        if (response) {
+                            await AsyncStorage.setItem('userID', (credentials.user as any).uid);
+                        }
+
+                    }
                    // console.log(response.data)
 
                     //TODO make this production level: if there is an axios error, the user will still get into firebase and the rest of app but not be in mongoDB,

@@ -7,6 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
+import useUserDetails from '../../hooks/useUserDetails';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const LoginScreen = () => {
@@ -15,6 +17,7 @@ const LoginScreen = () => {
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createOnboardStyles(theme, width)
+    const { userData } = useUserDetails();
 
     const navigation = useNavigation<any>();
 
@@ -28,8 +31,12 @@ const LoginScreen = () => {
                 //search for username and user in mongo and get corresponding email,
                 //grab the email and set it it emailInput, then run sinInwithEmailandPassword
 
-                await signInWithEmailAndPassword(auth, emailInput, passwordInput)
-                
+                const credentials = await signInWithEmailAndPassword(auth, emailInput, passwordInput)
+                if (credentials.user) {
+                    //sets userID globally in async
+                   await AsyncStorage.setItem('userID', (credentials.user as any).uid);
+                }
+            
             } catch (error) {
                 console.log(error)
                 Alert.alert("Error loggin in, email or password incorrect")

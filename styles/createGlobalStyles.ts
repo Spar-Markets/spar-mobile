@@ -28,7 +28,8 @@ const createGlobalStyles = (theme: any, width: number) => {
         backgroundColor: theme.colors.accent,
         borderRadius: 10,
         alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginHorizontal: 20
     },
     primaryBtnText: {
         fontSize: 16,

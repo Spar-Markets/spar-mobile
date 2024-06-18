@@ -17,9 +17,9 @@ const PageHeader = (props:any) => {
 
     return (
     <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
+        {props.canGoBack != false && <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
             <Icon name="chevron-left" style={{marginRight: 20, color: theme.colors.opposite}} size={24}/>
-        </TouchableOpacity>
+        </TouchableOpacity>}
         <Text style={styles.headerText}>{props.text}</Text>
     </View>
     )

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, Alert } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHTHStyles from '../../styles/createHTHStyles';
@@ -8,6 +8,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import PageHeader from '../GlobalComponents/PageHeader';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { serverUrl } from '../../constants/global';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import useUserDetails from '../../hooks/useUserDetails';
+import { useDispatch } from 'react-redux';
+import { setIsInMatchmaking } from '../../GlobalDataManagment/userSlice';
 
 const EnterMatch = () => {
     const { theme } = useTheme();
@@ -16,16 +22,20 @@ const EnterMatch = () => {
     const globalStyles = createGlobalStyles(theme, width);
     const navigation = useNavigation();
 
-    const [isEfFocus, setIsEfFocus] = useState(false);
-    const [isTfFocus, setIsTfFocus] = useState(false);
-    const [isSFocus, setIsSFocus] = useState(false);
-    const [efValue, setEfValue] = useState('11');
-    const [tfValue, setTfValue] = useState('15m');
-    const [sValue, setSValue] = useState('Stock');
+    const [isEntryFeeFocus, setIsEntryFeeFocus] = useState(false);
+    const [isTimeframeFocus, setIsTimeframeFocus] = useState(false);
+    const [isTypeFocus, setIsTypeFocus] = useState(false);
+    const [entryFeeValue, setEntryFeeValue] = useState('11');
+    const [timeframeValue, setTimeframeValue] = useState('15m');
+    const [typeValue, setTypeValue] = useState('Stock');
     const [activeAccent, setActiveAccent] = useState(theme.colors.stockUpAccent);
 
-    const prizePool = parseFloat(efValue.replace('$', '')) * 2;
+    const { userData } = useUserDetails();
+
+    const prizePool = parseFloat(entryFeeValue.replace('$', '')) * 2;
     const prize = prizePool - prizePool / 11;
+
+    const dispatch = useDispatch();
 
     //rules to display
     const ruleMessage = (title:string, message:string) => (
@@ -35,15 +45,55 @@ const EnterMatch = () => {
         </View>
     );
 
+    // 
+    const handleEnterMatchmaking = async (entryFee: String, matchLength: String, matchType: String) => {
+        //Ensure valid game params before starting search
+        if (entryFee == 'Entry Fee' || matchLength == 'Match Length') {
+          Alert.alert('Not Valid Match Params');
+          return;
+        }
+        //retrieve user's skill rating
+    
+        console.log(entryFee);
+        console.log(matchLength);
+        console.log(matchType);
+    
+        const userID = await AsyncStorage.getItem('userID');
+        console.log('userID:', userID);
+    
+        //Asign current user's values to a player object
+        const player = {
+          username: userData?.username,
+          userID: userID,
+          skillRating: userData?.skillRating,
+          entryFee: entryFee,
+          matchLength: matchLength,
+          matchType: matchType
+        };
+        //Pass the players object to the database
+        console.log('Log' + player);
+        try {
+          const response = await axios.post(
+            serverUrl + '/userToMatchmaking',
+            player,
+          );
+          console.log(response);
+        } catch (error) {
+          console.log('EnterMatch.tsx error in handleEnterMatchmaking:', error);
+        }
+        dispatch(setIsInMatchmaking(true));
+        navigation.goBack();
+      };
+
     useEffect(() => {
-        if (sValue === "stock") {
+        if (typeValue === "stock") {
             setActiveAccent(theme.colors.stockUpAccent);
-        } else if (sValue === "options") {
+        } else if (typeValue === "options") {
             setActiveAccent(theme.colors.optionsUpAccent);
-        } else if (sValue === "crypto") {
+        } else if (typeValue === "crypto") {
             setActiveAccent(theme.colors.cryptoUpAccent);
         }
-    }, [sValue]);
+    }, [typeValue]);
 
     const entryFeeData = [
         { label: '$5.50', value: '5.50' },
@@ -68,6 +118,7 @@ const EnterMatch = () => {
         { label: 'Options', value: 'options' },
         { label: 'Crypto', value: 'crypto' },
     ];
+
 
     return (
             <View style={styles.container}>
@@ -95,7 +146,7 @@ const EnterMatch = () => {
                         <View style={{ flex: 1 }}>
                             <View style={styles.dropdownCollection}>
                                 <Dropdown
-                                    style={[styles.dropdown, isEfFocus && { borderColor: activeAccent }]}
+                                    style={[styles.dropdown, isEntryFeeFocus && { borderColor: activeAccent }]}
                                     placeholderStyle={styles.placeholderStyle}
                                     selectedTextStyle={styles.selectedTextStyle}
                                     data={entryFeeData}
@@ -109,23 +160,24 @@ const EnterMatch = () => {
                                     autoScroll={false}
                                     itemTextStyle={styles.dropdownText}
                                     activeColor={theme.colors.tertiary}
-                                    placeholder={!isEfFocus ? '11' : `$${efValue}`}
-                                    value={efValue}
-                                    onFocus={() => setIsEfFocus(true)}
-                                    onBlur={() => setIsEfFocus(false)}
+                                    placeholder={!isEntryFeeFocus ? '11' : `$${entryFeeValue}`}
+                                    value={entryFeeValue}
+                                    onFocus={() => setIsEntryFeeFocus(true)}
+                                    onBlur={() => setIsEntryFeeFocus(false)}
                                     onChange={item => {
-                                        setEfValue(item.value);
-                                        setIsEfFocus(false);
+                                        setEntryFeeValue(item.value);
+                                        setIsEntryFeeFocus(false);
                                     }}
                                 />
                             </View>
                             <View style={styles.dropdownCollection}>
                                 <Dropdown
-                                    style={[styles.dropdown, isTfFocus && { borderColor: activeAccent }]}
+                                    style={[styles.dropdown, isTimeframeFocus && { borderColor: activeAccent }]}
                                     placeholderStyle={styles.placeholderStyle}
                                     selectedTextStyle={styles.selectedTextStyle}
                                     data={timeFrameData}
                                     containerStyle={styles.itemsContainer}
+                                    itemContainerStyle={styles.item}
                                     dropdownPosition='bottom'
                                     showsVerticalScrollIndicator={false}
                                     iconStyle={styles.iconStyle}
@@ -135,19 +187,19 @@ const EnterMatch = () => {
                                     autoScroll={false}
                                     itemTextStyle={styles.dropdownText}
                                     activeColor={theme.colors.tertiary}
-                                    placeholder={!isTfFocus ? '15m' : tfValue}
-                                    value={tfValue}
-                                    onFocus={() => setIsTfFocus(true)}
-                                    onBlur={() => setIsTfFocus(false)}
+                                    placeholder={!isTimeframeFocus ? '15m' : timeframeValue}
+                                    value={timeframeValue}
+                                    onFocus={() => setIsTimeframeFocus(true)}
+                                    onBlur={() => setIsTimeframeFocus(false)}
                                     onChange={item => {
-                                        setTfValue(item.value);
-                                        setIsTfFocus(false);
+                                        setTimeframeValue(item.value);
+                                        setIsTimeframeFocus(false);
                                     }}
                                 />
                             </View>
                             <View style={styles.dropdownCollection}>
                                 <Dropdown
-                                    style={[styles.dropdown, isSFocus && { borderColor: activeAccent }]}
+                                    style={[styles.dropdown, isTypeFocus && { borderColor: activeAccent }]}
                                     placeholderStyle={styles.placeholderStyle}
                                     selectedTextStyle={styles.selectedTextStyle}
                                     data={typeData}
@@ -161,13 +213,13 @@ const EnterMatch = () => {
                                     autoScroll={false}
                                     itemTextStyle={styles.dropdownText}
                                     activeColor={theme.colors.tertiary}
-                                    placeholder={!isSFocus ? 'Stock' : sValue}
-                                    value={sValue}
-                                    onFocus={() => setIsSFocus(true)}
-                                    onBlur={() => setIsSFocus(false)}
+                                    placeholder={!isTypeFocus ? 'Stock' : typeValue}
+                                    value={typeValue}
+                                    onFocus={() => setIsTypeFocus(true)}
+                                    onBlur={() => setIsTypeFocus(false)}
                                     onChange={item => {
-                                        setIsSFocus(false);
-                                        setSValue(item.value);
+                                        setIsTypeFocus(false);
+                                        setTypeValue(item.value);
                                     }}
                                 />
                             </View>
@@ -182,12 +234,12 @@ const EnterMatch = () => {
                     <View style={{ marginTop: 20, gap: 10 }}>
                         {ruleMessage("Match Rules", "With $100,000 in simulated buying power, trade stocks and achieve a greater return than your opponent to win.")}
                         {ruleMessage("Prize", "The prize pool is the sum of the entry fees minus 10% that goes to us so we can improve our platform and offer free-to-play tournaments.")}
-                        {ruleMessage("Matchmaking", `If you aren’t matched up or you cancel matchmaking before a match begins, your $${efValue} will be credited back to your account.`)}
+                        {ruleMessage("Matchmaking", `If you aren’t matched up or you cancel matchmaking before a match begins, your $${entryFeeValue} will be credited back to your account.`)}
                     </View>
                     <View style={{ flex: 1 }}></View>
                 </ScrollView>
-                <TouchableOpacity style={[globalStyles.primaryBtn, { marginBottom: 50, backgroundColor: activeAccent }]}>
-                    <Text style={globalStyles.primaryBtnText}>Enter Matchmaking (${efValue})</Text>
+                <TouchableOpacity onPress={() => handleEnterMatchmaking(entryFeeValue, timeframeValue, typeValue)} style={[globalStyles.primaryBtn, { marginBottom: 50, backgroundColor: activeAccent }]}>
+                    <Text style={globalStyles.primaryBtnText}>Enter Matchmaking (${entryFeeValue})</Text>
                 </TouchableOpacity>
             </View>
     );

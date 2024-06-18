@@ -89,6 +89,14 @@ const CommentPage = () => {
     }
   };
 
+  const commentInputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (commentInputRef.current) {
+      commentInputRef.current.focus(); // Focus the TextInput when the component mounts
+    }
+  }, []);
+
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -167,14 +175,15 @@ const CommentPage = () => {
         />
         <Animated.View style={[{flexDirection: 'row', marginBottom: 50, borderTopWidth: 1, borderColor: theme.colors.accent}, {marginBottom: animatedMargin}]}>
             <TextInput
-            placeholder="Comment something..."
-            placeholderTextColor={theme.colors.tertiary}
-            onChangeText={setCommentInput}
-            value={commentInput}
-            style={[styles.commentInputContainer, { flex: 1 }]}
-            selectionColor={theme.colors.accent}
-            maxLength={250}
-            multiline
+              ref={commentInputRef} 
+              placeholder="Comment something..."
+              placeholderTextColor={theme.colors.tertiary}
+              onChangeText={setCommentInput}
+              value={commentInput}
+              style={[styles.commentInputContainer, { flex: 1 }]}
+              selectionColor={theme.colors.accent}
+              maxLength={250}
+              multiline
             />
             {commentInput.length > 0 ? (
             <TouchableOpacity style={styles.postButton} onPress={confirmComment}>

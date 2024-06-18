@@ -16,6 +16,7 @@ import { upvotePost, downvotePost, setUpvoteStatus, setDownvoteStatus } from '..
 import { serverUrl } from '../../constants/global';
 import Voting from './Voting';
 import { Skeleton } from '@rneui/themed';
+import useUserDetails from '../../hooks/useUserDetails';
 
 
 interface PostProps extends PostType {
@@ -34,7 +35,7 @@ const Post = (props:any) => {
     const { width, height } = useDimensions();
     const styles = createFeedStyles(theme, width)
 
-    const userData = useSelector((state: any) => state.user.userData, shallowEqual);
+    const { userData } = useUserDetails();
     const dispatch = useDispatch();
 
     const navigation = useNavigation<any>();
@@ -63,18 +64,19 @@ const Post = (props:any) => {
     // Sets initial votes on rerender
     useEffect(() => {
         const setVote = async () => {
-        try {
-            console.log("userID:", userData.userID, " postId:", props.postId)
-            const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: userData.userID, postId: props.postId });
-            if (newVoteStatus.data.voteType === 'up') {
-                dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
-                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
-            } else if (newVoteStatus.data.voteType === 'down') {
-                dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
-                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
-            } else {
-                dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
-                dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+            try {
+                if (userData) {
+                const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: userData.userID, postId: props.postId });
+                if (newVoteStatus.data.voteType === 'up') {
+                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
+                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                } else if (newVoteStatus.data.voteType === 'down') {
+                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
+                } else {
+                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                }
             }
             setLoading(false)
         } catch (error) {
@@ -84,7 +86,7 @@ const Post = (props:any) => {
         };
 
         setVote();
-    }, [dispatch, props.postId, userData.userID]);
+    }, [dispatch, props.postId, userData?.userID]);
 
     const categoryButton = (category: string) => {
 
@@ -103,7 +105,7 @@ const Post = (props:any) => {
         )
     }
 
-    if (loading) {
+    if (loading && props.onComment == false) {
         return (
             <View style={styles.postsContainer}>
                 <View>
@@ -171,10 +173,10 @@ const Post = (props:any) => {
                 </View> 
                 <View style={styles.postBottomContainer}>
                     {/*Used to remake post on comment page without recalling db*/}
-                    <View style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10 }}>
+                    <TouchableOpacity  style={{flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10 }}>
                         <Icon name="comments" style={{color: theme.colors.secondaryText}} size={20}/>
                         <Text style={{color: theme.colors.secondaryText, fontSize: 14, fontWeight: 'bold'}}>{props.numComments}</Text>
-                    </View>
+                    </TouchableOpacity>
                     <View style={{flex: 1}}></View>
 
                     <Voting postId={props.postId}/>             

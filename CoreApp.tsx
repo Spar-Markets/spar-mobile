@@ -8,7 +8,7 @@ import Profile from './components/ProfileComponents/Profile';
 import { PlaidTheme } from './styles/style';
 import Home from './components/HomeComponents/Home';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import StockSearch from './components/StockSearch';
+import StockSearch from './components/StockComponents/StockSearch';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Bank from './components/Bank'

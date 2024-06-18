@@ -9,11 +9,12 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
 import HapticFeedback from "react-native-haptic-feedback";
+import useUserDetails from '../../hooks/useUserDetails';
 
 const Voting: React.FC<{ postId: string }> = ({ postId }) => {
   const dispatch = useDispatch();
   const post = useSelector((state: any) => state.posts.find((p: any) => p.postId === postId), shallowEqual);
-  const userData = useSelector((state: any) => state.user.userData, shallowEqual);
+  const { userData } = useUserDetails();
 
   const upvotePosition = useRef(new Animated.Value(0)).current;
   const downvotePosition = useRef(new Animated.Value(0)).current;
@@ -51,12 +52,12 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     }
     dispatch(upvotePost(post.postId));
     try {
-      const response = await axios.post(serverUrl + "/upvotePost", { userID: userData.userID, postId: post.postId });
+      const response = await axios.post(serverUrl + "/upvotePost", { userID: userData?.userID, postId: post.postId });
       console.log("Response:", response.data);
     } catch (error) {
       console.log("error upvoting in mongo", error);
     }
-  }, [animateButton, dispatch, post.isUpvoted, post.postId, upvotePosition, userData.userID]);
+  }, [animateButton, dispatch, post.isUpvoted, post.postId, upvotePosition, userData?.userID]);
 
   const downvote = useCallback(async () => {
     HapticFeedback.trigger("impactMedium", {
@@ -69,12 +70,12 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     }
     dispatch(downvotePost(post.postId));
     try {
-      const response = await axios.post(serverUrl + "/downvotePost", { userID: userData.userID, postId: post.postId });
+      const response = await axios.post(serverUrl + "/downvotePost", { userID: userData?.userID, postId: post.postId });
       console.log("Response:", response.data);
     } catch {
       console.log("error downvoting in mongo");
     }
-  }, [animateButton, dispatch, downvotePosition, post.isDownvoted, post.postId, userData.userID]);
+  }, [animateButton, dispatch, downvotePosition, post.isDownvoted, post.postId, userData?.userID]);
 
 
   return (

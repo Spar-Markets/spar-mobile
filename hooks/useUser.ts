@@ -16,6 +16,11 @@ interface UserData {
   username: string;
 }
 
+/**
+ * grabs user data from mongo
+ * @param userID 
+ * @returns 
+ */
 const useUserData = (userID?: string) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [error, setError] = useState<string | null>(null);

@@ -5,6 +5,10 @@ import {auth} from '../firebase/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import User from '../types/User';
 
+/**
+ * Used to log in to firebase and persistence
+ * @returns
+ */
 const useAuth = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);

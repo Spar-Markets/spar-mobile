@@ -78,7 +78,11 @@ const createHTHStyles = (theme: any, width: number) => {
     itemsContainer: {
         backgroundColor: theme.colors.primary,
         color: theme.colors.text,
-        marginTop: 10
+        marginTop: 10,
+        borderColor: theme.colors.tertiary
+    },
+    item: {
+        
     },
     iconStyle: {
         marginRight: 15,

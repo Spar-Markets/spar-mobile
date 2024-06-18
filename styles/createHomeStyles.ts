@@ -48,7 +48,7 @@ const createHomeStyles = (theme: any, width: number) => {
       width: '50%',
       height: '100%',
       backgroundColor: theme.colors.accent,
-      borderRadius: 7,
+      borderRadius: 10,
     },
     toggleButton: {
       flex: 1,
@@ -103,11 +103,10 @@ const createHomeStyles = (theme: any, width: number) => {
     // GameCard
     gameCardContainer: {
       backgroundColor: theme.colors.primary,
-      borderColor: theme.colors.border,
+      borderColor: theme.colors.tertiary,
       borderRadius: 10,
-      borderWidth: 1,
-      marginRight: 10,
-      width: (Dimensions.get('window').width - 40)/2 - 5,
+      borderWidth: 2,
+      width: (Dimensions.get('window').width - 40),
     },
     gameCardPlayerText: {
       color: theme.colors.text,
@@ -185,12 +184,11 @@ const createHomeStyles = (theme: any, width: number) => {
       borderRadius: 10,
       flexDirection: 'row',
       marginTop: 10,
-      paddingVertical: 10
+    
     },
     enterHTHMatchBtn: {
       height: 50,
       backgroundColor: theme.colors.accent,
-      marginHorizontal: 20,
       flex: 1, 
       borderRadius: 10,
       alignItems: 'center',
