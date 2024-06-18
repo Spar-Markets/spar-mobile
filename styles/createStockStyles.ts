@@ -77,7 +77,8 @@ const createStockSearchStyles = (theme: any, width: number) => {
     stockDetailsNameText: {
       color: theme.colors.secondaryText,
       fontWeight: 'bold',
-      fontSize: 14,
+      fontSize: 12,
+      maxWidth: width/2
     },
     stockPriceText: {
       color: theme.colors.text,
@@ -90,7 +91,43 @@ const createStockSearchStyles = (theme: any, width: number) => {
       fontSize: 12,
       fontWeight: 'bold',
       textAlign: 'right'
+    },
+    timeCardContainer: {
+      marginHorizontal: 20,
+      backgroundColor: 'blue',
+      height: 30,
+    },
+    timeButtonSelectedContainer: {
+      backgroundColor: '#1ae79c',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 50,
+      marginHorizontal: 4,
+      padding: 10
+    },
+    timeButtonSelectedText: {
+      color: '#111',
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      fontFamily: 'InterTight-Black',
+      fontSize: 15,
+    },
+    timeButtonContainer: {
+      backgroundColor: '#111',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 50,
+      marginHorizontal: 4,
+      padding: 10
+    },
+    timeButtonText: {
+      color: '#1ae79c',
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      fontFamily: 'InterTight-Black',
+      fontSize: 15,
     }
+
     
     
   });
