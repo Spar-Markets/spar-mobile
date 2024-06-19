@@ -94,31 +94,36 @@ const createStockSearchStyles = (theme: any, width: number) => {
     },
     timeCardContainer: {
       marginHorizontal: 20,
-      backgroundColor: 'blue',
-      height: 30,
+      backgroundColor: theme.colors.primary,
+      borderRadius: 10,
+      height: 48,
     },
     timeButtonSelectedContainer: {
       backgroundColor: '#1ae79c',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: 50,
+      borderRadius: 8,
       marginHorizontal: 4,
-      padding: 10
+      marginVertical: 4,
+      height: 40,
+      paddingHorizontal: 5
     },
     timeButtonSelectedText: {
-      color: '#111',
+      color: theme.colors.backgroundColor,
       paddingHorizontal: 10,
       paddingVertical: 5,
       fontFamily: 'InterTight-Black',
       fontSize: 15,
     },
     timeButtonContainer: {
-      backgroundColor: '#111',
+      backgroundColor: 'transparent',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: 50,
+      borderRadius: 8,
       marginHorizontal: 4,
-      padding: 10
+      marginVertical: 4,
+      height: 40,
+      paddingHorizontal: 5
     },
     timeButtonText: {
       color: '#1ae79c',

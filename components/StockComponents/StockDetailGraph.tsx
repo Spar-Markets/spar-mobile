@@ -9,7 +9,7 @@ import {
   useColorScheme,
   FlatList,
 } from 'react-native';
-import { CartesianChart, Line, useChartPressState } from 'victory-native';
+import { CartesianChart, Line, useAnimatedPath, useChartPressState, useLinePath, type PointsArray} from 'victory-native';
 import LinearGradient from 'react-native-linear-gradient';
 import getPrices from '../../utility/getPrices';
 import { useTheme } from '../ContextComponents/ThemeContext';
@@ -18,12 +18,12 @@ import createStockSearchStyles from '../../styles/createStockStyles';
 import { useAnimatedReaction, useDerivedValue, runOnJS, SharedValue, useSharedValue } from "react-native-reanimated";
 import HapticFeedback from "react-native-haptic-feedback";
 import debounce from 'lodash/debounce';
-import { Canvas, Rect, Text as SKText, useFont, TextAlign } from '@shopify/react-native-skia';
+import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint } from '@shopify/react-native-skia';
 import { GraphPoint } from 'react-native-graph';
 
 const StockDetailGraph = (props: any) => {
   const colorScheme = useColorScheme();
-  const [pointData, setPointData] = useState<GraphPoint[]>([]);
+  const [pointData, setPointData] = useState<any[]>([]);
   const [displayPrice, setDisplayPrice] = useState<number>();
   const [endPrice, setEndPrice] = useState<number>();
   const [formattedPointData, setFormattedPointData] = useState<any[]>([]);
@@ -41,203 +41,319 @@ const StockDetailGraph = (props: any) => {
   const [percentageAndValueDiff, setPercentageAndValueDiff] = useState("");
   const [currentColorAccent, setCurrentColorAccent] = useState<any>();
 
-  const [timeFrameSelected, setTimeFrameSelected] = useState('1D');
+  const [timeFrameSelected, setTimeFrameSelected] = useState<string>("1D");
+  const [allPointData, setAllPointData] = useState<any>(null)
 
-  const TimeButton = useCallback(({ timeFrame }:any) => (
+  const [panningGraph, setPanningGraph] = useState(false)
+
+  const [currentAccentColorValue, setCurrentAccentColorValue] = useState(theme.colors.stockUpAccent);
+
+  const TimeButton = ({ timeFrame, color }:any) => (
     <View>
       {timeFrameSelected == timeFrame ? (
         <TouchableOpacity
-          onPress={() => setTimeFrameSelected(timeFrame)}
-          style={styles.timeButtonSelectedContainer}>
+          style={[styles.timeButtonSelectedContainer, {backgroundColor: currentAccentColorValue}]}>
           <Text style={styles.timeButtonSelectedText}>{timeFrame}</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
-          onPress={() => setTimeFrameSelected(timeFrame)}
+          onPress={() => {
+            setTimeFrameSelected(timeFrame)
+            setPointData(allPointData[timeFrame])
+          }}
           style={styles.timeButtonContainer}>
-          <Text style={styles.timeButtonText}>{timeFrame}</Text>
+          <Text style={[styles.timeButtonText, {color: currentAccentColorValue}]}>{timeFrame}</Text>
         </TouchableOpacity>
       )}
     </View>
-  ), [timeFrameSelected, styles]);
+  );
 
   useEffect(() => {
-    const run = async () => {
-      const points = await getPrices(props.ticker, props.timeframe);
-      if (points) {
-        setPointData(points);
-        const lastValue = points[points.length - 1].value;
-        setEndPrice(lastValue);
+    const getPricesForSelectedTime = async () => {
+      const allPoints = await getPrices(props.ticker);
+      if (allPoints) {
+        setPointData(allPoints["1D"])
+        setAllPointData(allPoints)
       }
-    };
-
-    run();
-  }, [props.ticker, props.timeframe]);
+    }
+    getPricesForSelectedTime()
+    
+  }, [props.ticker]);
 
   useEffect(() => {
-    const formattedData = pointData.map((item: any, index: number) => ({
-      normalizedValue: item.value - pointData[0].value,
-      value: item.value,
-      index: index,
-      date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }));
-
-    console.log(formattedData)
-
-    const max = Math.max(...formattedData.map(item => item.normalizedValue));
-    const min = Math.min(...formattedData.map(item => item.normalizedValue));
-
-    setMaxY(max + 0.1 * max);
-    setMinY(min < 0 ? min + 0.1 * min : min - 0.1 * min);
-
-    if (formattedData.length > 0) {
-      const lastValue = formattedData[formattedData.length - 1].value;
-      setDisplayPrice(lastValue);
-      const percentageDiff = ((100 * (lastValue - formattedData[0].value) / lastValue)).toFixed(2);
-      const valueDiff = (lastValue - formattedData[0].value).toFixed(2);
-      setPercentageAndValueDiff(`$${valueDiff} (${percentageDiff}%)`);
+    if (allPointData) {
+      setDataLoading(false);
+    } else {
+      setDataLoading(true);
     }
-    setFormattedPointData(formattedData);
-    setDataLoading(false);
-  }, [pointData]);
+  }, [allPointData, timeFrameSelected]);
 
   const { state, isActive } = useChartPressState({ x: 0, y: { normalizedValue: 0 } });
 
   const currentIndex = useDerivedValue(() => {
-    const index = Math.round(state.x.position.value / width * formattedPointData.length);
-    return Math.min(Math.max(index, 0), formattedPointData.length - 1);
-  });
+    const index = Math.round(state.x.position.value / width * pointData.length);
+    return Math.min(Math.max(index, 0), pointData.length - 1);
+  }, [pointData, state]);
 
-  const updateDisplayPrice = (index: number) => {
-    if (formattedPointData[index]) {
-      const currentPrice = formattedPointData[index].value;
-      const newValue = Math.round(currentPrice * 100) / 100;
-      let displayPriceCandidate = newValue.toFixed(2);
 
-      setDisplayPrice(parseFloat(displayPriceCandidate));      
-    }
-  };
 
-  const calculteDifference = (index: number) => {
-
-    const currentPoint = formattedPointData[index];
-    const initialPoint = formattedPointData[0];
-
-    if (initialPoint.value === 0) {
-      console.error("Initial value is zero, cannot calculate percentage difference");
-      return;
-    }
-
-    const valueDiff = currentPoint.value - initialPoint.value;
-    const percentageDiff = (100 * (valueDiff / currentPoint.value)).toFixed(2);
-
-    setCurrentColorAccent(valueDiff < 0 ? theme.colors.stockDownAccent : theme.colors.stockUpAccent);
-
-    const formattedValueDiff = Math.abs(valueDiff).toFixed(2);
-    const result = `$${formattedValueDiff} (${percentageDiff}%)`;
-
-    setPercentageAndValueDiff(result);
-  }
-
-  const triggerHapticFeedback = () => {
-    HapticFeedback.trigger("impactSmall", {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    });
-  };
+  const [chartActive, setChartActive] = useState(false)
 
   useAnimatedReaction(
     () => currentIndex.value,
-    (index) => {
+    () => {
       if (isActive) {
-        //runOnJS(setSelectedTime)("• " + formattedPointData[index].date);
-        runOnJS(updateDisplayPrice)(index);
-        //runOnJS(triggerHapticFeedback)();
+        runOnJS(setChartActive)(!chartActive)
       } else {
-        //runOnJS(setSelectedTime)("");
-        runOnJS(updateDisplayPrice)(formattedPointData.length - 1);
+        runOnJS(setChartActive)(false)
       }
     }
   );
 
-  function ToolTip({ x, y }: { x: SharedValue<number>, y: SharedValue<number> }) {
+  function ToolTip({ x, y, color }: { x: SharedValue<number>, y: SharedValue<number>, color: any }) {
     return (
-      <Rect x={x} y={12} width={2} height={400} color={theme.colors.tertiary} />
+      <Group>
+        <Circle cx={x} cy={y} r={20} color={color} opacity={0.15} />
+        <Circle cx={x} cy={y} r={10} color={color} opacity={0.5} />
+        <Circle cx={x} cy={y} r={3} color={color}>
+          <Paint style="stroke" strokeWidth={2} color="white" />
+        </Circle>
+      </Group>
     );
   }
 
 
+  //graph and data aninmation funtions
 
-  /*function PriceDisplay({ x, y }: { x: SharedValue<number>, y: SharedValue<number>}) {
+  const normalizedPriceValue = useDerivedValue(() => {
+    return state.y.normalizedValue.value
+  }, [state])  
 
-    const priceFont = useFont(require("../../assets/fonts/InterTight-Black.ttf"), 24)
-
-    const priceValue = useDerivedValue(() => {
-      const price = "$" + state.y.normalizedValue.value.value.toFixed(2)
-      return price
-    }, [state])
-
-    const textWidth = 100
-
-
-    if (!priceFont) {
-      return null; // Handle case when font is not loaded
+  //gets percent difference based on array data
+  const animatedPercentDiff = useDerivedValue(() => {
+    if (pointData.length > 0) {
+      const percentDiff = ((pointData[currentIndex.value]?.value) - 
+      pointData[0].value) / Math.abs(pointData[0].value);
+      
+      return (100*percentDiff).toFixed(2)
     }
-    return (
-        <SKText x={width-textWidth} y={20} color={theme.colors.text} text={priceValue} font={priceFont}></SKText>
-    );
-  }*/
+    return "0.00"
+  }, [pointData]);
+
+  const totalPercentDiff = useDerivedValue(() => {
+    if (pointData.length > 0) {
+      const percentDiff = ((pointData[pointData.length-1]?.value) - 
+      pointData[0].value) / Math.abs(pointData[0].value)
+
+      return (100*percentDiff).toFixed(2)
+    }
+  }, [pointData])
+
+  const animatedValueDiff = useDerivedValue(() => {
+    if (pointData.length > 0) {
+      const valueDiff = ((pointData[currentIndex.value]?.value) - 
+      pointData[0].value)
+    
+      if (valueDiff < 0) {
+        return "-$" + Math.abs(valueDiff).toFixed(2) //formatting negative differences
+      } 
+      return "$" + Math.abs(valueDiff).toFixed(2)
+    }
+    return "0.00";
+  }, [pointData]);
+
+  const totalValueDiff = useDerivedValue(() => {
+    if (pointData.length > 0) {
+      const valueDiff = ((pointData[pointData.length-1]?.value) - 
+      pointData[0].value)
+    
+      if (valueDiff < 0) {
+        return "-$" + Math.abs(valueDiff).toFixed(2)
+      } 
+      return "$" + Math.abs(valueDiff).toFixed(2)
+    }
+    return "0.00";
+  }, [pointData]);
+
+  /*const currentAccentColor = useDerivedValue(() => {
+    if (isActive) {
+      if (parseFloat(animatedPercentDiff.value) >= 0) {
+        return theme.colors.stockUpAccent;
+      } else {
+        return theme.colors.stockDownAccent;
+      }
+    } else {
+      if (parseFloat(totalPercentDiff.value!) >= 0) {
+        return theme.colors.stockUpAccent;
+      } else {
+        return theme.colors.stockDownAccent;
+      }
+    }
+  }, [isActive, animatedPercentDiff, totalPercentDiff, theme.colors.stockUpAccent, theme.colors.stockDownAccent]);*/
+
+
+  const currentDate = useDerivedValue(() => {
+    if (pointData.length > 0) {
+      return " • " + pointData[currentIndex.value]?.date
+    }
+    return ""
+  }, [pointData, state])
+
+  const lastDate = useDerivedValue(() => {
+    if (pointData.length > 0) {
+      return " • " + pointData[pointData.length-1]?.date
+    }
+    return ""
+  }, [pointData, state])
   
 
-  const DATA = Array.from({ length: 50 }, (_, i) => ({
-    index: i,
-    value: 0
-  }));
+  const priceFontSize = 26
+  const priceFont = useFont(require("../../assets/fonts/InterTight-Black.ttf"), priceFontSize)
+
+  const percentValFontSize = 12
+  const percentValFont = useFont(require("../../assets/fonts/InterTight-Bold.ttf"), percentValFontSize)
+  
 
 
-  const tickerFont = useFont(require("../../assets/fonts/InterTight-Black.ttf"), 18)
+  useEffect(() => {
+    if (pointData.length != 0 ) {
+        if(props.liveprice !== pointData[pointData.length-1].value) {
+      } else {
+        console.log("loading")
+      }
+    }
+  }, [props.livePrice]);
 
-  if (formattedPointData)
+  const [onloadPercentDiff, setOnLoadPercentDiff] = useState("0.00");
+  const [onLoadValueDiff, setOnLoadValueDiff] = useState("0.00");
 
+  const calculatePercentAndValueDiffAndColor = useCallback(() => {
+    if (pointData.length > 0) {
+      const percentDiff =
+        ((pointData[pointData.length - 1]?.value || 0) - pointData[0].value) /
+        Math.abs(pointData[0].value);
+      const percentDiffValue = (100 * percentDiff).toFixed(2);
+      setOnLoadPercentDiff(percentDiffValue);
+  
+      const valueDiff =
+        (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
+  
+      if (valueDiff < 0) {
+        setOnLoadValueDiff("-$" + Math.abs(valueDiff).toFixed(2));
+        setCurrentAccentColorValue(theme.colors.stockDownAccent)
+      } else {
+        setOnLoadValueDiff("$" + Math.abs(valueDiff).toFixed(2));
+        setCurrentAccentColorValue(theme.colors.stockUpAccent)
+      }
+    } else {
+      setOnLoadPercentDiff("0.00");
+      setOnLoadValueDiff("0.00");
+    }
+  }, [pointData]);
+
+  useEffect(() => {
+    calculatePercentAndValueDiffAndColor();
+  }, [pointData, timeFrameSelected, calculatePercentAndValueDiffAndColor]);
+
+  
   return (
     <View>
       {!dataLoading && (
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 20, marginTop: 10 }}>
-            <Image source={{ uri: props.iconUrl }} onLoad={() => setImageLoading(false)} style={{ width: 40, height: 40, borderRadius: 50 }} />
+            <Image source={{ uri: props.iconUrl }} onLoad={() => setImageLoading(false)} style={{ width: 20, height: 20, borderRadius: 50 }} />
             <View>
               <Text style={styles.stockDetailsTickerText}>{props.ticker}</Text>
               {/* <Text style={styles.stockDetailsNameText}>{props.name}</Text> */}
             </View>
             <View style={{ flex: 1 }} />
-            <View>
+            {/*<View>
               <Text style={styles.stockPriceText}>${displayPrice?.toFixed(2)}</Text>
               <Text style={[styles.stockPercentText, { color: currentColorAccent }]}>{percentageAndValueDiff} {selectedTime}</Text>
-            </View>
+            </View>*/}
           </View>
 
-          <View style={{ height: 300, marginTop: 20, }}>
-      
-              <CartesianChart data={formattedPointData} xKey="index" yKeys={["normalizedValue"]}
-                domain={{ y: [minY, maxY], x: [0, formattedPointData.length] }} chartPressState={state}>
-                {({ points }) => (
-                  <>
-                    <Line points={points.normalizedValue} color={"red"} strokeWidth={2} animate={{ type: "timing", duration: 300 }} />
-                    {isActive && <ToolTip x={state.x.position} y={state.y.normalizedValue.position} />}
-                  </>
-                )}
-              </CartesianChart>
+          <View style={{ height: 400 }}>
+              {allPointData &&
+              <>
+                <View style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                }}>
+                  <CartesianChart data={pointData} xKey="index" yKeys={["normalizedValue"]}
+                    domain={{ y: 
+                    [
+                      /*Math.min(...formattedPointData.map(item => item.normalizedValue)) + 
+                      0.5 * Math.min(...formattedPointData.map(item => item.normalizedValue)),
+                      Math.max(...formattedPointData.map(item => item.normalizedValue)) +
+                      0.5*Math.max(...formattedPointData.map(item => item.normalizedValue))*/
+                      Math.min(...pointData.map(item => item.normalizedValue)) != 0 ? Math.min(...pointData.map(item => item.normalizedValue)) 
+                      - 0.3*(Math.max(...pointData.map(item => item.normalizedValue)) + Math.abs(Math.min(...pointData.map(item => item.normalizedValue)))) : -0.2*(Math.max(...pointData.map(item => item.normalizedValue))),
+                      Math.max(...pointData.map(item => item.normalizedValue))
+                    ], 
+                      x: [0, pointData.length] }} chartPressState={state}>
+                    {({ points }) => {
+                      
+                      // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
+                      const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
+                      const repeatedPoints = points.normalizedValue.map((point, index) => ({
+                        x: point.x, // Keep x as it is
+                        y: firstNormalizedPoint.y, // Set y to the first normalized point's y value
+                        xValue: 0,
+                        yValue: 0
+                      }));
+                      return (
+                      <>
+                        <Group>
+                        <SkiaText 
+                          text={isActive ? "$" + (normalizedPriceValue.value.value + pointData[0].value).toFixed(2) : "$" + (pointData[pointData.length-1].value).toFixed(2)}
+                          x={20}
+                          y={priceFontSize}
+                          font={priceFont}
+                          color={theme.colors.text}
+                        ></SkiaText>
+                        <SkiaText 
+                          text={isActive ? animatedValueDiff.value + " (" + animatedPercentDiff.value + "%)" + currentDate.value :
+
+                                onLoadValueDiff + " (" + onloadPercentDiff + "%)"  + lastDate.value
+                          }
+                          x={20}
+                          y={priceFontSize + percentValFontSize + 5}
+                          font={percentValFont}
+                          color={currentAccentColorValue}
+                          
+                        ></SkiaText>
+                        </Group>
+                        <Group transform={[{ translateY: priceFontSize + percentValFontSize + 20 }]}>
+                        <Line points={repeatedPoints} color={theme.colors.tertiary} 
+                        strokeWidth={2} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                        <Line points={points.normalizedValue} color={currentAccentColorValue} 
+                        strokeWidth={2} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                        {isActive && <ToolTip x={state.x.position} y={state.y.normalizedValue.position} color={currentAccentColorValue}/>}
+                        </Group>
+                      </>
+                      )
+                    
+                    }}
+                  </CartesianChart>
+                </View>
+
+                </>
+             }
             
           </View>
-
+          <View style={styles.timeCardContainer}>
           <FlatList
             horizontal
             data={['1D', '1W', '1M', '3M', 'YTD', '1Y', '5Y', 'MAX']}
-            renderItem={({ item }) => <TimeButton timeFrame={item} />}
+            renderItem={({ item }) => <TimeButton timeFrame={item} color={currentAccentColorValue}/>}
             keyExtractor={(item) => item}
-            contentContainerStyle={{ marginTop: 20, marginRight: 15, marginLeft: 15 }}
             showsHorizontalScrollIndicator={false}
-          />
+            />
+            </View>
         </View>
       )}
     </View>

@@ -39,7 +39,7 @@ const StockDetails = () => {
   const [ticker, setTicker] = useState('');
   const [timeFrameSelected, setTimeFrameSelected] = useState('1D');
   const [tickerData, setTickerData] = useState<any>(null);
-
+  const [livePrice, setPassingLivePrice] = useState<any>(null);
   const { theme } = useTheme();
   const { width, height } = useDimensions();
   const styles = createStockStyles(theme, width);
@@ -70,14 +70,7 @@ const StockDetails = () => {
     }
   };
 
-  // get params either in the expected format, or allow it to be undefined
-  const params = route.params as RouteParams | undefined;
-
-  console.log('stock details, params: ' + params?.matchID);
-
-  useEffect(() => {
-    const ticker = String(params?.ticker);
-
+  const setupSocket = async (ticker: any) => {
     const ws = new WebSocket('wss://music-api-grant.fly.dev');
 
     ws.onopen = () => {
@@ -87,6 +80,7 @@ const StockDetails = () => {
 
     ws.onmessage = event => {
       console.log(`Received message: ${event.data}`);
+      setPassingLivePrice(event.data)
     };
 
     ws.onerror = error => {
@@ -103,7 +97,20 @@ const StockDetails = () => {
         console.log('Closed websocket connection due to page closing');
       }
     };
+  }
+
+
+  // get params either in the expected format, or allow it to be undefined
+  const params = route.params as RouteParams | undefined;
+
+  console.log('stock details, params: ' + params?.matchID);
+
+
+  useEffect(() => {
+    setupSocket(params?.ticker)
+
   }, []);
+
 
   useEffect(() => {
     NativeModules.StatusBarManager.getHeight(
@@ -199,12 +206,12 @@ const StockDetails = () => {
 
   return (
     <View style={{backgroundColor: '#111', flex: 1}}>
+      <View style={styles.stockDetailsContainer}>
+      <PageHeader text={"Stock Details"}></PageHeader>
       {tickerData != null && params != undefined ? (
-        <View style={styles.stockDetailsContainer}>
-          <PageHeader text={"Stock Details"}></PageHeader>
           <ScrollView style={{}} showsVerticalScrollIndicator={false}>
             <View style={{height: 200}}>
-              <StockDetailGraph ticker={ticker} timeframe={timeFrameSelected} iconUrl={tickerData.detailsResponse.results.branding.icon_url + "?apiKey=vLyw12bgkKE1ICVMl72E4YBpJwpmmCwh"} name={tickerData.detailsResponse.results.name}/>
+              <StockDetailGraph ticker={ticker} livePrice={livePrice} timeframe={timeFrameSelected} iconUrl={tickerData.detailsResponse.results.branding.icon_url + "?apiKey=vLyw12bgkKE1ICVMl72E4YBpJwpmmCwh"} name={tickerData.detailsResponse.results.name}/>
             </View>
             {/*<ScrollView
               horizontal={true}
@@ -417,85 +424,10 @@ const StockDetails = () => {
                 ))}
             </View>*/}
           </ScrollView>
-
-          {params.tradable == true ? (
-            <View
-              style={{
-                backgroundColor: '#111',
-                marginBottom: 50,
-                display: 'flex',
-                flexDirection: 'row',
-                gap: 10,
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('StockOrder', {
-                    ticker: params.ticker,
-                    matchID: params.matchID,
-                    tradeType: 'Buy',
-                    buyingPower: params.buyingPower,
-                  });
-                }}
-                style={{flex: 1}}>
-                <LinearGradient
-                  colors={['#1ae79c', '#13ad75', '#109464']}
-                  style={{
-                    borderColor: '#13ad75',
-                    borderWidth: 2,
-                    width: '100%',
-                    borderRadius: 12,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: 75,
-                  }}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 20,
-                      fontFamily: 'InterTight-Black',
-                    }}>
-                    Buy
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('StockOrder', {
-                    ticker: params.ticker,
-                    matchID: params.matchID,
-                    tradeType: 'Sell',
-                  });
-                }}
-                style={{flex: 1}}>
-                <LinearGradient
-                  colors={['#FFFFFF', '#FFFFFF', '#FFFFFF']}
-                  style={{
-                    borderColor: '#FFFFFF',
-                    borderWidth: 2,
-                    width: '100%',
-                    borderRadius: 12,
-                    height: 75,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      color: '#000',
-                      fontSize: 20,
-                      fontFamily: 'InterTight-Black',
-                    }}>
-                    Sell
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View> 
-          ) : (
-            <View></View>
-          )}
-        </View>
       ) : (
         <View></View>
       )}
+      </View>
     </View>
   );
 };

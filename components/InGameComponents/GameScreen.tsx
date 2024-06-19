@@ -18,7 +18,7 @@ import PositionCard from './PositionCard';
 import LinearGradient from 'react-native-linear-gradient';
 import {act} from 'react-test-renderer';
 
-const socket = new WebSocket('wss://music-api-grant.fly.dev');
+const socket = new WebSocket('wss://music-api-grant.fly.dev/');
 
 const GameScreen = () => {
   const navigation = useNavigation<any>();
@@ -116,7 +116,7 @@ const GameScreen = () => {
   // this is to get the live portfolio value
   useEffect(() => {
     if (activeMatchID != null) {
-      const ws = new WebSocket('wss://music-api-grant.fly.dev');
+      const ws = socket;
 
       ws.onopen = () => {
         console.log('Connected to server');
