@@ -14,6 +14,7 @@ interface UserData {
   skillRating: Number
   userID: string;
   username: string;
+  watchedStocks: [string]
 }
 
 /**

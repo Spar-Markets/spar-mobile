@@ -11,9 +11,9 @@ const StockCard = (props: any) => {
   const [percentChange, setPercentChange] = useState(0.0);
   const [recentPrice, setRecentPrice] = useState(0.0);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const run = async () => {
-      const points = await getPrices(props.ticker, '1D');
+      const points = await getPrices(props.ticker);
       if (points != undefined) {
         setPointData(points);
         setRecentPrice(points[points.length - 1].value);
@@ -21,7 +21,7 @@ const StockCard = (props: any) => {
     };
 
     run();
-  }, [props.ticker]);
+  }, [props.ticker]);*/
 
   return (
     <View>

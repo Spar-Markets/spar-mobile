@@ -94,13 +94,6 @@ const StockSearch = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Discover</Text>
-        <View style={{ flex: 1 }} />
-        <TouchableOpacity>
-          <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
-          <Icon name="bars" style={styles.icon} size={24} />
-        </TouchableOpacity>
       </View>
       <TextInput
         style={styles.searchBox}
@@ -116,6 +109,7 @@ const StockSearch = () => {
                 fontFamily: 'InterTight-Black',
                 color: 'white',
                 fontSize: 14,
+                marginLeft: 5
               }}>
               Explore by Category
             </Text>

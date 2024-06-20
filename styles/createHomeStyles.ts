@@ -78,7 +78,7 @@ const createHomeStyles = (theme: any, width: number) => {
       width: '100%',
       backgroundColor: theme.colors.primary,
       borderRadius: 10,
-      borderColor: theme.colors.border,
+      borderColor: theme.colors.tertiary,
       borderWidth: 1,
       flexDirection: 'row',
       justifyContent: 'center',
@@ -256,7 +256,8 @@ const createHomeStyles = (theme: any, width: number) => {
     depositsContainer: {
       backgroundColor: theme.colors.background,
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      paddingTop: 10
     },
     balance: {
       color: theme.colors.text,

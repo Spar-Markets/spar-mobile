@@ -23,6 +23,10 @@ const createGlobalStyles = (theme: any, width: number) => {
         position: 'absolute',
         left: 10
     },
+    headerRightBtn: {
+        position: 'absolute',
+        right: 10
+    },
     primaryBtn: {
         height: 50,
         backgroundColor: theme.colors.accent,
@@ -37,6 +41,7 @@ const createGlobalStyles = (theme: any, width: number) => {
         color: theme.colors.background,
         marginLeft: 20,
     }, 
+
 
   });
 };

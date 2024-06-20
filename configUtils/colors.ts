@@ -44,7 +44,7 @@ export const lightColors = {
         tertiary: '#939393',
         background: '#ffffff',
         border: '#fff',
-        accent: '#44B492', //most buttons
+        accent: '#08a677', //most buttons
         accent2: '#d3d3d3', //border, some buttons
         text: '#000000', 
         secondaryText: '#909090',
@@ -52,7 +52,7 @@ export const lightColors = {
         notification : '#dd0000',
         tertiaryText: '#ffffff',
         opposite: '#000000',
-        stockUpAccent: '#60FFCF',
+        stockUpAccent: '#08a677',
         optionsUpAccent: '#6DFF60',
         cryptoUpAccent: '#60ECFF',
         stockDownAccent: '#FF6060',

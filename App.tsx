@@ -33,6 +33,7 @@ import useAuth from './hooks/useAuth';
 import LoginScreen from './components/OnboardComponents/LoginScreen';
 import Menu from './components/GlobalComponents/Menu';
 import SplashScreen from './components/OnboardComponents/SplashScreen';
+import WebViewScreen from './components/GlobalComponents/WebViewScreen';
 
 
 
@@ -146,6 +147,11 @@ const AppContent = (): React.ReactElement => {
               gestureEnabled: true,
               gestureDirection: 'horizontal',
             }}
+          />
+          <Stack.Screen
+            name="WebViewScreen"
+            component={WebViewScreen}
+            options={{headerShown: false}}
           />
         </Stack.Navigator>
       </NavigationContainer>

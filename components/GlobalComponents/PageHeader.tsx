@@ -21,6 +21,7 @@ const PageHeader = (props:any) => {
             <Icon name="chevron-left" style={{marginRight: 20, color: theme.colors.opposite}} size={24}/>
         </TouchableOpacity>}
         <Text style={styles.headerText}>{props.text}</Text>
+        
     </View>
     )
 }

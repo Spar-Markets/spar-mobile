@@ -15,6 +15,8 @@ import useUserDetails from '../../hooks/useUserDetails';
 import GameCard from './GameCard';
 import GameCardSkeleton from './GameCardSkeleton';
 import { serverUrl } from '../../constants/global';
+import StockCard from '../StockComponents/StockCard';
+
 
 const { width } = Dimensions.get('window');
 
@@ -50,6 +52,7 @@ const Home: React.FC = () => {
   const [username, setUsername] = useState("");
   const [matchData, setMatchData] = useState<MatchData[]>([]);
   const [userID, setUserID] = useState("");
+  const [watchedStocks, setWatchedStocks] = useState<String[]>([])
 
   const dispatch = useDispatch();
   const { userData } = useUserDetails();
@@ -62,6 +65,7 @@ const Home: React.FC = () => {
       const response = await axios.post(serverUrl + '/getUserMatches', { userID });
       console.log('Matches1: ', response.data);
       setActiveMatches(response.data);
+      setLoading(false)
     } catch (error) {
       console.error('Error fetching matches:', error);
     }
@@ -127,7 +131,16 @@ const Home: React.FC = () => {
     navigation.push('Feed');
   };
 
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
+    if (userData) {
+      setWatchedStocks(userData.watchedStocks)
+    }
+  }, [userData])
+
+  useEffect(() => {
+    setLoading(true)
     const getUserID = async () => {
       const userID = await AsyncStorage.getItem("userID");
       setUserID(userID!);
@@ -172,6 +185,12 @@ const Home: React.FC = () => {
     day: i,
     highTmp: 40 + 30 * Math.random(),
   }));
+
+  if (loading) {
+    return (
+      <View></View>
+    )
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -252,6 +271,27 @@ const Home: React.FC = () => {
             <Text style={{ color: theme.colors.text, fontSize: 18, marginLeft: 5 }}>Discover Spar</Text>
             <DiscoverCard title={"Referral Program"} image={require("../../assets/images/referralIcon.png")} message={"Refer your friend to Spar, and when they sign up and play a match, you get $5"} />
             <DiscoverCard title={"Spar Tutorials"} image={require("../../assets/images/tutorialsIcon.png")} message={"Learn about the functionality of Spar and develop your Spar skills to succeed"} />
+          </View>
+          <View style={{ marginTop: 20, gap: 7 }}>
+            <Text style={{ color: theme.colors.text, fontSize: 18, marginLeft: 5 }}>Watchlists</Text>
+            {watchedStocks.map((ticker, index) => {
+            if (index % 2 === 0) {
+              return (
+              <View key={index} style={{ flexDirection: 'row' }}>
+                <View style={{ width: (width-47)/2 }}>
+                  <StockCard ticker={watchedStocks[index]} />
+                </View>
+                <View style={{ flex: 1 }}></View>
+                {watchedStocks[index + 1] && (
+                  <View style={{ width: (width-47)/2 }}>
+                    <StockCard ticker={watchedStocks[index + 1]} />
+                  </View>
+                )}
+              </View>
+              );
+            }
+            return null; // Return null for odd indices as they are already handled in the even case
+            })}
           </View>
         </ScrollView>
       </View>

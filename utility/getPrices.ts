@@ -2,7 +2,7 @@ import {GraphPoint} from 'react-native-graph';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
 
-const getPrices = async (ticker: string) => {
+const getPrices = async (ticker: string, isOneDayData: boolean) => {
     try {
       interface TickerPricestamp {
         price: number;
@@ -11,7 +11,7 @@ const getPrices = async (ticker: string) => {
       console.log("getprices", ticker)
       const response = await axios.post(
         serverUrl + '/getMostRecentOneDayPrices',
-        {ticker: String(ticker)}
+        {ticker: String(ticker), isOneDayData: isOneDayData}
       )
       
      
@@ -31,14 +31,22 @@ const getPrices = async (ticker: string) => {
         }
 
         if (response && response.data) {
-          const oneDayData: TickerPricestamp[] = response.data["1D"][ticker];
-          const oneWeekData: TickerPricestamp[] = response.data["1W"][ticker];
-          
-          // Map the data to the format expected by the graphing library
-          const oneDayFormattedData = formatData(oneDayData)
-          const oneWeekFormattedData = formatData(oneWeekData)
+         
+          const timeframes = ["1D", "1W", "1M", "3M", "YTD", "1Y", "5Y"];
 
-          return {"1D":oneDayFormattedData,"1W":oneWeekFormattedData}
+          const result:any = {}
+
+          if (isOneDayData != true) {
+            for (const timeframe of timeframes) {
+              result[timeframe] = formatData(response.data[timeframe][ticker]);
+            }
+          } else {
+              result["1D"] = formatData(response.data["1D"][ticker])
+          }
+
+         // return {"1D":oneDayFormattedData,"1W":oneWeekFormattedData, "1M":oneMonthFormattedData}
+         
+         return result
 
         }
       

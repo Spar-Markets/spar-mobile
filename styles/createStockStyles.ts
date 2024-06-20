@@ -17,7 +17,8 @@ const createStockSearchStyles = (theme: any, width: number) => {
         fontSize: 14,
         fontWeight: 'bold',
         marginHorizontal: 20,
-        marginVertical: 10,
+        marginTop:5,
+        marginBottom: 10,
         backgroundColor: theme.colors.primary,
         borderRadius: 10,
         paddingLeft: 10,
@@ -38,13 +39,14 @@ const createStockSearchStyles = (theme: any, width: number) => {
     headerText: {
       color: theme.colors.text,
       fontSize: 24,
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      marginLeft: 5
     },
     profilePic: {
       borderRadius: 100
     },
     icon: {
-      color: theme.colors.text
+      color: theme.colors.secondaryText
     },
     searchCard: {
       marginHorizontal: 20,
@@ -72,7 +74,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
     stockDetailsTickerText: {
       color: theme.colors.text,
       fontWeight: 'bold',
-      fontSize: 20,
+      fontSize: 25,
     },
     stockDetailsNameText: {
       color: theme.colors.secondaryText,
@@ -93,8 +95,6 @@ const createStockSearchStyles = (theme: any, width: number) => {
       textAlign: 'right'
     },
     timeCardContainer: {
-      marginHorizontal: 20,
-      backgroundColor: theme.colors.primary,
       borderRadius: 10,
       height: 48,
     },
@@ -109,7 +109,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
       paddingHorizontal: 5
     },
     timeButtonSelectedText: {
-      color: theme.colors.backgroundColor,
+      color: theme.colors.background,
       paddingHorizontal: 10,
       paddingVertical: 5,
       fontFamily: 'InterTight-Black',
@@ -131,7 +131,101 @@ const createStockSearchStyles = (theme: any, width: number) => {
       paddingVertical: 5,
       fontFamily: 'InterTight-Black',
       fontSize: 15,
+    },
+    subjectLabel: {
+      color: theme.colors.text,
+      fontSize: 20,
+      fontWeight: 'bold',
+    },
+    overviewText: {
+      color: theme.colors.text,
+      fontSize: 14,
+      marginTop: 5
+    },
+    showMoreButtonText: {
+      color: theme.colors.secondaryText,
+      fontWeight: 'bold',
+    },
+    statType: {
+      color: theme.colors.secondaryText,
+      fontSize: 14
+    },
+    statData: {
+      color: theme.colors.text,
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginLeft: 1
+    },
+    newsCardContainer: {
+      backgroundColor: theme.colors.primary,
+      width: 250,
+      height: 200,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: theme.colors.tertiary
+    },
+    newsTitle: {
+      color: theme.colors.text,
+      fontSize: 14,
+      marginHorizontal: 15,
+      fontWeight: 'bold',
+      marginTop: 10
+    },
+    bottomContainer: {
+      flexDirection: 'row',
+      marginHorizontal: 15,
+      marginBottom: 15
+    },
+    bottomText: {
+      color: theme.colors.secondaryText,
+      fontSize: 13,
+      fontWeight: 'bold'
+    },
+    headerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: 10,
+    },
+    headerRightBtn: {
+      position: 'absolute',
+      right: 0,
+      paddingHorizontal: 10,
+      paddingVertical: 10
+    },
+    headerBackBtn: {
+      position: 'absolute',
+      left: 0,
+      paddingLeft: 10,
+      paddingRight: 50,
+      paddingVertical: 10
+    },
+    stockCardContainer: {
+      backgroundColor: theme.colors.primary,
+      height: 120,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: theme.colors.tertiary
+    },
+    stockCardTicker: {
+      color: theme.colors.text,
+      fontSize: 15,
+      fontWeight: 'bold'
+    },
+    stockCardValue: {
+      color: theme.colors.text,
+      fontSize: 13,
+      fontWeight: 'bold',
+      textAlign: 'right'
+    },
+    stockCardDiff: {
+      color: theme.colors.stockUpAccent,
+      fontSize: 11,
+      fontWeight: 'bold',
+      textAlign: 'right'
     }
+
+
 
     
     

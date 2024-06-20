@@ -138,7 +138,7 @@ const GameCard = (props: any) => {
   return (
     <TouchableOpacity style={styles.gameCardContainer}>
       {loading ? (
-        <GameCardSkeleton />
+        <View></View>
       ) : (
         <>
           <View style={{ flexDirection: 'row' }}>

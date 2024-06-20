@@ -19,6 +19,12 @@ import PageHeader from '../GlobalComponents/PageHeader';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockStyles from '../../styles/createStockStyles';
+import NewsCard from './NewsCard';
+import timeAgo from '../../utility/timeAgo';
+import { Skeleton } from '@rneui/base';
+import { useSelector } from 'react-redux';
+import useUserDetails from '../../hooks/useUserDetails';
+
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
@@ -43,6 +49,12 @@ const StockDetails = () => {
   const { theme } = useTheme();
   const { width, height } = useDimensions();
   const styles = createStockStyles(theme, width);
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  const { userData } = useUserDetails()
+
+  const [loading, setLoading] = useState(true)
+  const [isWatchingStock, setIsWatchingStock] = useState<any>(null)
 
   function formatLargeNumber(number: number) {
     if (number >= 1e12) {
@@ -57,18 +69,6 @@ const StockDetails = () => {
       return number.toString();
     }
   }
-
-  const handlePress = async (url: string) => {
-    // Checking if the link is supported for links with custom schemes (e.g., "https")
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      // Opening the link
-      await Linking.openURL(url);
-    } else {
-      console.error("Don't know how to open URI: " + url);
-    }
-  };
 
   const setupSocket = async (ticker: any) => {
     const ws = new WebSocket('wss://music-api-grant.fly.dev');
@@ -99,133 +99,191 @@ const StockDetails = () => {
     };
   }
 
-
   // get params either in the expected format, or allow it to be undefined
   const params = route.params as RouteParams | undefined;
 
-  console.log('stock details, params: ' + params?.matchID);
+  const checkIfStockIsWatched = async () => {
+    try {
+        const response = await axios.post(serverUrl + '/isWatchedStock', {
+          userID: userData?.userID,
+          ticker: params?.ticker,
+        });
+        console.log("STOCK CONSOLE LOG:", response.data)
+        console.log("USERID:", userData?.userID)
+        console.log("TICKER IN WATCH:", params?.ticker)
+        setIsWatchingStock(response.data);
+    } catch(error) {
+      console.log('ERROR CHECKING IF STOCK IN WATCHLIST:', error);
+    }
+  };
 
 
   useEffect(() => {
     setupSocket(params?.ticker)
-
   }, []);
 
 
   useEffect(() => {
-    NativeModules.StatusBarManager.getHeight(
-      (response: {height: React.SetStateAction<number>}) => {
-        setStatusBarHeight(response.height);
-      },
-    );
-
-    console.log(params);
-
-    // update ticker state with the passed in ticker from the route.
-    // set it to empty string if no ticker provided or undefined.
-    setTicker(params?.ticker || '');
-
-    const getData = async () => {
-      console.log(params?.ticker);
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const tickerResponse = await axios.post(
-          serverUrl + '/getTickerDetails',
-          {ticker: params?.ticker},
-        );
-        console.log('ticker response data;', tickerResponse.data);
-        console.log(
-          'ticker response details:',
-          tickerResponse.data.detailsResponse,
-        );
-        console.log(
-          'ticker response price details:' + tickerResponse.data.priceDetails,
-        );
-        console.log('ticker response news:' + tickerResponse.data.news.results);
-
+        await checkIfStockIsWatched()
+        const tickerResponse = await axios.post(serverUrl + '/getTickerDetails', {
+          ticker: params?.ticker,
+        });
         if (tickerResponse) {
-          // This sets all the data
           setTickerData(tickerResponse.data);
         }
       } catch {
         console.error('Error getting details in StockDetails.tsx');
+      } finally {
+        setLoading(false);
       }
     };
 
-    getData();
-  }, []);
+    if (userData?.userID) {
+      setTicker(params?.ticker || '');
+      fetchData();
+    }
+  }, [userData]);
 
-  const TimeButton = (timeFrame: string) => {
-    return (
-      <View>
-        {timeFrameSelected == timeFrame ? (
-          <TouchableOpacity
-            onPress={() => setTimeFrameSelected(timeFrame)}
-            style={{
-              backgroundColor: '#1ae79c',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 10,
-              marginHorizontal: 5,
-            }}>
-            <Text
-              style={{
-                color: '#111',
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                fontFamily: 'InterTight-Black',
-                fontSize: 15,
-              }}>
-              {timeFrame}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => setTimeFrameSelected(timeFrame)}
-            style={{
-              backgroundColor: '#111',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 10,
-              marginHorizontal: 5,
-            }}>
-            <Text
-              style={{
-                color: '#1ae79c',
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                fontFamily: 'InterTight-Black',
-                fontSize: 15,
-              }}>
-              {timeFrame}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    );
-  };
+  useEffect(() => {
+    if (tickerData != null && isWatchingStock != null) {
+      console.log("FINAL USE EFFECT STOCK:", isWatchingStock)
+      setLoading(false)
+    } else {
+      setLoading(true)
+    }
+  }, [isWatchingStock])
+
+  const toggleWatchStock = async () => {
+    try {
+      setIsWatchingStock(!isWatchingStock)
+      if (isWatchingStock) {
+        const watchStockResponse = await axios.post(serverUrl+"/unwatchStock", 
+          {userID: userData?.userID, ticker: tickerData.detailsResponse.results.ticker})
+        console.log(watchStockResponse.data)
+      } else {
+        const watchStockResponse = await axios.post(serverUrl+"/watchStock", 
+          {userID: userData?.userID, ticker: tickerData.detailsResponse.results.ticker})
+        console.log(watchStockResponse.data)
+      }
+    } catch {
+      console.log("error watching stock")
+    }
+  }
 
   return (
     <View style={{backgroundColor: '#111', flex: 1}}>
+      {!loading && 
       <View style={styles.stockDetailsContainer}>
-      <PageHeader text={"Stock Details"}></PageHeader>
-      {tickerData != null && params != undefined ? (
-          <ScrollView style={{}} showsVerticalScrollIndicator={false}>
-            <View style={{height: 200}}>
-              <StockDetailGraph ticker={ticker} livePrice={livePrice} timeframe={timeFrameSelected} iconUrl={tickerData.detailsResponse.results.branding.icon_url + "?apiKey=vLyw12bgkKE1ICVMl72E4YBpJwpmmCwh"} name={tickerData.detailsResponse.results.name}/>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
+              <Icon name="chevron-left" style={{color: theme.colors.opposite}} size={24}/>
+          </TouchableOpacity>
+          {tickerData != null && params != undefined ? 
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 10 }}>
+            <Text style={styles.stockDetailsTickerText}>{tickerData.detailsResponse.results.ticker}</Text>
+            <Image source={{ uri: tickerData.detailsResponse.results.branding.icon_url + "?apiKey=vLyw12bgkKE1ICVMl72E4YBpJwpmmCwh" }} /*onLoad={() => setImageLoading(false)}*/ style={{ width: 25, height: 25, borderRadius: 59 }} />
+          </View> : <View></View>}
+          {isWatchingStock  ? 
+          <TouchableOpacity style={styles.headerRightBtn} onPress={toggleWatchStock}>
+              <Icon name="star" style={{color: "#fac61e"}} size={28}/> 
+          </TouchableOpacity> : 
+          <TouchableOpacity style={styles.headerRightBtn} onPress={toggleWatchStock}>
+              <Icon name="star-o" style={{color: theme.colors.opposite}} size={28}/>
+          </TouchableOpacity>}
+        </View>
+          {tickerData != null && params != undefined ? (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View>
+              <StockDetailGraph ticker={ticker} livePrice={livePrice} timeframe={timeFrameSelected}/>
             </View>
-            {/*<ScrollView
-              horizontal={true}
-              style={{marginTop: 20, marginRight: 15, marginLeft: 15}}
-              showsHorizontalScrollIndicator={false}>
-              {TimeButton('1D')}
-              {TimeButton('1W')}
-              {TimeButton('1M')}
-              {TimeButton('3M')}
-              {TimeButton('YTD')}
-              {TimeButton('1Y')}
-              {TimeButton('5Y')}
-              {TimeButton('MAX')}
-              </ScrollView>*/}
+            <View style={{marginHorizontal: 25, marginTop: 10}}>
+              <Text style={styles.subjectLabel}>Overview</Text>
+              <Text style={styles.overviewText}>
+                {isExpanded
+                  ? tickerData.detailsResponse.results.description
+                  : `${tickerData.detailsResponse.results.description.substring(0, 200)}...`}
+              </Text>
+              <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)} style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={styles.showMoreButtonText}>
+                  {isExpanded ? 'Show Less' : 'Show More'}
+                </Text>
+                {isExpanded ? <Icon name="caret-up" style={[styles.icon, { marginLeft: 5 }]} size={18}/> :
+                <Icon name="caret-down" style={[styles.icon, { marginLeft: 5 }]} size={18} />}
+              </TouchableOpacity>
+            </View>
+            <View style={{marginTop: 15, marginHorizontal: 25}}>
+              <Text style={styles.subjectLabel}>Statistics</Text>
+              <View style={{flexDirection: 'row', marginTop: 5}}>
+                <View style={{flex: 0.7, gap: 10}}>
+                  <View>
+                    <Text style={styles.statType}>Open</Text>
+                    <Text style={styles.statData}>${tickerData.priceDetails.open}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.statType}>Today's High</Text>
+                    <Text style={styles.statData}>${tickerData.priceDetails.high}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.statType}>Today's Low</Text>
+                    <Text style={styles.statData}>${tickerData.priceDetails.low}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.statType}>Today's Volume</Text>
+                    <Text style={styles.statData}>{formatLargeNumber(tickerData.priceDetails.volume)}</Text>
+                  </View>
+                </View>
+                <View style={{gap: 10}}>
+                  <View>
+                    <Text style={styles.statType}>Market Cap</Text>
+                    <Text style={styles.statData}>${formatLargeNumber(tickerData.detailsResponse.results.market_cap)}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.statType}>52 Wk High</Text>
+                    <Text style={styles.statData}></Text>
+                  </View>
+                  <View>
+                    <Text style={styles.statType}>52 Wk Low</Text>
+                    <Text style={styles.statData}></Text>
+                  </View>
+                  <View>
+                    <Text style={styles.statType}>Avg. Volume</Text>
+                    <Text style={styles.statData}></Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+            <View style={{marginTop: 20, paddingBottom: 50}}>
+              <View style={{flexDirection:'row', alignItems: 'center', marginRight: 20}}>
+                <Text style={[styles.subjectLabel, {marginLeft: 25}]}>News</Text>
+                <View style={{flex: 1}}></View>
+                <TouchableOpacity style={{paddingVertical: 5, paddingLeft: 10}}>
+                  <Text style={styles.showMoreButtonText}>View More</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                <View style={{flexDirection: 'row', paddingLeft: 20}}>
+                {tickerData.news.results
+                .slice(0, 3)
+                .map((item: any, index: any) => (
+                  <View key={index} style={{marginTop: 10, marginRight: 10}}>
+                    {item && 'title' in item && 'publisher' in item && (
+                      <NewsCard 
+                        publisherName={item.publisher.name}
+                        title={item.title}
+                        article_url={item.article_url}
+                        image_url={item.image_url}
+                        timeAgo={timeAgo(new Date(item.published_utc))}
+                      />
+                    )}
+                  </View>
+                ))}
+                </View>
+              </ScrollView>
+            </View>
+
 
             {/*<View>
               <View>
@@ -379,55 +437,13 @@ const StockDetails = () => {
                 }}>
                 News
               </Text>
-              {tickerData.data.news.results
-                .slice(0, 3)
-                .map((item: any, index: any) => (
-                  <View key={index} style={{marginHorizontal: 15}}>
-                    {item && 'title' in item && 'publisher' in item && (
-                      <TouchableOpacity
-                        onPress={() => handlePress(item.article_url)}>
-                        <View style={{flexDirection: 'row', gap: 30}}>
-                          <View style={{flex: 1}}>
-                            <Text
-                              style={{
-                                color: '#fff',
-                                fontFamily: 'InterTight-Bold',
-                                fontSize: 11,
-                              }}>
-                              {item.publisher.name}
-                            </Text>
-                            <View style={{}}>
-                              <Text
-                                style={{
-                                  color: '#fff',
-                                  fontFamily: 'InterTight-SemiBold',
-                                  fontSize: 14,
-                                }}>
-                                {item.title}
-                              </Text>
-                            </View>
-                          </View>
-                          <Image
-                            style={{borderRadius: 12, flex: 0.3}}
-                            source={{uri: item.image_url}}
-                          />
-                        </View>
-                        <View
-                          style={{
-                            height: 2,
-                            backgroundColor: '#333',
-                            marginVertical: 10,
-                          }}></View>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                ))}
+
             </View>*/}
           </ScrollView>
       ) : (
         <View></View>
       )}
-      </View>
+      </View>}
     </View>
   );
 };
