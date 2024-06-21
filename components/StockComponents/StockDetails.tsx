@@ -24,6 +24,7 @@ import timeAgo from '../../utility/timeAgo';
 import { Skeleton } from '@rneui/base';
 import { useSelector } from 'react-redux';
 import useUserDetails from '../../hooks/useUserDetails';
+import { TextDecoder } from 'util';
 
 
 // interface for RouteParams, so we can expect the format of the params being passed in
@@ -70,35 +71,6 @@ const StockDetails = () => {
     }
   }
 
-  const setupSocket = async (ticker: any) => {
-    const ws = new WebSocket('wss://music-api-grant.fly.dev');
-
-    ws.onopen = () => {
-      console.log('Connected to server');
-      ws.send(JSON.stringify({ticker: ticker, status: 'add'}));
-    };
-
-    ws.onmessage = event => {
-      console.log(`Received message: ${event.data}`);
-      setPassingLivePrice(event.data)
-    };
-
-    ws.onerror = error => {
-      console.error('WebSocket error:', error.message || JSON.stringify(error));
-    };
-
-    // close websocket once component unmounts
-    return () => {
-      if (ws) {
-        // sending ticker on ws close to remove it from interested list
-        ws.send(JSON.stringify({ticker: ticker, status: 'delete'}));
-
-        ws.close(1000, 'Closing websocket connection due to page being closed');
-        console.log('Closed websocket connection due to page closing');
-      }
-    };
-  }
-
   // get params either in the expected format, or allow it to be undefined
   const params = route.params as RouteParams | undefined;
 
@@ -116,11 +88,6 @@ const StockDetails = () => {
       console.log('ERROR CHECKING IF STOCK IN WATCHLIST:', error);
     }
   };
-
-
-  useEffect(() => {
-    setupSocket(params?.ticker)
-  }, []);
 
 
   useEffect(() => {

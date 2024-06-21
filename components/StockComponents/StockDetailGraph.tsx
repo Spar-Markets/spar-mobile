@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -68,10 +68,10 @@ const StockDetailGraph = (props: any) => {
       try {
         const allPoints = await getPrices(props.ticker, false);
         if (allPoints) {
-          console.log("ALL POINT DATA:", allPoints["3M"])
+          //console.log("ALL POINT DATA:", allPoints["3M"])
           setPointData(allPoints["1D"])
           setAllPointData(allPoints)
-          console.log("abcd",allPoints["3M"])
+          //console.log("abcd",allPoints["3M"])
         }
       } catch(error) {
         console.log("Error getting prices:", error)
@@ -177,14 +177,15 @@ const StockDetailGraph = (props: any) => {
   
 
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (pointData.length != 0 ) {
-        if(props.liveprice !== pointData[pointData.length-1].value) {
+      if (props.liveprice) {
+        console.log("live price, " + props.liveprice)
       } else {
         console.log("loading")
       }
     }
-  }, [props.livePrice]);
+  }, []);*/
 
   const [onloadPercentDiff, setOnLoadPercentDiff] = useState("0.00");
   const [onLoadValueDiff, setOnLoadValueDiff] = useState("0.00");
@@ -213,10 +214,112 @@ const StockDetailGraph = (props: any) => {
     }
   }, [pointData, colorScheme]);
 
+  const [livePrice, setPassingLivePrice] = useState<any>(null)
+
   useEffect(() => {
     calculatePercentAndValueDiffAndColor();
-  }, [pointData, colorScheme]);
+  }, [pointData, colorScheme, livePrice]);
 
+  function uint8ArrayToString(array:any) {
+    return array.reduce((data:any, byte:any) => data + String.fromCharCode(byte), '');
+  }
+
+
+  const ws = useRef<WebSocket | null>(null);
+  
+  const setupSocket = async (ticker: any) => {
+    const socket = new WebSocket('wss://music-api-grant.fly.dev');
+    ws.current = socket;
+
+    socket.onopen = () => {
+      console.log('Connected to server');
+      socket.send(JSON.stringify({ticker: ticker, status: 'add'}));
+    };
+
+    //WHERE THE MAGIC HAPPENS
+    socket.onmessage = event => {
+
+        // Convert ArrayBuffer to Uint8Array
+        const buffer = new Uint8Array(event.data);
+        
+        // Convert Uint8Array to string
+        const message = uint8ArrayToString(buffer);
+        console.log(`Websocket Received message: ${message}`);
+        
+        // Parse the JSON string to an object
+        try {
+          const jsonMessage = JSON.parse(message);
+          setPassingLivePrice(jsonMessage);
+        } catch (error) {
+          //console.error('Failed to parse JSON:', error);
+          setPassingLivePrice(message);
+        }
+    };
+
+    socket.onerror = error => {
+      console.error('WebSocket error:', error.message || JSON.stringify(error));
+    };
+  }
+
+  useEffect(() => {
+    setupSocket(props.ticker);
+
+    return () => {
+      if (ws.current) {
+        ws.current.send(JSON.stringify({ ticker: props.ticker, status: 'delete' }));
+        ws.current.close(1000, 'Closing websocket connection due to page being closed');
+        console.log('Closed websocket connection due to page closing');
+      }
+    };
+  }, [props.ticker]);
+
+  /*useEffect(() => {
+    if (livePrice) {
+      console.log("live price", livePrice[0]?.op)
+      pointData[pointData.length-1].normalizedValue = livePrice[0]?.op - pointData[0].value
+    }
+  }, [livePrice])*/
+
+  const [trackingTimeStamp, setTrackingTimeStamp] = useState<any>(null)
+
+  useEffect(() => {
+    if (livePrice && pointData.length > 0) {
+      console.log("live price", livePrice[0]?.c);
+
+      //const newTimestamp = livePrice[0]?.e
+      console.log("Time:", trackingTimeStamp)
+
+      if (livePrice[0]?.e - trackingTimeStamp >= 60000) {
+        console.log("ADDING DATA POINT")
+        setPointData((prevPointData) => {
+          const newPointData = [...prevPointData];
+          newPointData[newPointData.length - 1] = {
+            ...newPointData[newPointData.length - 1],
+            normalizedValue: livePrice[0]?.c - prevPointData[0].value,
+            value: livePrice[0]?.c
+          };
+          newPointData.push({
+            value: livePrice[0]?.c,
+            normalizedValue: livePrice[0]?.c - prevPointData[0].value,
+            date: new Date(livePrice[0]?.e).toString(),
+            index: prevPointData.length
+          });
+          setTrackingTimeStamp(livePrice[0]?.e);
+          return newPointData;
+        });
+      } else {
+        console.log("animated point")
+        setPointData((prevPointData) => {
+          const newPointData = [...prevPointData];
+          newPointData[newPointData.length - 1] = {
+            ...newPointData[newPointData.length - 1],
+            normalizedValue: livePrice[0]?.c - pointData[0].value,
+          };
+          return newPointData;
+        });
+      }
+    }
+  }, [livePrice]);
   
   return (
     <View>
@@ -224,7 +327,44 @@ const StockDetailGraph = (props: any) => {
         <View>
           <View style={{ height: 400 }}>
               {allPointData &&
-              <>
+              <><View style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              }}>
+                {/*reference line*/}
+                <CartesianChart data={pointData} xKey="index" yKeys={["normalizedValue"]}
+                  domain={{ y: 
+                  [
+                    Math.min(...pointData.map(item => item.normalizedValue)) != 0 ? Math.min(...pointData.map(item => item.normalizedValue)) 
+                    - 0.3*(Math.max(...pointData.map(item => item.normalizedValue)) + Math.abs(Math.min(...pointData.map(item => item.normalizedValue)))) : -0.2*(Math.max(...pointData.map(item => item.normalizedValue))),
+                    Math.max(...pointData.map(item => item.normalizedValue))
+                  ], 
+                    x: [0, pointData.length-1] }} chartPressState={state}>
+                    {({ points }) => {
+                    
+                    // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
+                    const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
+                    const repeatedPoints = points.normalizedValue.map((point) => ({
+                      x: point.x, // Keep x as it is
+                      y: firstNormalizedPoint.y, // Set y to the first normalized point's y value
+                      xValue: 0,
+                      yValue: 0
+                    }));
+                    return (
+                    <>
+                      <Group transform={[{ translateY: priceFontSize + percentValFontSize + 20 }]}>
+                      <Line points={repeatedPoints} color={theme.colors.tertiary} 
+                      strokeWidth={1} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                      </Group>
+                    </>
+                    )
+                  
+                  }}
+                </CartesianChart>
+              </View>
                 <View style={{
                   position: 'absolute',
                   top: 0,
@@ -239,7 +379,7 @@ const StockDetailGraph = (props: any) => {
                       - 0.3*(Math.max(...pointData.map(item => item.normalizedValue)) + Math.abs(Math.min(...pointData.map(item => item.normalizedValue)))) : -0.2*(Math.max(...pointData.map(item => item.normalizedValue))),
                       Math.max(...pointData.map(item => item.normalizedValue))
                     ], 
-                      x: [0, pointData.length-1] }} chartPressState={state}>
+                      x: [0, timeFrameSelected == "1D" ? 390 : pointData.length-1] }} chartPressState={state}>
                       {({ points }) => {
                       
                       // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it

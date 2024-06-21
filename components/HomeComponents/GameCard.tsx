@@ -63,7 +63,8 @@ const GameCard = (props: any) => {
       setOpponentPointData(oppPoints);
 
       const response = await axios.post(serverUrl + '/getUsernameByID', { userID: match[opponentUserNumber].userID });
-      setOpponentUsername(response.data.user.username);
+      console.log("Opp name:", opponentUserNumber)
+      setOpponentUsername(response.data.username);
     } catch (error) {
       console.log('Game card error:', error);
     }
@@ -136,7 +137,7 @@ const GameCard = (props: any) => {
   const font = useFont(require('../../assets/fonts/InterTight-Black.ttf'), 9);
 
   return (
-    <TouchableOpacity style={styles.gameCardContainer}>
+    <TouchableOpacity style={styles.gameCardContainer} onPress={() => navigation.navigate("GameScreen", {mode: match.mode, amountWagered: match.amountWagered, endAt: match.endAt})}>
       {loading ? (
         <View></View>
       ) : (
