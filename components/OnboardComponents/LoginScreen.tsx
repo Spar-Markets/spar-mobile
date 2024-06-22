@@ -34,6 +34,7 @@ const LoginScreen = () => {
                 const credentials = await signInWithEmailAndPassword(auth, emailInput, passwordInput)
                 if (credentials.user) {
                     //sets userID globally in async
+                   console.log(credentials.user)
                    await AsyncStorage.setItem('userID', (credentials.user as any).uid);
                 }
             

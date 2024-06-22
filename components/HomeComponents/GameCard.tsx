@@ -34,8 +34,8 @@ const GameCard = (props: any) => {
   const [opponentPointData, setOpponentPointData] = useState<any>([]);
   const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); // Added loading state
-  const [yourFormattedData, setYourFormattedData] = useState<any[]>([])
-  const [formattedData2, setFormattedData2] = useState<any[]>([])
+  const [yourFormattedData, setYourFormattedData] = useState<any[] | null>(null)
+  const [oppFormattedData, setOppFormattedData] = useState<any[] | null>(null)
   const [minY, setMinY] = useState(0)
   const [maxY, setMaxY] = useState(0)
 
@@ -66,13 +66,19 @@ const GameCard = (props: any) => {
     }
   };
 
-  
+  const [you, setYou] = useState("")
+  const [opp, setOpp] = useState("")
+  const [yourColor, setYourColor] = useState("#fff")
 
   useEffect(() => {
     if (match.user1.userID === userID) {
       setUserMatchData('user1', 'user2');
+      setYou('user1')
+      setOpp('user2')
     } else if (match.user2.userID === userID) {
       setUserMatchData('user2', 'user1');
+      setYou('user2')
+      setOpp('user1')
     } else {
       console.error('Error determining whether active user is user1 or user2.');
     }
@@ -80,7 +86,7 @@ const GameCard = (props: any) => {
 
   // Log the state to check if data is populated
   useEffect(() => {
-    const sourceData = opponentPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData = yourPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
     const data = sourceData // Select every 10th item
     .map((item:any, index:number) => ({
       value: item.value,
@@ -90,7 +96,7 @@ const GameCard = (props: any) => {
     }));
     setYourFormattedData(data)
 
-    const sourceData2 = yourPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData2 = opponentPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
     const data2 = sourceData2 // Select every 10th item
     .map((item:any, index:number) => ({
       value: item.value,
@@ -98,12 +104,21 @@ const GameCard = (props: any) => {
       index: index,
       date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
     }));
-    setFormattedData2(data2)
+    setOppFormattedData(data2)
 
     const dataMax = Math.max(...data.map((item:any) => item.normalizedValue))
     const data2Max = Math.max(...data2.map((item:any) => item.normalizedValue))
     const dataMin = Math.min(...data.map((item:any) => item.normalizedValue))
     const data2Min = Math.min(...data2.map((item:any) => item.normalizedValue))
+
+    if (data[data.length-1]) {
+      if (data[data.length-1].value >= data2[data2.length-1].value) {
+        setYourColor(theme.colors.stockUpAccent)
+      } else {
+        setYourColor(theme.colors.stockDownAccent)
+      }
+    }
+    
 
     if (data2Max > dataMax) {
       setMaxY(data2Max)
@@ -120,26 +135,25 @@ const GameCard = (props: any) => {
     }
 
    
-    setLoading(false);
-  }, [yourPointData, opponentPointData, opponentUsername]);
-  
-  // Convert the date string to a format that Gifted Charts can use
-  /*const formattedData = data.map(item => ({
-    value: item.value,
-    label: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
-  }));*/
+    //setLoading(false);
+  }, [yourPointData, opponentPointData]);
 
-  const DATA = Array.from({ length: 50 }, (_, i) => ({
-    index: i,
-    value: 0
-  }));
+  useEffect(() => {
+    if (yourFormattedData != null && oppFormattedData != null) {
+      if (yourFormattedData[yourFormattedData.length-1]?.value != undefined) {
+        console.log("Price:",yourFormattedData[yourFormattedData.length-1]?.value)
+        setLoading(false)
+      }
+    } else {
+      setLoading(true)
+    }
+  }, [yourFormattedData, oppFormattedData])
 
-  const font = useFont(require('../../assets/fonts/InterTight-Black.ttf'), 9);
 
   return (
     <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
       navigation.navigate("GameScreen", {matchID: match.matchID, yourFormattedData: yourFormattedData, 
-        oppFormattedData: formattedData2, userID: props.userID})
+        oppFormattedData: oppFormattedData, userID: props.userID})
       
         HapticFeedback.trigger("impactMedium", {
           enableVibrateFallback: true,
@@ -164,22 +178,22 @@ const GameCard = (props: any) => {
           </View>
           <View style={{ gap: 10, marginHorizontal: 10, marginTop: 10, flex: 1 }}>
             <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
-              <View style={[styles.gameCardIndicator, { backgroundColor: theme.colors.accent }]}></View>
+              <View style={[styles.gameCardIndicator, { backgroundColor: yourColor }]}></View>
               <View style={{ justifyContent: 'center' }}>
                 <Text style={styles.gameCardPlayerText}>You</Text>
               </View>
               <View style={styles.gameCardPercentageContainer}>
                 {/* TODO: Add in actual percentages */}
-                <Text style={[styles.gameCardPercentageText, { color: theme.colors.accent }]}>$110,000 (10%)</Text>
+                <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourFormattedData![yourFormattedData!.length-1].value).toFixed(2)} {((yourFormattedData![yourFormattedData!.length-1].value-yourFormattedData![0].value)/(0.01*yourFormattedData![0].value)).toFixed(2)}%</Text>
               </View>
             </View>
             <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center', marginBottom: 5 }}>
-              <View style={[styles.gameCardIndicator, { backgroundColor: theme.colors.stockDownAccent }]}></View>
+              <View style={[styles.gameCardIndicator, { backgroundColor: theme.colors.opposite }]}></View>
               <View style={{ justifyContent: 'center' }}>
                 <Text style={styles.gameCardPlayerText}>{opponentUsername}</Text>
               </View>
               <View style={styles.gameCardPercentageContainer}>
-                <Text style={[styles.gameCardPercentageText, { color: theme.colors.stockDownAccent }]}>$105,200 (5.2%)</Text>
+                <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite }]}>${(oppFormattedData![oppFormattedData!.length-1].value).toFixed(2)} ({((oppFormattedData![oppFormattedData!.length-1].value-oppFormattedData![0].value)/(0.01*oppFormattedData![0].value)).toFixed(2)}%</Text>
               </View>
             </View>
           </View>
@@ -191,14 +205,14 @@ const GameCard = (props: any) => {
                 right: 0,
                 bottom: 10,
               }}>
-            <CartesianChart data={yourFormattedData} xKey="index" yKeys={["normalizedValue"]} 
+            <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} 
               domain={{y: [minY, maxY],
                 x: [0, 100]
               }}>
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
                 <>
-                <Line points={points.normalizedValue} color={theme.colors.stockUpAccent} 
+                <Line points={points.normalizedValue} color={yourColor} 
                 strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
                 </>
               )}
@@ -211,14 +225,14 @@ const GameCard = (props: any) => {
                 right: 0,
                 bottom: 10,
               }}>
-            <CartesianChart data={formattedData2} xKey="index" yKeys={["normalizedValue"]}
+            <CartesianChart data={oppFormattedData!} xKey="index" yKeys={["normalizedValue"]}
               domain={{y: [minY, maxY],
                 x: [0, 100]
               }}>
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
                 <>
-                <Line points={points.normalizedValue} color={theme.colors.stockDownAccent} 
+                <Line points={points.normalizedValue} color={theme.colors.opposite} 
                 strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
                 </>
               )}

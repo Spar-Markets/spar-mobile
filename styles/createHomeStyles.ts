@@ -11,7 +11,7 @@ const createHomeStyles = (theme: any, width: number) => {
       backgroundColor: theme.colors.background,
       flex: 1,
       justifyContent: 'center',
-      marginHorizontal: 20
+      paddingHorizontal: 20
     },
     header: {
       height: 40, 

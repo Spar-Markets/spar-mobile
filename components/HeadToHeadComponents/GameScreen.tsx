@@ -27,6 +27,7 @@ import { CartesianChart, Line, useChartPressState } from 'victory-native';
 import { SharedValue, useDerivedValue } from 'react-native-reanimated';
 import { Circle, Group, Paint, Rect } from '@shopify/react-native-skia';
 import GameScreenGraph from './GameScreenGraph';
+import {GraphPoint} from 'react-native-graph';
 
 const socket = new WebSocket('wss://music-api-grant.fly.dev/');
 
@@ -36,6 +37,11 @@ interface RouteParams {
   yourFormattedData: Array<any>
   oppFormattedData: Array<any>
   userID: string
+}
+
+interface PortfolioSnapshot {
+  value: number;
+  timeField: number;
 }
 
 const GameScreen = () => {
@@ -51,12 +57,6 @@ const GameScreen = () => {
   const matchID = params?.matchID
   const userID = params?.userID
 
-  const [statusBarHeight, setStatusBarHeight] = useState(0);
-  const [activeMatch, setActiveMatch] = useState<any>(null);
-  const [userNumber, setUserNumber] = useState<string>('');
-  const [buyingPower, setBuyingPower] = useState(0);
-  const [userPortfolioValue, setUserPortfolioValue] = useState(0);
-  const [opponentPortfolioValue, setOpponentPortfolioValue] = useState(0);
   const [loading, setLoading] = useState(true)
 
   const goBack = () => {

@@ -83,6 +83,7 @@ const Home: React.FC = () => {
       }
       console.log("hellldsfsf:", md);
       setMatchData(md);
+      console.log("IM HERE")
       setLoading(false)
     } catch (error) {
       console.error('in get match data error' + error);
@@ -274,7 +275,7 @@ const Home: React.FC = () => {
                 </View>
             </View>
             <View>
-              <Text style={{ color: theme.colors.text, fontWeight: 'bold', fontSize: 14, marginBottom: 10, marginLeft: 5 }}>Open Tournaments</Text>
+              <Text style={{ color: theme.colors.text, fontWeight: 'bold', fontSize: 14, marginBottom: 10, marginLeft: 5 }}></Text>
             </View>
           </Animated.View>
           <View style={{ marginTop: 20, gap: 5 }}>
