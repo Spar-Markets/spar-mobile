@@ -15,7 +15,7 @@ import Transfers from './components/Transfers';
 import Withdraw from './components/Withdraw';
 import StockDetails from './components/StockComponents/StockDetails';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import GameScreen from './components/InGameComponents/GameScreen';
+import GameScreen from './components/HeadToHeadComponents/GameScreen';
 import InGameStockSearch from './components/InGameComponents/InGameStockSearch';
 import StockOrder from './components/InGameComponents/StockOrder';
 import { ThemeProvider, useTheme } from './components/ContextComponents/ThemeContext';

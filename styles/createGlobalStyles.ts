@@ -25,7 +25,8 @@ const createGlobalStyles = (theme: any, width: number) => {
     },
     headerRightBtn: {
         position: 'absolute',
-        right: 10
+        right: 10,
+        top: -5
     },
     primaryBtn: {
         height: 50,

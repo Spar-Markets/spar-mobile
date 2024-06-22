@@ -201,16 +201,18 @@ const createStockSearchStyles = (theme: any, width: number) => {
       paddingVertical: 10
     },
     stockCardContainer: {
-      backgroundColor: theme.colors.primary,
-      height: 120,
       borderRadius: 10,
       borderWidth: 1,
-      borderColor: theme.colors.tertiary
     },
     stockCardTicker: {
       color: theme.colors.text,
       fontSize: 15,
       fontWeight: 'bold'
+    },
+    stockCardName: {
+      color: theme.colors.secondaryText,
+      fontSize: 12,
+      maxWidth: 120
     },
     stockCardValue: {
       color: theme.colors.text,

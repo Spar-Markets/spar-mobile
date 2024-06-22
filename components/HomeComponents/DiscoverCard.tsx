@@ -17,7 +17,6 @@ const DiscoverCard = ({title, message, image }:any) => {
                 <Text style={styles.discoverCardTitle}>{title}</Text>
                 <Text style={styles.discoverCardMessage}>{message}</Text>
             </View>
-            <Image style={styles.discoverCardImage} source={image}></Image>
         </TouchableOpacity>
     )
 }

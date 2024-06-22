@@ -1,5 +1,6 @@
 import { Dimensions, StyleSheet } from 'react-native';
 import { useStatusBarHeight } from '../components/ContextComponents/StatusBarHeightContext';
+import { FontWeight } from '@shopify/react-native-skia';
 
 const createHTHStyles = (theme: any, width: number) => {
   const statusBarHeight = useStatusBarHeight();
@@ -9,8 +10,7 @@ const createHTHStyles = (theme: any, width: number) => {
     container: {
       paddingTop: statusBarHeight + 10,
       backgroundColor: theme.colors.background,
-      flex: 1,
-      justifyContent: 'center',
+      flex: 1
     },
     hthHeaderContainer: {
         flexDirection: 'row',
@@ -104,6 +104,45 @@ const createHTHStyles = (theme: any, width: number) => {
         color: theme.colors.accent,
         fontWeight: 'bold',
         fontSize: 22
+    },
+    hthGameIndicator: {
+        width: 10, 
+        height: 10,
+        borderRadius: 50
+    },
+    userText: {
+        color: theme.colors.text,
+        fontWeight: 'bold',
+        fontSize: 20
+    },
+    percentIndicator: {
+        backgroundColor: theme.colors.tertiary,
+        borderRadius: 5,
+    },
+    percentText: {
+        paddingHorizontal: 5,
+        paddingVertical: 3,
+        fontWeight: 'bold',
+        fontSize: 12
+    },
+    portText: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        color: theme.colors.text
+    },
+    buyingPowerText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: theme.colors.text
+    },
+    leaderboardLabel: {
+        fontSize: 15,
+        color: theme.colors.tertiary
+    },
+    leaderboardText: {
+        fontSize: 16,
+        color: theme.colors.text,
+        fontWeight: 'bold'
     }
     
 

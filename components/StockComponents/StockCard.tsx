@@ -6,29 +6,8 @@ import createStockSearchStyles from '../../styles/createStockStyles';
 import { useNavigation } from '@react-navigation/native';
 import { CartesianChart, Line } from 'victory-native';
 import getPrices from '../../utility/getPrices';
-
-//TEST DATA NOT REAL
-const generateData = (length:number) => {
-    const data = [];
-    let baseValue = 118;
-  
-    for (let i = 0; i < length; i++) {
-      // Increment the base value slightly for an upward trend
-      baseValue += Math.random() * 0.2;
-      
-      // Add a random value to introduce variability within the range
-      const value = Math.min(Math.max(baseValue + (Math.random() - 0.5), 118), 126);
-      
-      data.push({
-        index: i,
-        value: parseFloat(value.toFixed(2)) // Fix to two decimal places
-      });
-    }
-  
-    return data;
-};
-
-const DATA = generateData(50)
+import axios from 'axios'
+import { serverUrl } from '../../constants/global';
 
 
 const StockCard = (props:any) => {
@@ -40,16 +19,31 @@ const StockCard = (props:any) => {
     const [pointData, setPointData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true)
 
+    const [name, setName] = useState("")
+
     useEffect(() => {
         const getPricesForSelectedTime = async () => {
             const allPoints = await getPrices(props.ticker, true);
             if (allPoints) {
-            //console.log("ALL POINT DATA:", allPoints["3M"])
-            setPointData(allPoints["1D"])
-            setIsLoading(false)
+                //console.log("ALL POINT DATA:", allPoints["3M"])
+                setPointData(allPoints["1D"])
+                }
+            try {
+                const tickerResponse = await axios.post(serverUrl + '/getTickerDetails', {
+                  ticker: props.ticker,
+                });
+                if (tickerResponse) {
+                  setName(tickerResponse.data.detailsResponse.results.name);
+                }
+              } catch {
+                console.error('Error getting details in StockDetails.tsx');
+              } finally {
+                setIsLoading(false)
+              }
         }
-    }
+
     getPricesForSelectedTime()
+  
     
     }, [props.ticker]);
 
@@ -104,19 +98,14 @@ const StockCard = (props:any) => {
               ticker: props.ticker,
           
             })}>
-            <View style={{flex: 1}}>
-                <View style={{flexDirection: 'row', marginHorizontal: 10, marginTop: 10}}>
-                    <View>
+
+                <View style={{flexDirection: 'row', marginVertical: 10, gap: 40, justifyContent: 'center'}}>
+                    <View style={{justifyContent: 'center', width: (width-40)/4}}>
                         <Text style={styles.stockCardTicker}>{props.ticker}</Text>
+                        <Text style={styles.stockCardName} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
                     </View>
-                    <View style={{flex: 1}}></View>
-                    <View>
-                        <Text style={styles.stockCardValue}>${(pointData[pointData.length-1].value).toFixed(2)}</Text>
-                        <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
-                    </View>
-                </View>
-                {pointData && 
-                <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
+                    {pointData && 
+                    <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
                     >
                     {({ points }) => (
                         <>
@@ -124,8 +113,13 @@ const StockCard = (props:any) => {
                         strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
                         </>
                     )}
-                </CartesianChart>}
-            </View>
+                    </CartesianChart>}
+                    <View style={{justifyContent: 'center'}}>
+                        <Text style={styles.stockCardValue}>${(pointData[pointData.length-1].value).toFixed(2)}</Text>
+                        <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
+                    </View>
+                </View>
+            
         </TouchableOpacity>
     )
 }

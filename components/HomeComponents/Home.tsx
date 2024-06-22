@@ -16,7 +16,10 @@ import GameCard from './GameCard';
 import GameCardSkeleton from './GameCardSkeleton';
 import { serverUrl } from '../../constants/global';
 import StockCard from '../StockComponents/StockCard';
-
+import { Blur, BlurMask, Canvas, Circle, Group, RadialGradient, Rect, vec } from '@shopify/react-native-skia';
+import LinearGradient from 'react-native-linear-gradient';
+import { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import HapticFeedback from "react-native-haptic-feedback";
 
 const { width } = Dimensions.get('window');
 
@@ -65,7 +68,6 @@ const Home: React.FC = () => {
       const response = await axios.post(serverUrl + '/getUserMatches', { userID });
       console.log('Matches1: ', response.data);
       setActiveMatches(response.data);
-      setLoading(false)
     } catch (error) {
       console.error('Error fetching matches:', error);
     }
@@ -81,6 +83,7 @@ const Home: React.FC = () => {
       }
       console.log("hellldsfsf:", md);
       setMatchData(md);
+      setLoading(false)
     } catch (error) {
       console.error('in get match data error' + error);
     }
@@ -181,24 +184,21 @@ const Home: React.FC = () => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
-  const DATA = Array.from({ length: 31 }, (_, i) => ({
-    day: i,
-    highTmp: 40 + 30 * Math.random(),
-  }));
-
   if (loading) {
     return (
       <View></View>
     )
   }
 
+
+
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.container}>
+      <View style={styles.container}>     
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Image style={styles.profilePic} source={require("../../assets/images/profilepic.png")} />
-            {userData && <Text style={styles.headerText}>Welcome {userData.username} 👋</Text>}
+            {userData && <Text style={styles.headerText}>Welcome {userData.username}</Text>}
             <View style={{ flex: 1 }} />
             <TouchableOpacity>
               <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
@@ -214,7 +214,7 @@ const Home: React.FC = () => {
                 data={searchingForMatch || isInMatchmaking ? [null, ...matchData] : matchData}
                 renderItem={({ item, index }) =>
                   item ? (
-                    <GameCard match={item} userID={userID}/>
+                    <GameCard match={item} userID={userID} matchId={matchData[index]}/>
                   ) : (
                     <GameCardSkeleton />
                   )
@@ -237,60 +237,62 @@ const Home: React.FC = () => {
               />
               {searchingForMatch || isInMatchmaking ? (
               <View style={styles.hthContainer}>
-                <TouchableOpacity style={[styles.enterHTHMatchBtn, { backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center', gap: 10 }]} onPress={() => { cancelAlert() }}>
-                  <Text style={[styles.enterHTHMatchBtnText, { color: theme.colors.text }]}>Searching (Cancel)</Text>
-                  <ActivityIndicator size={'small'} />
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={styles.enterHTHMatchBtn} onPress={() => cancelAlert()}>
+                <LinearGradient colors={[theme.colors.accent, theme.colors.accent]} 
+                style={styles.gradientBorder}>
+                  <View style={{backgroundColor: theme.colors.primary, flexDirection: 'row', borderRadius: 7, justifyContent: 'center', alignItems: 'center', flex: 1, gap: 10}}>
+                    <Text style={styles.enterHTHMatchBtnText}>Cancel Matchmaking</Text>
+                    <ActivityIndicator size={'small'}/>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
               ) : (
               <View style={styles.hthContainer}>
-                <TouchableOpacity style={styles.enterHTHMatchBtn} onPress={() => navigation.navigate('EnterMatch')}>
-                  <Text style={styles.enterHTHMatchBtnText}>Setup a Match</Text>
-                  <View style={{ flex: 1 }}></View>
-                  <Icon name="arrow-right" style={{ marginRight: 20, color: theme.colors.background }} size={24} />
+                <TouchableOpacity style={styles.enterHTHMatchBtn} onPress={() => {
+                  navigation.navigate('EnterMatch')
+                  }}>
+                  <LinearGradient colors={[theme.colors.accent, theme.colors.accent]} 
+                  style={styles.gradientBorder}>
+                    <View style={{backgroundColor: 'transparent', flexDirection: 'row', borderRadius: 7, justifyContent: 'center', alignItems: 'center', flex: 1}}>
+                      <Text style={styles.enterHTHMatchBtnText}>Setup a Match</Text>
+                    </View>
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
               )}
-              <View style={styles1.paginationContainer}>
-                {Array.from({ length: matchData.length + (searchingForMatch || isInMatchmaking ? 1 : 0) }).map((_, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles1.paginationDot,
-                      { backgroundColor: currentIndex === index ? theme.colors.accent : theme.colors.text }
-                    ]}
-                  />
-                ))}
-              </View>
+                <View style={styles1.paginationContainer}>
+                  {Array.from({ length: matchData.length + (searchingForMatch || isInMatchmaking ? 1 : 0) }).map((_, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles1.paginationDot,
+                        { backgroundColor: currentIndex === index ? theme.colors.accent : theme.colors.text }
+                      ]}
+                    />
+                  ))}
+                </View>
             </View>
             <View>
               <Text style={{ color: theme.colors.text, fontWeight: 'bold', fontSize: 14, marginBottom: 10, marginLeft: 5 }}>Open Tournaments</Text>
             </View>
           </Animated.View>
           <View style={{ marginTop: 20, gap: 5 }}>
-            <Text style={{ color: theme.colors.text, fontSize: 18, marginLeft: 5 }}>Discover Spar</Text>
+            <Text style={{ color: theme.colors.text, fontSize: 18}}>Discover Spar</Text>
             <DiscoverCard title={"Referral Program"} image={require("../../assets/images/referralIcon.png")} message={"Refer your friend to Spar, and when they sign up and play a match, you get $5"} />
             <DiscoverCard title={"Spar Tutorials"} image={require("../../assets/images/tutorialsIcon.png")} message={"Learn about the functionality of Spar and develop your Spar skills to succeed"} />
           </View>
-          <View style={{ marginTop: 20, gap: 7 }}>
-            <Text style={{ color: theme.colors.text, fontSize: 18, marginLeft: 5 }}>Watchlists</Text>
+          <View style={{ marginTop: 20}}>
+            <Text style={{ color: theme.colors.text, fontSize: 18}}>Watchlists</Text>
             {watchedStocks.map((ticker, index) => {
-            if (index % 2 === 0) {
               return (
-              <View key={index} style={{ flexDirection: 'row' }}>
-                <View style={{ width: (width-47)/2 }}>
-                  <StockCard ticker={watchedStocks[index]} />
+              <View key={index}>
+                <View style={{ width: (width-40)}}>
+                  <StockCard ticker={ticker} />
+                  <View style={{height: 1, width: '100%', backgroundColor: theme.colors.tertiary, marginVertical: 10}}/>
                 </View>
-                <View style={{ flex: 1 }}></View>
-                {watchedStocks[index + 1] && (
-                  <View style={{ width: (width-47)/2 }}>
-                    <StockCard ticker={watchedStocks[index + 1]} />
-                  </View>
-                )}
               </View>
               );
-            }
-            return null; // Return null for odd indices as they are already handled in the even case
             })}
           </View>
         </ScrollView>

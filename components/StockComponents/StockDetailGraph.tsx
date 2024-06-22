@@ -18,7 +18,7 @@ import createStockSearchStyles from '../../styles/createStockStyles';
 import { useAnimatedReaction, useDerivedValue, runOnJS, SharedValue, useSharedValue } from "react-native-reanimated";
 import HapticFeedback from "react-native-haptic-feedback";
 import debounce from 'lodash/debounce';
-import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint } from '@shopify/react-native-skia';
+import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint, RadialGradient, vec, BlurMask } from '@shopify/react-native-skia';
 import { GraphPoint } from 'react-native-graph';
 import { Skeleton } from '@rneui/base';
 
@@ -95,8 +95,6 @@ const StockDetailGraph = (props: any) => {
     const index = Math.round(state.x.position.value / width * pointData.length);
     return Math.min(Math.max(index, 0), pointData.length - 1);
   }, [pointData, state]);
-
-
 
   const [chartActive, setChartActive] = useState(false)
 
@@ -189,6 +187,7 @@ const StockDetailGraph = (props: any) => {
 
   const [onloadPercentDiff, setOnLoadPercentDiff] = useState("0.00");
   const [onLoadValueDiff, setOnLoadValueDiff] = useState("0.00");
+  const [currentGradientAccent, setCurrentGradientAccent] = useState("")
 
   const calculatePercentAndValueDiffAndColor = useCallback(() => {
     if (pointData.length > 0) {
@@ -204,9 +203,11 @@ const StockDetailGraph = (props: any) => {
       if (valueDiff < 0) {
         setOnLoadValueDiff("-$" + Math.abs(valueDiff).toFixed(2));
         setCurrentAccentColorValue(theme.colors.stockDownAccent)
+        setCurrentGradientAccent("#3b0a06")
       } else {
         setOnLoadValueDiff("$" + Math.abs(valueDiff).toFixed(2));
         setCurrentAccentColorValue(theme.colors.stockUpAccent)
+        setCurrentGradientAccent("#063b24")
       }
     } else {
       setOnLoadPercentDiff("0.00");
@@ -390,6 +391,12 @@ const StockDetailGraph = (props: any) => {
                         xValue: 0,
                         yValue: 0
                       }));
+
+                      const circlePositions = [];
+                      for (let i = 0; i <= 1; i += 0.0125) {
+                        circlePositions.push(parseFloat(i.toFixed(3)));
+                      }
+
                       return (
                       <>
                         <Group>
@@ -413,11 +420,24 @@ const StockDetailGraph = (props: any) => {
                         ></SkiaText>
                         </Group>
                         <Group transform={[{ translateY: priceFontSize + percentValFontSize + 20 }]}>
-                        <Line points={repeatedPoints} color={theme.colors.tertiary} 
-                        strokeWidth={1} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
-                        <Line points={points.normalizedValue} color={currentAccentColorValue} 
-                        strokeWidth={2} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
-                        {isActive && <ToolTip x={state.x.position} y={state.y.normalizedValue.position} color={currentAccentColorValue}/>}
+            
+                          {/*(circlePositions.map((fraction, index) => {
+                            const positionIndex = parseFloat((fraction * (points.normalizedValue.length - 1)).toPrecision(2));
+                            const posX = points.normalizedValue[positionIndex]?.x || 0;
+                            const posY = points.normalizedValue[positionIndex]?.y || -400;
+
+                            return (
+                              <Circle key={index} c={vec(posX, posY)} r={12} color={currentGradientAccent}>
+                                <BlurMask blur={20} style="normal" />
+                              </Circle>
+                            );
+                          })*/}
+
+                          <Line points={repeatedPoints} color={theme.colors.tertiary} 
+                          strokeWidth={1} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                          <Line points={points.normalizedValue} color={currentAccentColorValue} 
+                          strokeWidth={2} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                          {isActive && <ToolTip x={state.x.position} y={state.y.normalizedValue.position} color={currentAccentColorValue}/>}
                         </Group>
                       </>
                       )

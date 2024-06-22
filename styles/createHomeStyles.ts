@@ -36,19 +36,14 @@ const createHomeStyles = (theme: any, width: number) => {
       marginVertical: 10,
       flexDirection: 'row',
       height: 40,
-      width: '100%',
-      backgroundColor: theme.colors.primary,
-      borderRadius: 10,
-      borderColor: theme.colors.border,
-      borderWidth: 1,    
-      alignItems: 'center'
+      width: '100%',  
     },
     animatedBackground: {
       position: 'absolute',
       width: '50%',
-      height: '100%',
-      backgroundColor: theme.colors.accent,
-      borderRadius: 10,
+      height: 2,
+      backgroundColor: theme.colors.text,
+      marginTop: 38
     },
     toggleButton: {
       flex: 1,
@@ -76,7 +71,7 @@ const createHomeStyles = (theme: any, width: number) => {
     discoverCardContainer: {
       height: 80,
       width: '100%',
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.background,
       borderRadius: 10,
       borderColor: theme.colors.tertiary,
       borderWidth: 1,
@@ -102,8 +97,8 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // GameCard
     gameCardContainer: {
-      backgroundColor: theme.colors.primary,
-      borderColor: theme.colors.tertiary,
+      backgroundColor: 'black',
+      borderColor: theme.colors.primary,
       borderRadius: 10,
       borderWidth: 2,
       width: (Dimensions.get('window').width - 40),
@@ -114,8 +109,10 @@ const createHomeStyles = (theme: any, width: number) => {
       fontWeight: 'bold'
     },
     gameCardPercentageContainer: {
-      borderRadius: 5,
-      backgroundColor: theme.colors.accent2
+      borderRadius: 8,
+      backgroundColor: theme.colors.background,
+      borderWidth: 2,
+      borderColor: theme.colors.primary
     },
     gameCardIndicator: {
       backgroundColor: theme.colors.accent,
@@ -125,14 +122,16 @@ const createHomeStyles = (theme: any, width: number) => {
       marginLeft: 1,
     },
     gameCardPercentageText: {
-      fontSize: 12,
+      fontSize: 15,
       paddingHorizontal: 10,
       paddingVertical: 3,
       fontFamily: 'InterTight-Bold',
     },
     gameCardAmountWageredContainer: {
-      borderRadius: 5,
-      backgroundColor: theme.colors.accent2,
+      borderRadius: 8,
+      backgroundColor: theme.colors.background,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
       marginTop: 5, 
       marginLeft: 5,
       padding: 4,
@@ -145,26 +144,28 @@ const createHomeStyles = (theme: any, width: number) => {
       fontSize: 14
     },
     gameCardModeContainer: {
-      borderRadius: 5,
-      backgroundColor: theme.colors.accent,
+      borderRadius: 8,
+      backgroundColor: theme.colors.background,
       marginTop: 5, 
       marginLeft: 5,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
       padding: 4,
       justifyContent: 'center',
       alignItems: 'center'
     },
     gameCardModeText: {
-      color: theme.colors.primary,
+      color: theme.colors.accent,
       fontWeight: 'bold',
       fontSize: 14
     },
 
     // Timer
     timerContainer: {
-      borderRadius: 5,
-      borderWidth: 1,
-      borderColor: theme.colors.accent2,
-      backgroundColor: theme.colors.accent2,
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.background,
       marginTop: 5, 
       marginLeft: 5,
       padding: 4,
@@ -182,23 +183,24 @@ const createHomeStyles = (theme: any, width: number) => {
     hthContainer: {
       backgroundColor: theme.colors.background,
       borderRadius: 10,
-      flexDirection: 'row',
       marginTop: 10,
-    
+      justifyContent: 'center',
+    },
+    gradientBorder: {
+      padding:3,
+      borderRadius: 10,
+      flexDirection: 'row',
+      height: 50,
     },
     enterHTHMatchBtn: {
       height: 50,
-      backgroundColor: theme.colors.accent,
-      flex: 1, 
-      borderRadius: 10,
-      alignItems: 'center',
-      flexDirection: 'row'
+      backgroundColor: theme.colors.background,
+      borderRadius: 7,
     },
     enterHTHMatchBtnText: {
       fontSize: 16,
       fontWeight:'bold',
       color: theme.colors.background,
-      marginLeft: 20,
     }, 
     dropdownCollection: {
       flexDirection: 'row', 

@@ -30,12 +30,12 @@ const ToggleButton = ({onToggle}:any) => {
 
     const headToHeadColor = animation.interpolate({
         inputRange: [0, toggleWidth / 2],
-        outputRange: [theme.colors.tertiaryText, theme.colors.text],
+        outputRange: [theme.colors.text, theme.colors.tertiary],
     });
     
     const tournamentsColor = animation.interpolate({
         inputRange: [0, toggleWidth / 2],
-        outputRange: [theme.colors.text, theme.colors.tertiaryText],
+        outputRange: [theme.colors.tertiary, theme.colors.text],
     });
 
     return (

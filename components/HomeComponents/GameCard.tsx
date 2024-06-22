@@ -13,6 +13,7 @@ import Timer from './Timer';
 import GameCardSkeleton from './GameCardSkeleton';
 import { Area, CartesianChart, Line, PointsArray, useLinePath } from 'victory-native';
 import { Path, useFont } from '@shopify/react-native-skia';
+import HapticFeedback from "react-native-haptic-feedback";
 
 
 const GameCard = (props: any) => {
@@ -23,7 +24,6 @@ const GameCard = (props: any) => {
   const { width, height } = useDimensions();
   const styles = createHomeStyles(theme, width);
 
-  
 
   interface PortfolioSnapshot {
     value: number;
@@ -36,12 +36,8 @@ const GameCard = (props: any) => {
   const [loading, setLoading] = useState(true); // Added loading state
   const [yourFormattedData, setYourFormattedData] = useState<any[]>([])
   const [formattedData2, setFormattedData2] = useState<any[]>([])
-  const [minX, setMinX] = useState(0)
-  const [maxX, setMaxX] = useState(0)
   const [minY, setMinY] = useState(0)
   const [maxY, setMaxY] = useState(0)
-  const [referenceY, setReferenceY] = useState(0);
-  const [y0, setY0] = useState<number>(0);
 
   const match = props.match;
   const userID = props.userID;
@@ -70,6 +66,8 @@ const GameCard = (props: any) => {
     }
   };
 
+  
+
   useEffect(() => {
     if (match.user1.userID === userID) {
       setUserMatchData('user1', 'user2');
@@ -82,28 +80,30 @@ const GameCard = (props: any) => {
 
   // Log the state to check if data is populated
   useEffect(() => {
-    const sourceData = opponentPointData.slice(0, 100).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData = opponentPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
     const data = sourceData // Select every 10th item
     .map((item:any, index:number) => ({
-      value: item.value - sourceData[0].value,
+      value: item.value,
+      normalizedValue: item.value - 100000,
       index: index,
       date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
     }));
     setYourFormattedData(data)
 
-    const sourceData2 = yourPointData.slice(0, 100).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData2 = yourPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
     const data2 = sourceData2 // Select every 10th item
     .map((item:any, index:number) => ({
-      value: item.value - sourceData2[0].value,
+      value: item.value,
+      normalizedValue: item.value - 100000,
       index: index,
       date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
     }));
     setFormattedData2(data2)
 
-    const dataMax = Math.max(...data.map((item:any) => item.value))
-    const data2Max = Math.max(...data2.map((item:any) => item.value))
-    const dataMin = Math.min(...data.map((item:any) => item.value))
-    const data2Min = Math.min(...data2.map((item:any) => item.value))
+    const dataMax = Math.max(...data.map((item:any) => item.normalizedValue))
+    const data2Max = Math.max(...data2.map((item:any) => item.normalizedValue))
+    const dataMin = Math.min(...data.map((item:any) => item.normalizedValue))
+    const data2Min = Math.min(...data2.map((item:any) => item.normalizedValue))
 
     if (data2Max > dataMax) {
       setMaxY(data2Max)
@@ -137,11 +137,21 @@ const GameCard = (props: any) => {
   const font = useFont(require('../../assets/fonts/InterTight-Black.ttf'), 9);
 
   return (
-    <TouchableOpacity style={styles.gameCardContainer} onPress={() => navigation.navigate("GameScreen", {mode: match.mode, amountWagered: match.amountWagered, endAt: match.endAt})}>
+    <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
+      navigation.navigate("GameScreen", {matchID: match.matchID, yourFormattedData: yourFormattedData, 
+        oppFormattedData: formattedData2, userID: props.userID})
+      
+        HapticFeedback.trigger("impactMedium", {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false
+        });
+      }
+      
+      }>
       {loading ? (
-        <View></View>
+        <GameCardSkeleton/>
       ) : (
-        <>
+        <LinearGradient colors={['#000', '#222']} style={{borderRadius: 8}} start={{x:0,y:0}} end={{x:1,y:1}}>
           <View style={{ flexDirection: 'row' }}>
             <View style={styles.gameCardAmountWageredContainer}>
               <Text style={styles.gameCardAmountWageredText}>${match.wagerAmt}</Text>
@@ -181,18 +191,18 @@ const GameCard = (props: any) => {
                 right: 0,
                 bottom: 10,
               }}>
-              <CartesianChart data={DATA} xKey="index" yKeys={["value"]}
-              domain={{y: [minY, maxY]}}>
-                {({ points }) => (
-                   // Store the points for later use
-                
-                    <>
-                      <Line points={points.value} color={theme.colors.opposite} 
-                      strokeWidth={1} animate={{ type: "timing", duration: 300 }}/>
-                    </>
-                  
-                )}
-              </CartesianChart>
+            <CartesianChart data={yourFormattedData} xKey="index" yKeys={["normalizedValue"]} 
+              domain={{y: [minY, maxY],
+                x: [0, 100]
+              }}>
+              {({ points }) => (
+              // 👇 and we'll use the Line component to render a line path.
+                <>
+                <Line points={points.normalizedValue} color={theme.colors.stockUpAccent} 
+                strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
+                </>
+              )}
+            </CartesianChart>
             </View>
             <View style={{
                 position: 'absolute',
@@ -201,85 +211,21 @@ const GameCard = (props: any) => {
                 right: 0,
                 bottom: 10,
               }}>
-            <CartesianChart data={yourFormattedData} xKey="index" yKeys={["value"]} 
+            <CartesianChart data={formattedData2} xKey="index" yKeys={["normalizedValue"]}
               domain={{y: [minY, maxY],
                 x: [0, 100]
               }}>
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
                 <>
-                <Line points={points.value} color={theme.colors.stockUpAccent} 
+                <Line points={points.normalizedValue} color={theme.colors.stockDownAccent} 
                 strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
                 </>
               )}
             </CartesianChart>
             </View>
-            {/*<View style={{
-                position: 'absolute',
-                top: 10,
-                left: 0,
-                right: 0,
-                bottom: 10,
-              }}>
-            <CartesianChart data={yourFormattedData} xKey="index" yKeys={["value"]} 
-              domain={{y: [minY, maxY],
-                x: [0, 100]
-              }}>
-              {({ points }) => (
-              // 👇 and we'll use the Line component to render a line path.
-                <Area
-                points={points.value}
-                y0={50}
-                color="#013220"
-                animate={{ type: "timing", duration: 300 }}
-              />
-              )}
-            </CartesianChart>
-            </View>*/}
-            <View style={{
-                position: 'absolute',
-                top: 10,
-                left: 0,
-                right: 0,
-                bottom: 10,
-              }}>
-            <CartesianChart data={formattedData2} xKey="index" yKeys={["value"]}
-              domain={{y: [minY, maxY],
-                x: [0, 100]
-              }}>
-              {({ points }) => (
-              // 👇 and we'll use the Line component to render a line path.
-                <>
-                <Line points={points.value} color={theme.colors.stockDownAccent} 
-                strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
-                </>
-              )}
-            </CartesianChart>
-            </View>
-            {/*<View style={{
-                position: 'absolute',
-                top: 10,
-                left: 0,
-                right: 0,
-                bottom: 10,
-              }}>
-            <CartesianChart data={formattedData2} xKey="index" yKeys={["value"]} 
-              domain={{y: [minY, maxY],
-                x: [0, 100]
-              }}>
-              {({ points, chartBounds }) => (
-              // 👇 and we'll use the Line component to render a line path.
-                <Area
-                points={points.value}
-                y0={50}
-                color="#8B0000"
-                animate={{ type: "timing", duration: 300 }}
-              />
-              )}
-            </CartesianChart>
-            </View>*/}
           </View>
-        </>
+        </LinearGradient>
       )}
     </TouchableOpacity>
   );
