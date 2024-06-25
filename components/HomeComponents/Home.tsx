@@ -166,7 +166,7 @@ const Home: React.FC = () => {
   const screenWidth = Dimensions.get('window').width;
 
   const handleToggle = (option: any) => {
-    const toValue = option === 'head-to-head' ? 0 : -screenWidth + 40;
+    const toValue = option === 'head-to-head' ? 0 : -screenWidth;
     Animated.timing(animation, {
       toValue,
       duration: 300,
@@ -187,7 +187,21 @@ const Home: React.FC = () => {
 
   if (loading) {
     return (
-      <View></View>
+      <View style={styles.container}>
+          <View style={styles.header}>
+            <Image style={styles.profilePic} source={require("../../assets/images/profilepic.png")} />
+            <View style={{ flex: 1 }} />
+            <TouchableOpacity>
+              <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
+              <Icon name="bars" style={styles.icon} size={24} />
+            </TouchableOpacity>
+          </View>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <ActivityIndicator size="large" color={theme.colors.accent}/>
+          </View>
+      </View>
     )
   }
 
@@ -199,7 +213,6 @@ const Home: React.FC = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Image style={styles.profilePic} source={require("../../assets/images/profilepic.png")} />
-            {userData && <Text style={styles.headerText}>Welcome {userData.username}</Text>}
             <View style={{ flex: 1 }} />
             <TouchableOpacity>
               <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
@@ -209,7 +222,7 @@ const Home: React.FC = () => {
             </TouchableOpacity>
           </View>
           <ToggleButton onToggle={handleToggle} />
-          <Animated.View style={{ flex: 1, flexDirection: 'row', width: screenWidth - 40, transform: [{ translateX: animation }] }}>
+          <Animated.View style={{ flex: 1, flexDirection: 'row', width: screenWidth, transform: [{ translateX: animation }] }}>
             <View>
               <FlatList
                 data={searchingForMatch || isInMatchmaking ? [null, ...matchData] : matchData}
@@ -222,11 +235,11 @@ const Home: React.FC = () => {
                 }
                 keyExtractor={(item, index) => index.toString()}
                 ItemSeparatorComponent={() => (
-                  <View style={{width: 10}}></View>
+                  <View style={{width: 0}}></View>
                 )}
                 horizontal
                 pagingEnabled
-                snapToInterval={width - 10}
+                snapToInterval={width}
                 showsHorizontalScrollIndicator={false}
                 ref={flatListRef}
                 //onScrollEndDrag={handleScrollEnd}
@@ -242,7 +255,7 @@ const Home: React.FC = () => {
                 <LinearGradient colors={[theme.colors.accent, theme.colors.accent]} 
                 style={styles.gradientBorder}>
                   <View style={{backgroundColor: theme.colors.primary, flexDirection: 'row', borderRadius: 7, justifyContent: 'center', alignItems: 'center', flex: 1, gap: 10}}>
-                    <Text style={styles.enterHTHMatchBtnText}>Cancel Matchmaking</Text>
+                    <Text style={[styles.enterHTHMatchBtnText, {color: theme.colors.text}]}>Cancel Matchmaking</Text>
                     <ActivityIndicator size={'small'}/>
                   </View>
                 </LinearGradient>
@@ -278,13 +291,13 @@ const Home: React.FC = () => {
               <Text style={{ color: theme.colors.text, fontWeight: 'bold', fontSize: 14, marginBottom: 10, marginLeft: 5 }}></Text>
             </View>
           </Animated.View>
-          <View style={{ marginTop: 20, gap: 5 }}>
-            <Text style={{ color: theme.colors.text, fontSize: 18}}>Discover Spar</Text>
+          <View style={{ marginTop: 20, gap: 5, marginHorizontal: 20 }}>
+            <Text style={{ color: theme.colors.text, fontSize: 16, fontFamily: 'InterTight-Bold'}}>Discover Spar</Text>
             <DiscoverCard title={"Referral Program"} image={require("../../assets/images/referralIcon.png")} message={"Refer your friend to Spar, and when they sign up and play a match, you get $5"} />
             <DiscoverCard title={"Spar Tutorials"} image={require("../../assets/images/tutorialsIcon.png")} message={"Learn about the functionality of Spar and develop your Spar skills to succeed"} />
           </View>
-          <View style={{ marginTop: 20}}>
-            <Text style={{ color: theme.colors.text, fontSize: 18}}>Watchlists</Text>
+          <View style={{ marginTop: 20, marginHorizontal: 20}}>
+            <Text style={{ color: theme.colors.text, fontSize: 16, fontFamily: 'InterTight-Bold'}}>Watchlists</Text>
             {watchedStocks.map((ticker, index) => {
               return (
               <View key={index}>

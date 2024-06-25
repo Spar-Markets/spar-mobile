@@ -13,9 +13,9 @@ const createStockSearchStyles = (theme: any, width: number) => {
     },
     searchBox: {
         height: 40,
-        color: '#fff',
+        color: theme.colors.text,
         fontSize: 14,
-        fontWeight: 'bold',
+        fontFamily: 'InterTight-Bold',
         marginHorizontal: 20,
         marginTop:5,
         marginBottom: 10,
@@ -25,7 +25,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
     },
     categoryButton: {
         color: theme.colors.text,
-        fontWeight: 'bold',
+        fontFamily: 'InterTight-Bold',
         padding: 10,
         fontSize: 12,
     },
@@ -39,8 +39,9 @@ const createStockSearchStyles = (theme: any, width: number) => {
     headerText: {
       color: theme.colors.text,
       fontSize: 24,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Black',
       marginLeft: 5
+      
     },
     profilePic: {
       borderRadius: 100
@@ -54,13 +55,14 @@ const createStockSearchStyles = (theme: any, width: number) => {
     searchTickerText: {
       color: theme.colors.text,
       fontSize: 16,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
       marginTop: 10
     },
     searchCompanyText: {
       color: theme.colors.secondaryText,
       fontSize: 14,
-      marginBottom: 10
+      marginBottom: 10,
+      fontFamily: 'InterTight-Medium',
     },
     searchCardGap: {
       height: 1,
@@ -73,33 +75,32 @@ const createStockSearchStyles = (theme: any, width: number) => {
     },
     stockDetailsTickerText: {
       color: theme.colors.text,
-      fontWeight: 'bold',
-      fontSize: 25,
+      fontSize: 22,
+      fontFamily: 'InterTight-Bold',
     },
     stockDetailsNameText: {
       color: theme.colors.secondaryText,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
       fontSize: 12,
-      maxWidth: width/2
     },
     stockPriceText: {
       color: theme.colors.text,
       fontSize: 24,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Black',
       textAlign: 'right'
     },
     stockPercentText: {
       color: theme.colors.accent,
       fontSize: 12,
-      fontWeight: 'bold',
-      textAlign: 'right'
+      textAlign: 'right',
+      fontFamily: 'InterTight-Bold',
     },
     timeCardContainer: {
       borderRadius: 10,
       height: 48,
     },
     timeButtonSelectedContainer: {
-      backgroundColor: '#1ae79c',
+      backgroundColor: theme.colors.primary,
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 8,
@@ -126,7 +127,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
       paddingHorizontal: 5
     },
     timeButtonText: {
-      color: '#1ae79c',
+      color: theme.colors.primary,
       paddingHorizontal: 10,
       paddingVertical: 5,
       fontFamily: 'InterTight-Black',
@@ -135,25 +136,26 @@ const createStockSearchStyles = (theme: any, width: number) => {
     subjectLabel: {
       color: theme.colors.text,
       fontSize: 20,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
     },
     overviewText: {
       color: theme.colors.text,
       fontSize: 14,
-      marginTop: 5
+      marginTop: 5,
+      fontFamily: 'InterTight-Medium',
     },
     showMoreButtonText: {
       color: theme.colors.secondaryText,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
     },
     statType: {
       color: theme.colors.secondaryText,
-      fontSize: 14
+      fontFamily: 'InterTight-Medium',
     },
     statData: {
       color: theme.colors.text,
       fontSize: 16,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
       marginLeft: 1
     },
     newsCardContainer: {
@@ -168,7 +170,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
       color: theme.colors.text,
       fontSize: 14,
       marginHorizontal: 15,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
       marginTop: 10
     },
     bottomContainer: {
@@ -179,7 +181,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
     bottomText: {
       color: theme.colors.secondaryText,
       fontSize: 13,
-      fontWeight: 'bold'
+      fontFamily: 'InterTight-Bold',
     },
     headerContainer: {
       flexDirection: 'row',
@@ -225,7 +227,57 @@ const createStockSearchStyles = (theme: any, width: number) => {
       fontSize: 11,
       fontWeight: 'bold',
       textAlign: 'right'
-    }
+    },
+
+    TradeButtonContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: theme.colors.background,
+      paddingHorizontal: 20,
+      paddingBottom: 40,
+      paddingTop: 10,
+      justifyContent: 'center',
+    },
+    buyButton: {
+      backgroundColor: theme.colors.stockDownAccent,
+      width: (width-50)/2,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 10
+    },
+    buyButtonText: {
+      color: theme.colors.background,
+      fontSize: 18,
+      fontFamily: 'InterTight-Black',
+      paddingVertical: 15
+    },
+    row: {
+      flexDirection: 'row',
+      marginBottom: 10,
+    },
+    button: {
+      flex: 1,
+      paddingVertical: 15,
+      marginHorizontal:40
+    },
+    buttonText: {
+      color: theme.colors.text,
+      fontSize: 30,
+      fontFamily: 'InterTight-Bold',
+    },
+    orderFieldText: {
+      color: theme.colors.text,
+      fontFamily: 'InterTight-Bold',
+      fontSize: 16
+    },
+    orderTextInput: {
+      color: theme.colors.text,
+      fontSize: 16,
+      fontFamily: 'InterTight-Bold',
+  },
+ 
 
 
 

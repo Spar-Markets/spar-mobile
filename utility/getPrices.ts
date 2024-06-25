@@ -8,7 +8,7 @@ const getPrices = async (ticker: string, isOneDayData: boolean) => {
         price: number;
         timeField: number;
       }
-      console.log("getprices", ticker)
+      //console.log("getprices", ticker)
       const response = await axios.post(
         serverUrl + '/getMostRecentOneDayPrices',
         {ticker: String(ticker), isOneDayData: isOneDayData}

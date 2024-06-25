@@ -21,7 +21,7 @@ const createHTHStyles = (theme: any, width: number) => {
         color: theme.colors.text,
         textAlign: 'center',
         fontSize: 20,
-        fontWeight: 'bold'
+        fontFamily: 'InterTight-Black'
     },
     hthHeaderBackBtn: {
         position: 'absolute',
@@ -112,7 +112,7 @@ const createHTHStyles = (theme: any, width: number) => {
     },
     userText: {
         color: theme.colors.text,
-        fontWeight: 'bold',
+        fontFamily: 'InterTight-Black',
         fontSize: 20
     },
     percentIndicator: {
@@ -122,27 +122,28 @@ const createHTHStyles = (theme: any, width: number) => {
     percentText: {
         paddingHorizontal: 5,
         paddingVertical: 3,
-        fontWeight: 'bold',
+        fontFamily: 'InterTight-Bold',
         fontSize: 12
     },
     portText: {
         fontSize: 26,
-        fontWeight: 'bold',
+        fontFamily: 'InterTight-Black',
         color: theme.colors.text
     },
     buyingPowerText: {
-        fontSize: 12,
-        fontWeight: 'bold',
+        fontSize: 15,
+        fontFamily: 'InterTight-Bold',
         color: theme.colors.text
     },
     leaderboardLabel: {
         fontSize: 15,
-        color: theme.colors.tertiary
+        color: theme.colors.tertiary,
+        fontFamily: 'InterTight-Bold',
     },
     leaderboardText: {
         fontSize: 16,
         color: theme.colors.text,
-        fontWeight: 'bold'
+        fontFamily: 'InterTight-Bold',
     }
     
 

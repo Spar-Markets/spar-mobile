@@ -11,18 +11,18 @@ const createHomeStyles = (theme: any, width: number) => {
       backgroundColor: theme.colors.background,
       flex: 1,
       justifyContent: 'center',
-      paddingHorizontal: 20
     },
     header: {
       height: 40, 
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
+      marginHorizontal: 20
     },
     headerText: {
       color: theme.colors.text,
       fontSize: 24,
-      fontWeight: 'bold'
+      fontFamily: 'InterTight-Black'
     },
     profilePic: {
       borderRadius: 100
@@ -36,7 +36,7 @@ const createHomeStyles = (theme: any, width: number) => {
       marginVertical: 10,
       flexDirection: 'row',
       height: 40,
-      width: '100%',  
+      width: width,  
     },
     animatedBackground: {
       position: 'absolute',
@@ -54,10 +54,11 @@ const createHomeStyles = (theme: any, width: number) => {
     toggleText: {
       color: theme.colors.text,
       fontSize: 18,
-      fontWeight: 'bold'
+      fontFamily: 'InterTight-Black'
     },
     activeToggleText: {
-      color: theme.colors.tertiaryText
+      color: theme.colors.tertiaryText,
+      fontFamily: 'InterTight-Black'
     },
 
     // Gap
@@ -85,28 +86,30 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     discoverCardTitle: {
       color: theme.colors.text,
-      fontSize: 14
+      fontSize: 14,
+      fontFamily: 'InterTight-Bold'
     },
     discoverCardMessage: {
       color: theme.colors.secondaryText,
       fontSize: 12,
+      fontFamily: 'InterTight-Medium'
     },
     discoverCardImage: {
       marginLeft: 10
     },
-
+    
     // GameCard
     gameCardContainer: {
-      backgroundColor: 'black',
-      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.primary,
+      //borderColor: theme.colors.primary,
       borderRadius: 10,
       borderWidth: 2,
-      width: (Dimensions.get('window').width - 40),
+      width: (Dimensions.get('window').width),
     },
     gameCardPlayerText: {
       color: theme.colors.text,
       fontSize: 16,
-      fontWeight: 'bold'
+      fontFamily: 'InterTight-Black'
     },
     gameCardPercentageContainer: {
       borderRadius: 8,
@@ -141,7 +144,8 @@ const createHomeStyles = (theme: any, width: number) => {
     gameCardAmountWageredText: {
       color: theme.colors.text,
       fontWeight: 'bold',
-      fontSize: 14
+      fontSize: 14,
+      fontFamily: 'InterTight-Bold',
     },
     gameCardModeContainer: {
       borderRadius: 8,
@@ -157,7 +161,8 @@ const createHomeStyles = (theme: any, width: number) => {
     gameCardModeText: {
       color: theme.colors.accent,
       fontWeight: 'bold',
-      fontSize: 14
+      fontSize: 14,
+      fontFamily: 'InterTight-Bold',
     },
 
     // Timer
@@ -177,6 +182,7 @@ const createHomeStyles = (theme: any, width: number) => {
       fontSize: 12,
       color: theme.colors.text,
       fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
     },
 
     // HeadToHeadEntry
@@ -185,6 +191,7 @@ const createHomeStyles = (theme: any, width: number) => {
       borderRadius: 10,
       marginTop: 10,
       justifyContent: 'center',
+      marginHorizontal: 20
     },
     gradientBorder: {
       padding:3,
@@ -199,8 +206,8 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     enterHTHMatchBtnText: {
       fontSize: 16,
-      fontWeight:'bold',
       color: theme.colors.background,
+      fontFamily: 'InterTight-Black',
     }, 
     dropdownCollection: {
       flexDirection: 'row', 
@@ -244,11 +251,11 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     dropdownText: {
       color: theme.colors.text,
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      fontFamily: 'InterTight-Bold',
     },
     enterButton: {
-      backgroundColor: theme.colors.accent,
-      width: '20%',
+      backgroundColor: theme.colors.stockDownAccent,
       borderTopRightRadius: 10,
       borderBottomRightRadius: 10,
       justifyContent: 'center',
@@ -263,13 +270,13 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     balance: {
       color: theme.colors.text,
-      fontWeight: 'bold',
-      fontSize: 20
+      fontSize: 20,
+      fontFamily: 'InterTight-Black',
     },
     fundText: {
       color: theme.colors.secondaryText,
-      fontWeight: 'bold',
-      fontSize: 15
+      fontSize: 15,
+      fontFamily: 'InterTight-Bold',
     },
     depositBtn: {
       borderRadius: 10,
@@ -278,9 +285,9 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     depositBtnText: {
       color: theme.colors.background,
-      fontWeight: 'bold',
       fontSize: 18,
-      padding: 15
+      padding: 15,
+      fontFamily: 'InterTight-Black',
     },
 
   });

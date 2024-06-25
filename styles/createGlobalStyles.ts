@@ -17,7 +17,7 @@ const createGlobalStyles = (theme: any, width: number) => {
         color: theme.colors.text,
         textAlign: 'center',
         fontSize: 20,
-        fontWeight: 'bold'
+        fontFamily: 'InterTight-Black',
     },
     headerBackBtn: {
         position: 'absolute',
@@ -26,21 +26,20 @@ const createGlobalStyles = (theme: any, width: number) => {
     headerRightBtn: {
         position: 'absolute',
         right: 10,
-        top: -5
+        top: -6
     },
     primaryBtn: {
         height: 50,
         backgroundColor: theme.colors.accent,
         borderRadius: 10,
         alignItems: 'center',
-        flexDirection: 'row',
-        marginHorizontal: 20
+        justifyContent: 'center',
+        marginHorizontal:20
     },
     primaryBtnText: {
         fontSize: 16,
-        fontWeight:'bold',
         color: theme.colors.background,
-        marginLeft: 20,
+        fontFamily: 'InterTight-Black',
     }, 
 
 

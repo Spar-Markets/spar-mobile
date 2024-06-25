@@ -10,7 +10,7 @@ import axios from 'axios'
 import { serverUrl } from '../../constants/global';
 
 
-const StockCard = (props:any) => {
+const PositionCard = (props:any) => {
 
     const { theme } = useTheme();
     const { width, height } = useDimensions();
@@ -41,10 +41,7 @@ const StockCard = (props:any) => {
                 setIsLoading(false)
               }
         }
-
-    getPricesForSelectedTime()
-  
-    
+        getPricesForSelectedTime()
     }, [props.ticker]);
 
     useEffect(() => {
@@ -100,9 +97,9 @@ const StockCard = (props:any) => {
             })}>
 
                 <View style={{flexDirection: 'row', marginVertical: 10, gap: 40, justifyContent: 'center'}}>
-                    <View style={{justifyContent: 'center'}}>
+                    <View style={{justifyContent: 'center', width: (width-40)/4}}>
                         <Text style={styles.stockCardTicker}>{props.ticker}</Text>
-                        <Text style={[styles.stockCardName, {width: width/4}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
+                        <Text style={styles.stockCardName}>35 Shares</Text>
                     </View>
                     {pointData && 
                     <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
@@ -124,5 +121,5 @@ const StockCard = (props:any) => {
     )
 }
 
-export default StockCard
+export default PositionCard
 

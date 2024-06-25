@@ -38,6 +38,7 @@ const GameCard = (props: any) => {
   const [oppFormattedData, setOppFormattedData] = useState<any[] | null>(null)
   const [minY, setMinY] = useState(0)
   const [maxY, setMaxY] = useState(0)
+  const [yourColor, setYourColor] = useState("#fff")
 
   const match = props.match;
   const userID = props.userID;
@@ -66,19 +67,11 @@ const GameCard = (props: any) => {
     }
   };
 
-  const [you, setYou] = useState("")
-  const [opp, setOpp] = useState("")
-  const [yourColor, setYourColor] = useState("#fff")
-
   useEffect(() => {
     if (match.user1.userID === userID) {
       setUserMatchData('user1', 'user2');
-      setYou('user1')
-      setOpp('user2')
     } else if (match.user2.userID === userID) {
       setUserMatchData('user2', 'user1');
-      setYou('user2')
-      setOpp('user1')
     } else {
       console.error('Error determining whether active user is user1 or user2.');
     }
@@ -86,7 +79,7 @@ const GameCard = (props: any) => {
 
   // Log the state to check if data is populated
   useEffect(() => {
-    const sourceData = yourPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData = yourPointData.filter((item:any, index:any) => index % 2 === 0)
     const data = sourceData // Select every 10th item
     .map((item:any, index:number) => ({
       value: item.value,
@@ -96,7 +89,7 @@ const GameCard = (props: any) => {
     }));
     setYourFormattedData(data)
 
-    const sourceData2 = opponentPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData2 = opponentPointData.filter((item:any, index:any) => index % 2 === 0)
     const data2 = sourceData2 // Select every 10th item
     .map((item:any, index:number) => ({
       value: item.value,
@@ -151,9 +144,10 @@ const GameCard = (props: any) => {
 
 
   return (
+    <View>
+    {!loading ?
     <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
-      navigation.navigate("GameScreen", {matchID: match.matchID, yourFormattedData: yourFormattedData, 
-        oppFormattedData: oppFormattedData, userID: props.userID})
+      navigation.navigate("GameScreen", {matchID: match.matchID, userID: props.userID})
       
         HapticFeedback.trigger("impactMedium", {
           enableVibrateFallback: true,
@@ -162,10 +156,7 @@ const GameCard = (props: any) => {
       }
       
       }>
-      {loading ? (
-        <GameCardSkeleton/>
-      ) : (
-        <LinearGradient colors={['#000', '#222']} style={{borderRadius: 8}} start={{x:0,y:0}} end={{x:1,y:1}}>
+        <LinearGradient colors={['#000', '#000']} style={{borderRadius: 8}} start={{x:0,y:0}} end={{x:1,y:1}}>
           <View style={{ flexDirection: 'row' }}>
             <View style={styles.gameCardAmountWageredContainer}>
               <Text style={styles.gameCardAmountWageredText}>${match.wagerAmt}</Text>
@@ -184,7 +175,7 @@ const GameCard = (props: any) => {
               </View>
               <View style={styles.gameCardPercentageContainer}>
                 {/* TODO: Add in actual percentages */}
-                <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourFormattedData![yourFormattedData!.length-1].value).toFixed(2)} {((yourFormattedData![yourFormattedData!.length-1].value-yourFormattedData![0].value)/(0.01*yourFormattedData![0].value)).toFixed(2)}%</Text>
+                <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourFormattedData![yourFormattedData!.length-1].value).toFixed(2)} ({((yourFormattedData![yourFormattedData!.length-1].value-yourFormattedData![0].value)/(0.01*yourFormattedData![0].value)).toFixed(2)}%)</Text>
               </View>
             </View>
             <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center', marginBottom: 5 }}>
@@ -193,11 +184,11 @@ const GameCard = (props: any) => {
                 <Text style={styles.gameCardPlayerText}>{opponentUsername}</Text>
               </View>
               <View style={styles.gameCardPercentageContainer}>
-                <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite }]}>${(oppFormattedData![oppFormattedData!.length-1].value).toFixed(2)} ({((oppFormattedData![oppFormattedData!.length-1].value-oppFormattedData![0].value)/(0.01*oppFormattedData![0].value)).toFixed(2)}%</Text>
+                <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite }]}>${(oppFormattedData![oppFormattedData!.length-1].value).toFixed(2)} ({((oppFormattedData![oppFormattedData!.length-1].value-oppFormattedData![0].value)/(0.01*oppFormattedData![0].value)).toFixed(2)}%)</Text>
               </View>
             </View>
           </View>
-          <View style={{ height: 200 }}>
+          <View style={{ height: 180 }}>
             <View style={{
                 position: 'absolute',
                 top: 10,
@@ -207,7 +198,7 @@ const GameCard = (props: any) => {
               }}>
             <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} 
               domain={{y: [minY, maxY],
-                x: [0, 100]
+   
               }}>
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
@@ -227,7 +218,7 @@ const GameCard = (props: any) => {
               }}>
             <CartesianChart data={oppFormattedData!} xKey="index" yKeys={["normalizedValue"]}
               domain={{y: [minY, maxY],
-                x: [0, 100]
+
               }}>
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
@@ -240,8 +231,9 @@ const GameCard = (props: any) => {
             </View>
           </View>
         </LinearGradient>
-      )}
     </TouchableOpacity>
+    : <GameCardSkeleton/>}
+    </View>
   );
 };
 

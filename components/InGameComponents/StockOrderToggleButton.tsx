@@ -4,20 +4,20 @@ import createHomeStyles from '../../styles/createHomeStyles';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 
-const ToggleButton = ({onToggle}:any) => {
+const StockOrderToggleButton = ({onToggle}:any) => {
 
     // Layour and Style Initilization
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createHomeStyles(theme, width)
-    const [active, setActive] = useState('head-to-head');
+    const [active, setActive] = useState('shares');
     const animation = useRef(new Animated.Value(0)).current;
 
     const toggleWidth = (Dimensions.get('window').width) //account for margin
 
     useEffect(() => {
         Animated.timing(animation, {
-          toValue: active === 'head-to-head' ? 0 : toggleWidth / 2,
+          toValue: active === 'shares' ? 0 : toggleWidth / 2,
           duration: 300,
           useNativeDriver: false,
         }).start();
@@ -39,16 +39,16 @@ const ToggleButton = ({onToggle}:any) => {
     });
 
     return (
-        <View style={styles.toggleContainer}>
+        <View style={[styles.toggleContainer, {marginBottom: 0}]}>
             <Animated.View style={[styles.animatedBackground, {left: animation}]}/>
-            <TouchableOpacity style={styles.toggleButton} onPress={() => handleToggle('head-to-head')}>
-                <Animated.Text style={[styles.toggleText, {color: headToHeadColor}]}>Head-to-Head</Animated.Text>
+            <TouchableOpacity style={styles.toggleButton} onPress={() => handleToggle('shares')}>
+                <Animated.Text style={[styles.toggleText, {color: headToHeadColor}]}>Shares</Animated.Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.toggleButton} onPress={() => handleToggle('tournaments')}>
-                <Animated.Text style={[styles.toggleText, {color: tournamentsColor}]}>Tournaments</Animated.Text>
+            <TouchableOpacity style={styles.toggleButton} onPress={() => handleToggle('dollars')}>
+                <Animated.Text style={[styles.toggleText, {color: tournamentsColor}]}>Dollars</Animated.Text>
             </TouchableOpacity>
         </View>
     )
 }
 
-export default ToggleButton;
+export default StockOrderToggleButton;

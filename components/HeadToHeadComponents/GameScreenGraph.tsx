@@ -91,7 +91,7 @@ const GameScreenGraph = (props:any) => {
   
   function ToolTip({ x, y}: { x: SharedValue<number>, y: SharedValue<number>}) {
     return (
-      <Rect x={x} y={0} width={2} height={300} color={theme.colors.secondaryText}/>
+      <Rect x={x} y={0} width={2} height={400} color={theme.colors.secondaryText}/>
     );
   }
 
@@ -178,7 +178,7 @@ const GameScreenGraph = (props:any) => {
                 <Text style={[styles.percentText, {color: theme.colors.accent}]}>{isActive ? yourPercentDiff.value : yourInitialPercentDiff}%</Text>
               </View>
             </View>
-            <Text style={styles.portText}>${yourPriceValue.value.toFixed(2)}</Text>
+            <Text style={styles.portText}>${ isActive ? yourPriceValue.value.toFixed(2) : (yourFormattedData[yourFormattedData.length - 1].value).toFixed(2)}</Text>
           </View>
           <View style={{flex: 1}}></View>
           <View style={{marginRight: 20}}>
@@ -189,7 +189,7 @@ const GameScreenGraph = (props:any) => {
               <Text style={styles.userText}>Rzonance</Text>
               <View style={[styles.hthGameIndicator, {backgroundColor: theme.colors.opposite}]}></View>
             </View>
-            <Text style={[styles.portText, {textAlign: 'right'}]}>${oppPriceValue.value.toFixed(2)}</Text>
+            <Text style={[styles.portText, {textAlign: 'right'}]}>${isActive ? oppPriceValue.value.toFixed(2) : (oppFormattedData[oppFormattedData.length - 1].value).toFixed(2)}</Text>
           </View>
         </View>
         <View style={{

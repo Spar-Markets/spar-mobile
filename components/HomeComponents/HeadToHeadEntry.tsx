@@ -135,7 +135,7 @@ const HeadToHeadEntry = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.enterButton}>
-            <Icon name="arrow-right" style={[styles.icon, {marginRight: 5, color: theme.colors.background}]} size={24}/>
+            
           </TouchableOpacity>
         </View>
     )

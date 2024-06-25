@@ -14,7 +14,7 @@ import axios from 'axios';
 import {serverUrl} from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {LineChart} from 'react-native-gifted-charts';
-import PositionCard from '../InGameComponents/PositionCard';
+import PositionCard from './PositionCard';
 import LinearGradient from 'react-native-linear-gradient';
 import {act} from 'react-test-renderer';
 import { useTheme } from '../ContextComponents/ThemeContext';
@@ -34,8 +34,6 @@ const socket = new WebSocket('wss://music-api-grant.fly.dev/');
 
 interface RouteParams {
   matchID: string
-  yourFormattedData: Array<any>
-  oppFormattedData: Array<any>
   userID: string
 }
 
@@ -59,13 +57,9 @@ const GameScreen = () => {
 
   const [loading, setLoading] = useState(true)
 
-  const goBack = () => {
-    navigation.goBack();
-  };
-
   // this is to get the live portfolio value
   useEffect(() => {
-    console.log(params?.oppFormattedData)
+    //console.log(params?.oppFormattedData)
     /*if (activeMatchID != null) {
       const ws = socket;
 
@@ -115,33 +109,16 @@ const GameScreen = () => {
     }*/
   }, []);
 
-  const [maxY, setMaxY] = useState<any>()
-  const [minY, setMinY] = useState<any>()
 
-  useEffect(() => {
-
-    const yourDataMax = Math.max(...(params!.yourFormattedData).map((item:any) => item.normalizedValue))
-    const oppDataMax = Math.max(...(params!.oppFormattedData).map((item:any) => item.normalizedValue))
-    const youDataMin = Math.min(...(params!.yourFormattedData).map((item:any) => item.normalizedValue))
-    const oppDataMin = Math.min(...(params!.oppFormattedData).map((item:any) => item.normalizedValue))
-
-    if (oppDataMax > yourDataMax) {
-      setMaxY(oppDataMax)
-    } else {
-      setMaxY(yourDataMax)
-    }
-
-    if (oppDataMin > youDataMin) {
-      setMinY(youDataMin)
-    } else {
-      setMinY(oppDataMin)
-    }
-
-  }, []);
-
-  const [matchData, setMatchData] = useState<any>(null)
+  const [match, setMatch] = useState<any>(null)
+  const [yourPointData, setYourPointData] = useState<GraphPoint[]>([]);
+  const [opponentPointData, setOpponentPointData] = useState<any>([]);
+  const [yourFormattedData, setYourFormattedData] = useState<any[] | null>(null)
+  const [oppFormattedData, setOppFormattedData] = useState<any[] | null>(null)
+  const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
+  const [yourColor, setYourColor] = useState("#fff")
 
   useEffect(() => {
     console.log("MatchID:", matchID)
@@ -150,17 +127,8 @@ const GameScreen = () => {
             const response = await axios.post(serverUrl+"/getMatchData", {matchID: matchID})
             if (response) {
                 //console.log("Match:", response.data)
-                setMatchData(response.data)
-                if (response.data.user1.userID === userID) {
-                  setYou('user1');
-                  setOpp('user2');
-                } else if (response.data.user2.userID === userID) {
-                  setYou('user2');
-                  setOpp('user1')
-                } else {
-                  console.error('Error determining whether active user is user1 or user2.');
-                }
-            }
+                setMatch(response.data)
+            } 
         } catch (error) {
             console.log(error)
         }
@@ -169,12 +137,87 @@ const GameScreen = () => {
   }, [])
 
   useEffect(() => {
-    if (matchData) {
-      setLoading(false)
+    if (match) {
+      if (match.user1.userID === userID) {
+        setUserMatchData('user1', 'user2');
+        setYou('user1')
+      } else if (match.user2.userID === userID) {
+        setUserMatchData('user2', 'user1');
+        setYou('user2')
+      } else {
+        console.error('Error determining whether active user is user1 or user2.');
+      }
+    }
+  }, [match]);
+
+  const setUserMatchData = async (yourUserNumber: string, opponentUserNumber: string) => {
+    if (match) {
+      try {
+        const yourSnapshots: PortfolioSnapshot[] = match[yourUserNumber].snapshots;
+        const yourPoints: GraphPoint[] = yourSnapshots.map((snapshot) => ({
+          value: snapshot.value,
+          date: new Date(snapshot.timeField), // Ensure date is in timestamp format
+        }));
+        setYourPointData(yourPoints);
+
+        const oppSnapshots: PortfolioSnapshot[] = match[opponentUserNumber].snapshots;
+        const oppPoints: GraphPoint[] = oppSnapshots.map((snapshot) => ({
+          value: snapshot.value,
+          date: new Date(snapshot.timeField), // Ensure date is in timestamp format
+        }));
+        setOpponentPointData(oppPoints);
+
+        const response = await axios.post(serverUrl + '/getUsernameByID', { userID: match[opponentUserNumber].userID });
+        console.log("Opp name:", opponentUserNumber)
+        setOpponentUsername(response.data.username);
+      } catch (error) {
+        console.log('Game card error:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const sourceData = yourPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const data = sourceData // Select every 10th item
+    .map((item:any, index:number) => ({
+      value: item.value,
+      normalizedValue: item.value - 100000,
+      index: index,
+      date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
+    }));
+    setYourFormattedData(data)
+
+    const sourceData2 = opponentPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const data2 = sourceData2 // Select every 10th item
+    .map((item:any, index:number) => ({
+      value: item.value,
+      normalizedValue: item.value - 100000,
+      index: index,
+      date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
+    }));
+    setOppFormattedData(data2)
+
+    if (data[data.length-1]) {
+      if (data[data.length-1].value >= data2[data2.length-1].value) {
+        setYourColor(theme.colors.stockUpAccent)
+      } else {
+        setYourColor(theme.colors.stockDownAccent)
+      }
+    }
+    
+    //setLoading(false);
+  }, [yourPointData, opponentPointData]);
+
+  useEffect(() => {
+    if (yourFormattedData != null && oppFormattedData != null) {
+      if (yourFormattedData[yourFormattedData.length-1]?.value != undefined) {
+        console.log("Price:",yourFormattedData[yourFormattedData.length-1]?.value)
+        setLoading(false)
+      }
     } else {
       setLoading(true)
     }
-  }, [matchData])
+  }, [yourFormattedData, oppFormattedData])
 
 
   if (loading) {
@@ -185,82 +228,64 @@ const GameScreen = () => {
    <View style={styles.container}>
       <HTHPageHeader text="Head-to-Head" endAt={new Date(Date.now() + 900000)}/>
       <ScrollView>
-        {/* <View style={{flexDirection: 'row', marginTop: 20}}>
-          <View style={{marginLeft: 20}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-              <View style={[styles.hthGameIndicator, {backgroundColor: theme.colors.accent}]}></View>
-              <Text style={styles.userText}>You</Text>
-              <View style={styles.percentIndicator}>
-                <Text style={[styles.percentText, {color: theme.colors.accent}]}>+3.43%</Text>
-              </View>
-            </View>
-            <Text style={styles.portText}>$103,430.54</Text>
-          </View>
-          <View style={{flex: 1}}></View>
-          <View style={{marginRight: 20}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-              <View style={styles.percentIndicator}>
-                <Text style={[styles.percentText, {color: theme.colors.opposite}]}>+3.43%</Text>
-              </View>
-              <Text style={styles.userText}>Rzonance</Text>
-              <View style={[styles.hthGameIndicator, {backgroundColor: theme.colors.opposite}]}></View>
-            </View>
-            <Text style={[styles.portText, {textAlign: 'right'}]}>$103,430.54</Text>
-          </View>
-        </View> */}
-        <GameScreenGraph yourFormattedData={params?.yourFormattedData} oppFormattedData={params?.oppFormattedData} matchID={matchID} userID={userID}/>
+        <GameScreenGraph yourFormattedData={yourFormattedData} oppFormattedData={oppFormattedData} matchID={matchID} userID={userID}/>
         <View style={{marginHorizontal: 20}}>
           <View style={{
               flexDirection: 'row', 
-              backgroundColor: theme.colors.primary, 
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: theme.colors.tertiary,
-              padding: 10
+              marginTop: 15
             }}>
             <Text style={styles.buyingPowerText}>Buying Power</Text>
             <View style={{flex: 1}}></View>
-            <Text style={styles.buyingPowerText}>${(matchData[you].buyingPower).toFixed(2)}</Text>
+            <Text style={styles.buyingPowerText}>${(match[you].buyingPower).toFixed(2)}</Text>
           </View>
-          <View style={{marginTop: 20}}>
-            <Text style={{fontSize: 18, color: theme.colors.text, fontWeight: 'bold'}}>Leaderboard</Text>
+          <View style={{height: 2, backgroundColor: theme.colors.tertiary, marginTop: 15}}></View>
+          <View style={{marginTop: 15}}>
+            <Text style={{fontSize: 18, color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Leaderboard</Text>
             <View style={{flexDirection: 'row', marginTop: 5, gap: 20}}>
               <View style={{gap: 5}}>
                 <Text style={styles.leaderboardLabel}>#</Text>
-                <View style={{flexDirection: 'row', gap: 10, backgroundColor: theme.colors.primary, borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 10, justifyContent: 'flex-end'}}>
+                <View style={{flexDirection: 'row', gap: 10, backgroundColor: theme.colors.primary, 
+                borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 10, justifyContent: 'flex-end', alignItems: 'center', height: 30}}>
                   <Text style={styles.leaderboardText}>1</Text>
                   <View style={{width: 20, height: 20, borderRadius: 50, backgroundColor: 'red'}}></View>
                 </View>
-                <View style={{flexDirection: 'row', gap: 10, backgroundColor: theme.colors.primary, borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 10, justifyContent: 'flex-end'}}>
+                <View style={{flexDirection: 'row', gap: 10, backgroundColor: theme.colors.primary, 
+                borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 10, justifyContent: 'flex-end', alignItems: 'center', height: 30}}>
                   <Text style={styles.leaderboardText}>2</Text>
                   <View style={{width: 20, height: 20, borderRadius: 50, backgroundColor: 'red'}}></View>
                 </View>
               </View>
-              <View>
+              <View style={{gap: 5}}>
                 <Text style={styles.leaderboardLabel}>User</Text>
-                <View style={{flexDirection: 'row', gap: 10, marginTop: 10}}>
+                <View style={{flexDirection: 'row', borderWidth: 1, 
+                borderRadius: 10, paddingVertical: 5, alignItems: 'center', height: 30}}>
                   <Text style={styles.leaderboardText}>jjqtrader</Text>
                 </View>
-                <View style={{flexDirection: 'row', gap: 10, marginTop: 17}}>
+                <View style={{flexDirection: 'row', borderWidth: 1,
+                borderRadius: 10, paddingVertical: 5, alignItems: 'center', height: 30}}>
                   <Text style={styles.leaderboardText}>Rzonance</Text>
                 </View>
               </View>
               <View style={{flex: 1}}></View>
               <View style={{gap: 5}}>
                 <Text style={[styles.leaderboardLabel, {textAlign: 'right', marginRight: 3}]}>To Win</Text>
-                <View style={{flexDirection: 'row', gap: 10, backgroundColor: theme.colors.primary, borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 5, justifyContent: 'center'}}>
+                <View style={{flexDirection: 'row', height: 30, gap: 10, backgroundColor: theme.colors.primary, borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 5, justifyContent: 'center', alignItems: 'center'}}>
                   <Text style={[styles.leaderboardText, {color: theme.colors.accent}]}>$10</Text>
                 </View>
-                <View style={{flexDirection: 'row', gap: 10, backgroundColor: theme.colors.primary, borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 5, justifyContent: 'center'}}>
+                <View style={{flexDirection: 'row', height: 30, gap: 10, backgroundColor: theme.colors.primary, borderWidth: 1, borderRadius: 10, borderColor: theme.colors.tertiary, paddingVertical: 5, paddingHorizontal: 5, justifyContent: 'center', alignItems: 'center'}}>
                   <Text style={[styles.leaderboardText, {color: theme.colors.stockDownAccent}]}>$0</Text>
                 </View>
               </View>
             </View>
           </View>
+          <View style={{marginTop: 20}}>
+            <Text style={{fontSize: 18, color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>My Positions</Text>
+            <PositionCard ticker="META"/>
+          </View>
         </View>
       </ScrollView>
-      <TouchableOpacity style={[globalStyles.primaryBtn, { marginBottom: 50, backgroundColor: theme.colors.accent, justifyContent: 'center' }]}>
-        <Text style={{color: theme.colors.background, fontWeight: 'bold', fontSize: 18}}>Trade</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("InGameStockSearch", {matchID: matchID, userNumber: you, buyingPower: match[you].buyingPower})} style={[globalStyles.primaryBtn, { marginBottom: 50, backgroundColor: theme.colors.accent, justifyContent: 'center' }]}>
+        <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
       </TouchableOpacity>
    </View>
   );
