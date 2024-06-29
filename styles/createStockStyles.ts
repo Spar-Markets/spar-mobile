@@ -1,5 +1,6 @@
 import { Dimensions, StyleSheet } from 'react-native';
 import { useStatusBarHeight } from '../components/ContextComponents/StatusBarHeightContext';
+import { mdiBorderColor } from '@mdi/js';
 
 const createStockSearchStyles = (theme: any, width: number) => {
   const statusBarHeight = useStatusBarHeight();
@@ -15,11 +16,13 @@ const createStockSearchStyles = (theme: any, width: number) => {
         height: 40,
         color: theme.colors.text,
         fontSize: 14,
-        fontFamily: 'InterTight-Bold',
+        fontFamily: 'InterTight-regular',
         marginHorizontal: 20,
         marginTop:5,
         marginBottom: 10,
         backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.tertiary,
+        borderWidth: 1,
         borderRadius: 10,
         paddingLeft: 10,
     },
@@ -34,7 +37,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
-        marginHorizontal: 20
+        marginHorizontal: 20,
     },
     headerText: {
       color: theme.colors.text,
@@ -191,9 +194,11 @@ const createStockSearchStyles = (theme: any, width: number) => {
     },
     headerRightBtn: {
       position: 'absolute',
-      right: 0,
+      right: 10,
+      top: -40,
       paddingHorizontal: 10,
       paddingVertical: 10
+      
     },
     headerBackBtn: {
       position: 'absolute',
@@ -202,10 +207,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
       paddingRight: 50,
       paddingVertical: 10
     },
-    stockCardContainer: {
-      borderRadius: 10,
-      borderWidth: 1,
-    },
+
     stockCardTicker: {
       color: theme.colors.text,
       fontSize: 15,
@@ -232,22 +234,23 @@ const createStockSearchStyles = (theme: any, width: number) => {
     TradeButtonContainer: {
       position: 'absolute',
       bottom: 0,
-      left: 0,
-      right: 0,
       backgroundColor: theme.colors.background,
       paddingHorizontal: 20,
       paddingBottom: 40,
       paddingTop: 10,
       justifyContent: 'center',
+      width: '100%',
+      flexDirection: 'row',
+      gap: 10
     },
-    buyButton: {
+    tradeButton: {
       backgroundColor: theme.colors.stockDownAccent,
-      width: (width-50)/2,
+      flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 10
     },
-    buyButtonText: {
+    tradeButtonText: {
       color: theme.colors.background,
       fontSize: 18,
       fontFamily: 'InterTight-Black',
@@ -277,6 +280,58 @@ const createStockSearchStyles = (theme: any, width: number) => {
       fontSize: 16,
       fontFamily: 'InterTight-Bold',
   },
+
+  positionCardContainer: {
+    borderRadius: 10,
+    borderWidth: 1,
+    width: (width-45)/2,
+    height: 150,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.tertiary
+  },
+  positionCardName: {
+    color: theme.colors.secondaryText,
+    fontSize: 12,
+  },
+  expandingCircle: {
+    position: 'absolute',
+    bottom: 50,
+    left: width / 2,
+    width: 1,
+    height: 1,
+    borderRadius: 0.5,
+    transform: [{ translateX: -0.5 }, { translateY: -0.5 }],
+    backgroundColor: theme.colors.accent
+},
+dimBackground: {
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: 'black',
+  zIndex: 1,
+},
+dimTouchable: {
+  flex: 1,
+},
+popup: {
+  position: 'absolute',
+  bottom: 0,
+  width: '100%',
+  height: 300,
+  backgroundColor: theme.colors.background,
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.8,
+  shadowRadius: 2,
+  elevation: 5,
+  borderTopColor: theme.colors.primary,
+  borderTopWidth: 2,
+  zIndex: 2,
+},
+popupContent: {
+  flex: 1,
+  padding: 10,
+},
+
  
 
 

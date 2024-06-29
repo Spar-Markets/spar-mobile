@@ -7,6 +7,8 @@ import {
   useColorScheme,
   Animated,
   Dimensions,
+  Easing,
+  GestureResponderEvent,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -21,12 +23,17 @@ import HTHPageHeader from '../GlobalComponents/HTHPageHeader';
 import StockOrderToggleButton from './StockOrderToggleButton';
 import { TextInput } from 'react-native-gesture-handler';
 import HapticFeedback from "react-native-haptic-feedback";
+import Sound from 'react-native-sound';
+import { Image } from 'react-native';
 
 interface stockOrderParams {
   ticker: string;
   matchID: string;
   tradeType: string;
   buyingPower: number;
+  isBuying: boolean;
+  isSelling: boolean;
+  qty: number
 }
 
 const StockOrder = (props: any) => {
@@ -42,6 +49,9 @@ const StockOrder = (props: any) => {
   const [shareQuantity, setShareQuantity] = useState('0');
   const [marketPrice, setMarketPrice] = useState(124.34);
   const [inReview, setInReview] = useState(false)
+
+
+
 
   const goBack = () => {
     navigation.goBack();
@@ -66,12 +76,32 @@ const StockOrder = (props: any) => {
         ticker: params?.ticker,
         shares: shareQuantity,
       });
-      console.log("Buy Response:", buyResponse)
+      console.log("Buy Response:", buyResponse.data)
       if (buyResponse) {
-        navigation.navigate('GameScreen');
+        navigation.pop(2)
+        navigation.replace('OrderSummary', {ticker: params?.ticker, shares: shareQuantity});
       }
     } catch (error) {
       console.log("Buy Error", error);
+    }
+  };
+
+  const sellingStock = async () => {
+    try {
+      const userID = await AsyncStorage.getItem('userID');
+      const sellResponse = await axios.post(serverUrl + '/sellStock', {
+        userID: userID,
+        matchID: params?.matchID,
+        ticker: params?.ticker,
+        shares: shareQuantity,
+      });
+      console.log("Sell Response:", sellResponse.data)
+      if (sellResponse) {
+        navigation.pop(2)
+        navigation.replace('OrderSummary', {ticker: params?.ticker, shares: shareQuantity});
+      }
+    } catch (error) {
+      console.log("Sell Error", error);
     }
   };
 
@@ -132,24 +162,87 @@ const StockOrder = (props: any) => {
     maximumFractionDigits: 2 
   });
 
+  const keypadAnimation = useRef(new Animated.Value(0)).current;
+
+
+  const handleReview = () => {
+    setInReview(true);
+    Animated.timing(keypadAnimation, {
+      toValue: 335,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false,
+    }).start();
+
+  };
+
+  const handleEditOrder = () => {
+    setInReview(false);
+    Animated.timing(keypadAnimation, {
+      toValue: 0,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const radius = useRef(new Animated.Value(0)).current;
+
+  const handleSubmitPress = () => {
+    // Trigger haptic feedback multiple times in succession
+    const interval = setInterval(() => {
+        HapticFeedback.trigger("impactHeavy", {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+        });
+    }, 50); // Adjust the interval as needed (e.g., 100ms)
+
+    // Stop the haptic feedback after a short duration
+    setTimeout(() => {
+        clearInterval(interval);
+    }, 800); // Adjust the duration as needed (e.g., 800ms)
+
+    // Start the expansion and color change animations
+    Animated.parallel([
+        Animated.timing(radius, {
+            toValue: 2 * Math.sqrt(width * width + height * height),
+            duration: 800,
+            useNativeDriver: false,
+        }),
+    ]).start(() => {
+        //navigation.navigate('EmailScreen'); // Replace 'Home' with your desired route
+        if (params?.isBuying == true) {
+          purchaseStock()
+        } else if (params?.isSelling == true) {
+          sellingStock()
+        }
+    });
+  };
+
+  const [circlePosition, setCirclePosition] = useState({ x: width / 2, y: 130 });
+
+  const handlePressIn = (event: GestureResponderEvent) => {
+    setCirclePosition({ x: event.nativeEvent.pageX, y: event.nativeEvent.pageY });
+  };
+
   return (
     <View style={styles.container}>
-      <HTHPageHeader text={"Buying " + params?.ticker} endAt={Date.now() + 900000} />
+      {params?.isBuying == true &&
+        <HTHPageHeader text={"Buying " + params?.ticker} endAt={Date.now() + 900000} />
+      }
+      {params?.isSelling == true &&
+        <HTHPageHeader text={"Selling " + params?.ticker} endAt={Date.now() + 900000} />
+      }
       <View style={{ alignItems: 'center' }}>
-        <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Bold' }}>${params?.buyingPower.toFixed(2)} Available</Text>
+        {params?.isBuying && <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Bold' }}>${params?.buyingPower.toFixed(2)} Available</Text>}
+        {params?.isSelling && <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Bold' }}>{params?.qty} Shares Available</Text>}
       </View>
       <StockOrderToggleButton onToggle={handleToggle} />
       <View style={{ marginHorizontal: 20 }}>
         <View style={{ flexDirection: 'row', marginVertical: 20 }}>
           <Text style={styles.orderFieldText}>Quantity</Text>
           <View style={{ flex: 1 }}></View>
-          <TextInput
-            style={styles.orderTextInput}
-            onChangeText={setShareQuantity}
-            value={formattedShareQuantity}
-            placeholder="0"
-            keyboardType="numeric"
-          />
+          <Text style={styles.orderTextInput}>{formattedShareQuantity}</Text>
         </View>
         <View style={{ height: 1, backgroundColor: theme.colors.primary }}></View>
       </View>
@@ -163,14 +256,40 @@ const StockOrder = (props: any) => {
       </View>
       <View style={{ marginHorizontal: 20 }}>
         <View style={{ flexDirection: 'row', marginVertical: 20 }}>
-          <Text style={styles.orderFieldText}>Est. Cost</Text>
+          {params?.isBuying && <Text style={styles.orderFieldText}>Est. Cost</Text>}
+          {params?.isSelling && <Text style={styles.orderFieldText}>Est. Credit</Text>}
           <View style={{ flex: 1 }}></View>
           <Text style={styles.orderFieldText}>${estimatedCost}</Text>
         </View>
         <View style={{ height: 1, backgroundColor: theme.colors.primary }}></View>
       </View>
+      {inReview && <TouchableOpacity onPress={handleEditOrder} style={{paddingVertical: 15,justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={{color: theme.colors.accent, fontFamily: 'InterTight-Bold'}}>Edit Order</Text>
+      </TouchableOpacity>}
       <View style={{ flex: 1 }}></View>
-      <View>
+      <View style={{marginBottom: 50}}>
+      <Animated.View style={{ transform: [{ translateY: keypadAnimation }] }}>
+      <TouchableOpacity onPressIn={handlePressIn}
+        onPress={() => {
+          if (inReview) {
+            handleSubmitPress()
+          } else {
+            handleReview();
+          }
+        }}
+        style={[
+          globalStyles.primaryBtn,
+          { marginBottom: 50 }
+        ]}>
+        <Text style={globalStyles.primaryBtnText}>
+          {inReview ? 'Submit' : 'Review'}
+        </Text>
+      </TouchableOpacity>
+      </Animated.View>  
+      <Animated.View style={[styles.expandingCircle, { transform: [{ scale: radius }], 
+          top: circlePosition.y-500,
+          left: circlePosition.x, }]} />
+      <Animated.View style={{ transform: [{ translateY: keypadAnimation }] }}>
         <View>
           <View style={styles.row}>
             <TouchableOpacity
@@ -237,17 +356,7 @@ const StockOrder = (props: any) => {
             </TouchableOpacity>
           </View>
         </View>
-
-        <TouchableOpacity
-          onPress={() => {
-            purchaseStock();
-          }}
-          style={[globalStyles.primaryBtn, { marginBottom: 50 }]}>
-          <Text
-            style={globalStyles.primaryBtnText}>
-            Review
-          </Text>
-        </TouchableOpacity>
+        </Animated.View>
       </View>
     </View>
   );

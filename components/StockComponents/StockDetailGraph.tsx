@@ -35,7 +35,7 @@ const StockDetailGraph = (props: any) => {
   const [timeFrameSelected, setTimeFrameSelected] = useState<string>("1D");
   const [allPointData, setAllPointData] = useState<any>(null)
 
-  const [currentAccentColorValue, setCurrentAccentColorValue] = useState(theme.colors.primary);
+  const { currentAccentColorValue, setCurrentAccentColorValue } = props;
 
   const TimeButton = ({ timeFrame }:any) => (
     <View>
@@ -120,8 +120,8 @@ const StockDetailGraph = (props: any) => {
   }, [pointData]);
   
   const currentIndex = useDerivedValue(() => {
-    const index = timeFrameSelected != "1D" ? Math.round(state.x.position.value / width * pointData.length) 
-    : Math.round(state.x.position.value / width * pointData.length/marketFraction);
+    const index = timeFrameSelected != "1D" ? Math.round(state.x.position.value / width * (pointData.length-1)) 
+    : Math.round(state.x.position.value / width * (pointData.length-1)/marketFraction);
     return Math.min(Math.max(index, 0), pointData.length - 1);
   }, [pointData, state]);
 
@@ -137,22 +137,22 @@ const StockDetailGraph = (props: any) => {
       }
     }
   );
-  const timeSpacing = useSharedValue(13);
+  const spacing = useSharedValue(1);
 
   function ToolTip({ x, y, color }: { x: SharedValue<number>, y: SharedValue<number>, color: any }) {
     
     const adjustedX = useDerivedValue(() => {
-      return x.value - timeSpacing.value;
+      return x.value - spacing.value;
     })
 
     return (
       <Group>
-        <SkiaText                           
+        {/*<SkiaText                           
           text={"Time"}
           x={adjustedX}
           font={percentValFont}
-          color={theme.colors.text}/>
-        <Rect x={x} y={0} width={2} height={400} color={theme.colors.secondaryText}/>
+    color={theme.colors.text}/>*/}
+        <Rect x={adjustedX} y={0} width={2} height={400} color={theme.colors.secondaryText}/>
       </Group>
     );
   }
@@ -199,6 +199,7 @@ const StockDetailGraph = (props: any) => {
 
   const currentDate = useDerivedValue(() => {
     if (pointData.length > 0) {
+      console.log(currentIndex.value, pointData[currentIndex.value]?.date)
       return " • " + pointData[currentIndex.value]?.date
     }
     return ""
@@ -287,7 +288,7 @@ const StockDetailGraph = (props: any) => {
       return;
     }*/
    
-    const socket = new WebSocket('ws://localhost:3001');
+    const socket = new WebSocket('ws://10.0.0.127:3001');
 
     ws.current = socket;
     
@@ -358,6 +359,7 @@ const StockDetailGraph = (props: any) => {
 
   const [trackingTimeStamp, setTrackingTimeStamp] = useState<any>(null)
   const [lastInterval, setLastInterval] = useState<any>(null);
+  const [isFirstAnimation, setIsFirstAnimation] = useState(true)
 
   useEffect(() => {
     if (timeFrameSelected == "1D") {
@@ -366,12 +368,14 @@ const StockDetailGraph = (props: any) => {
       const livePriceMinutes = livePriceTime.getMinutes();
       const livePriceSeconds = livePriceTime.getSeconds();
 
+      const formattedLivePriceTime = livePriceTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
       // Function to check if the timestamp is close to a 5-minute interval
       const isCloseToFiveMinuteInterval = (minutes:any, seconds:any) => {
         const remainder = minutes % 5;
         return (
-          (remainder === 0 && seconds < 30) || // Close to the start of a 5-minute interval
-          (remainder === 4 && seconds > 30)    // Close to the end of a 5-minute interval
+          (remainder === 0 && seconds < 30) //|| // Close to the start of a 5-minute interval
+          //(remainder === 4 && seconds > 30)    // Close to the end of a 5-minute interval
         );
       };
 
@@ -385,14 +389,14 @@ const StockDetailGraph = (props: any) => {
           newPointData[newPointData.length - 1] = {
             ...newPointData[newPointData.length - 1],
             normalizedValue: livePrice[0]?.c - prevPointData[0].value,
-            value: livePrice[0]?.c
+            value: livePrice[0]?.c,
+            date: formattedLivePriceTime,
           };
           // Add a new point with the live price
           newPointData.push({
             value: livePrice[0]?.c,
             normalizedValue: livePrice[0]?.c - prevPointData[0].value,
-            date: new Date(livePrice[0]?.e).toString(),
-            index: prevPointData.length
+            date: formattedLivePriceTime,
           });
           setTrackingTimeStamp(livePrice[0]?.e);
           return newPointData;
@@ -400,18 +404,34 @@ const StockDetailGraph = (props: any) => {
         setLastInterval(currentInterval); // Update the last interval
       } else {
         console.log("animated point");
+        if (isFirstAnimation == true) {
         setPointData((prevPointData) => {
-          const newPointData = [...prevPointData];
+          const newPointData = [...prevPointData, {}];
           // Update only the last point with the current live price and date
           newPointData[newPointData.length - 1] = {
-            ...newPointData[newPointData.length - 1],
-            date: new Date(livePrice[0]?.e).toString(),
+            //...newPointData[newPointData.length - 1],
+            date: formattedLivePriceTime,
             normalizedValue: livePrice[0]?.c - prevPointData[0].value,
-            value: livePrice[0]?.c
+            value: livePrice[0]?.c,
           };
-          console.log(newPointData[newPointData.length - 1].date);
+          //console.log(newPointData[newPointData.length - 1].date);
           return newPointData;
         });
+        setIsFirstAnimation(false)
+        } else {
+          setPointData((prevPointData) => {
+            const newPointData = [...prevPointData];
+            // Update only the last point with the current live price and date
+            newPointData[newPointData.length - 1] = {
+              //...newPointData[newPointData.length - 1],
+              date: formattedLivePriceTime,
+              normalizedValue: livePrice[0]?.c - prevPointData[0].value,
+              value: livePrice[0]?.c,
+            };
+            //console.log(newPointData[newPointData.length - 1].date);
+            return newPointData;
+          });
+        }
       }
     }
   }
@@ -423,7 +443,7 @@ const StockDetailGraph = (props: any) => {
         <View>
           <View style={{marginHorizontal: 20, marginTop: 10, flexDirection:'row'}}>
             <View style={{flexDirection: 'row', gap: 10}}>
-              <Image source={{ uri: props.logoUrl }} style={{ aspectRatio: 1, borderRadius: 50}} />
+              {props.logoUrl != "logoUrlError" && <Image source={{ uri: props.logoUrl }} style={{ aspectRatio: 1, borderRadius: 50}} />}
               <View style={{marginVertical: 1}}>
                 <Text style={styles.stockDetailsTickerText}>{props.ticker}</Text>
                 <Text style={[styles.stockDetailsNameText, {width: width/3}]} numberOfLines={1} ellipsizeMode='tail'>{props.name}</Text>
@@ -435,13 +455,13 @@ const StockDetailGraph = (props: any) => {
               <Text style={styles.stockPriceText}>${pointData[currentIndex.value].value.toFixed(2).split(".")[0]}
                 <Text style={{fontSize: 15}}>.{pointData[currentIndex.value].value.toFixed(2).split(".")[1]}</Text>
               </Text>
-              <Text style={[styles.stockPercentText, {color: currentAccentColorValue}]}>{animatedValueDiff.value + " (" + animatedPercentDiff.value + "%)" /*+ currentDate.value*/}</Text>
+              <Text style={[styles.stockPercentText, {color: currentAccentColorValue}]}>{animatedValueDiff.value + " (" + animatedPercentDiff.value + "%)" + currentDate.value}</Text>
             </View> : 
             <View>
               <Text style={styles.stockPriceText}>${pointData[pointData.length-1].value.toFixed(2).split(".")[0]}
                 <Text style={{fontSize: 15}}>.{pointData[pointData.length-1].value.toFixed(2).split(".")[1]}</Text>
               </Text>
-              <Text style={[styles.stockPercentText, {color: currentAccentColorValue}]}>{onLoadValueDiff + " (" + onloadPercentDiff + "%)" /*+ currentDate.value*/}</Text>
+              <Text style={[styles.stockPercentText, {color: currentAccentColorValue}]}>{onLoadValueDiff + " (" + onloadPercentDiff + "%)" + lastDate.value}</Text>
             </View>
             }
           </View>
@@ -575,10 +595,10 @@ const StockDetailGraph = (props: any) => {
           </View>
         </View>
       ) : <View>
-            <View style={{ height: 400 }}>
+            <View style={{ height: 445}}>
             <Skeleton animation={"wave"} width={100} height={30} style={{marginLeft: 20, marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 10}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}/>
             <Skeleton animation={"wave"} width={200} height={15} style={{marginLeft: 20, marginTop: 5, backgroundColor: theme.colors.primary, borderRadius: 10}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}/>
-            <Skeleton animation={"wave"} width={width-40} height={320} style={{marginLeft: 20, marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 10}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}/>
+            <Skeleton animation={"wave"} width={width-40} height={370} style={{marginLeft: 20, marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 10}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}/>
             </View>
           </View>}
         

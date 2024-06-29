@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 import createOnboardStyles from '../../styles/createOnboardStyles';
 import {useTheme} from '../ContextComponents/ThemeContext';
 import {useDimensions} from '../ContextComponents/DimensionsContext';
@@ -11,7 +11,7 @@ const SplashScreen = () => {
 
   return (
     <View style={styles.splashContainer}>
-      <Text style={styles.spalshText}>Loading...</Text>
+      <ActivityIndicator size="large" />
     </View>
   );
 };

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockSearchStyles from '../../styles/createStockStyles';
@@ -11,14 +11,16 @@ const SearchCard = (props:any) => {
     const { width, height } = useDimensions();
     const styles = createStockSearchStyles(theme, width);
     const navigation = useNavigation<any>()
-    
+
+
+
     return (
         <TouchableOpacity onPress={() =>
             navigation.navigate('StockDetails', {
               matchID: props.matchID,
               buyingPower: props.buyingPower,
               ticker: props.ticker,
-              tradable: props.tradable,
+              assets: props.assets,
               inGame: props.inGame
             })
           } style={styles.searchCard}>

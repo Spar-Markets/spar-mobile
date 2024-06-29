@@ -144,7 +144,12 @@ const createHTHStyles = (theme: any, width: number) => {
         fontSize: 16,
         color: theme.colors.text,
         fontFamily: 'InterTight-Bold',
-    }
+    },
+    positionRow: {
+        flexDirection: 'row',
+        marginTop: 5,
+        justifyContent: 'space-between',
+      },
     
 
   });

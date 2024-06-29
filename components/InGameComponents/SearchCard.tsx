@@ -22,7 +22,7 @@ const StockCard = (props: any) => {
 
     run();
   }, [props.ticker]);*/
-
+  
   return (
     <View>
       {pointData.length > 0 && (

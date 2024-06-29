@@ -34,6 +34,13 @@ import LoginScreen from './components/OnboardComponents/LoginScreen';
 import Menu from './components/GlobalComponents/Menu';
 import SplashScreen from './components/OnboardComponents/SplashScreen';
 import WebViewScreen from './components/GlobalComponents/WebViewScreen';
+import Onboard1 from './components/OnboardComponents/Onboard1';
+import EmailScreen from './components/OnboardComponents/EmailScreen';
+import PasswordScreen from './components/OnboardComponents/PasswordScreen';
+import UsernameScreen from './components/OnboardComponents/UsernameScreen';
+import SignInScreen from './components/OnboardComponents/SignInScreen';
+import OrderSummary from './components/InGameComponents/OrderSummary';
+import CreateList from './components/HomeComponents/CreateList';
 
 
 
@@ -153,29 +160,69 @@ const AppContent = (): React.ReactElement => {
             component={WebViewScreen}
             options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="OrderSummary"
+            component={OrderSummary}
+            options={{
+              animation: 'fade'
+            }}
+          />
+          <Stack.Screen
+            name="CreateList"
+            component={CreateList}
+            options={{headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+              animation: 'slide_from_bottom'
+              
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     )
   } else {
     return (
       <NavigationContainer theme={theme}>
-        <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'}/>
         <Stack.Navigator screenOptions={{
             headerShown: false,
             gestureEnabled: true,
-            gestureDirection: 'horizontal',
           }}>
+          <Stack.Screen
+            name="Onboard1"
+            component={Onboard1}
+            options={{headerShown: false}}
+          />
           <Stack.Screen
             name="SignupScreen"
             component={SignupScreen}
+          />
+          <Stack.Screen
+            name="EmailScreen"
+            component={EmailScreen}
             options={{
-              gestureDirection: 'horizontal',
-              animation: 'slide_from_left',
+              animation: 'fade'
             }}
           />
           <Stack.Screen
-            name="LoginScreen"
-            component={LoginScreen}
+            name="PasswordScreen"
+            component={PasswordScreen}
+            options={{
+              animation: 'fade'
+            }}
+          />
+          <Stack.Screen
+            name="UsernameScreen"
+            component={UsernameScreen}
+            options={{
+              animation: 'fade'
+            }}
+          />
+          <Stack.Screen
+            name="SignInScreen"
+            component={SignInScreen}
+            options={{
+              animation: 'fade'
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>

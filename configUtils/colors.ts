@@ -6,10 +6,10 @@
 export const darkColors = {
     dark: true,
     colors: {
-        primary: '#1b1b1b', //main boxes
-        secondary: '#232222',
-        tertiary: '#434343',
-        background: '#000000',
+        primary: '#1a3040', //main boxes
+        secondary: '#27475e',
+        tertiary: '#366485',
+        background: '#111f29',
         border: '#000',
         accent: '#60FFCF', //most buttons
         accent2: '#3c3c3c', //border, some buttons
@@ -29,7 +29,8 @@ export const darkColors = {
         meme: '#00dd00',
         news: '#0000dd',
         dub: '#dd00dd',
-        question: '#00dddd'
+        question: '#00dddd',
+        darkAccent: '#1e634e'
 
 
         
@@ -62,7 +63,8 @@ export const lightColors = {
         meme: '#00dd00',
         news: '#0000dd',
         dub: '#dd00dd',
-        question: '#00dddd'
+        question: '#00dddd',
+        darkAccent: '#154234'
     }
 }
 

@@ -30,16 +30,19 @@ import createGlobalStyles from '../../styles/createGlobalStyles';
 import HTHPageHeader from '../GlobalComponents/HTHPageHeader';
 import {polygonKey} from '../../constants/global'
 import postSlice from '../../GlobalDataManagment/postSlice';
+import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
 interface RouteParams {
   ticker: string;
-  tradable: boolean;
-  canSell: boolean;
   matchID: string;
   buyingPower: number;
-  inGame: boolean
+  inGame: boolean;
+  assets: Array<any>;
+  owns: boolean;
+  qty: number
 }
 
 // apply stockdetails props interface so it knows its formatted correctly
@@ -89,15 +92,27 @@ const StockDetails = () => {
         //console.log("STOCK CONSOLE LOG:", response.data)
         //console.log("USERID:", userData?.userID)
         //console.log("TICKER IN WATCH:", params?.ticker)
-        setIsWatchingStock(response.data);
+        //setIsWatchingStock(response.data);
     } catch(error) {
       console.log('ERROR CHECKING IF STOCK IN WATCHLIST:', error);
     }
   };
 
+ 
+  const [currentAccentColorValue, setCurrentAccentColorValue] = useState(theme.colors.primary);
+  
+  let asset
+  let owns
+
+  if (params?.assets) {
+    asset = params?.assets.find((asset: any) => asset.ticker === ticker);
+    owns = (asset != undefined)
+  }
+
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log("Params", params)
       setLoading(true);
       try {
         await checkIfStockIsWatched()
@@ -105,34 +120,36 @@ const StockDetails = () => {
           ticker: params?.ticker,
         });
         if (tickerResponse) {
+          console.log(tickerResponse.data.priceDetails)
           setTickerData(tickerResponse.data);
         }
+
       } catch {
         console.error('Error getting details in StockDetails.tsx');
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     if (userData?.userID) {
       setTicker(params?.ticker || '');
       fetchData();
     }
-  }, [userData]);
+  }, [userData, params]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (tickerData != null && isWatchingStock != null) {
       //console.log("FINAL USE EFFECT STOCK:", isWatchingStock)
       setLoading(false)
     } else {
       setLoading(true)
     }
-  }, [isWatchingStock])
+  }, [isWatchingStock])*/
 
   const toggleWatchStock = async () => {
     try {
-      setIsWatchingStock(!isWatchingStock)
-      if (isWatchingStock) {
+      //setIsWatchingStock(!isWatchingStock)
+      togglePopup()
+     /* if (isWatchingStock) {
         const watchStockResponse = await axios.post(serverUrl+"/unwatchStock", 
           {userID: userData?.userID, ticker: tickerData.detailsResponse.results.ticker})
         console.log(watchStockResponse.data)
@@ -140,11 +157,63 @@ const StockDetails = () => {
         const watchStockResponse = await axios.post(serverUrl+"/watchStock", 
           {userID: userData?.userID, ticker: tickerData.detailsResponse.results.ticker})
         console.log(watchStockResponse.data)
-      }
+      }*/
     } catch {
       console.log("error watching stock")
     }
   }
+
+  const [visible, setVisible] = useState(false);
+  const translateY = useSharedValue(700); // Initial position off the screen
+  const dimOpacity = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    };
+  });
+
+  const dimStyle = useAnimatedStyle(() => {
+    return {
+      opacity: dimOpacity.value,
+    };
+  });
+
+  const togglePopup = () => {
+    setVisible(!visible);
+    translateY.value = withTiming(visible ? 300 : 0, {
+      duration: 500,
+      easing: Easing.out(Easing.exp), // You can use any Easing function you prefer here
+    });
+    dimOpacity.value = withTiming(visible ? 0 : 0.5, {
+      duration: 500,
+      easing: Easing.out(Easing.exp),
+    });
+  };
+
+
+
+  const PopupWatchlistSelector = () => {
+  
+    return (
+        <Animated.View style={[styles.popup, animatedStyle]}>
+          <View style={styles.popupContent}>
+            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 18}}>Add {ticker} to a List</Text>
+          </View>
+        </Animated.View>
+    );
+  };
+  
+
+  if (loading) {
+    return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <CustomActivityIndicator size={60} color={theme.colors.text}/>
+        </View>
+    )
+  }
+
+
 
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
@@ -152,7 +221,7 @@ const StockDetails = () => {
         <View style={{flex: 1}}>
           <View style={styles.stockDetailsContainer}>
             {params?.inGame ? <HTHPageHeader endAt={Date.now() + 900000}/> : <PageHeader/>}
-            {/*params?.inGame != true && <View style={{}}>
+            {params?.inGame != true && <View style={{}}>
               
               {isWatchingStock ? 
                 <TouchableOpacity style={styles.headerRightBtn} onPress={toggleWatchStock}>
@@ -163,18 +232,52 @@ const StockDetails = () => {
                 </TouchableOpacity>}
               
             
-              </View>*/}
-            {tickerData != null && params != undefined ? (
+              </View>}
+            {tickerData != null && params != undefined  ? (
               <ScrollView style={{paddingBottom: 60}} showsVerticalScrollIndicator={false}>
                 <View>
-                  <StockDetailGraph ticker={ticker} livePrice={livePrice} timeframe={timeFrameSelected} name={tickerData.detailsResponse.results.name} logoUrl={tickerData.detailsResponse.results.branding.icon_url + "?apiKey=" + polygonKey}/>
+                  <StockDetailGraph 
+                  ticker={ticker} 
+                  livePrice={livePrice} 
+                  timeframe={timeFrameSelected} 
+                  name={tickerData.detailsResponse.results.name} 
+                  logoUrl={tickerData.detailsResponse.results.branding != undefined ? tickerData.detailsResponse.results.branding.icon_url + "?apiKey=" + polygonKey : "logoUrlError"}
+                  currentAccentColorValue={currentAccentColorValue}
+                  setCurrentAccentColorValue={setCurrentAccentColorValue}
+                  />
                 </View>
+                {(owns == true || params?.owns == true) && <View style={{marginHorizontal: 25, marginTop: 10}}>
+                  <Text style={styles.subjectLabel}>Position</Text>
+                  <View style={{flexDirection: 'row', marginTop: 5}}>
+                    <View style={{flex: 0.7, gap: 10}}>
+                      <View>
+                        <Text style={styles.statType}>Shares</Text>
+                        <Text style={styles.statData}>{asset.totalShares}</Text>
+                      </View>
+                      <View>
+                        <Text style={styles.statType}>Avg. Cost</Text>
+                        <Text style={styles.statData}>${asset.avgCostBasis.toFixed(2)}</Text>
+                      </View>
+                    </View>
+                    <View style={{gap: 10}}>
+                      <View>
+                        <Text style={styles.statType}>Mkt Value</Text>
+                        <Text style={styles.statData}>$4054.65</Text>
+                      </View>
+                      <View>
+                        <Text style={styles.statType}>Match Return</Text>
+                        <Text style={styles.statData}></Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>}
                 <View style={{marginHorizontal: 25, marginTop: 10}}>
                   <Text style={styles.subjectLabel}>Overview</Text>
                   <Text style={styles.overviewText}>
-                    {isExpanded
-                      ? tickerData.detailsResponse.results.description
-                      : `${tickerData.detailsResponse.results.description.substring(0, 200)}...`}
+                    
+                  {isExpanded
+                      ? tickerData?.detailsResponse?.results?.description
+                      : `${tickerData?.detailsResponse?.results?.description?.substring(0, 200) || 'No description available.'}...`}
                   </Text>
                   <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)} style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Text style={styles.showMoreButtonText}>
@@ -202,13 +305,13 @@ const StockDetails = () => {
                       </View>
                       <View>
                         <Text style={styles.statType}>Today's Volume</Text>
-                        <Text style={styles.statData}>{formatLargeNumber(tickerData.priceDetails.volume)}</Text>
+                        {tickerData.priceDetails && <Text style={styles.statData}>{formatLargeNumber(tickerData.priceDetails.volume)}</Text>}
                       </View>
                     </View>
                     <View style={{gap: 10}}>
                       <View>
                         <Text style={styles.statType}>Market Cap</Text>
-                        <Text style={styles.statData}>${formatLargeNumber(tickerData.detailsResponse.results.market_cap)}</Text>
+                        {tickerData.detailsResponse.results.market_cap && <Text style={styles.statData}>${formatLargeNumber(tickerData.detailsResponse.results.market_cap)}</Text>}
                       </View>
                       <View>
                         <Text style={styles.statType}>52 Wk High</Text>
@@ -260,13 +363,34 @@ const StockDetails = () => {
           </View>
           {params?.inGame == true &&
           <View style={styles.TradeButtonContainer}>
-            <TouchableOpacity style={styles.buyButton} onPress={() => navigation.navigate("StockOrder", {isBuying: true, ticker: params?.ticker, matchID: params?.matchID, buyingPower: params?.buyingPower})}>
-              <Text style={styles.buyButtonText}>Buy</Text>
+            <TouchableOpacity style={[styles.tradeButton, {backgroundColor: currentAccentColorValue}]} 
+            onPress={() => navigation.navigate("StockOrder", {
+              isBuying: true, 
+              ticker: params?.ticker, 
+              matchID: params?.matchID, 
+              buyingPower: params?.buyingPower})}>
+              <Text style={styles.tradeButtonText}>Buy</Text>
             </TouchableOpacity>
+            {(owns == true || params?.owns == true) &&
+            <TouchableOpacity style={[styles.tradeButton, {backgroundColor: currentAccentColorValue}]} 
+            onPress={() => navigation.navigate("StockOrder", {
+              isSelling: true, 
+              ticker: params?.ticker, 
+              matchID: params?.matchID, 
+              qty: params?.qty})}>
+                <Text style={[styles.tradeButtonText]}>Sell</Text>
+            </TouchableOpacity>
+            }
           </View>
           }
         </View>
       )}
+      {visible && (
+        <Animated.View style={[styles.dimBackground, dimStyle]}>
+          <TouchableOpacity style={styles.dimTouchable} onPress={togglePopup} />
+        </Animated.View>
+      )}
+      <PopupWatchlistSelector/>
     </View>
   );
 };

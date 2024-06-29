@@ -13,7 +13,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
 import {serverUrl} from '../../constants/global';
 import StockCard from '../StockCard';
-import {Search} from 'js-search';
+import fuzzysort from 'fuzzysort';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
@@ -21,6 +21,7 @@ import createStockSearchStyles from '../../styles/createStockStyles';
 
 import useUserDetails from '../../hooks/useUserDetails';
 import SearchCard from './SearchCard';
+import GainerCard from './GainerCard';
 
 interface stockObject {
   ticker: string;
@@ -50,6 +51,23 @@ const StockSearch = () => {
   };
 
   const { userData } = useUserDetails();
+  const [gainerList, setGainerList] = useState<any[]>([])
+
+  useEffect(() => {
+    const getGainers = async () => {
+      try {
+        console.log("Getting Gainers");
+        const response = await axios.post(serverUrl + '/getGainers');
+        if (response.data) {
+          setGainerList(response.data.tickers)
+        }
+      } catch (error) {
+        console.error("Error fetching gainers:", error);
+      }
+    };
+  
+    getGainers();
+  }, []);
 
   useEffect(() => {
     updateTickerList();
@@ -58,24 +76,17 @@ const StockSearch = () => {
   const handleSearch = async (text: string) => {
     setStockSearch(text);
     if (text) {
-      // if there is search data, perform the search
-      // Initialize the search instance
-      const search = new Search('ticker');
+      const results = fuzzysort.go(text, listOfTickers, {
+        keys: ['ticker', 'companyName'],
+        limit: 7
+      })
 
-      // Add indexes to search across both ticker and companyName
-      search.addIndex('ticker');
-      search.addIndex('companyName');
+      const formattedResults: stockObject[] = []
+      for (let result of results) {
+        formattedResults.push(result.obj);
+      }
 
-      // Add array of data
-      search.addDocuments(listOfTickers);
-
-      // Get search results (array of objects)
-      const results: stockObject[] = search.search(text) as stockObject[];
-
-      // get first 5 results
-      const firstFiveResults: stockObject[] = results.slice(0, 10);
-
-      setSearchResults(firstFiveResults);
+      setSearchResults(formattedResults);
     }
   };
 
@@ -103,7 +114,7 @@ const StockSearch = () => {
       />
       <View style={{}}>
         {stockSearch == '' ? (
-          <View style={{marginHorizontal: 20}}>
+          /*<View style={{marginHorizontal: 20}}>
             <Text
               style={{
                 fontFamily: 'InterTight-Black',
@@ -123,7 +134,10 @@ const StockSearch = () => {
               {CategoryButton('Financials')}
               {CategoryButton('Energy')}
             </View>
-          </View>
+            </View>*/
+            <View>
+
+            </View>
         ) : (
           <View>
             <FlatList

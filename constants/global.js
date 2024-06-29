@@ -1,4 +1,4 @@
-const ip = 'http://localhost:3000';
+const ip = 'http://10.0.0.127:3000';
 const port = 3000;
 // const mongoPort = 8000;
 

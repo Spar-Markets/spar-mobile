@@ -108,12 +108,13 @@ const Feed: React.FC = () => {
           />
         }
       />
-      <View style={{ flexDirection: 'row', margin: 20 }}>
-        <View style={{ flex: 1 }}></View>   
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreatePost')}>
-          <Icon name="plus" size={24} color={theme.colors.background} />
-        </TouchableOpacity>
-      </View>
+
+        <View style={{position: 'absolute', right: 0, bottom: 0}}>
+          <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreatePost')}>
+            <Icon name="plus" size={24} color={theme.colors.background} />
+          </TouchableOpacity>
+        </View>
+      
     </View>
   );
 };

@@ -37,6 +37,7 @@ const useAuth = () => {
     });
     return unsub;
   }, []);
+
   return {user, loading};
 };
 

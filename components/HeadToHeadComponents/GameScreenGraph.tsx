@@ -14,7 +14,7 @@ import axios from 'axios';
 import {serverUrl} from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {LineChart} from 'react-native-gifted-charts';
-import PositionCard from '../InGameComponents/PositionCard';
+import PositionCard from '../HeadToHeadComponents/PositionCard';
 import LinearGradient from 'react-native-linear-gradient';
 import {act} from 'react-test-renderer';
 import { useTheme } from '../ContextComponents/ThemeContext';
@@ -26,6 +26,7 @@ import createGlobalStyles from '../../styles/createGlobalStyles';
 import { CartesianChart, Line, useChartPressState } from 'victory-native';
 import { SharedValue, runOnJS, useAnimatedReaction, useDerivedValue } from 'react-native-reanimated';
 import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint, RadialGradient, vec, BlurMask } from '@shopify/react-native-skia';
+import { ActivityIndicator } from 'react-native';
 
 const socket = new WebSocket('wss://music-api-grant.fly.dev/');
 
@@ -45,7 +46,7 @@ const GameScreenGraph = (props:any) => {
   const globalStyles = createGlobalStyles(theme, width);
 
   //const params = route.params as RouteParams | undefined;
- // const matchID = params?.matchID
+  const matchID = props?.matchID
 
   const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [activeMatch, setActiveMatch] = useState<any>(null);
@@ -65,12 +66,13 @@ const GameScreenGraph = (props:any) => {
   const [maxY, setMaxY] = useState<any>()
   const [minY, setMinY] = useState<any>()
 
-
   useEffect(() => {
     const yourDataMax = Math.max(...(yourFormattedData).map((item:any) => item.normalizedValue))
     const oppDataMax = Math.max(...(oppFormattedData).map((item:any) => item.normalizedValue))
     const youDataMin = Math.min(...(yourFormattedData).map((item:any) => item.normalizedValue))
     const oppDataMin = Math.min(...(oppFormattedData).map((item:any) => item.normalizedValue))
+
+    
 
     if (oppDataMax > yourDataMax) {
       setMaxY(oppDataMax)
@@ -83,8 +85,62 @@ const GameScreenGraph = (props:any) => {
     } else {
       setMinY(oppDataMin)
     }
-    //setLoading(false);
+
   }, []);
+
+
+// this is to get the live portfolio value
+const [livePortfolioValue, setLivePortfolioValue] = useState("")
+
+useEffect(() => {
+  //console.log(params?.oppFormattedData)
+  if (matchID != null) {
+    const ws = new WebSocket('wss://music-api-grant.fly.dev/');
+
+    ws.onopen = () => {
+      console.log('Connected to server');
+      ws.send(
+        JSON.stringify({
+          matchID: matchID,
+          type: 'match',
+        }),
+      );
+    };
+
+    ws.onmessage = event => {
+      console.log(`Received message: ${event.data}`);
+      // calculate portfolio value
+      function calculatePortfolioValue() {
+        // when websocket opens 
+
+
+        
+      }
+
+
+    };
+
+    ws.onerror = error => {
+      console.error(
+        'WebSocket error:',
+        error.message || JSON.stringify(error),
+      );
+    };
+
+    // close websocket once component unmounts
+    return () => {
+      if (ws) {
+        ws.close(
+          1000,
+          'Closing websocket connection due to page being closed',
+        );
+        console.log('Closed websocket connection due to page closing');
+      }
+    };
+  } else {
+    console.log('game screen activematchID is nothing but should update ');
+  }
+}, []);
 
 
   const { state, isActive } = useChartPressState({ x: 0, y: { normalizedValue: 0 } });
@@ -163,8 +219,9 @@ const GameScreenGraph = (props:any) => {
     }
   );
 
+  
 
-
+  
 
   return (
 
@@ -172,10 +229,10 @@ const GameScreenGraph = (props:any) => {
         <View style={{flexDirection: 'row', marginTop: 20, height: 80}}>
           <View style={{marginLeft: 20}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-              <View style={[styles.hthGameIndicator, {backgroundColor: theme.colors.accent}]}></View>
+              <View style={[styles.hthGameIndicator, {backgroundColor: props.yourColor}]}></View>
               <Text style={styles.userText}>You</Text>
               <View style={styles.percentIndicator}>
-                <Text style={[styles.percentText, {color: theme.colors.accent}]}>{isActive ? yourPercentDiff.value : yourInitialPercentDiff}%</Text>
+                <Text style={[styles.percentText, {color: props.yourColor}]}>{isActive ? yourPercentDiff.value : yourInitialPercentDiff}%</Text>
               </View>
             </View>
             <Text style={styles.portText}>${ isActive ? yourPriceValue.value.toFixed(2) : (yourFormattedData[yourFormattedData.length - 1].value).toFixed(2)}</Text>
@@ -186,7 +243,7 @@ const GameScreenGraph = (props:any) => {
               <View style={styles.percentIndicator}>
                 <Text style={[styles.percentText, {color: theme.colors.opposite}]}>{isActive ? oppPercentDiff.value : oppInitialPercentDiff}%</Text>
               </View>
-              <Text style={styles.userText}>Rzonance</Text>
+              <Text style={styles.userText}>{props.oppName}</Text>
               <View style={[styles.hthGameIndicator, {backgroundColor: theme.colors.opposite}]}></View>
             </View>
             <Text style={[styles.portText, {textAlign: 'right'}]}>${isActive ? oppPriceValue.value.toFixed(2) : (oppFormattedData[oppFormattedData.length - 1].value).toFixed(2)}</Text>
@@ -232,7 +289,7 @@ const GameScreenGraph = (props:any) => {
             
             <Group>
             {isActive && <ToolTip x={state.x.position} y={state.y.normalizedValue.position}/>}
-            <Line points={points.normalizedValue} color={theme.colors.stockUpAccent} 
+            <Line points={points.normalizedValue} color={props.yourColor} 
             strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
             </Group>
             </>

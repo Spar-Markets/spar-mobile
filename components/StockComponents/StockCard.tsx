@@ -1,5 +1,5 @@
 import { Image, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockSearchStyles from '../../styles/createStockStyles';
@@ -8,6 +8,8 @@ import { CartesianChart, Line } from 'victory-native';
 import getPrices from '../../utility/getPrices';
 import axios from 'axios'
 import { serverUrl } from '../../constants/global';
+import getMarketFraction from '../../utility/getMarketFraction'
+import { Skeleton } from '@rneui/base';
 
 
 const StockCard = (props:any) => {
@@ -20,6 +22,7 @@ const StockCard = (props:any) => {
     const [isLoading, setIsLoading] = useState(true)
 
     const [name, setName] = useState("")
+
 
     useEffect(() => {
         const getPricesForSelectedTime = async () => {
@@ -38,14 +41,100 @@ const StockCard = (props:any) => {
               } catch {
                 console.error('Error getting details in StockDetails.tsx');
               } finally {
-                setIsLoading(false)
+                //setIsLoading(false)
               }
         }
 
-    getPricesForSelectedTime()
-  
+    getPricesForSelectedTime()  
     
     }, [props.ticker]);
+
+
+    //ALL SOCKET STUFF ---------------------------------------
+    const [livePrice, setPassingLivePrice] = useState<any>(null)
+
+    function uint8ArrayToString(array:any) {
+        return array.reduce((data:any, byte:any) => data + String.fromCharCode(byte), '');
+    }
+    
+    const ws = useRef<WebSocket | null>(null);
+
+    const [retries, setRetries] = useState(0);
+
+    const MAX_RETRIES = 5;  // Maximum number of retry attempts
+    const RETRY_DELAY = 2000; // Delay between retries in milliseconds
+
+    const setupSocket = async (ticker: any) => {
+    /*if (ws.current && (ws.current.readyState === WebSocket.OPEN || 
+        ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.CLOSING)) {
+        // WebSocket is already open or connecting, no need to create a new one
+        console.log("WS FROM RETURN CHECK:", ws.current)
+        return;
+    }*/
+    
+    const socket = new WebSocket('ws://10.0.0.127:3001');
+
+    ws.current = socket;
+    
+    ws.current.onopen = () => {
+        //console.log(`Connected to ${ticker}, but not ready for messages...`);
+        if (ws.current!.readyState === WebSocket.OPEN) {
+        //console.log(`Connection for ${ticker} is open and ready for messages`);
+        ws.current!.send(JSON.stringify({ ticker: ticker, status: 'add' }));
+        } else {
+        console.log('WebSocket is not open:', ws.current!.readyState);
+        }
+    };
+
+    ws.current.onmessage = (event) => {
+        const buffer = new Uint8Array(event.data);
+        const message = uint8ArrayToString(buffer);
+        
+        //console.log(`Websocket Received message: ${message}`);
+        
+
+        try {
+            const jsonMessage = JSON.parse(message);
+            setPassingLivePrice(jsonMessage);
+            } catch (error) {
+            setPassingLivePrice(message);
+        }
+    };
+
+    ws.current.onerror = (error) => {
+        console.log('WebSocket error:', error || JSON.stringify(error));
+        if (retries < MAX_RETRIES) {
+        console.log(`Retrying connection (${retries + 1}/${MAX_RETRIES})...`);
+        setRetries(retries + 1);
+        setTimeout(() => {
+            setupSocket(ticker);
+        }, RETRY_DELAY);
+        } else {
+        console.error('Maximum retry attempts reached. Unable to connect to WebSocket.');
+        }
+    };
+
+    ws.current.onclose = () => {
+        console.log(`Connection to ${ticker} closed`);
+    };
+    };
+
+    useEffect(() => {
+    //console.log("SETTING UP SOCKET WITH:", props.ticker);
+    setupSocket(props.ticker);
+
+    return () => {
+        if (ws.current) {
+        ws.current.send(JSON.stringify({ ticker: props.ticker, status: 'delete' }));
+        ws.current.close(1000, 'Closing websocket connection due to page being closed');
+        //console.log('Closed websocket connection due to page closing');
+        ws.current = null;  // Ensure the reference is cleared
+        }
+    };
+    }, [props.ticker]);
+    //--------------------------------------------------------
+    
+    const { onDataFetched } = props;
 
     useEffect(() => {
         if (pointData.length > 0) {
@@ -81,31 +170,130 @@ const StockCard = (props:any) => {
           setPercentDiff("0.00");
           setValueDiff("0.00");
         }
-      }, [pointData]);
+    }, [pointData]);
+
+    const [lastInterval, setLastInterval] = useState<any>(null);
+    const [isFirstAnimation, setIsFirstAnimation] = useState(true)
     
-      useEffect(() => {
+    const [marketFraction, setMarketFraction] = useState(1);
+    
+    useEffect(() => {
+        setMarketFraction(getMarketFraction(new Date(Date.now() - 90000)));
+    }, [pointData]);
+
+    useEffect(() => {
+        if (livePrice && pointData.length > 0) {
+          const livePriceTime = new Date(livePrice[0]?.e);
+          const livePriceMinutes = livePriceTime.getMinutes();
+          const livePriceSeconds = livePriceTime.getSeconds();
+    
+          const formattedLivePriceTime = livePriceTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+          // Function to check if the timestamp is close to a 5-minute interval
+          const isCloseToFiveMinuteInterval = (minutes:any, seconds:any) => {
+            const remainder = minutes % 5;
+            return (
+              (remainder === 0 && seconds < 30) //|| // Close to the start of a 5-minute interval
+              //(remainder === 4 && seconds > 30)    // Close to the end of a 5-minute interval
+            );
+          };
+    
+          const currentInterval = Math.floor(livePriceMinutes / 5);
+
+    
+          if (isCloseToFiveMinuteInterval(livePriceMinutes, livePriceSeconds) && currentInterval !== lastInterval) {
+            //console.log("ADDING DATA POINT");
+            setPointData((prevPointData) => {
+              const newPointData = [...prevPointData];
+              // Update the last point with the current live price
+              newPointData[newPointData.length - 1] = {
+                ...newPointData[newPointData.length - 1],
+                normalizedValue: livePrice[0]?.c - prevPointData[0].value,
+                value: livePrice[0]?.c,
+                date: formattedLivePriceTime,
+              };
+              // Add a new point with the live price
+              newPointData.push({
+                value: livePrice[0]?.c,
+                normalizedValue: livePrice[0]?.c - prevPointData[0].value,
+                date: formattedLivePriceTime,
+              });
+              return newPointData;
+            });
+            setLastInterval(currentInterval); // Update the last interval
+          } else {
+            //console.log("animated point");
+            if (isFirstAnimation == true) {
+            setPointData((prevPointData) => {
+              const newPointData = [...prevPointData, {}];
+              // Update only the last point with the current live price and date
+              newPointData[newPointData.length - 1] = {
+                //...newPointData[newPointData.length - 1],
+                date: formattedLivePriceTime,
+                normalizedValue: livePrice[0]?.c - prevPointData[0].value,
+                value: livePrice[0]?.c,
+              };
+              //console.log(newPointData[newPointData.length - 1].date);
+              return newPointData;
+            });
+            setIsFirstAnimation(false)
+            } else {
+              setPointData((prevPointData) => {
+                const newPointData = [...prevPointData];
+                // Update only the last point with the current live price and date
+                newPointData[newPointData.length - 1] = {
+                  //...newPointData[newPointData.length - 1],
+                  date: formattedLivePriceTime,
+                  normalizedValue: livePrice[0]?.c - prevPointData[0].value,
+                  value: livePrice[0]?.c,
+                };
+                //console.log(newPointData[newPointData.length - 1].date);
+                return newPointData;
+              });
+            }
+          }
+        }
+    }, [livePrice]);
+    
+    useEffect(() => {
         calculatePercentAndValueDiffAndColor();
-      }, [pointData]);
+    }, [pointData]);
 
     if (isLoading) {
-        return <View></View>
+        return (
+        <View style={{marginVertical: 10, height: 40, width: width-40}}>
+          <View style={{flexDirection: 'row'}}>
+            <View>
+              <Skeleton animation={"pulse"} height={20} width={45} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+              <Skeleton animation={"pulse"} height={10} width={90} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+            </View>
+            <View style={{flex: 1, marginHorizontal: 30}}>
+            <Skeleton animation={"pulse"} height={35} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+            </View>
+            <View style={{alignItems: 'flex-end'}}>
+              <Skeleton animation={"pulse"} height={20} width={45} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+              <Skeleton animation={"pulse"} height={10} width={90} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+            </View>
+          </View>
+        </View>)
     }
 
     return (
-        <TouchableOpacity style={styles.stockCardContainer} onPress={() =>
+        <TouchableOpacity onPress={() =>
             navigation.navigate('StockDetails', {
 
               ticker: props.ticker,
           
             })}>
 
-                <View style={{flexDirection: 'row', marginVertical: 10, gap: 40, justifyContent: 'center'}}>
+                <View style={{flexDirection: 'row', marginVertical: 10, gap: 40, justifyContent: 'center', height: 40}}>
                     <View style={{justifyContent: 'center'}}>
                         <Text style={styles.stockCardTicker}>{props.ticker}</Text>
                         <Text style={[styles.stockCardName, {width: width/4}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
                     </View>
                     {pointData && 
                     <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
+                    domain={{x: [0, (pointData.length-1)/getMarketFraction(new Date(Date.now()-90000))]}}
                     >
                     {({ points }) => (
                         <>
@@ -119,7 +307,7 @@ const StockCard = (props:any) => {
                         <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
                     </View>
                 </View>
-            
+                <View style={{height: 1, width: '100%', backgroundColor: theme.colors.tertiary, marginVertical: 10}}/>
         </TouchableOpacity>
     )
 }

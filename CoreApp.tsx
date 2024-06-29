@@ -67,7 +67,7 @@ const CoreApp = (): React.ReactElement => {
             <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false}}/>
             <Tab.Screen name="Feed" component={Feed} options={{headerShown:false}}/>
             <Tab.Screen name="Bank" component={Bank} options={{headerShown: false}}/>
-            <Tab.Screen name="Profile" component={Profile}/>
+            <Tab.Screen name="Profile" component={Profile} options={{headerShown: false}}/>
         </Tab.Navigator>
   );
 };

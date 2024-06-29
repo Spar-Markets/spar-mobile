@@ -7,6 +7,7 @@ import {
   useColorScheme,
   NativeModules,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
@@ -28,9 +29,10 @@ import { SharedValue, useDerivedValue } from 'react-native-reanimated';
 import { Circle, Group, Paint, Rect } from '@shopify/react-native-skia';
 import GameScreenGraph from './GameScreenGraph';
 import {GraphPoint} from 'react-native-graph';
+import { set } from 'lodash';
+import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 
 const socket = new WebSocket('wss://music-api-grant.fly.dev/');
-
 
 interface RouteParams {
   matchID: string
@@ -57,58 +59,8 @@ const GameScreen = () => {
 
   const [loading, setLoading] = useState(true)
 
-  // this is to get the live portfolio value
-  useEffect(() => {
-    //console.log(params?.oppFormattedData)
-    /*if (activeMatchID != null) {
-      const ws = socket;
 
-      ws.onopen = () => {
-        console.log('Connected to server');
-        ws.send(
-          JSON.stringify({
-            matchID: activeMatchID,
-            type: 'match',
-            status: 'add',
-          }),
-        );
-      };
-
-      ws.onmessage = event => {
-        console.log(`Received message: ${event.data}`);
-      };
-
-      ws.onerror = error => {
-        console.error(
-          'WebSocket error:',
-          error.message || JSON.stringify(error),
-        );
-      };
-
-      // close websocket once component unmounts
-      return () => {
-        if (ws) {
-          // sending ticker on ws close to remove it from interested list
-          ws.send(
-            JSON.stringify({
-              matchID: activeMatchID,
-              type: 'match',
-              status: 'delete',
-            }),
-          );
-
-          ws.close(
-            1000,
-            'Closing websocket connection due to page being closed',
-          );
-          console.log('Closed websocket connection due to page closing');
-        }
-      };
-    } else {
-      console.log('game screen activematchID is nothing but should update ');
-    }*/
-  }, []);
-
+  
 
   const [match, setMatch] = useState<any>(null)
   const [yourPointData, setYourPointData] = useState<GraphPoint[]>([]);
@@ -119,6 +71,39 @@ const GameScreen = () => {
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
   const [yourColor, setYourColor] = useState("#fff")
+  const [assets, setAssets] = useState<any[]>([])
+
+  const [firstPlace, setFirstPlace] = useState("")
+  const [secondPlace, setSecondPlace] = useState("")
+
+  // time left in match WHEN component mounts
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  // useEffect for updating time
+  useEffect(() => {
+    // only execute if match object exists
+    if (match && match.endAt) {
+      // Calculate time until match end
+      const end = new Date(match.endAt);
+      const now = new Date();
+      const timeUntilEnd = end.getTime() - now.getTime();
+
+      if (timeUntilEnd <= 0) {
+        // If the match end time has already passed, navigate back immediately
+        navigation.navigate('Home');
+      } else {
+        // Set a timeout to navigate back when the match ends
+        const timeoutId = setTimeout(() => {
+          // TODO: add popup saying match has ended
+          navigation.navigate('Home');
+        }, timeUntilEnd);
+
+        // Clear timeout if the component unmounts before the match ends
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [match, navigation]);
+
 
   useEffect(() => {
     console.log("MatchID:", matchID)
@@ -141,9 +126,11 @@ const GameScreen = () => {
       if (match.user1.userID === userID) {
         setUserMatchData('user1', 'user2');
         setYou('user1')
+        setOpp('user2')
       } else if (match.user2.userID === userID) {
         setUserMatchData('user2', 'user1');
         setYou('user2')
+        setOpp('user1')
       } else {
         console.error('Error determining whether active user is user1 or user2.');
       }
@@ -168,16 +155,28 @@ const GameScreen = () => {
         setOpponentPointData(oppPoints);
 
         const response = await axios.post(serverUrl + '/getUsernameByID', { userID: match[opponentUserNumber].userID });
-        console.log("Opp name:", opponentUserNumber)
         setOpponentUsername(response.data.username);
+
+
+        setAssets(match[yourUserNumber].assets)
+        console.log("Assets:", match[yourUserNumber].assets)
+
+
       } catch (error) {
         console.log('Game card error:', error);
       }
     }
   };
 
+  const setLeaderboard = async (firstPlace:string, secondPlace:string) => {
+    const firstPlaceResponse = await axios.post(serverUrl + '/getUsernameByID', { userID: match[firstPlace].userID });
+    const secondPlaceResponse = await axios.post(serverUrl + '/getUsernameByID', { userID: match[secondPlace].userID });
+    setFirstPlace(firstPlaceResponse.data.username)
+    setSecondPlace(secondPlaceResponse.data.username)
+  }
+
   useEffect(() => {
-    const sourceData = yourPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData = yourPointData.filter((item:any, index:any) => index % 2 === 0)
     const data = sourceData // Select every 10th item
     .map((item:any, index:number) => ({
       value: item.value,
@@ -187,7 +186,7 @@ const GameScreen = () => {
     }));
     setYourFormattedData(data)
 
-    const sourceData2 = opponentPointData.slice(0, 500).filter((item:any, index:any) => index % 2 === 0)
+    const sourceData2 = opponentPointData.filter((item:any, index:any) => index % 2 === 0)
     const data2 = sourceData2 // Select every 10th item
     .map((item:any, index:number) => ({
       value: item.value,
@@ -200,8 +199,10 @@ const GameScreen = () => {
     if (data[data.length-1]) {
       if (data[data.length-1].value >= data2[data2.length-1].value) {
         setYourColor(theme.colors.stockUpAccent)
+        setLeaderboard(you, opp)
       } else {
         setYourColor(theme.colors.stockDownAccent)
+        setLeaderboard(opp, you)
       }
     }
     
@@ -219,16 +220,35 @@ const GameScreen = () => {
     }
   }, [yourFormattedData, oppFormattedData])
 
+  const renderRows = () => {
+    const rows = [];
+    for (let i = 0; i < assets.length; i += 2) {
+      rows.push(
+        <View key={i} style={styles.positionRow}>
+          <PositionCard ticker={assets[i].ticker} qty={assets[i].totalShares} matchID={matchID} 
+          buyingPower={match[you].buyingPower} assets={match[you].assets}/>
+          {assets[i + 1] && <PositionCard ticker={assets[i + 1].ticker} qty={assets[i + 1].totalShares} matchID={matchID} 
+          buyingPower={match[you].buyingPower} yourAssets={match[you].assets} oppAssets={match[opp].assets}/>}
+        </View>
+      );
+    }
+    return rows;
+  };
 
+  
   if (loading) {
-    return <View></View>
+    return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <CustomActivityIndicator size={60} color={theme.colors.text}/>
+        </View>
+    )
   }
 
   return (
    <View style={styles.container}>
       <HTHPageHeader text="Head-to-Head" endAt={new Date(Date.now() + 900000)}/>
-      <ScrollView>
-        <GameScreenGraph yourFormattedData={yourFormattedData} oppFormattedData={oppFormattedData} matchID={matchID} userID={userID}/>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <GameScreenGraph yourFormattedData={yourFormattedData} oppFormattedData={oppFormattedData} matchID={matchID} userID={userID} yourColor={yourColor} oppName={opponentUsername}/>
         <View style={{marginHorizontal: 20}}>
           <View style={{
               flexDirection: 'row', 
@@ -257,13 +277,13 @@ const GameScreen = () => {
               </View>
               <View style={{gap: 5}}>
                 <Text style={styles.leaderboardLabel}>User</Text>
-                <View style={{flexDirection: 'row', borderWidth: 1, 
+                <View style={{flexDirection: 'row', 
                 borderRadius: 10, paddingVertical: 5, alignItems: 'center', height: 30}}>
-                  <Text style={styles.leaderboardText}>jjqtrader</Text>
+                  <Text style={styles.leaderboardText}>{firstPlace}</Text>
                 </View>
-                <View style={{flexDirection: 'row', borderWidth: 1,
+                <View style={{flexDirection: 'row',
                 borderRadius: 10, paddingVertical: 5, alignItems: 'center', height: 30}}>
-                  <Text style={styles.leaderboardText}>Rzonance</Text>
+                  <Text style={styles.leaderboardText}>{secondPlace}</Text>
                 </View>
               </View>
               <View style={{flex: 1}}></View>
@@ -280,11 +300,16 @@ const GameScreen = () => {
           </View>
           <View style={{marginTop: 20}}>
             <Text style={{fontSize: 18, color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>My Positions</Text>
-            <PositionCard ticker="META"/>
+            {renderRows()}
           </View>
         </View>
       </ScrollView>
-      <TouchableOpacity onPress={() => navigation.navigate("InGameStockSearch", {matchID: matchID, userNumber: you, buyingPower: match[you].buyingPower})} style={[globalStyles.primaryBtn, { marginBottom: 50, backgroundColor: theme.colors.accent, justifyContent: 'center' }]}>
+      <TouchableOpacity onPress={() => navigation.navigate("InGameStockSearch", {
+        matchID: matchID, 
+        userNumber: you, 
+        buyingPower: match[you].buyingPower, 
+        assets: assets,
+        })} style={[globalStyles.primaryBtn, { marginBottom: 50, backgroundColor: theme.colors.accent, justifyContent: 'center', marginTop: 10 }]}>
         <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
       </TouchableOpacity>
    </View>

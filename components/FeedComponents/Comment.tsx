@@ -31,10 +31,7 @@ const Comment = React.memo((props:any) => {
             <Text style={styles.messageText}>{props.body}</Text>
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center', paddingTop: 5}}>
-            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-                <Icon name="comment" style={{color: theme.colors.secondaryText}} size={20}/>
-                <Text style={{color: theme.colors.secondaryText, fontWeight: 'bold'}}>Reply</Text>
-            </TouchableOpacity>
+
             <View style={{flex: 1}}></View>
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', paddingHorizontal: 10, paddingVertical: 5 }}>
                 <TouchableOpacity style={{paddingRight: 5}}>

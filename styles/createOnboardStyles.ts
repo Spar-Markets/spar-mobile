@@ -2,23 +2,22 @@ import { Dimensions, StyleSheet } from 'react-native';
 import { useStatusBarHeight } from '../components/ContextComponents/StatusBarHeightContext';
 
 const createOnboardStyles = (theme: any, width: number) => {
+ const {height} = Dimensions.get('window')
   const statusBarHeight = useStatusBarHeight();
   return StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
-        marginTop: statusBarHeight + 50,
+        marginTop: statusBarHeight + 30,
         marginHorizontal: 20,
         gap: 10
-    },
-    inputsContainer: {
-
     },
     mainText: {
         color: theme.colors.text,
         fontSize: 28,
-        fontWeight: 'bold',
-        textAlign: 'left'
+        fontFamily: 'InterTight-Bold',
+        textAlign: 'center',
+        marginTop: 20
     },
     inputContainer: {
         backgroundColor: theme.colors.primary,
@@ -66,7 +65,108 @@ const createOnboardStyles = (theme: any, width: number) => {
         fontSize: 24,
         color: theme.colors.text,
     },
-    
+    onboardContainer: {
+        gap: 10,
+        flex: 1,
+    },
+    slide: {
+        width: width,
+    },
+    sparText: {
+        color: theme.colors.text,
+        fontFamily: 'InterTight-Black',
+        fontSize: 30,
+        position: 'absolute',
+        top: statusBarHeight + 10,
+        left: 20,
+    },
+    onboardImageContainer: {
+        borderRadius: 50,
+        marginHorizontal: 20,
+        height: height * 0.4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        aspectRatio: 1,
+        alignSelf: 'center',
+        zIndex: 1000,
+    },
+    onboardScroll: {
+        paddingTop: statusBarHeight + 50
+    },
+    onboardImage: {
+        aspectRatio: 1,
+        alignSelf: 'center',
+    },
+    labelText: {
+        marginTop: 20,
+        fontSize: 50,
+        textAlign: 'left',
+        fontFamily: 'InterTight-Bold',
+        color: theme.colors.text,
+        paddingHorizontal: 25
+    },
+    text: {
+        marginTop: 5,
+        fontSize: 20,
+        textAlign: 'left',
+        paddingHorizontal: 25,
+        fontFamily: 'InterTight-Medium',
+        color: theme.colors.text,
+    },
+    textContainer: {
+        width: '90%',
+    },
+    pagination: {
+        flexDirection: 'row',
+        alignSelf: 'center',
+    },
+    dot: {
+        height: 10,
+        width: 10,
+        backgroundColor: theme.colors.tertiary,
+        margin: 8,
+        borderRadius: 5,
+    },
+    buttonContainer: {
+        paddingBottom: 50,
+        width: '100%',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    button: {
+        backgroundColor: theme.colors.text,
+        borderRadius: 10,
+        height: 50,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: theme.colors.backgroundColor,
+        fontSize: 16,
+        fontFamily: 'InterTight-Bold'
+    },
+    logInButton: {
+        borderRadius: 10,
+        height: 50,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    logInText: {
+        color: theme.colors.text,
+        fontSize: 16,
+        fontFamily: 'InterTight-Bold'
+    },
+    expandingCircle: {
+        position: 'absolute',
+        bottom: 130,
+        left: width / 2,
+        width: 1,
+        height: 1,
+        borderRadius: 0.5,
+        transform: [{ translateX: -0.5 }, { translateY: -0.5 }],
+    },
   });
 };
 

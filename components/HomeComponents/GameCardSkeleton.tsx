@@ -12,7 +12,7 @@ const GameCardSkeleton = () => {
     const styles = createHomeStyles(theme, width);
 
     return (
-    <View style={[styles.gameCardContainer, {backgroundColor: theme.colors.background, borderWidth: 2, /*borderColor: theme.colors.primary*/ paddingHorizontal: 20}]}>
+    <View style={[styles.gameCardContainer, {paddingHorizontal: 20}]}>
         <View style={{flexDirection: 'row', gap: 10}}>
         <Skeleton animation={"wave"} height={20} width={30} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
         <Skeleton animation={"wave"} height={20} width={80} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
@@ -26,7 +26,7 @@ const GameCardSkeleton = () => {
             <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
                 <Skeleton animation={"wave"} height={20} width={130} style={{backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
             </View>
-            <Skeleton animation={"wave"} height={185} style={{backgroundColor: theme.colors.primary, borderRadius: 5, marginBottom: 10}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>  
+            <Skeleton animation={"wave"} height={185} style={{backgroundColor: theme.colors.primary, borderRadius: 5, marginBottom: 13}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>  
         </View> 
     </View>
     )

@@ -8,7 +8,7 @@ const createHomeStyles = (theme: any, width: number) => {
     // Header
     container: {
       paddingTop: statusBarHeight + 10,
-      backgroundColor: theme.colors.background,
+      //backgroundColor: theme.colors.background,
       flex: 1,
       justifyContent: 'center',
     },
@@ -25,7 +25,9 @@ const createHomeStyles = (theme: any, width: number) => {
       fontFamily: 'InterTight-Black'
     },
     profilePic: {
-      borderRadius: 100
+      borderRadius: 100,
+      borderColor: theme.colors.tertiary,
+      borderWidth: 3
     },
     icon: {
       color: theme.colors.text
@@ -97,13 +99,11 @@ const createHomeStyles = (theme: any, width: number) => {
     discoverCardImage: {
       marginLeft: 10
     },
-    
+
     // GameCard
     gameCardContainer: {
-      backgroundColor: theme.colors.primary,
+      backgroundColor: 'transparent',
       //borderColor: theme.colors.primary,
-      borderRadius: 10,
-      borderWidth: 2,
       width: (Dimensions.get('window').width),
     },
     gameCardPlayerText: {
@@ -113,9 +113,9 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     gameCardPercentageContainer: {
       borderRadius: 8,
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme.colors.primary,
       borderWidth: 2,
-      borderColor: theme.colors.primary
+      borderColor: theme.colors.secondary
     },
     gameCardIndicator: {
       backgroundColor: theme.colors.accent,
@@ -132,12 +132,13 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     gameCardAmountWageredContainer: {
       borderRadius: 8,
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme.colors.primary,
       borderWidth: 2,
-      borderColor: theme.colors.primary,
+      borderColor: theme.colors.secondary,
       marginTop: 5, 
       marginLeft: 5,
       padding: 4,
+      paddingHorizontal: 10,
       justifyContent: 'center',
       alignItems: 'center'
     },
@@ -149,12 +150,13 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     gameCardModeContainer: {
       borderRadius: 8,
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme.colors.primary,
       marginTop: 5, 
       marginLeft: 5,
       borderWidth: 2,
-      borderColor: theme.colors.primary,
-      padding: 4,
+      borderColor: theme.colors.secondary,
+      padding: 5,
+      paddingHorizontal: 10,
       justifyContent: 'center',
       alignItems: 'center'
     },
@@ -169,11 +171,12 @@ const createHomeStyles = (theme: any, width: number) => {
     timerContainer: {
       borderRadius: 8,
       borderWidth: 2,
-      borderColor: theme.colors.primary,
-      backgroundColor: theme.colors.background,
+      borderColor: theme.colors.secondary,
+      backgroundColor: theme.colors.primary,
       marginTop: 5, 
       marginLeft: 5,
       padding: 4,
+      paddingHorizontal: 10,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: 5
@@ -187,11 +190,12 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // HeadToHeadEntry
     hthContainer: {
-      backgroundColor: theme.colors.background,
       borderRadius: 10,
       marginTop: 10,
       justifyContent: 'center',
-      marginHorizontal: 20
+      width: '100%',
+      paddingHorizontal: 20,
+      height: 60
     },
     gradientBorder: {
       padding:3,
@@ -201,12 +205,11 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     enterHTHMatchBtn: {
       height: 50,
-      backgroundColor: theme.colors.background,
       borderRadius: 7,
     },
     enterHTHMatchBtnText: {
       fontSize: 16,
-      color: theme.colors.background,
+      color: theme.colors.text,
       fontFamily: 'InterTight-Black',
     }, 
     dropdownCollection: {
@@ -266,7 +269,9 @@ const createHomeStyles = (theme: any, width: number) => {
       backgroundColor: theme.colors.background,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingTop: 10
+      paddingTop: 10,
+      borderTopWidth: 1,
+      borderColor: theme.colors.primary
     },
     balance: {
       color: theme.colors.text,
@@ -288,6 +293,42 @@ const createHomeStyles = (theme: any, width: number) => {
       fontSize: 18,
       padding: 15,
       fontFamily: 'InterTight-Black',
+    },
+    inputContainer: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: theme.colors.tertiary,
+      justifyContent: 'center'
+    },
+    textInputType: {
+      color: theme.colors.text,
+      fontSize: 14,
+      marginLeft: 10,
+      marginTop: 10,
+      fontWeight: 'bold'
+    },
+    inputText: {
+      height: 40, 
+      paddingHorizontal: 10, 
+      color: theme.colors.text,
+      fontSize: 20
+    },
+    scrollContainer: {
+      flexDirection: 'row',
+    },
+    column: {
+      flexDirection: 'column',
+      marginRight: 5,
+    },
+    emojiContainer: {
+      margin: 5,
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: theme.colors.primary,
+    },
+    emoji: {
+      fontSize: 24,
     },
 
   });

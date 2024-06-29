@@ -20,6 +20,8 @@ import { Blur, BlurMask, Canvas, Circle, Group, RadialGradient, Rect, vec } from
 import LinearGradient from 'react-native-linear-gradient';
 import { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import HapticFeedback from "react-native-haptic-feedback";
+import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
+
 
 const { width } = Dimensions.get('window');
 
@@ -81,9 +83,7 @@ const Home: React.FC = () => {
         const matchDataResponse = await axios.post(serverUrl + '/getMatchData', { matchID: id });
         md.push(matchDataResponse.data);
       }
-      console.log("hellldsfsf:", md);
       setMatchData(md);
-      console.log("IM HERE")
       setLoading(false)
     } catch (error) {
       console.error('in get match data error' + error);
@@ -146,7 +146,9 @@ const Home: React.FC = () => {
   useEffect(() => {
     setLoading(true)
     const getUserID = async () => {
+      console.log("Gettign userID")
       const userID = await AsyncStorage.getItem("userID");
+      console.log("UserId:", userID)
       setUserID(userID!);
     }
     getUserID()
@@ -185,6 +187,51 @@ const Home: React.FC = () => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
+  const [graphLoading, setGraphLoading] = useState(true)
+
+  const [selectedWatchList, setSelectedWatchList] = useState(0)
+
+  const watchListButton = (emoji: string, name: string, index:number) => {
+    return (
+      <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', marginRight: 20}} onPress={() => {
+          setSelectedWatchList(index)
+          HapticFeedback.trigger("impactMedium", {
+            enableVibrateFallback: true,
+            ignoreAndroidSystemSettings: false
+          });
+        }}>
+        <View style={{width: 60, height: 60, justifyContent: 'center', alignItems: 'center'}}>
+         <View style={[selectedWatchList == index ? {backgroundColor: theme.colors.tertiary} : {backgroundColor: theme.colors.accent}, {width: 51, height: 51, borderRadius: 10, position: 'absolute', right: 3, top: 6}]}></View>
+         <View style={[selectedWatchList == index ? {backgroundColor: theme.colors.accent} : {backgroundColor: theme.colors.primary}, {width: 50, height: 50, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center'}]}>
+          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>{emoji}</Text>
+         </View>
+        </View>
+        <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 12, maxWidth: 80}} adjustsFontSizeToFit>{name}</Text>
+      </TouchableOpacity>
+    )
+  }
+
+  const createListButton = () => {
+    return (
+      <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', marginRight: 20}} onPress={() => {
+          HapticFeedback.trigger("impactMedium", {
+            enableVibrateFallback: true,
+            ignoreAndroidSystemSettings: false
+          });
+          navigation.navigate("CreateList")
+        }}>
+        <View style={{width: 60, height: 60, justifyContent: 'center', alignItems: 'center'}}>
+         {/*<View style={{backgroundColor: theme.colors.accent, width: 51, height: 51, borderRadius: 10, position: 'absolute', right: 3, top: 6}}></View>*/}
+         <View style={{backgroundColor: theme.colors.primary, width: 50, height: 50, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center'}}>
+          <Icon name="plus-circle" size={24} color={theme.colors.accent}></Icon>
+         </View>
+        </View>
+        <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 12, maxWidth: 80}} adjustsFontSizeToFit>Create List</Text>
+      </TouchableOpacity>
+    )
+  }
+
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -199,8 +246,8 @@ const Home: React.FC = () => {
             </TouchableOpacity>
           </View>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <ActivityIndicator size="large" color={theme.colors.accent}/>
-          </View>
+            <CustomActivityIndicator size={60} color={theme.colors.text}/>
+        </View>
       </View>
     )
   }
@@ -208,7 +255,7 @@ const Home: React.FC = () => {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <LinearGradient colors={[theme.colors.background, theme.colors.primary]} start={{x: 0, y:0}} end={{x: 1, y: 1}} style={{ flex: 1 }}>
       <View style={styles.container}>     
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
@@ -252,30 +299,24 @@ const Home: React.FC = () => {
               {searchingForMatch || isInMatchmaking ? (
               <View style={styles.hthContainer}>
               <TouchableOpacity style={styles.enterHTHMatchBtn} onPress={() => cancelAlert()}>
-                <LinearGradient colors={[theme.colors.accent, theme.colors.accent]} 
-                style={styles.gradientBorder}>
                   <View style={{backgroundColor: theme.colors.primary, flexDirection: 'row', borderRadius: 7, justifyContent: 'center', alignItems: 'center', flex: 1, gap: 10}}>
                     <Text style={[styles.enterHTHMatchBtnText, {color: theme.colors.text}]}>Cancel Matchmaking</Text>
                     <ActivityIndicator size={'small'}/>
                   </View>
-                </LinearGradient>
               </TouchableOpacity>
-            </View>
+              </View>
               ) : (
               <View style={styles.hthContainer}>
                 <TouchableOpacity style={styles.enterHTHMatchBtn} onPress={() => {
                   navigation.navigate('EnterMatch')
                   }}>
-                  <LinearGradient colors={[theme.colors.accent, theme.colors.accent]} 
-                  style={styles.gradientBorder}>
-                    <View style={{backgroundColor: 'transparent', flexDirection: 'row', borderRadius: 7, justifyContent: 'center', alignItems: 'center', flex: 1}}>
-                      <Text style={styles.enterHTHMatchBtnText}>Setup a Match</Text>
+                    <View style={{backgroundColor: theme.colors.primary, borderRadius: 10,borderWidth: 1, borderColor: theme.colors.accent, height: 50, justifyContent: 'center', alignItems: 'center', flex: 1}}>
+                      <Text style={styles.enterHTHMatchBtnText}>Start a Match</Text>
                     </View>
-                  </LinearGradient>
                 </TouchableOpacity>
               </View>
               )}
-                <View style={styles1.paginationContainer}>
+                {matchData.length + (searchingForMatch || isInMatchmaking ? 1: 0) > 1 && <View style={styles1.paginationContainer}>
                   {Array.from({ length: matchData.length + (searchingForMatch || isInMatchmaking ? 1 : 0) }).map((_, index) => (
                     <View
                       key={index}
@@ -285,29 +326,33 @@ const Home: React.FC = () => {
                       ]}
                     />
                   ))}
-                </View>
+                </View>}
             </View>
             <View>
               <Text style={{ color: theme.colors.text, fontWeight: 'bold', fontSize: 14, marginBottom: 10, marginLeft: 5 }}></Text>
             </View>
           </Animated.View>
-          <View style={{ marginTop: 20, gap: 5, marginHorizontal: 20 }}>
+          {/*<View style={{ marginTop: 20, gap: 5, marginHorizontal: 20 }}>
             <Text style={{ color: theme.colors.text, fontSize: 16, fontFamily: 'InterTight-Bold'}}>Discover Spar</Text>
             <DiscoverCard title={"Referral Program"} image={require("../../assets/images/referralIcon.png")} message={"Refer your friend to Spar, and when they sign up and play a match, you get $5"} />
             <DiscoverCard title={"Spar Tutorials"} image={require("../../assets/images/tutorialsIcon.png")} message={"Learn about the functionality of Spar and develop your Spar skills to succeed"} />
-          </View>
-          <View style={{ marginTop: 20, marginHorizontal: 20}}>
-            <Text style={{ color: theme.colors.text, fontSize: 16, fontFamily: 'InterTight-Bold'}}>Watchlists</Text>
+                </View>*/}
+          <View style={{ marginTop: 20}}>
+            <Text style={{ color: theme.colors.text, fontSize: 16, fontFamily: 'InterTight-Bold', marginHorizontal: 20}}>Lists</Text>
+            <ScrollView horizontal style={{paddingHorizontal: 20, marginVertical: 5}} showsHorizontalScrollIndicator={false}>
+              {createListButton()}
+            </ScrollView>
+            <View style={{marginHorizontal: 20}}> 
             {watchedStocks.map((ticker, index) => {
               return (
               <View key={index}>
                 <View style={{ width: (width-40)}}>
-                  <StockCard ticker={ticker} />
-                  <View style={{height: 1, width: '100%', backgroundColor: theme.colors.tertiary, marginVertical: 10}}/>
+                  <StockCard ticker={ticker}/>
                 </View>
               </View>
               );
             })}
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -325,7 +370,7 @@ const Home: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 

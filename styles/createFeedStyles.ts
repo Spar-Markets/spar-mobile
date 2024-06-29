@@ -18,8 +18,7 @@ const createFeedStyles = (theme: any, width: number) => {
       alignItems: 'center',
       gap: 10,
       marginHorizontal: 20,
-      marginBottom: 20,
-
+      marginBottom: 20
     },
     headerText: {
         color: theme.colors.text,
@@ -140,8 +139,10 @@ const createFeedStyles = (theme: any, width: number) => {
         backgroundColor: theme.colors.accent,
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 8,
-        zIndex: 10,
+        elevation: 1000,
+        zIndex: 1000,
+        marginHorizontal: 20,
+        marginBottom: 10,
     },
 
 

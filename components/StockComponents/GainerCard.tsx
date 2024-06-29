@@ -10,7 +10,7 @@ import axios from 'axios'
 import { serverUrl } from '../../constants/global';
 
 
-const PositionCard = (props:any) => {
+const GainerCard = (props:any) => {
 
     const { theme } = useTheme();
     const { width, height } = useDimensions();
@@ -41,7 +41,10 @@ const PositionCard = (props:any) => {
                 setIsLoading(false)
               }
         }
-        getPricesForSelectedTime()
+
+    getPricesForSelectedTime()
+  
+    
     }, [props.ticker]);
 
     useEffect(() => {
@@ -89,45 +92,37 @@ const PositionCard = (props:any) => {
     }
 
     return (
-        <TouchableOpacity style={styles.positionCardContainer} onPress={() =>
+        <TouchableOpacity  onPress={() =>
             navigation.navigate('StockDetails', {
 
               ticker: props.ticker,
-              matchID: props.matchID,
-              buyingPower: props.buyingPower,
-              inGame: true,
-              owns: true,
-              assets: props.assets,
-              qty: props.qty
           
             })}>
 
-                <View style={{flexDirection: 'row', marginVertical: 10, marginHorizontal: 10}}>
-                    <View style={{justifyContent: 'center', flex: 1}}>
+                <View style={{flexDirection: 'row', marginVertical: 10, gap: 40, justifyContent: 'center'}}>
+                    <View style={{justifyContent: 'center'}}>
                         <Text style={styles.stockCardTicker}>{props.ticker}</Text>
+                        <Text style={[styles.stockCardName, {width: width/4}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
                     </View>
+                    {pointData && 
+                    <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
+                    >
+                    {({ points }) => (
+                        <>
+                        <Line points={points.value} color={currentAccentColor} 
+                        strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
+                        </>
+                    )}
+                    </CartesianChart>}
                     <View style={{justifyContent: 'center'}}>
                         <Text style={styles.stockCardValue}>${(pointData[pointData.length-1].value).toFixed(2)}</Text>
                         <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
                     </View>
                 </View>
-                {pointData && 
-                <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
-                >
-                {({ points }) => (
-                    <>
-                    <Line points={points.value} color={currentAccentColor} 
-                    strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
-                    </>
-                )}
-                </CartesianChart>}
-                <View style={{backgroundColor: theme.colors.tertiary, width: '50%', borderBottomLeftRadius: 9, borderTopRightRadius: 9, alignItems: 'center', paddingVertical: 4, marginTop: 2}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>QTY: {props.qty}</Text>
-                </View>
-        
+            
         </TouchableOpacity>
     )
 }
 
-export default PositionCard
+export default GainerCard
 
