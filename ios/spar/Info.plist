@@ -46,10 +46,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to upload your profile picture.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need access to save photos to your library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to upload your profile picture.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>InterTight-Black.ttf</string>

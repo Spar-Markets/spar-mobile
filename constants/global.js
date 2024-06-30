@@ -1,9 +1,7 @@
-const ip = 'http://10.0.0.127:3000';
-const port = 3000;
-// const mongoPort = 8000;
+export const serverUrl = 'http://10.0.0.127:3000'; //`${process.env.SERVER_URL}`;
 
-export const serverUrl = `${ip}`;
-// export const mongoServerUrl = `http://${ip}:${mongoPort}`;
-export const plaidClientID = '65833a47f1ae5c001b9d8fee';
+export const websocketUrl = 'ws://10.0.0.127:3001'; //`${process.env.WEBSOCKET_URL}`;
 
-export const polygonKey = 'Xr4ESsQJKShHeqROFIfTsVVvb9rppThs';
+export const plaidClientID = `${process.env.PLAID_CLIENT_ID}`;
+
+export const polygonKey = `${process.env.POLYGON_KEY}`;

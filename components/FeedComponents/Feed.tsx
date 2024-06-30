@@ -34,6 +34,8 @@ const Feed: React.FC = () => {
   const [skip, setSkip] = useState(0); 
   const [hasMorePosts, setHasMorePosts] = useState(true); 
 
+  const profileImageUri = useSelector((state:any) => state.image.profileImageUri);
+
   const fetchPosts = async (reset = false) => {
     try {
       const response = await axios.get(`${serverUrl}/posts`, {
@@ -92,7 +94,9 @@ const Feed: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image style={styles.profilePic} source={require('../../assets/images/profilepic.png')} />
+      {profileImageUri ? <Image style={styles.profilePic} source={{uri: profileImageUri}}/> : 
+              <View style={styles.profilePic}>
+          </View>}
         <View style={styles.searchSection}>
           <Icon name="search" style={{ color: theme.colors.tertiary }} size={24} />
           <TextInput

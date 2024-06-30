@@ -7,9 +7,10 @@ import { useNavigation } from '@react-navigation/native';
 import { CartesianChart, Line } from 'victory-native';
 import getPrices from '../../utility/getPrices';
 import axios from 'axios'
-import { serverUrl } from '../../constants/global';
+import {serverUrl, websocketUrl} from '../../constants/global';
 import getMarketFraction from '../../utility/getMarketFraction'
 import { Skeleton } from '@rneui/base';
+
 
 
 const StockCard = (props:any) => {
@@ -72,7 +73,7 @@ const StockCard = (props:any) => {
         return;
     }*/
     
-    const socket = new WebSocket('ws://10.0.0.127:3001');
+    const socket = new WebSocket(websocketUrl);
 
     ws.current = socket;
     

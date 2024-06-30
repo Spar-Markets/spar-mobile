@@ -66,6 +66,8 @@ const Post = (props:any) => {
     const [image, setImage] = useState<string | null>(null)
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
+    const yourProfileImageUri = useSelector((state:any) => state.image.profileImageUri);
+
     // Sets initial votes on rerender
     useEffect(() => {
         const setVote = async () => {
@@ -95,6 +97,23 @@ const Post = (props:any) => {
 
     const [imageLoading, setImageLoading] = useState(true)
 
+    const [profileImageUri, setProfileImageUri] = useState<string | null>()
+
+    const fetchProfileImageFromFirebase = async () => {
+      if (props.posterId) {
+        try {
+          const imageRef = ref(storage, `profileImages/${props.posterId}`);
+          const url = await getDownloadURL(imageRef);
+          if (url) {
+            console.log('Fetched URL from Firebase:', url);
+            setProfileImageUri(url)
+          }
+        } catch (error) {
+          console.error('Error fetching profile image from Firebase:', error);
+        }
+      }
+    };
+
     useEffect(() => {
         const getImageDownloadURL = async (imageName: string) => {
             try {
@@ -109,6 +128,7 @@ const Post = (props:any) => {
                     console.error('Error getting image dimensions:', error);
                     setImageLoading(false);
                 });
+                await fetchProfileImageFromFirebase()
             } catch (error) {
                 console.error('Error getting image download URL:', error);
                 setImageLoading(false);
@@ -224,7 +244,7 @@ const Post = (props:any) => {
             <View>
                 <TouchableOpacity onPress={navigateToComments}> 
                 <View style={styles.postTopContainer}>
-                    <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
+                    {profileImageUri ? <Image style={styles.postPic} source={{uri: profileImageUri}}></Image> : <View style={styles.postPic}></View>}
                     <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
                     <View style={{flex: 1}}></View>
                     {(props.posterId == userData?.userID) && 

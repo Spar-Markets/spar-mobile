@@ -17,8 +17,11 @@ import firebase from '../firebase/firebaseconfig';
 import ImagePicker from 'react-native-image-crop-picker'
 import useUserDetails from '../../hooks/useUserDetails';
 import { storage } from '../../firebase/firebase';
-import { ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer'
+import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
 
 
 const Profile  = ({ navigation }: any) => {
@@ -38,9 +41,9 @@ const Profile  = ({ navigation }: any) => {
       try {
         const profileImagePath = await AsyncStorage.getItem('profileImgPath');
         if (profileImagePath) {
-          console.log(profileImagePath);
+          console.log('Profile image path from AsyncStorage:', profileImagePath);
           setImage(profileImagePath);
-        }
+        } 
       } catch (error) {
         console.error('Failed to load profile image path:', error);
       } finally {
@@ -50,7 +53,9 @@ const Profile  = ({ navigation }: any) => {
     getProfileImage();
   }, []);
 
-
+  const dispatch = useDispatch();
+  const profileImageUri = useSelector((state:any) => state.image.profileImageUri);
+  
   const choosePhotoFromLibrary = () => {
     ImagePicker.openPicker({
         cropping: true,
@@ -66,6 +71,8 @@ const Profile  = ({ navigation }: any) => {
         console.log(imageUri)
         uploadProfileImageToFirebase(imageUri)
         await AsyncStorage.setItem('profileImgPath', imageUri)
+
+        dispatch(setProfileImageUri(imageUri));
     }).catch((error: any) => {
         console.log("Image picker error:", error);
     })

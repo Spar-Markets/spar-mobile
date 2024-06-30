@@ -15,6 +15,7 @@ import {
 } from 'react-native-image-picker';
 import axios from 'axios';
 import {serverUrl} from '../constants/global';
+import { useSelector } from 'react-redux';
 
 const Feed = () => {
   const [title, setTitle] = useState('');
@@ -75,6 +76,7 @@ const Feed = () => {
   useEffect(() => {
     fetchPhotos();
   }, []);
+
 
   return (
     <View style={styles.container}>

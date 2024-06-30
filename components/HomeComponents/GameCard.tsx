@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, View, useColorScheme} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {GraphPoint, LineGraph} from 'react-native-graph';
-import {serverUrl} from '../../constants/global';
+import {serverUrl, websocketUrl} from '../../constants/global';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useTheme } from '../ContextComponents/ThemeContext';
@@ -15,7 +15,6 @@ import { Area, CartesianChart, Line, PointsArray, useLinePath } from 'victory-na
 import { Group, Path, useFont, Circle } from '@shopify/react-native-skia';
 import HapticFeedback from "react-native-haptic-feedback";
 import getCurrentPrice from '../../utility/getCurrentPrice';
-
 
 
 const GameCard = (props: any) => {
@@ -227,8 +226,9 @@ const GameCard = (props: any) => {
   const MAX_RETRIES = 5;  // Maximum number of retry attempts
   const RETRY_DELAY = 2000; // Delay between retries in milliseconds
   
-  const setupSocket = async () => {      
-    const socket = new WebSocket('ws://10.0.0.127:3001');
+  const setupSocket = async () => {    
+    console.log("trying socket with url:", websocketUrl);  
+    const socket = new WebSocket(websocketUrl);
 
     ws.current = socket;
     

@@ -27,7 +27,9 @@ const createHomeStyles = (theme: any, width: number) => {
     profilePic: {
       borderRadius: 100,
       borderColor: theme.colors.tertiary,
-      borderWidth: 3
+      width: 40,
+      height: 40,
+      borderWidth: 1
     },
     icon: {
       color: theme.colors.text

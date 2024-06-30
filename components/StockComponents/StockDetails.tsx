@@ -28,7 +28,7 @@ import { TextDecoder } from 'util';
 import Timer from '../HomeComponents/Timer';
 import createGlobalStyles from '../../styles/createGlobalStyles';
 import HTHPageHeader from '../GlobalComponents/HTHPageHeader';
-import {polygonKey} from '../../constants/global'
+import {polygonKey} from '../../constants/global';
 import postSlice from '../../GlobalDataManagment/postSlice';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';

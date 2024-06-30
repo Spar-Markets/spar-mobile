@@ -21,6 +21,7 @@ import debounce from 'lodash/debounce';
 import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint, RadialGradient, vec, BlurMask, point } from '@shopify/react-native-skia';
 import { GraphPoint } from 'react-native-graph';
 import { Skeleton } from '@rneui/base';
+import {serverUrl, websocketUrl} from '../../constants/global';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
@@ -288,7 +289,7 @@ const StockDetailGraph = (props: any) => {
       return;
     }*/
    
-    const socket = new WebSocket('ws://10.0.0.127:3001');
+    const socket = new WebSocket(websocketUrl);
 
     ws.current = socket;
     

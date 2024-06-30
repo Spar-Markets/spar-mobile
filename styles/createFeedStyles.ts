@@ -42,8 +42,12 @@ const createFeedStyles = (theme: any, width: number) => {
         fontSize: 16
     },
     profilePic: {
-      borderRadius: 100
-    },
+        borderRadius: 100,
+        borderColor: theme.colors.tertiary,
+        width: 40,
+        height: 40,
+        borderWidth: 1
+      },
     icon: {
       color: theme.colors.text
     },

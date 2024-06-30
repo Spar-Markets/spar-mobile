@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, Image, TouchableOpacity, Alert, ActivityIndicator, Dimensions, Animated, FlatList, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Alert, ActivityIndicator, Dimensions, Animated, FlatList, StyleSheet, ScrollView, Platform, PermissionsAndroid } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -23,6 +23,9 @@ import HapticFeedback from "react-native-haptic-feedback";
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../firebase/firebase';
+import RNFS from 'react-native-fs';
+import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
+import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
 
 
 const { width } = Dimensions.get('window');
@@ -60,37 +63,82 @@ const Home: React.FC = () => {
   const [matchData, setMatchData] = useState<MatchData[]>([]);
   const [userID, setUserID] = useState("");
   const [watchedStocks, setWatchedStocks] = useState<String[]>([])
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [imageLoading, setImageLoading] = useState(true)
 
   const dispatch = useDispatch();
   const { userData } = useUserDetails();
 
   const isInMatchmaking = useSelector((state: any) => state.user.isInMatchmaking);
 
-  useEffect(() => {
-    const getProfilePicture = async () => {
+  const requestPermissions = async () => {
+    if (Platform.OS === 'ios') {
+      const photoLibraryPermission = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+      if (photoLibraryPermission !== RESULTS.GRANTED) {
+        await request(PERMISSIONS.IOS.PHOTO_LIBRARY);
+      }
 
+      const cameraPermission = await check(PERMISSIONS.IOS.CAMERA);
+      if (cameraPermission !== RESULTS.GRANTED) {
+        await request(PERMISSIONS.IOS.CAMERA);
+      }
+    } else if (Platform.OS === 'android') {
+      const readPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+      );
+
+      const writePermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+      );
+
+      const cameraPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA
+      );
+
+      if (
+        readPermission !== PermissionsAndroid.RESULTS.GRANTED ||
+        writePermission !== PermissionsAndroid.RESULTS.GRANTED ||
+        cameraPermission !== PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        console.warn('Permissions not granted');
+      }
+    }
+  };
+
+  const fetchProfileImageFromFirebase = async () => {
+    if (userData?.userID) {
+      try {
+        const imageRef = ref(storage, `profileImages/${userData?.userID}`);
+        const url = await getDownloadURL(imageRef);
+        if (url) {
+          console.log('Fetched URL from Firebase:', url);
+          await AsyncStorage.setItem('profileImgPath', url);
+          dispatch(setProfileImageUri(url));
+        }
+      } catch (error) {
+        console.error('Error fetching profile image from Firebase:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+
+    const getProfilePicture = async () => {
+      await requestPermissions();
       if (userData?.userID) {
-        /*try {
-          const profilePath = await AsyncStorage.getItem('profileImgPath');
-          console.log("Path:", profilePath)
-          if (!profilePath) {
-            const imageRef = ref(storage, `profileImages/${userData?.userID}`); // Replace 'postImages' with your actual storage folder name
-            const url = await getDownloadURL(imageRef);
-            await AsyncStorage.setItem('profileImgPath', url);
-            console.log("firebase url", url)
+        try {
+          const profileImagePath = await AsyncStorage.getItem('profileImgPath');
+          if (profileImagePath) {
+            console.log('Profile image path from AsyncStorage:', profileImagePath);
+            //setProfileImage(profileImagePath)
+            dispatch(setProfileImageUri(profileImagePath));
+          } else {
+            await fetchProfileImageFromFirebase();
           }
         } catch (error) {
-          console.error('Error getting image download URL:', error);
-        }*/
-
-        try {
-          const imageRef = ref(storage, `profileImages/${userData?.userID}`);
-          const url = await getDownloadURL(imageRef);
-          if (url) {
-            console.log(url)
-          }
-        } catch {
-          console.log("error in profile stuff")
+          console.error('Failed to load profile image path:', error);
+        } finally {
+          setImageLoading(false)
         }
       }
     }
@@ -223,6 +271,8 @@ const Home: React.FC = () => {
 
   const [selectedWatchList, setSelectedWatchList] = useState(0)
 
+  const profileImageUri = useSelector((state:any) => state.image.profileImageUri);
+
   const watchListButton = (emoji: string, name: string, index:number) => {
     return (
       <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', marginRight: 20}} onPress={() => {
@@ -242,6 +292,7 @@ const Home: React.FC = () => {
       </TouchableOpacity>
     )
   }
+
 
   const createListButton = () => {
     return (
@@ -268,7 +319,6 @@ const Home: React.FC = () => {
     return (
       <View style={styles.container}>
           <View style={styles.header}>
-            <Image style={styles.profilePic} source={require("../../assets/images/profilepic.png")} />
             <View style={{ flex: 1 }} />
             <TouchableOpacity>
               <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
@@ -291,7 +341,9 @@ const Home: React.FC = () => {
       <View style={styles.container}>     
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <Image style={styles.profilePic} source={require("../../assets/images/profilepic.png")} />
+              {profileImageUri ? <Image style={styles.profilePic} source={{uri: profileImageUri}}/> : 
+              <View style={styles.profilePic}>
+              </View>}
             <View style={{ flex: 1 }} />
             <TouchableOpacity>
               <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
@@ -300,6 +352,7 @@ const Home: React.FC = () => {
               <Icon name="bars" style={styles.icon} size={24} />
             </TouchableOpacity>
           </View>
+      
           <ToggleButton onToggle={handleToggle} />
           <Animated.View style={{ flex: 1, flexDirection: 'row', width: screenWidth, transform: [{ translateX: animation }] }}>
             <View>

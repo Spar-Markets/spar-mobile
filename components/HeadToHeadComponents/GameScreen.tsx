@@ -12,7 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
-import {serverUrl} from '../../constants/global';
+import {serverUrl, websocketUrl} from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {LineChart} from 'react-native-gifted-charts';
 import PositionCard from './PositionCard';
@@ -32,7 +32,7 @@ import {GraphPoint} from 'react-native-graph';
 import { set } from 'lodash';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 
-const socket = new WebSocket('wss://music-api-grant.fly.dev/');
+const socket = new WebSocket(websocketUrl);
 
 interface RouteParams {
   matchID: string

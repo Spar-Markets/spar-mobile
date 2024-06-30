@@ -11,7 +11,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
-import {serverUrl} from '../../constants/global';
+import {serverUrl, websocketUrl} from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {LineChart} from 'react-native-gifted-charts';
 import PositionCard from '../HeadToHeadComponents/PositionCard';
@@ -28,7 +28,7 @@ import { SharedValue, runOnJS, useAnimatedReaction, useDerivedValue } from 'reac
 import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint, RadialGradient, vec, BlurMask } from '@shopify/react-native-skia';
 import { ActivityIndicator } from 'react-native';
 
-const socket = new WebSocket('wss://music-api-grant.fly.dev/');
+const socket = new WebSocket(websocketUrl);
 
 /*interface RouteParams {
   matchID: string
@@ -95,7 +95,7 @@ const [livePortfolioValue, setLivePortfolioValue] = useState("")
 useEffect(() => {
   //console.log(params?.oppFormattedData)
   if (matchID != null) {
-    const ws = new WebSocket('wss://music-api-grant.fly.dev/');
+    const ws = new WebSocket(websocketUrl);
 
     ws.onopen = () => {
       console.log('Connected to server');

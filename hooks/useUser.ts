@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import axios from 'axios';
-import {serverUrl} from '../constants/global';
+import { serverUrl } from '../constants/global';
 
 interface UserData {
   __v: number;
@@ -31,6 +31,9 @@ const useUserData = (userID?: string) => {
     if (userID) {
       const fetchUserData = async () => {
         try {
+          console.log("server url FROM env:", `${process.env.SERVER_URL}`);
+          console.log("Server url endpoint:", `${serverUrl}/getActiveUser`);
+          console.log("UserID:", userID);
           const response = await axios.post(`${serverUrl}/getActiveUser`, { userID });
           //console.log('Fetched User Data:', response.data);
           setUserData(response.data);
