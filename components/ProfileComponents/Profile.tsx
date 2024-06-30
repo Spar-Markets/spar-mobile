@@ -14,6 +14,11 @@ import createProfileStyles from '../../styles/createProfileStyles';
 import createGlobalStyles from '../../styles/createGlobalStyles'
 import { launchCamera, launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import firebase from '../firebase/firebaseconfig';
+import ImagePicker from 'react-native-image-crop-picker'
+import useUserDetails from '../../hooks/useUserDetails';
+import { storage } from '../../firebase/firebase';
+import { ref, uploadBytes } from 'firebase/storage';
+import ImageResizer from '@bam.tech/react-native-image-resizer'
 
 
 const Profile  = ({ navigation }: any) => {
@@ -21,46 +26,68 @@ const Profile  = ({ navigation }: any) => {
   const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
+  const [image, setImage] = useState<string | null>(null)
 
 
-  // can i import types 
-  const [imageUri, setImageUri] = useState();
-  
-  
-  const handleChoosePhoto = () => {
-    const options = { selectionLimit: 1, mediaType: "photo" };
-    launchImageLibrary(options, response => {
-      if (response && response.assets && response.assets.length > 0) {
-        const selectedImage = response.assets[0];
-        // Handle the selected image URI or other properties
-        setImageUri(selectedImage)
-      } else {
-        console.log("No image selected or response is undefined.");
+  const { userData } = useUserDetails();
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const getProfileImage = async () => {
+      const profileImagePath = await AsyncStorage.getItem('profileImgPath');
+      console.log("Profile Image Path:", profileImagePath)
+      if (profileImagePath) {
+        setImage(profileImagePath)
       }
-    });
-  };
-  
-  const handleUploadPhoto = async () => {
-    if (!imageUri) {
-      console.log("No image URI to upload.");
-      return;
     }
-  
-    try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      
-      const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child('images/' + new Date().toISOString() + '.jpg');
-      
-      await fileRef.put(blob);
-      
-      const url = await fileRef.getDownloadURL();
-      Alert.alert("Upload Success", "Image uploaded successfully: " + url);
-    } catch (error) {
-      Alert.alert("Error", "Upload failed: " + error.message);
-    }
+    getProfileImage().then(() => {
+      setLoading(false)
+    })
+  }, [])
+
+
+  const choosePhotoFromLibrary = () => {
+    ImagePicker.openPicker({
+        cropping: true,
+        cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
+        cropperToolbarColor: theme.colors.accent, // Toolbar color of the cropper
+        cropperToolbarWidgetColor: theme.colors.text, // Toolbar widget color of the cropper
+        cropperCircleOverlay: true,
+        width: 100,
+        height: 100 
+    }).then(async (image: any) => {
+        const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
+        setImage(imageUri);
+        uploadProfileImageToFirebase(imageUri)
+        await AsyncStorage.setItem('profileImgPath', imageUri)
+    }).catch((error: any) => {
+        console.log("Image picker error:", error);
+    })
   };
+
+  const uploadProfileImageToFirebase = async (imageUri:string) => {
+    if (imageUri) {
+      const uri = imageUri; // The URI of the image to be resized
+      const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
+      const quality = 100; // The quality of the resized image (0-100)
+      
+      ImageResizer.createResizedImage(
+         uri, 150, 150, format, quality,
+      ).then(async (response) => {
+          const imageRes = await fetch(response.uri);
+          const blob = await imageRes.blob();
+          const imgRef = ref(storage, `profileImages/${userData?.userID}`);
+          await uploadBytes(imgRef, blob);
+          console.log('Image uploaded successfully');
+      })
+    }
+  }
+
+ 
+  if (loading) {
+    return <View></View>
+  }
 
   return (
       <View style={styles.container}>
@@ -77,12 +104,15 @@ const Profile  = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
         <ScrollView>
-          <View style={styles.profileContainer}>
-            <Image style={styles.profilePic} source={require("../../assets/images/largeProfilePic.png")} />
+          <TouchableOpacity style={styles.profileContainer} onPress={choosePhotoFromLibrary}>
+            {image != null ? <Image style={styles.profilePic} source={{uri: image}}/> : 
+              <View style={styles.profilePic}>
+                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 30}}>{userData?.username.slice(0,1).toUpperCase()}</Text>
+              </View>}
             <View style={styles.rankContainer}>
               <Text style={styles.rankText}>Diamond</Text>
             </View>
-          </View>
+          </TouchableOpacity>
           <Text style={styles.usernameText}>@jjqtrader</Text>
           <View style={{flexDirection: 'row', gap: 10, marginTop: 20, marginHorizontal: 20}}>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, Keyboard, Animated, KeyboardEvent } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, Keyboard, Animated, KeyboardEvent, Alert } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
@@ -33,6 +33,7 @@ interface RouteParams {
   hasImage: boolean;
   isUpvoted: boolean;
   isDownvoted: boolean;
+  image: string
 }
 
 const CommentPage = () => {
@@ -82,8 +83,13 @@ const CommentPage = () => {
       const response = await axios.post(serverUrl + '/commentOnPost', mongoCommentData);
       console.log(response.data);
 
-      dispatch(addCommentToPost({ postId: params!.postId, comment: localCommentData }));
-      setCommentInput('');
+      if (response.status === 200) {
+        dispatch(addCommentToPost({ postId: params!.postId, comment: localCommentData }));
+        setCommentInput('');
+        Keyboard.dismiss()
+      } else {
+        Alert.alert('Error', 'Failed to Comment');
+      }
     } catch (error) {
       console.log(error);
     }
@@ -166,10 +172,11 @@ const CommentPage = () => {
             data={post?.comments ? post?.comments.slice().reverse() : []}
             renderItem={renderItem}
             keyExtractor={(item) => item.commentId}
+            keyboardDismissMode='on-drag'
             contentContainerStyle={{ flexGrow: 1 }}
             ListHeaderComponent={
                 <View>
-                <Post {...post} onComment={true}/>
+                {params?.image ? <Post {...post} onComment={true} image={params?.image}/> : <Post {...post} onComment={true}/>}
                 <View style={{height: 6, backgroundColor: theme.colors.primary, marginTop: 10}}></View>
                 </View>}
         />

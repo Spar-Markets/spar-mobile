@@ -135,7 +135,7 @@ const AppContent = (): React.ReactElement => {
             options={{headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
-              animation: 'slide_from_right',
+              animation: 'slide_from_bottom',
             }}
           />
           <Stack.Screen

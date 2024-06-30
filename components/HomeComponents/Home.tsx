@@ -21,6 +21,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import HapticFeedback from "react-native-haptic-feedback";
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../firebase/firebase';
 
 
 const { width } = Dimensions.get('window');
@@ -63,6 +65,26 @@ const Home: React.FC = () => {
   const { userData } = useUserDetails();
 
   const isInMatchmaking = useSelector((state: any) => state.user.isInMatchmaking);
+
+  useEffect(() => {
+    const getProfilePicture = async () => {
+
+      if (userData?.userID) {
+        try {
+          const profilePath = await AsyncStorage.getItem('profileImgPath');
+          console.log("Path:", profilePath)
+          if (!profilePath) {
+            const imageRef = ref(storage, `profileImages/${userData?.userID}`); // Replace 'postImages' with your actual storage folder name
+            const url = await getDownloadURL(imageRef);
+            await AsyncStorage.setItem('profileImgPath', url);
+          }
+        } catch (error) {
+          console.error('Error getting image download URL:', error);
+        }
+      }
+    }
+    getProfilePicture()
+  }, [userData?.userID])
 
   const fetchMatchIDs = async () => {
     try {
@@ -187,8 +209,6 @@ const Home: React.FC = () => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
-  const [graphLoading, setGraphLoading] = useState(true)
-
   const [selectedWatchList, setSelectedWatchList] = useState(0)
 
   const watchListButton = (emoji: string, name: string, index:number) => {
@@ -255,7 +275,7 @@ const Home: React.FC = () => {
 
 
   return (
-    <LinearGradient colors={[theme.colors.background, theme.colors.primary]} start={{x: 0, y:0}} end={{x: 1, y: 1}} style={{ flex: 1 }}>
+    <LinearGradient colors={[theme.colors.background, theme.colors.background]} start={{x: 0, y:0}} end={{x: 1, y: 1}} style={{ flex: 1 }}>
       <View style={styles.container}>     
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>

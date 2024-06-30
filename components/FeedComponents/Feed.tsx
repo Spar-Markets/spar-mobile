@@ -30,17 +30,33 @@ const Feed: React.FC = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();  
   const userData = useSelector((state: any) => state.user.userData);
+  const [loadingMore, setLoadingMore] = useState(false); 
+  const [skip, setSkip] = useState(0); 
+  const [hasMorePosts, setHasMorePosts] = useState(true); 
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (reset = false) => {
     try {
-      const response = await axios.get(serverUrl + "/posts");
+      const response = await axios.get(`${serverUrl}/posts`, {
+        params: { limit: 10, skip: reset ? 0 : skip }
+      });
       const fetchedPosts: PostType[] = response.data.posts.map((post: PostType) => ({
         ...post,
         postedTimeAgo: timeAgo(new Date(post.postedTime))
       }));
 
-      dispatch(setPosts(fetchedPosts));
+      if (reset) {
+        dispatch(setPosts(fetchedPosts));
+        setSkip(10);
+      } else {
+        dispatch(setPosts([...posts, ...fetchedPosts]));
+        setSkip(skip + 10);
+      }
 
+      if (fetchedPosts.length < 10) {
+        setHasMorePosts(false);
+      } else {
+        setHasMorePosts(true);
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -48,22 +64,20 @@ const Feed: React.FC = () => {
 
   useEffect(() => {
     fetchPosts();
-    const getUser = async () => {
-      try {
-        const email = await AsyncStorage.getItem("userEmail");
-        console.log(email);
-      } catch (error) {
-        console.error("Error getting user");
-      }
-    };
-
-    getUser();
   }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchPosts();
     setRefreshing(false);
+  };
+
+  const loadMorePosts = async () => {
+    if (!loadingMore && hasMorePosts) {
+      setLoadingMore(true);
+      await fetchPosts();
+      setLoadingMore(false);
+    }
   };
 
   const renderItem: ListRenderItem<PostType> = ({ item }) => {
@@ -107,6 +121,8 @@ const Feed: React.FC = () => {
             tintColor={theme.colors.accent}
           />
         }
+        onEndReached={loadMorePosts}
+        onEndReachedThreshold={0.5}
       />
 
         <View style={{position: 'absolute', right: 0, bottom: 0}}>

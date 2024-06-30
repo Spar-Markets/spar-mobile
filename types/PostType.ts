@@ -11,8 +11,10 @@ export default interface PostType {
   numReposts: number;
   votes: number;
   hasImage: boolean;
+  hasTempImage: boolean;
   isUpvoted: boolean;
   isDownvoted: boolean;
   postedTimeAgo: string; // Add this line
-  comments: CommentType[]
+  comments: CommentType[],
+  image: string | null
 }

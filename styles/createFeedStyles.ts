@@ -85,8 +85,16 @@ const createFeedStyles = (theme: any, width: number) => {
         color: theme.colors.text,
         marginTop: 5
     },
+    mainPicContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     mainPic: {
-        marginTop: 10
+        marginTop: 10, 
+        width: width-40,
+        aspectRatio: 0.6,
+        borderRadius: 10,
     },
     postBottomContainer: {
         flexDirection: 'row',

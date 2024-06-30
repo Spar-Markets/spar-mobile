@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Image, ScrollView, Easing, Touchable, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Image, ScrollView, Easing, Touchable, TouchableWithoutFeedback, Alert } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
@@ -12,11 +12,14 @@ import timeAgo from '../../utility/timeAgo';
 import axios from 'axios'
 import { shallowEqual, useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { upvotePost, downvotePost, setUpvoteStatus, setDownvoteStatus } from '../../GlobalDataManagment/postSlice';
+import { upvotePost, downvotePost, setUpvoteStatus, setDownvoteStatus, deletePost } from '../../GlobalDataManagment/postSlice';
 import { serverUrl } from '../../constants/global';
 import Voting from './Voting';
 import { Skeleton } from '@rneui/themed';
 import useUserDetails from '../../hooks/useUserDetails';
+import { storage } from '../../firebase/firebase';
+import { deleteObject, getDownloadURL, ref } from 'firebase/storage';
+import GameCardSkeleton from '../HomeComponents/GameCardSkeleton';
 
 
 interface PostProps extends PostType {
@@ -54,39 +57,71 @@ const Post = (props:any) => {
             hasImage: props.hasImage,
             isUpvoted: props.isUpvoted,
             isDownvoted: props.isDownvoted,
-      
+            image: image //uri to image
     })
         
     }
 
     const [loading, setLoading] = useState(true)
+    const [image, setImage] = useState<string | null>(null)
+    const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
     // Sets initial votes on rerender
     useEffect(() => {
         const setVote = async () => {
             try {
                 if (userData) {
-                const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: userData.userID, postId: props.postId });
-                if (newVoteStatus.data.voteType === 'up') {
-                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
-                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
-                } else if (newVoteStatus.data.voteType === 'down') {
-                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
-                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
-                } else {
-                    dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
-                    dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                    const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: userData.userID, postId: props.postId });
+                    if (newVoteStatus.data.voteType === 'up') {
+                        dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
+                        dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                    } else if (newVoteStatus.data.voteType === 'down') {
+                        dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                        dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
+                    } else {
+                        dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                        dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                    }
                 }
+            } catch (error) {
+                console.error('Error getting vote status:', error);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false)
-        } catch (error) {
-            console.error('Error getting vote status:', error);
-            setLoading(false)
-        }
         };
 
         setVote();
     }, [dispatch, props.postId, userData?.userID]);
+
+    const [imageLoading, setImageLoading] = useState(true)
+
+    useEffect(() => {
+        const getImageDownloadURL = async (imageName: string) => {
+            try {
+                const imageRef = ref(storage, `postImages/${imageName}`); // Replace 'postImages' with your actual storage folder name
+                const url = await getDownloadURL(imageRef);
+                // Use Image.getSize to get dimensions
+                Image.getSize(url, (width, height) => {
+                    setImageDimensions({ width, height });
+                    setImage(url);
+                    setImageLoading(false);
+                }, error => {
+                    console.error('Error getting image dimensions:', error);
+                    setImageLoading(false);
+                });
+            } catch (error) {
+                console.error('Error getting image download URL:', error);
+                setImageLoading(false);
+            }
+        };
+
+        if (props.hasImage && !image && !props.onComment) {
+            getImageDownloadURL(props.postId);
+        } else {
+            setImageLoading(false);
+        }
+    }, [props.hasImage, props.postId, props.onComment, image]);
+
 
     const categoryButton = (category: string) => {
 
@@ -105,7 +140,57 @@ const Post = (props:any) => {
         )
     }
 
-    if (loading && props.onComment == false) {
+    const handleDelete = (postId:string) => {
+        Alert.alert(
+          'Confirm Delete',
+          'Are you sure you want to delete this post?',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel Pressed'),
+              style: 'cancel',
+            },
+            {
+              text: 'OK',
+              onPress: () => performDelete(postId),
+            },
+          ],
+          { cancelable: false }
+        );
+      };
+
+      const performDelete = async (postId:string) => {
+        try {
+            const imgRef = ref(storage, `postImages/${postId}`);
+            try {
+               await deleteObject(imgRef);
+               const response = await axios.post(serverUrl + '/deletePost', {
+                postId: postId,
+              });
+              if (response.status === 200) {
+                // Handle success
+                if (props.onComment == true) {
+                    navigation.goBack()
+                }
+                dispatch(deletePost(postId));
+                Alert.alert('Success', 'Post deleted successfully');
+                // You can update your state or UI here
+                //dispatch({ type: 'DELETE_POST', payload: postId }); // Example Redux action
+              } else {
+                // Handle failure
+                Alert.alert('Error', 'Failed to delete post');
+              }
+            } catch (error) {
+                Alert.alert('Error', 'Failed to delete post');
+                return
+            }
+        } catch (error) {
+          console.error('Error deleting post:', error);
+          Alert.alert('Error', 'Error deleting post');
+        }
+      };
+
+    if ((loading || imageLoading) && props.onComment == false) {
         return (
             <View style={styles.postsContainer}>
                 <View>
@@ -119,7 +204,7 @@ const Post = (props:any) => {
                     <Skeleton animation={"wave"} height={25} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
                     <Skeleton animation={"wave"} height={25} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
                     <Skeleton animation={"wave"} height={25} width={120} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
-                    {props.hasImage === true && <Image style={styles.mainPic} source={require("../../assets/images/testPost.png")}/>}
+                    {props.hasImage === true && <Skeleton animation={"wave"} height={width-40} width={width-40} style={{marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>}
                     </TouchableOpacity> 
                     <View style={styles.postBottomContainer}>
                         {/*Used to remake post on comment page without recalling db*/}
@@ -142,11 +227,17 @@ const Post = (props:any) => {
                     <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
                     <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
                     <View style={{flex: 1}}></View>
+                    {(props.posterId == userData?.userID) && 
+                    <TouchableOpacity style={{paddingHorizontal: 20}} onPress={() => handleDelete(props.postId)}>
+                        <Icon name="trash" size={20} color={theme.colors.text}></Icon>
+                    </TouchableOpacity>
+                    }
                     {categoryButton(props.type)}
                 </View>
                 <Text style={styles.subjectText}>{props.title}</Text>
                 <Text style={styles.messageText}>{props.body}</Text>
-                {props.hasImage === true && <Image style={styles.mainPic} source={require("../../assets/images/testPost.png")}/>}
+                {props.hasImage === true && image != null && <Image style={[styles.mainPic, {aspectRatio: 1}]} source={{uri: image}}/>}
+                {props.hasTempImage === true && props.image != null && props.hasImage == false && <Image style={[styles.mainPic, {aspectRatio: 1}]} source={{uri: props.image}}/>}
                 </TouchableOpacity> 
                 <View style={styles.postBottomContainer}>
                     {/*Used to remake post on comment page without recalling db*/}
@@ -165,11 +256,21 @@ const Post = (props:any) => {
                         <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
                         <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
                         <View style={{flex: 1}}></View>
+                        {props.posterId == userData?.userID && 
+                        <TouchableOpacity style={{paddingHorizontal: 20}} onPress={() => {
+                            handleDelete(props.postId)
+                            }}>
+                            <Icon name="trash" size={20} color={theme.colors.text}></Icon>
+                        </TouchableOpacity>
+                        }
                         {categoryButton(props.type)}
                     </View>
                     <Text style={styles.subjectText}>{props.title}</Text>
                     <Text style={styles.messageText}>{props.body}</Text>
-                    {props.hasImage === true && <Image style={styles.mainPic} source={require("../../assets/images/testPost.png")}/>}
+                    <View style={styles.mainPicContainer}>
+                    {props.hasImage === true && <Image style={[styles.mainPic, {aspectRatio: 1}]} source={{uri: props.image}}/>}
+                    {props.hasTempImage === true && props.image != null && props.hasImage == false && <Image style={[styles.mainPic, {aspectRatio: 1}]} source={{uri: props.image}}/>}
+                    </View>
                 </View> 
                 <View style={styles.postBottomContainer}>
                     {/*Used to remake post on comment page without recalling db*/}

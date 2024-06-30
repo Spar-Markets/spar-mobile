@@ -116,8 +116,14 @@ const postsSlice = createSlice({
         post.comments = [];
       }
     },
+    deletePost(state, action: PayloadAction<string>) {
+      const index = state.findIndex((post) => post.postId === action.payload);
+      if (index !== -1) {
+        state.splice(index, 1);
+      }
+    },
   },
 });
 
-export const { upvotePost, clearCommentsForPost, setCommentsForPost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
+export const { upvotePost, clearCommentsForPost, deletePost, setCommentsForPost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
 export default postsSlice.reducer;

@@ -33,19 +33,19 @@ const Comment = React.memo((props:any) => {
           <View style={{flexDirection: 'row', alignItems: 'center', paddingTop: 5}}>
 
             <View style={{flex: 1}}></View>
-            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', paddingHorizontal: 10, paddingVertical: 5 }}>
+            {/*<View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', paddingHorizontal: 10, paddingVertical: 5 }}>
                 <TouchableOpacity style={{paddingRight: 5}}>
                     <Animated.View>
-                    <Icon name="arrow-up" style={/*post.isUpvoted ? { color: theme.colors.stockUpAccent } : */{ color: theme.colors.secondaryText }} size={20} />
+                    <Icon name="arrow-up" style={/*post.isUpvoted ? { color: theme.colors.stockUpAccent } : { color: theme.colors.secondaryText }} size={20} />
                     </Animated.View>
                 </TouchableOpacity>
                 <Text style={styles.votesText}>56</Text>
                 <TouchableOpacity style={{paddingLeft: 5}}>
                     <Animated.View>
-                    <Icon name="arrow-down" style={/*post?.isDownvoted ? { color: theme.colors.stockDownAccent } :*/ { color: theme.colors.secondaryText }} size={20} />
+                    <Icon name="arrow-down" style={/*post?.isDownvoted ? { color: theme.colors.stockDownAccent } : { color: theme.colors.secondaryText }} size={20} />
                     </Animated.View>
                 </TouchableOpacity>
-            </View>
+            </View>*/}
           </View>
         </View> 
     </View>

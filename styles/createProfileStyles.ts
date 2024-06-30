@@ -30,7 +30,9 @@ const createProfileStyles = (theme: any, width: number) => {
         width: 100,
         height: 100,
         borderWidth: 2,
-        borderColor: '#81BFB4'
+        borderColor: '#81BFB4',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     rankContainer: {
         backgroundColor: '#81BFB4',

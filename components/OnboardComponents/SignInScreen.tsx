@@ -5,13 +5,14 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createOnboardStyles from '../../styles/createOnboardStyles';
 import { useNavigation } from '@react-navigation/native';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
+import { auth, storage } from '../../firebase/firebase';
 import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { getDownloadURL, ref } from 'firebase/storage';
 
 const SignInScreen = (props: any) => {
   const { user } = useAuth();

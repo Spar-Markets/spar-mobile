@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Keyboard, KeyboardEvent, TextInput, ScrollView, Animated, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard, KeyboardEvent, TextInput, ScrollView, Animated, StyleSheet, Platform } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
@@ -12,12 +12,17 @@ import { addPost } from '../../GlobalDataManagment/postSlice';
 import generateRandomString from '../../utility/generateRandomString';
 import useUserDetails from '../../hooks/useUserDetails';
 import CommentType from "../../types/CommentType"
+import ImagePicker from 'react-native-image-crop-picker'
+import { Image } from 'react-native';
+import { storage } from '../../firebase/firebase';
+import { ref, uploadBytes } from 'firebase/storage';
+import ImageResizer from '@bam.tech/react-native-image-resizer'
 
 const CreatePost = (props: any) => {
 
     // Layout and Style Initialization
     const { theme } = useTheme();
-    const { width } = useDimensions();
+    const { width, height } = useDimensions();
     const styles = createFeedStyles(theme, width)
 
     const { user, userData, loading, error } = useUserDetails();
@@ -29,6 +34,22 @@ const CreatePost = (props: any) => {
     const [postTextInput, setPostTextInput] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const animatedMargin = useRef(new Animated.Value(70)).current;
+
+    const [image, setImage] = useState<string | null>(null)
+
+    const choosePhotoFromLibrary = () => {
+        ImagePicker.openPicker({
+            compressImageQuality: 0.3, // Adjust image quality
+            cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
+            cropperToolbarColor: theme.colors.accent, // Toolbar color of the cropper
+            cropperToolbarWidgetColor: theme.colors.text, // Toolbar widget color of the cropper
+        }).then((image: any) => {
+            const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
+            setImage(imageUri);
+        }).catch((error: any) => {
+            console.log("Image picker error:", error);
+        });
+    };
 
     const categoryButton = (category: string, color: string) => {
         const handlePress = () => {
@@ -103,6 +124,7 @@ const CreatePost = (props: any) => {
         try {
             //find cryptographically strong method, crypto cant be used in RN
             const postId = generateRandomString(40);
+
             const localPostData = {
                 postId: postId,
                 username: userData!.username, //fix to be current logged in user through AUTH
@@ -113,26 +135,53 @@ const CreatePost = (props: any) => {
                 numComments: 0,
                 numReposts: 0,
                 votes: 0,
+                hasTempImage: image ? true : false,
                 hasImage: false,
                 isUpvoted: false,
                 isDownvoted: false,
                 postedTimeAgo: "",
-                comments: []
+                comments: [],
+                image: image ? image : null
             };
+            console.log(localPostData)
 
             const mongoPostData = {
                 postId: postId,
+                posterId: userData!.userID,
                 username: userData!.username,
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,
                 message: postTextInput,
+                hasImage: image ? true : false
             }
+
+            console.log(mongoPostData)
 
             const response = await axios.post(serverUrl+"/postToDatabase", mongoPostData);
             console.log(response.data)
             dispatch(addPost(localPostData))
-            navigation.goBack()
+            
+            try {
+                if (image) {
+                    const uri = image; // The URI of the image to be resized
+                    const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
+                    const quality = 100; // The quality of the resized image (0-100)
+                    
+                    ImageResizer.createResizedImage(
+                       uri, 500, 500, format, quality,
+                    ).then(async (response) => {
+                        const imageRes = await fetch(response.uri);
+                        const blob = await imageRes.blob();
+                        const imgRef = ref(storage, `postImages/${postId}`);
+                        await uploadBytes(imgRef, blob);
+                        navigation.goBack()
+                        console.log('Image uploaded successfully');
+                    })
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
         } catch (error) {
             console.log(error)
         } 
@@ -164,7 +213,7 @@ const CreatePost = (props: any) => {
 
             </View>
             <View style={{ flex: 1 }}>
-                <ScrollView style={{ backgroundColor: theme.colors.primary, marginBottom: 20 }}>
+                <ScrollView style={{ backgroundColor: theme.colors.primary, marginBottom: 20 }} keyboardDismissMode='on-drag'>
                     <TextInput
                         placeholder="Title"
                         placeholderTextColor={theme.colors.tertiary}
@@ -175,6 +224,7 @@ const CreatePost = (props: any) => {
                         maxLength={100}
                         multiline
                     />
+
                     <TextInput
                         placeholder="body text"
                         placeholderTextColor={theme.colors.tertiary}
@@ -185,8 +235,26 @@ const CreatePost = (props: any) => {
                         multiline
                         
                     />
+                    {image != null ? 
+                        <View style={{marginHorizontal: 20, marginVertical: 20}}>
+                            <Image 
+                                source={{uri: image}} 
+                                style={{
+                                    width: width-40, 
+                                    height: undefined,
+                                    aspectRatio: 1,
+                                    borderRadius: 10,
+                                }} 
+                                resizeMode="cover"
+                            />
+                        </View>
+                    : null}
                 </ScrollView>
+
                 <Animated.View style={[styles.categorySelect, { marginBottom: animatedMargin }]}>
+                <TouchableOpacity style={{marginLeft: 20}} onPress={choosePhotoFromLibrary}>
+                    <Icon name="photo" color={theme.colors.text} size={28}/>
+                </TouchableOpacity>
                     <Text style={styles.categorySelectText}>Select Category</Text>
                     <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
                         {categoryButton("Discussion", theme.colors.discussion)}

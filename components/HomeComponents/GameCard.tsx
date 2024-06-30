@@ -52,34 +52,26 @@ const GameCard = (props: any) => {
 
   const setUserMatchData = async (yourUserNumber: string, opponentUserNumber: string) => {
     try {
-      const yourSnapshots: PortfolioSnapshot[] = match[yourUserNumber].snapshots;
+      // get portfolio snapshots
+      const snapshots = await axios.post(serverUrl + '/getSnapshots', { matchID: match.matchID })
+
+      const yourSnapshots: PortfolioSnapshot[] = snapshots.data[`${yourUserNumber}Snapshots`];
+      
       const yourPoints: GraphPoint[] = yourSnapshots.map((snapshot) => ({
         value: snapshot.value,
         date: new Date(snapshot.timeField), // Ensure date is in timestamp format
       }));
       setYourPointData(yourPoints);
 
-      const oppSnapshots: PortfolioSnapshot[] = match[opponentUserNumber].snapshots;
+      const oppSnapshots: PortfolioSnapshot[] = snapshots.data[`${opponentUserNumber}Snapshots`];
       const oppPoints: GraphPoint[] = oppSnapshots.map((snapshot) => ({
         value: snapshot.value,
         date: new Date(snapshot.timeField), // Ensure date is in timestamp format
       }));
       setOpponentPointData(oppPoints);
 
-      //console.log(match[yourUserNumber].assets)
-      /*const updatedYourAssets = match[yourUserNumber].assets.map((asset:any) => {
-        // Here you can determine the currentPrice value, 
-        // for example, from a live price feed or a predefined value
-        const currentPrice = 0; // Implement this function as needed
-        return { ...asset, currentPrice };
-      });
-    
-      const updatedOpponentAssets = match[opponentUserNumber].assets.map((asset:any) => {
-        const currentPrice = 0; // Implement this function as needed
-        return { ...asset, currentPrice };
-      });*/
-
-      //getInitialPrices()
+ 
+      console.log(match[yourUserNumber].assets)
       setYourAssets(match[yourUserNumber].assets)
       setOpponentAssets(match[opponentUserNumber].assets)
 
@@ -128,6 +120,7 @@ const GameCard = (props: any) => {
       index: index,
       date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
     }));
+    console.log("DATA 2 TO BECOME OPP FOMRATTED DATA:", data2)
     setOppFormattedData(data2)
 
     const dataMax = Math.max(...data.map((item:any) => item.normalizedValue))
@@ -194,9 +187,12 @@ const GameCard = (props: any) => {
 
   useEffect(() => {
     if (yourFormattedData != null && oppFormattedData != null) {
-      if (yourFormattedData[yourFormattedData.length-1]?.value != undefined) {
+      //check if the formatteddatas have any value //TODO when there is no formatted data so jackson make snapshot always be added at match creation
+      if (yourFormattedData[yourFormattedData.length-1]?.value != undefined && oppFormattedData[oppFormattedData.length-1]?.value != undefined) {
         //INTIALIZATION OF COLOR AND PRICES
         setYourTotalPrice(yourFormattedData[yourFormattedData.length-1].value)
+        console.log("Opp formatted data", oppFormattedData);
+
         setOppTotalPrice(oppFormattedData[oppFormattedData.length-1].value)
         if (yourFormattedData[yourFormattedData.length-1].value >= oppFormattedData[oppFormattedData.length-1].value) {
           setYourColor(theme.colors.stockUpAccent)
@@ -240,6 +236,8 @@ const GameCard = (props: any) => {
         console.log(`Connected to GameCard Asset Websocket, but not ready for messages...`);
         if (ws.current!.readyState === WebSocket.OPEN) {
           console.log(`Connection for GameCard Asset Websocket is open and ready for messages`);
+          // first send match ID
+          ws.current!.send(JSON.stringify({ matchID: match.matchID }))
           yourAssets.forEach((asset:any) => {
             ws.current!.send(JSON.stringify({ ticker: asset.ticker}));
           })
@@ -253,11 +251,32 @@ const GameCard = (props: any) => {
 
     ws.current.onmessage = (event) => {
         const buffer = new Uint8Array(event.data);
-        const message = uint8ArrayToString(buffer);
+
+        console.log("asfadjks",event.data)
+        // ^^^^^^^^^^^^^^^^^^^
+        // LOG  asfadjks {"data": "{\"user2.assets.1.totalShares\":10}", "isTrusted": false}
+
+        if (event.data == "Websocket connected successfully") {
+          return;
+        }
         
-        //console.log(`Websocket Received message: ${message}`);
+        // if (Object.keys(event.data.data)[0]) {
+        //   console.log(Object.keys(event.data.data)[0])
+        // }
+
+        const message = uint8ArrayToString(buffer); 
+    
+        console.log(`Websocket Received message: ${message}`);
         
-        if (message != "") {
+        // case 1: assets have updated during websocket connection for either you or opponent.
+        // therefore, update your assets and your opponent's assets state variables.
+        if (event.data.type == "updatedAssets") {
+          // logic to deal with updated assets
+          setYourAssets(event.data[`${you}Assets`]);
+          setOpponentAssets(event.data[`${opp}Assets`]);
+        }
+        // case 2:
+        else if (message != "") {
           try {
             //handle checking if ticker is in your assets, opp assets, or both
             const jsonMessage = JSON.parse(message);
