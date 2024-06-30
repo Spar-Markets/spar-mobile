@@ -6,7 +6,6 @@ import createOnboardStyles from '../../styles/createOnboardStyles';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
 import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'react-native';

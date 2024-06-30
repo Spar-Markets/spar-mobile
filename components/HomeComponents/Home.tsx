@@ -70,16 +70,27 @@ const Home: React.FC = () => {
     const getProfilePicture = async () => {
 
       if (userData?.userID) {
-        try {
+        /*try {
           const profilePath = await AsyncStorage.getItem('profileImgPath');
           console.log("Path:", profilePath)
           if (!profilePath) {
             const imageRef = ref(storage, `profileImages/${userData?.userID}`); // Replace 'postImages' with your actual storage folder name
             const url = await getDownloadURL(imageRef);
             await AsyncStorage.setItem('profileImgPath', url);
+            console.log("firebase url", url)
           }
         } catch (error) {
           console.error('Error getting image download URL:', error);
+        }*/
+
+        try {
+          const imageRef = ref(storage, `profileImages/${userData?.userID}`);
+          const url = await getDownloadURL(imageRef);
+          if (url) {
+            console.log(url)
+          }
+        } catch {
+          console.log("error in profile stuff")
         }
       }
     }
@@ -99,6 +110,7 @@ const Home: React.FC = () => {
 
   const getMatchData = async () => {
     try {
+      console.log(`Server Url: ${process.env.SERVER_URL}`)
       console.log("getmatchdata", activeMatches);
       const md: MatchData[] = [];
       for (const id of activeMatches) {

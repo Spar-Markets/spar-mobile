@@ -252,13 +252,15 @@ const GameCard = (props: any) => {
     ws.current.onmessage = (event) => {
         const buffer = new Uint8Array(event.data);
 
-        console.log("asfadjks",event.data)
+        console.log("Received websocket message:", event.data)
         // ^^^^^^^^^^^^^^^^^^^
         // LOG  asfadjks {"data": "{\"user2.assets.1.totalShares\":10}", "isTrusted": false}
 
         if (event.data == "Websocket connected successfully") {
           return;
         }
+
+        const eventData = JSON.parse(event.data);
         
         // if (Object.keys(event.data.data)[0]) {
         //   console.log(Object.keys(event.data.data)[0])
@@ -267,13 +269,17 @@ const GameCard = (props: any) => {
         const message = uint8ArrayToString(buffer); 
     
         console.log(`Websocket Received message: ${message}`);
+        console.log("Event data type:", eventData.type);
+        // console.log("Event data type ocky method:", event.data["type"]);
         
         // case 1: assets have updated during websocket connection for either you or opponent.
         // therefore, update your assets and your opponent's assets state variables.
-        if (event.data.type == "updatedAssets") {
+        if (eventData.type == "updatedAssets") {
           // logic to deal with updated assets
           setYourAssets(event.data[`${you}Assets`]);
           setOpponentAssets(event.data[`${opp}Assets`]);
+          console.log("Your updated assets:", yourAssets);
+          console.log("Opponent's updated assets:", opponentAssets);
         }
         // case 2:
         else if (message != "") {

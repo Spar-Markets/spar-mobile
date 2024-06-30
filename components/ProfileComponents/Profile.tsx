@@ -35,16 +35,20 @@ const Profile  = ({ navigation }: any) => {
 
   useEffect(() => {
     const getProfileImage = async () => {
-      const profileImagePath = await AsyncStorage.getItem('profileImgPath');
-      console.log("Profile Image Path:", profileImagePath)
-      if (profileImagePath) {
-        setImage(profileImagePath)
+      try {
+        const profileImagePath = await AsyncStorage.getItem('profileImgPath');
+        if (profileImagePath) {
+          console.log(profileImagePath);
+          setImage(profileImagePath);
+        }
+      } catch (error) {
+        console.error('Failed to load profile image path:', error);
+      } finally {
+        setLoading(false);
       }
-    }
-    getProfileImage().then(() => {
-      setLoading(false)
-    })
-  }, [])
+    };
+    getProfileImage();
+  }, []);
 
 
   const choosePhotoFromLibrary = () => {
@@ -59,6 +63,7 @@ const Profile  = ({ navigation }: any) => {
     }).then(async (image: any) => {
         const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
         setImage(imageUri);
+        console.log(imageUri)
         uploadProfileImageToFirebase(imageUri)
         await AsyncStorage.setItem('profileImgPath', imageUri)
     }).catch((error: any) => {
@@ -84,6 +89,12 @@ const Profile  = ({ navigation }: any) => {
     }
   }
 
+  useEffect(() => {
+    if (image) {
+      setLoading(false);
+    }
+  }, [image]);
+
  
   if (loading) {
     return <View></View>
@@ -105,7 +116,7 @@ const Profile  = ({ navigation }: any) => {
         </View>
         <ScrollView>
           <TouchableOpacity style={styles.profileContainer} onPress={choosePhotoFromLibrary}>
-            {image != null ? <Image style={styles.profilePic} source={{uri: image}}/> : 
+            {image ? <Image style={styles.profilePic} source={{uri: image}}/> : 
               <View style={styles.profilePic}>
                 <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 30}}>{userData?.username.slice(0,1).toUpperCase()}</Text>
               </View>}
