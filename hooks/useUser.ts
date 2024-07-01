@@ -15,6 +15,10 @@ interface UserData {
   userID: string;
   username: string;
   watchedStocks: [string]
+  followers: [string],
+  following: [string],
+  outgoingFollowRequests: [string],
+  incomingFollowRequests: [string]
 }
 
 /**
@@ -32,9 +36,9 @@ const useUserData = (userID?: string) => {
       const fetchUserData = async () => {
         try {
           console.log("server url FROM env:", `${process.env.SERVER_URL}`);
-          console.log("Server url endpoint:", `${serverUrl}/getActiveUser`);
+          console.log("Server url endpoint:", `${serverUrl}/getUser`);
           console.log("UserID:", userID);
-          const response = await axios.post(`${serverUrl}/getActiveUser`, { userID });
+          const response = await axios.post(`${serverUrl}/getUser`, { userID });
           //console.log('Fetched User Data:', response.data);
           setUserData(response.data);
         } catch (error) {

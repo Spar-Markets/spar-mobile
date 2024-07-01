@@ -15,6 +15,8 @@ export default interface PostType {
   isUpvoted: boolean;
   isDownvoted: boolean;
   postedTimeAgo: string; // Add this line
-  comments: CommentType[],
+  comments: CommentType[]
   image: string | null
+  profileImage: string | null
+  hasTempProfileImage: boolean
 }

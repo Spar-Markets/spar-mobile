@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addPost } from '../../GlobalDataManagment/postSlice';
 import generateRandomString from '../../utility/generateRandomString';
 import useUserDetails from '../../hooks/useUserDetails';
@@ -119,6 +119,7 @@ const CreatePost = (props: any) => {
         };
     }, []);
 
+    const yourProfileImageUri = useSelector((state:any) => state.image.profileImageUri);
 
     const confirmPost = async () => {
         try {
@@ -136,14 +137,16 @@ const CreatePost = (props: any) => {
                 numReposts: 0,
                 votes: 0,
                 hasTempImage: image ? true : false,
+                hasTempProfileImage: true,
                 hasImage: false,
                 isUpvoted: false,
                 isDownvoted: false,
                 postedTimeAgo: "",
                 comments: [],
-                image: image ? image : null
+                image: image ? image : null,
+                profileImage: yourProfileImageUri
             };
-            console.log(localPostData)
+            //console.log(localPostData)
 
             const mongoPostData = {
                 postId: postId,
@@ -156,31 +159,36 @@ const CreatePost = (props: any) => {
                 hasImage: image ? true : false
             }
 
-            console.log(mongoPostData)
+            console.log(localPostData)
 
             const response = await axios.post(serverUrl+"/postToDatabase", mongoPostData);
             console.log(response.data)
-            dispatch(addPost(localPostData))
             
-            try {
-                if (image) {
-                    const uri = image; // The URI of the image to be resized
-                    const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
-                    const quality = 100; // The quality of the resized image (0-100)
-                    
-                    ImageResizer.createResizedImage(
-                       uri, 500, 500, format, quality,
-                    ).then(async (response) => {
-                        const imageRes = await fetch(response.uri);
-                        const blob = await imageRes.blob();
-                        const imgRef = ref(storage, `postImages/${postId}`);
-                        await uploadBytes(imgRef, blob);
+            if (response.status == 200) {
+                try {
+                    if (image) {
+                        const uri = image; // The URI of the image to be resized
+                        const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
+                        const quality = 100; // The quality of the resized image (0-100)
+                        
+                        ImageResizer.createResizedImage(
+                        uri, 500, 500, format, quality,
+                        ).then(async (response) => {
+                            const imageRes = await fetch(response.uri);
+                            const blob = await imageRes.blob();
+                            const imgRef = ref(storage, `postImages/${postId}`);
+                            await uploadBytes(imgRef, blob);
+                            dispatch(addPost(localPostData))
+                            navigation.goBack()
+                            console.log('Image uploaded successfully');
+                        })
+                    } else {
+                        dispatch(addPost(localPostData))
                         navigation.goBack()
-                        console.log('Image uploaded successfully');
-                    })
+                    }
+                } catch (error) {
+                    console.error('Error uploading image:', error);
                 }
-            } catch (error) {
-                console.error('Error uploading image:', error);
             }
         } catch (error) {
             console.log(error)

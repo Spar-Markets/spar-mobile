@@ -127,6 +127,22 @@ const createProfileStyles = (theme: any, width: number) => {
     friendText: {
         color: theme.colors.text,
         fontFamily: 'InterTight-Bold'
+    },
+    searchBox: {
+        height: 40,
+        color: theme.colors.text,
+        fontSize: 14,
+        fontFamily: 'InterTight-regular',
+        backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.tertiary,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingLeft: 10,
+    },
+    userCardPic: {
+        width: 40,
+        height: 40,
+        borderRadius: 100
     }
     
     

@@ -91,6 +91,13 @@ const postsSlice = createSlice({
         }
       });
     },
+    appendPosts(state, action: PayloadAction<PostType[]>) {
+      const newPosts = action.payload.map(newPost => ({
+        ...newPost,
+        postedTimeAgo: timeAgo(new Date(newPost.postedTime)),
+      }));
+      state.push(...newPosts); // Append new posts to the end of the array
+    },
     addCommentToPost(state, action: PayloadAction<{ postId: string; comment: CommentType }>) {
       const { postId, comment } = action.payload;
       const post = state.find((p) => p.postId === postId);
@@ -125,5 +132,5 @@ const postsSlice = createSlice({
   },
 });
 
-export const { upvotePost, clearCommentsForPost, deletePost, setCommentsForPost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
+export const { upvotePost, clearCommentsForPost, appendPosts, deletePost, setCommentsForPost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
 export default postsSlice.reducer;

@@ -62,15 +62,17 @@ const Post = (props:any) => {
         
     }
 
-    const [loading, setLoading] = useState(true)
-    const [image, setImage] = useState<string | null>(null)
+    // Sets initial votes on rerender
+    const [loading, setLoading] = useState(true);
+    const [image, setImage] = useState<string | null>(null);
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
-    const yourProfileImageUri = useSelector((state:any) => state.image.profileImageUri);
+    const yourProfileImageUri = useSelector((state: any) => state.image.profileImageUri);
+    const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
 
-    // Sets initial votes on rerender
+    // Fetch vote status and image simultaneously
     useEffect(() => {
-        const setVote = async () => {
+        const fetchData = async () => {
             try {
                 if (userData) {
                     const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: userData.userID, postId: props.postId });
@@ -85,63 +87,33 @@ const Post = (props:any) => {
                         dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
                     }
                 }
+
+                if (props.hasImage && !image && !props.onComment) {
+                    const imageRef = ref(storage, `postImages/${props.postId}`);
+                    const url = await getDownloadURL(imageRef);
+                    Image.getSize(url, (width, height) => {
+                        setImageDimensions({ width, height });
+                        setImage(url);
+                    }, error => {
+                        console.error('Error getting image dimensions:', error);
+                    });
+                }
+
+                if (props.posterId) {
+                    const profileImageRef = ref(storage, `profileImages/${props.posterId}`);
+                    const profileUrl = await getDownloadURL(profileImageRef);
+                    setProfileImageUri(profileUrl);
+                }
+
             } catch (error) {
-                console.error('Error getting vote status:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        setVote();
-    }, [dispatch, props.postId, userData?.userID]);
-
-    const [imageLoading, setImageLoading] = useState(true)
-
-    const [profileImageUri, setProfileImageUri] = useState<string | null>()
-
-    const fetchProfileImageFromFirebase = async () => {
-      if (props.posterId) {
-        try {
-          const imageRef = ref(storage, `profileImages/${props.posterId}`);
-          const url = await getDownloadURL(imageRef);
-          if (url) {
-            console.log('Fetched URL from Firebase:', url);
-            setProfileImageUri(url)
-          }
-        } catch (error) {
-          console.error('Error fetching profile image from Firebase:', error);
-        }
-      }
-    };
-
-    useEffect(() => {
-        const getImageDownloadURL = async (imageName: string) => {
-            try {
-                const imageRef = ref(storage, `postImages/${imageName}`); // Replace 'postImages' with your actual storage folder name
-                const url = await getDownloadURL(imageRef);
-                // Use Image.getSize to get dimensions
-                Image.getSize(url, (width, height) => {
-                    setImageDimensions({ width, height });
-                    setImage(url);
-                    setImageLoading(false);
-                }, error => {
-                    console.error('Error getting image dimensions:', error);
-                    setImageLoading(false);
-                });
-                await fetchProfileImageFromFirebase()
-            } catch (error) {
-                console.error('Error getting image download URL:', error);
-                setImageLoading(false);
-            }
-        };
-
-        if (props.hasImage && !image && !props.onComment) {
-            getImageDownloadURL(props.postId);
-        } else {
-            setImageLoading(false);
-        }
-    }, [props.hasImage, props.postId, props.onComment, image]);
-
+        fetchData();
+    }, [dispatch, props.postId, props.hasImage, props.posterId, userData]);
 
     const categoryButton = (category: string) => {
 
@@ -181,12 +153,16 @@ const Post = (props:any) => {
 
       const performDelete = async (postId:string) => {
         try {
-            const imgRef = ref(storage, `postImages/${postId}`);
+
             try {
-               await deleteObject(imgRef);
+               if (props.hasImage == true || props.hasTempImage == true) { 
+                const imgRef = ref(storage, `postImages/${postId}`);
+                await deleteObject(imgRef);
+               }
                const response = await axios.post(serverUrl + '/deletePost', {
                 postId: postId,
               });
+            
               if (response.status === 200) {
                 // Handle success
                 if (props.onComment == true) {
@@ -202,6 +178,7 @@ const Post = (props:any) => {
               }
             } catch (error) {
                 Alert.alert('Error', 'Failed to delete post');
+                console.log(error)
                 return
             }
         } catch (error) {
@@ -210,7 +187,7 @@ const Post = (props:any) => {
         }
       };
 
-    if ((loading || imageLoading) && props.onComment == false) {
+    if (loading && props.onComment == false) {
         return (
             <View style={styles.postsContainer}>
                 <View>
@@ -244,10 +221,16 @@ const Post = (props:any) => {
             <View>
                 <TouchableOpacity onPress={navigateToComments}> 
                 <View style={styles.postTopContainer}>
-                    {profileImageUri ? <Image style={styles.postPic} source={{uri: profileImageUri}}></Image> : <View style={styles.postPic}></View>}
+                {profileImageUri ? (
+                    <Image style={styles.postPic} source={{ uri: profileImageUri }} />
+                    ) : (
+                    props.profileImage && props.hasTempProfileImage && (
+                        <Image style={styles.postPic} source={{ uri: props.profileImage }} />
+                    )
+                    )}
                     <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
                     <View style={{flex: 1}}></View>
-                    {(props.posterId == userData?.userID) && 
+                    {((props.posterId == userData?.userID) || props.hasTempImage || props.profileImage) && 
                     <TouchableOpacity style={{paddingHorizontal: 20}} onPress={() => handleDelete(props.postId)}>
                         <Icon name="trash" size={20} color={theme.colors.text}></Icon>
                     </TouchableOpacity>

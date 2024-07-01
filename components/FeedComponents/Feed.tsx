@@ -13,7 +13,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
-import { setPosts } from '../../GlobalDataManagment/postSlice';
+import { appendPosts, setPosts } from '../../GlobalDataManagment/postSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import timeAgo from '../../utility/timeAgo';
 
@@ -30,17 +30,22 @@ const Feed: React.FC = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();  
   const userData = useSelector((state: any) => state.user.userData);
-  const [loadingMore, setLoadingMore] = useState(false); 
+  const [loading, setLoading] = useState(false); // Single loading state for fetches
   const [skip, setSkip] = useState(0); 
   const [hasMorePosts, setHasMorePosts] = useState(true); 
 
   const profileImageUri = useSelector((state:any) => state.image.profileImageUri);
 
+
   const fetchPosts = async (reset = false) => {
+    if (loading) return; // Prevent new fetch if already loading
+    setLoading(true);
+    
     try {
       const response = await axios.get(`${serverUrl}/posts`, {
         params: { limit: 10, skip: reset ? 0 : skip }
       });
+  
       const fetchedPosts: PostType[] = response.data.posts.map((post: PostType) => ({
         ...post,
         postedTimeAgo: timeAgo(new Date(post.postedTime))
@@ -48,37 +53,40 @@ const Feed: React.FC = () => {
 
       if (reset) {
         dispatch(setPosts(fetchedPosts));
-        setSkip(10);
+        setSkip(10); // Reset skip to the next batch
       } else {
-        dispatch(setPosts([...posts, ...fetchedPosts]));
-        setSkip(skip + 10);
+        // Check for duplicates before appending
+        const newPosts = fetchedPosts.filter(fp => !posts.some(p => p.postId === fp.postId));
+        dispatch(appendPosts(newPosts));
+        setSkip(prevSkip => prevSkip + 10); // Increase skip for the next batch
       }
-
+  
       if (fetchedPosts.length < 10) {
-        setHasMorePosts(false);
+        setHasMorePosts(false); // No more posts to fetch
       } else {
-        setHasMorePosts(true);
+        setHasMorePosts(true); // There are more posts to fetch
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(true); // Fetch posts with reset on component mount
   }, []);
-
+  
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPosts();
+    setSkip(0); // Reset skip before fetching
+    await fetchPosts(true); // Fetch posts with reset on refresh
     setRefreshing(false);
   };
 
   const loadMorePosts = async () => {
-    if (!loadingMore && hasMorePosts) {
-      setLoadingMore(true);
-      await fetchPosts();
-      setLoadingMore(false);
+    if (!loading && hasMorePosts) {
+      await fetchPosts(); // Fetch more posts without reset
     }
   };
 

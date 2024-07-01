@@ -22,130 +22,157 @@ import ImageResizer from '@bam.tech/react-native-image-resizer'
 import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import { useDispatch, useSelector } from 'react-redux';
 import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
+import { useRoute } from '@react-navigation/native';
 
+interface otherProfileParams {
+    otherUserID: string,
+}
 
-const Profile  = ({ navigation }: any) => {
+interface UserData {
+    __v: number;
+    _id: string;
+    activematches: any[];
+    balance: Number
+    createdAt: string;
+    email: string;
+    pastmatches: any[];
+    plaidPersonalAccess: string;
+    skillRating: Number
+    userID: string;
+    username: string;
+    watchedStocks: [string]
+    followers: [string],
+    following: [string],
+    outgoingFollowRequests: [string],
+    incomingFollowRequests: [string]
+  }
+
+const OtherProfile  = ({ navigation }: any) => {
   const { theme } = useTheme();
   const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
-  const [image, setImage] = useState<string | null>(null)
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const route = useRoute();
+  const [noPic, setNoPic] = useState(false)
 
+  const params = route.params as otherProfileParams | undefined;
 
   const { userData } = useUserDetails();
 
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const getProfileImage = async () => {
-      try {
-        const profileImagePath = await AsyncStorage.getItem('profileImgPath');
-        if (profileImagePath) {
-          console.log('Profile image path from AsyncStorage:', profileImagePath);
-          setImage(profileImagePath);
-        } 
-      } catch (error) {
-        console.error('Failed to load profile image path:', error);
-      } finally {
-        setLoading(false);
+  const [otherUserData, setOtherUserData] = useState<UserData | null>(null);
+
+  const [status, setStatus] = useState<string | null>(null)
+
+  const getProfileImage = async () => {
+    const imageRef = ref(storage, `profileImages/${params?.otherUserID}`);
+    try {
+      const url = await getDownloadURL(imageRef);
+      if (url) {
+        setProfileImage(url);
+        setNoPic(false);
+      } else {
+        setNoPic(true);
       }
-    };
-    getProfileImage();
-  }, []);
-
-  const dispatch = useDispatch();
-  const profileImageUri = useSelector((state:any) => state.image.profileImageUri);
-  
-  const choosePhotoFromLibrary = () => {
-    ImagePicker.openPicker({
-        cropping: true,
-        cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
-        cropperToolbarColor: theme.colors.accent, // Toolbar color of the cropper
-        cropperToolbarWidgetColor: theme.colors.text, // Toolbar widget color of the cropper
-        cropperCircleOverlay: true,
-        width: 100,
-        height: 100 
-    }).then(async (image: any) => {
-        const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-        setImage(imageUri);
-        console.log(imageUri)
-        uploadProfileImageToFirebase(imageUri)
-        await AsyncStorage.setItem('profileImgPath', imageUri)
-
-        dispatch(setProfileImageUri(imageUri));
-    }).catch((error: any) => {
-        console.log("Image picker error:", error);
-    })
+    } catch (error) {
+      console.log("Error fetching profile image: ", error);
+      setNoPic(true);
+    }
+    setLoading(false);
   };
 
-  const uploadProfileImageToFirebase = async (imageUri:string) => {
-    if (imageUri) {
-      const uri = imageUri; // The URI of the image to be resized
-      const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
-      const quality = 100; // The quality of the resized image (0-100)
-      
-      ImageResizer.createResizedImage(
-         uri, 150, 150, format, quality,
-      ).then(async (response) => {
-          const imageRes = await fetch(response.uri);
-          const blob = await imageRes.blob();
-          const imgRef = ref(storage, `profileImages/${userData?.userID}`);
-          await uploadBytes(imgRef, blob);
-          console.log('Image uploaded successfully');
-      })
-    }
+  const getUserData = async () => {
+    try {
+        if (userData?.userID) {
+        await getProfileImage()
+        await checkFollowStatus()
+        const response = await axios.post(`${serverUrl}/getUser`, { userID: params?.otherUserID });
+        setOtherUserData(response.data);
+        setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } 
   }
 
   useEffect(() => {
-    if (image) {
-      setLoading(false);
+    getUserData()
+  }, [params?.otherUserID, userData?.userID]);
+
+
+  const requestFollow = async () => {
+    try {
+        const response = await axios.post(serverUrl + '/addFollowRequest', {userID: userData?.userID, otherUserID: params?.otherUserID})
+        if (response.status === 200) {
+            setStatus("pending")
+        }
+    } catch {
+        Alert.alert("Error Following")
     }
-  }, [image]);
+  }
+
+  const checkFollowStatus = async () => {
+    try {
+      const response = await axios.post(serverUrl + '/checkFollowStatus', {userID: userData?.userID, otherUserID: params?.otherUserID});
+      setStatus(response.data.status);
+      //Alert.alert('Follow Status', `Status: ${response.data.status}`);
+    } catch (error) {
+      console.error('Error checking follow status:', error);
+      Alert.alert('Error', 'An error occurred while checking follow status');
+    }
+  };
+  
 
  
-  if (loading || !userData) {
+  if (loading || !otherUserData) {
     return <View></View>
   }
 
   return (
       <View style={styles.container}>
         <View style={styles.header}>
+          <TouchableOpacity style={styles.headerBtn}  onPress={() => navigation.goBack()}>
+            <Icon name={"chevron-left"} size={24} color={theme.colors.opposite} />
+          </TouchableOpacity>
+          <View style={{flex: 1}}></View>
           <TouchableOpacity style={styles.headerBtn}>
             <Icon name={"bars"} size={24} color={theme.colors.opposite} />
           </TouchableOpacity>
-          <View style={{flex: 1}}></View>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate("ProfileSearch")}>
-            <Icon name={"search"} size={24} color={theme.colors.opposite} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate("ProfileActivity")}>
-            <Icon name={"heart"} size={24} color={theme.colors.opposite}></Icon>
-            <View style={{position: 'absolute', right:5, top:0, height: 10, width: 10, backgroundColor: 'red', borderRadius: 100}}></View>
-          </TouchableOpacity>
         </View>
         <ScrollView>
-          <TouchableOpacity style={styles.profileContainer} onPress={choosePhotoFromLibrary}>
-            {image ? <Image style={styles.profilePic} source={{uri: image}}/> : 
+          <View style={styles.profileContainer}>
+            {profileImage ? <Image style={styles.profilePic} source={{uri: profileImage}}/> : 
               <View style={styles.profilePic}>
-                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 30}}>{userData?.username.slice(0,1).toUpperCase()}</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 30}}>{otherUserData?.username.slice(0,1).toUpperCase()}</Text>
               </View>}
             <View style={styles.rankContainer}>
               <Text style={styles.rankText}>Diamond</Text>
             </View>
-          </TouchableOpacity>
-          <Text style={styles.usernameText}>@{userData?.username}</Text>
-          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Regular', fontSize: 14, marginHorizontal: 20, textAlign: 'center', marginTop: 10}}>Trading, Trading, GME TO THE MOON, GME TO THE MOON, GME TO THE MOOOON!</Text>
+          </View>
+          <Text style={styles.usernameText}>@{otherUserData?.username}</Text>
+          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Regular', fontSize: 14, marginHorizontal: 20, textAlign: 'center', marginTop: 10}}>OOOOOWWEEEEE</Text>
           <View style={{flexDirection: 'row', gap: 10, marginTop: 20, marginHorizontal: 20}}>
             <View style={styles.mainContainer}>
               <Text style={styles.mainContainerType}>Followers</Text>
-              <Text style={styles.mainContainerText}>{userData?.followers ? userData?.followers.length : 0 ?? 0}</Text>
+              <Text style={styles.mainContainerText}>{otherUserData?.followers ? otherUserData?.followers.length : 0 ?? 0}</Text>
             </View>
             <View style={styles.mainContainer}>
               <Text style={styles.mainContainerType}>Following</Text>
-              <Text style={styles.mainContainerText}>{userData?.following ? userData?.following.length : 0 ?? 0}</Text>
+              <Text style={styles.mainContainerText}>{otherUserData?.following ? otherUserData?.following.length : 0 ?? 0}</Text>
             </View>
 
           </View>
-          <View style={{marginTop: 20, marginHorizontal: 20, gap: 2}}>
+          {status == "none" && <TouchableOpacity style={{marginTop: 10, backgroundColor: '#81BFB4', marginHorizontal: 20, height: 40,borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}
+            onPress={requestFollow}>
+            <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold', fontSize: 16}}>Follow</Text>
+          </TouchableOpacity>}
+          {status == "pending" && <TouchableOpacity style={{marginTop: 10, backgroundColor: theme.colors.primary, marginHorizontal: 20, height: 40,borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}
+            >
+            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 16}}>Pending</Text>
+          </TouchableOpacity>}
+          {/*<View style={{marginTop: 20, marginHorizontal: 20, gap: 2}}>
             <Text style={styles.progressText}>656/1000 pts.</Text>
             <View style={styles.progressBarBackground}>
               <View style={styles.progressBarProgress}></View>
@@ -161,7 +188,7 @@ const Profile  = ({ navigation }: any) => {
                 <View style={[styles.rankIndicator,{ backgroundColor: '#FF4B8C'}]}></View>
               </View>
             </View>
-          </View>
+  </View>*/}
 
           {/*<View style={{marginTop: 20}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 20}}>
@@ -196,4 +223,4 @@ const Profile  = ({ navigation }: any) => {
 };
 
 
-export default Profile;
+export default OtherProfile;

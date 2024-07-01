@@ -41,6 +41,9 @@ import UsernameScreen from './components/OnboardComponents/UsernameScreen';
 import SignInScreen from './components/OnboardComponents/SignInScreen';
 import OrderSummary from './components/InGameComponents/OrderSummary';
 import CreateList from './components/HomeComponents/CreateList';
+import ProfileSearch from './components/ProfileComponents/ProfileSearch';
+import OtherProfile from './components/ProfileComponents/OtherProfile';
+import ProfileActivity from './components/ProfileComponents/ProfileActivity';
 
 
 
@@ -175,6 +178,31 @@ const AppContent = (): React.ReactElement => {
               gestureDirection: 'horizontal',
               animation: 'slide_from_bottom'
               
+            }}
+          />
+          <Stack.Screen
+            name="ProfileSearch"
+            component={ProfileSearch}
+            options={{headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+            }}
+          />
+          <Stack.Screen
+            name="OtherProfile"
+            component={OtherProfile}
+            options={{headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+            }}
+          />
+          <Stack.Screen
+            name="ProfileActivity"
+            component={ProfileActivity}
+            options={{headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+              animation: 'slide_from_bottom'
             }}
           />
         </Stack.Navigator>

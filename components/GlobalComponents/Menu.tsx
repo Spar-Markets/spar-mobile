@@ -6,6 +6,7 @@ import createGlobalStyles from '../../styles/createGlobalStyles';
 import { useNavigation } from '@react-navigation/native';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Menu = () => {
 
@@ -15,6 +16,7 @@ const Menu = () => {
 
     const handleLogout = async () => {
         await signOut(auth)
+        await AsyncStorage.removeItem('profileImgPath');
     }
 
     const navigation = useNavigation<any>();
