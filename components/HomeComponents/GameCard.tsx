@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { Text, TouchableOpacity, View, useColorScheme} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {GraphPoint, LineGraph} from 'react-native-graph';
 import {serverUrl, websocketUrl} from '../../constants/global';
@@ -31,8 +31,8 @@ const GameCard = (props: any) => {
     timeField: number;
   }
 
-  const [yourPointData, setYourPointData] = useState<GraphPoint[]>([]);
-  const [opponentPointData, setOpponentPointData] = useState<any>([]);
+  const [yourPointData, setYourPointData] = useState<any | null>(null);
+  const [opponentPointData, setOpponentPointData] = useState<any | null>(null);
   const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); // Added loading state
   const [yourFormattedData, setYourFormattedData] = useState<any[] | null>(null)
@@ -41,13 +41,33 @@ const GameCard = (props: any) => {
   const [maxY, setMaxY] = useState(0)
   const [yourColor, setYourColor] = useState("#fff")
   const [oppColor, setOppColor] = useState("#fff")
-  const [yourAssets, setYourAssets] = useState<any[]>([])
-  const [opponentAssets, setOpponentAssets] = useState<any[]>([])
+  const [yourAssets, setYourAssets] = useState<any[] | null>(null)
+  const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null)
   const [yourTickerPrices, setYourTickerPrices] = useState<{ [ticker: string]: number }>({});
   const [oppTickerPrices, setOppTickerPrices] = useState<{ [ticker: string]: number }>({});
+  const [match, setMatch] = useState<any | null>(null)
+  const [yourTotalPrice, setYourTotalPrice] = useState(0)
+  const [oppTotalPrice, setOppTotalPrice] = useState(0)
+  const [gotInitialPrices, setGotInitialPrices] = useState(false)
+  
+  const [you, setYou] = useState("")
+  const [opp, setOpp] = useState("")
 
-  const match = props.match;
   const userID = props.userID;
+  const matchID = props.matchID;
+
+
+  const getMatchData = async () => {
+    try {
+      const matchDataResponse = await axios.post(serverUrl + '/getMatchData', { matchID: matchID });
+      if (matchDataResponse) {
+        console.log("About to set match, STEP 2 should run in a sec");
+        setMatch(matchDataResponse.data)
+      }
+    } catch (error) {
+      console.error('in get match data error' + error);
+    }
+  };
 
   const setUserMatchData = async (yourUserNumber: string, opponentUserNumber: string) => {
     try {
@@ -60,19 +80,27 @@ const GameCard = (props: any) => {
         value: snapshot.value,
         date: new Date(snapshot.timeField), // Ensure date is in timestamp format
       }));
-      setYourPointData(yourPoints);
+
+      console.log("About to set your point data");
+      
 
       const oppSnapshots: PortfolioSnapshot[] = snapshots.data[`${opponentUserNumber}Snapshots`];
       const oppPoints: GraphPoint[] = oppSnapshots.map((snapshot) => ({
         value: snapshot.value,
         date: new Date(snapshot.timeField), // Ensure date is in timestamp format
       }));
-      setOpponentPointData(oppPoints);
+      
 
  
-      console.log(match[yourUserNumber].assets)
+      //console.log("YOUR ASSETS",match[yourUserNumber].assets)
+      //console.log("OPP ASSETS",match[opponentUserNumber].assets)
+      console.log("YOUR ASSETS FROM MATCH OBJECT:", match[yourUserNumber].assets)
+
       setYourAssets(match[yourUserNumber].assets)
       setOpponentAssets(match[opponentUserNumber].assets)
+      
+      setYourPointData(yourPoints);
+      setOpponentPointData(oppPoints);
 
       const response = await axios.post(serverUrl + '/getUsernameByID', { userID: match[opponentUserNumber].userID });
       setOpponentUsername(response.data.username);
@@ -81,11 +109,7 @@ const GameCard = (props: any) => {
     }
   };
 
-  const [you, setYou] = useState("")
-  const [opp, setOpp] = useState("")
-
-
-  useEffect(() => {
+  const setData = async () => {
     if (match.user1.userID === userID) {
       setUserMatchData('user1', 'user2');
       setYou('user1')
@@ -97,10 +121,10 @@ const GameCard = (props: any) => {
     } else {
       console.error('Error determining whether active user is user1 or user2.');
     }
-  }, [match]);
+    //await getInitialPrices() 
+  }
 
-  // Log the state to check if data is populated
-  useEffect(() => {
+  const formatData = async () => {
     const sourceData = yourPointData.filter((item:any, index:any) => index % 2 === 0)
     const data = sourceData // Select every 10th item
     .map((item:any, index:number) => ({
@@ -119,7 +143,7 @@ const GameCard = (props: any) => {
       index: index,
       date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
     }));
-    console.log("DATA 2 TO BECOME OPP FOMRATTED DATA:", data2)
+    //console.log("DATA 2 TO BECOME OPP FOMRATTED DATA:", data2)
     setOppFormattedData(data2)
 
     const dataMax = Math.max(...data.map((item:any) => item.normalizedValue))
@@ -141,46 +165,78 @@ const GameCard = (props: any) => {
     } else {
       setMinY(data2Min)
     }
-   
-    //setLoading(false);
-  }, [yourPointData, opponentPointData]);
 
-  const [yourTotalPrice, setYourTotalPrice] = useState(0)
-  const [oppTotalPrice, setOppTotalPrice] = useState(0)
-  const [gotInitialPrices, setGotInitialPrices] = useState(false)
+    console.log("About to run STEP 4");
+    await getInitialPrices();
+    console.log("Just ran step 4");
+  }
+
+  // grab updated match data every time gamecard comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("------------------------------------------------------------------")
+      console.log("STEP 1: GETTING MATCH DATA FROM MONGO")
+      getMatchData()
+      console.log("POST STEP 1: Just got match data");
+    }, [])
+  )
+
+  //sets match data (i.e. point data, other username)
+  useFocusEffect(
+    React.useCallback(() => {
+      if (match) {
+        console.log("STEP 2: SETTING UNFORMATTED POINT DATA")
+        setData();
+      }
+    }, [match])
+  );
+
+  // Log the state to check if data is populated
+  useEffect(() => {
+    console.log("Just ran useEffect triggered by change in yourPointData");
+    if (yourPointData && yourAssets && opponentPointData && opponentAssets) { //setData() was good
+      console.log("STEP 3: SETTING FORMATTED DATA")
+      formatData()
+    }
+  }, [opponentPointData]);
 
   const getInitialPrices = async () => {
+    console.log("Your Assets before getting initial prices", yourAssets)
+    console.log("Opp Assets before getting initial prices", opponentAssets)
     if (yourAssets && opponentAssets) {
-    try {
-      const yourInitialTickerPromises = yourAssets.map(async (item) => {
-        const currentPrice = await getCurrentPrice(item.ticker);
-        return { ticker: item.ticker, currentPrice };
-      });
-  
-      const yourInitialTickerPricesArray:any = await Promise.all(yourInitialTickerPromises);
-      const yourInitialTickerPrices = yourInitialTickerPricesArray.reduce((acc:any, item:any) => {
-        acc[item.ticker] = item.currentPrice;
-        return acc;
-      }, {});
-  
-      setYourTickerPrices(yourInitialTickerPrices);
-  
-      const oppInitialTickerPromises = opponentAssets.map(async (item) => {
-        const currentPrice = await getCurrentPrice(item.ticker);
-        return { ticker: item.ticker, currentPrice };
-      });
-  
-      const oppInitialTickerPricesArray:any = await Promise.all(oppInitialTickerPromises);
-      const oppInitialTickerPrices = oppInitialTickerPricesArray.reduce((acc:any, item:any) => {
-        acc[item.ticker] = item.currentPrice;
-        return acc;
-      }, {});
-  
-      setOppTickerPrices(oppInitialTickerPrices);
-      setGotInitialPrices(true);
-    } catch (error) {
-      console.error('Error fetching initial prices:', error);
-    }
+      try {
+        const yourInitialTickerPromises = yourAssets.map(async (item) => {
+          const currentPrice = await getCurrentPrice(item.ticker);
+          return { ticker: item.ticker, currentPrice };
+        });
+    
+        const yourInitialTickerPricesArray:any = await Promise.all(yourInitialTickerPromises);
+        const yourInitialTickerPrices = yourInitialTickerPricesArray.reduce((acc:any, item:any) => {
+          acc[item.ticker] = item.currentPrice;
+          return acc;
+        }, {});
+    
+        setYourTickerPrices(yourInitialTickerPrices);
+    
+        const oppInitialTickerPromises = opponentAssets.map(async (item) => {
+          const currentPrice = await getCurrentPrice(item.ticker);
+          return { ticker: item.ticker, currentPrice };
+        });
+    
+        const oppInitialTickerPricesArray:any = await Promise.all(oppInitialTickerPromises);
+        const oppInitialTickerPrices = oppInitialTickerPricesArray.reduce((acc:any, item:any) => {
+          acc[item.ticker] = item.currentPrice;
+          return acc;
+        }, {});
+    
+        setOppTickerPrices(oppInitialTickerPrices);
+        //console.log("Your Prices", yourInitialTickerPrices)
+        //console.log("Opp Prices", oppInitialTickerPrices)
+        console.log("STEP 4: SETTING INITIAL PRICES FOR HELD ASSETS")
+        setGotInitialPrices(true);
+      } catch (error) {
+        console.error('Error fetching initial prices:', error);
+      }
   };
 }
 
@@ -190,7 +246,7 @@ const GameCard = (props: any) => {
       if (yourFormattedData[yourFormattedData.length-1]?.value != undefined && oppFormattedData[oppFormattedData.length-1]?.value != undefined) {
         //INTIALIZATION OF COLOR AND PRICES
         setYourTotalPrice(yourFormattedData[yourFormattedData.length-1].value)
-        console.log("Opp formatted data", oppFormattedData);
+        //console.log("Opp formatted data", oppFormattedData);
 
         setOppTotalPrice(oppFormattedData[oppFormattedData.length-1].value)
         if (yourFormattedData[yourFormattedData.length-1].value >= oppFormattedData[oppFormattedData.length-1].value) {
@@ -200,7 +256,7 @@ const GameCard = (props: any) => {
           setYourColor(theme.colors.stockDownAccent)
           setOppColor(theme.colors.tertiary)
         }
-        getInitialPrices()
+        //getInitialPrices() 
       }
     } else {
       setLoading(true)
@@ -209,7 +265,8 @@ const GameCard = (props: any) => {
 
   useEffect(() => {
     if (gotInitialPrices == true) {
-      console.log(yourTickerPrices)
+      console.log("STEP 5: INITIAL PRICES WERE SET")
+      //console.log(yourTickerPrices)
       setLoading(false)
     }
   }, [gotInitialPrices])
@@ -218,23 +275,44 @@ const GameCard = (props: any) => {
   function uint8ArrayToString(array:any) {
       return array.reduce((data:any, byte:any) => data + String.fromCharCode(byte), '');
   }
+
+  function getNewTickerObject(jsonMessage:any, yourAssets:any) {
+    // Convert yourAssets to a map for quick lookup
+    const yourAssetsMap = new Map(yourAssets.map((asset:any) => [asset.ticker, asset]));
   
+    // Iterate through JSONMessage to find a new object
+    for (const company of jsonMessage) {
+      if (!yourAssetsMap.has(company.ticker)) {
+        return company;
+      }
+    }
+  
+    // If no new object is found, return null
+    return null;
+  }
+
   const ws = useRef<WebSocket | null>(null);
 
   const [retries, setRetries] = useState(0);
 
   const MAX_RETRIES = 5;  // Maximum number of retry attempts
   const RETRY_DELAY = 2000; // Delay between retries in milliseconds
+
+
+  /*useEffect(() => {
+    console.log("YOUR ASSETS:", yourAssets)
+    console.log("OPP ASSETS:", opponentAssets)
+  }, [yourAssets, opponentAssets])*/
   
   const setupSocket = async () => {    
-    console.log("trying socket with url:", websocketUrl);  
+    console.log("Opening socket with url:", websocketUrl);  
     const socket = new WebSocket(websocketUrl);
 
     ws.current = socket;
     
     ws.current.onopen = () => {
         console.log(`Connected to GameCard Asset Websocket, but not ready for messages...`);
-        if (ws.current!.readyState === WebSocket.OPEN) {
+        if (ws.current! && yourAssets && opponentAssets) {
           console.log(`Connection for GameCard Asset Websocket is open and ready for messages`);
           // first send match ID
           ws.current!.send(JSON.stringify({ matchID: match.matchID }))
@@ -245,76 +323,76 @@ const GameCard = (props: any) => {
             ws.current!.send(JSON.stringify({ ticker: asset.ticker}));
           })
         } else {
-        console.log('WebSocket is not open:', ws.current!.readyState);
+          console.log('WebSocket is not open');
         }
     };
 
-    ws.current.onmessage = (event) => {
+      // WebSocket message handling
+      ws.current.onmessage = (event) => {
         const buffer = new Uint8Array(event.data);
-
-        console.log("Received websocket message:", event.data)
-        // ^^^^^^^^^^^^^^^^^^^
-        // LOG  asfadjks {"data": "{\"user2.assets.1.totalShares\":10}", "isTrusted": false}
 
         if (event.data == "Websocket connected successfully") {
           return;
         }
 
-        const eventData = JSON.parse(event.data);
-        
-        // if (Object.keys(event.data.data)[0]) {
-        //   console.log(Object.keys(event.data.data)[0])
-        // }
-
         const message = uint8ArrayToString(buffer); 
-    
-        console.log(`Websocket Received message: ${message}`);
-        console.log("Event data type:", eventData.type);
-        // console.log("Event data type ocky method:", event.data["type"]);
-        
-        // case 1: assets have updated during websocket connection for either you or opponent.
-        // therefore, update your assets and your opponent's assets state variables.
-        if (eventData.type == "updatedAssets") {
-          // logic to deal with updated assets
-          setYourAssets(event.data[`${you}Assets`]);
-          setOpponentAssets(event.data[`${opp}Assets`]);
-          console.log("Your updated assets:", yourAssets);
-          console.log("Opponent's updated assets:", opponentAssets);
-        }
-        // case 2:
-        else if (message != "") {
-          try {
-            //handle checking if ticker is in your assets, opp assets, or both
-            const jsonMessage = JSON.parse(message);
-            const { sym, c: currentPrice } = jsonMessage[0];
-            //console.log(sym, currentPrice)
-            const isTickerInYourAssets = yourAssets.some(stock => stock.ticker === jsonMessage[0].sym); //check if ticker is in your assets
-            const isTickerInOppAssets = opponentAssets.some(stock => stock.ticker === jsonMessage[0].sym); //check if ticker is in opp assets
-            // Update ticker prices state for you
-            if (isTickerInYourAssets) {
-              //console.log(sym, currentPrice)
-              setYourTickerPrices(prevPrices => {
-                //console.log({ ...prevPrices, [sym]: currentPrice })
-                return { ...prevPrices, [sym]: currentPrice };
-              });
-    
+
+        try {
+          const JSONMessage = JSON.parse(message);
+          //console.log(JSONMessage)
+          if (JSONMessage.type == "updatedAssets") {
+            // Handle updated assets
+            const yourUpdatedAssets = JSONMessage[`${you}Assets`];
+            const oppUpdatedAssets = JSONMessage[`${opp}Assets`];
+
+            const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
+            const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
+
+            // both cases
+            setYourAssets(yourUpdatedAssets);
+            setOpponentAssets(oppUpdatedAssets);
+
+            if (yourNewAsset) {
+              if (ws.current) {
+                ws.current.send(JSON.stringify({ ticker: yourNewAsset.ticker }));
+              }
             }
 
-            // Update ticker prices state for opp
-            if (isTickerInOppAssets) {
-              //console.log(sym, currentPrice)
-              setOppTickerPrices(prevPrices => {
-                //console.log({ ...prevPrices, [sym]: currentPrice })
-                return { ...prevPrices, [sym]: currentPrice };
-              });
-    
+            if (oppNewAsset) {
+              if (ws.current) {
+                ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
+              }
             }
-          
-          } catch (error) {
-            console.log(error)
+
+     
+            console.log("Updated your assets state:", yourUpdatedAssets);
+
+            console.log("Updated your assets state:", oppUpdatedAssets);;
+
+          } else if (message != "" && gotInitialPrices && yourAssets && opponentAssets) {
+            const { sym, c: currentPrice } = JSONMessage[0];
+            const isTickerInYourAssets = yourAssets.some(stock => stock.ticker === sym);
+            const isTickerInOppAssets = opponentAssets.some(stock => stock.ticker === sym);
+            //console.log(yourAssets)
+            if (isTickerInYourAssets) {
+              setYourTickerPrices(prevPrices => ({
+                ...prevPrices,
+                [sym]: currentPrice,
+              }));
+            }
+
+            if (isTickerInOppAssets) {
+              setOppTickerPrices(prevPrices => ({
+                ...prevPrices,
+                [sym]: currentPrice,
+              }));
+            }
           }
+        } catch (error) {
+          console.error("Error processing WebSocket message:", error);
         }
-    };
+      };
+
 
     ws.current.onerror = (error) => {
         console.log('WebSocket error:', error || JSON.stringify(error));
@@ -334,35 +412,58 @@ const GameCard = (props: any) => {
     };
   };
 
-  useEffect(() => {
-  //console.log("SETTING UP SOCKET WITH:", props.ticker);
-    if (loading == false) {
-    setupSocket();
-    
-      return () => {
-          if (ws.current) {
-          // don't need this anymore 
-          // ws.current.send(JSON.stringify({ ticker: props.ticker, status: 'delete' }));
-          ws.current.close(1000, 'Closing websocket connection due to page being closed');
-          //console.log('Closed websocket connection due to page closing');
-          ws.current = null;  // Ensure the reference is cleared
-          }
-      };
-    }
-  }, [loading]);
+  // This is now useFocusEffect instead of useEffect
+  // runs the callback function every time screen is put into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("Game card in focus");
+      // Do something while screen is focused
 
+      if (loading == false) {
+        console.log("Focus Assets:", yourAssets)
+        setupSocket();
+        
+        // cleanup code when screen is no longer focused
+      }
+      return () => {
+        // make loading true
+        console.log("Game card out of focus");
+        /*setYourPointData(null)
+        setOpponentPointData(null)
+        setYourFormattedData(null)
+        setOppFormattedData(null)
+        setYourAssets(null)
+        setOpponentAssets(null)*/
+        //setLoading(true)
+        //setLoading(true)
+        if (ws.current) {
+          setYourPointData(null)
+          setOpponentPointData(null)
+          setYourFormattedData(null)
+          setOppFormattedData(null)
+          setYourAssets(null)
+          setOpponentAssets(null)
+          setMatch(null)
+          setGotInitialPrices(false);
+          setLoading(true)
+          ws.current.close(1000, 'Closing websocket connection due to page being closed');
+          ws.current = null;  // Ensure the reference is cleared
+        }
+    };
+    }, [loading])
+  );
 
   //sets total live prices for each user
   useEffect(() => {
     //console.log("Ticker Prices: ", tickerPrices)
-    if (!loading) {
+    if (!loading && yourAssets && opponentAssets && gotInitialPrices) {
     let yourTotalLivePrice = 0;
     yourAssets.forEach(asset => {
       if (yourTickerPrices[asset.ticker]) {
         const livePrice = yourTickerPrices[asset.ticker] * asset.totalShares;
         yourTotalLivePrice += livePrice;
       } else {
-        console.log(`Ticker price for ${asset.ticker} not found`);
+        //console.log(`Ticker price for ${asset.ticker} not found`);
       }
     });
     setYourTotalPrice(yourTotalLivePrice + match[you]?.buyingPower)
@@ -376,7 +477,7 @@ const GameCard = (props: any) => {
         const livePrice = oppTickerPrices[asset.ticker] * asset.totalShares;
         oppTotalLivePrice += livePrice;
       } else {
-        console.log(`Ticker price for ${asset.ticker} not found`);
+        //console.log(`Ticker price for ${asset.ticker} not found`);
       }
     });
     setOppTotalPrice(oppTotalLivePrice + match[opp]?.buyingPower)
@@ -433,7 +534,7 @@ const GameCard = (props: any) => {
     <View>
     {!loading ?
     <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
-      navigation.navigate("GameScreen", {matchID: match.matchID, userID: props.userID})
+      navigation.navigate("GameScreen", {matchID: match.matchID, userID: props.userID, endAt: match.endAt})
       
         HapticFeedback.trigger("impactMedium", {
           enableVibrateFallback: true,
@@ -453,28 +554,36 @@ const GameCard = (props: any) => {
             <View style={{ flex: 1 }}></View>
             <Timer endDate={match.endAt} timeFrame={match.timeFrame} />
           </View>
-          <View style={{ gap: 10, marginHorizontal: 10, marginTop: 10, flex: 1 }}>
+          <View style={{ gap: 10, marginHorizontal: 10, marginTop: 10, flex: 1, flexDirection: 'row'}}>
+            <View>
             <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
               <View style={[styles.gameCardIndicator, { backgroundColor: yourColor }]}></View>
-              <View style={{ justifyContent: 'center' }}>
-                <Text style={styles.gameCardPlayerText}>You</Text>
+                <View style={{ justifyContent: 'center' }}>
+                  <Text style={styles.gameCardPlayerText}>You</Text>
+                </View>
+                {/*<View style={styles.gameCardPercentageContainer}>
+                  <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourTotalPrice).toFixed(2)} ({((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
+                </View>*/}
               </View>
               <View style={styles.gameCardPercentageContainer}>
-                {/* TODO: Add in actual percentages */}
-                <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourTotalPrice).toFixed(2)} ({((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
+                  <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourTotalPrice).toFixed(2)} ({((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
               </View>
             </View>
-            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center', marginBottom: 5 }}>
-              <View style={[styles.gameCardIndicator, { backgroundColor: theme.colors.opposite }]}></View>
-              <View style={{ justifyContent: 'center' }}>
-                <Text style={styles.gameCardPlayerText}>{opponentUsername}</Text>
+            <View style={{flex: 1}}></View>
+            <View>
+              <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center'}}>
+                <View style={{flex: 1}}></View>
+                <View style={{ justifyContent: 'center' }}>
+                  <Text style={styles.gameCardPlayerText}>{opponentUsername}</Text>
+                </View>
+                <View style={[styles.gameCardIndicator, { backgroundColor: theme.colors.opposite }]}></View>
               </View>
               <View style={styles.gameCardPercentageContainer}>
-                <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite }]}>${(oppTotalPrice).toFixed(2)} ({((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
+                  <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite }]}>${(oppTotalPrice).toFixed(2)} ({((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
               </View>
             </View>
           </View>
-          <View style={{ height: 180 }}>
+          <View style={{ height: 190}}>
           <View style={{
                 position: 'absolute',
                 top: 10,
@@ -506,7 +615,7 @@ const GameCard = (props: any) => {
               }}>
             <CartesianChart data={oppFormattedData!} xKey="index" yKeys={["normalizedValue"]}
               domain={{y: [minY, maxY],
-                x: [0, yourFormattedData!.length*2]
+                x: [0, oppFormattedData!.length/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000))]
               }}>
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
@@ -530,8 +639,8 @@ const GameCard = (props: any) => {
               }}>
             <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} 
               domain={{y: [minY, maxY],
-                x: [0, yourFormattedData!.length*2]
-              }}> 
+                x: [0, yourFormattedData!.length/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000))]
+              }}>  
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
                 <>

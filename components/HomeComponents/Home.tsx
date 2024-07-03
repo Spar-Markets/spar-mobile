@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity, Alert, ActivityIndicator, Dimensions, Animated, FlatList, StyleSheet, ScrollView, Platform, PermissionsAndroid } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useTheme } from '../ContextComponents/ThemeContext';
@@ -26,6 +26,7 @@ import { storage } from '../../firebase/firebase';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
+import SmallActivityIndicator from '../GlobalComponents/SmallActivityIndicator';
 
 
 const { width } = Dimensions.get('window');
@@ -238,13 +239,15 @@ const Home: React.FC = () => {
     fetchMatchIDs();
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
     if (activeMatches.length !== 0) {
       getMatchData();
     } else {
       console.log();
     }
   }, [activeMatches]);
+
+
 
   const animation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
@@ -360,7 +363,7 @@ const Home: React.FC = () => {
                 data={searchingForMatch || isInMatchmaking ? [null, ...matchData] : matchData}
                 renderItem={({ item, index }) =>
                   item ? (
-                    <GameCard match={item} userID={userID} matchId={matchData[index]}/>
+                    <GameCard userID={userID} matchID={item.matchID}/>
                   ) : (
                     <GameCardSkeleton />
                   )
@@ -383,21 +386,23 @@ const Home: React.FC = () => {
               />
               {searchingForMatch || isInMatchmaking ? (
               <View style={styles.hthContainer}>
-              <TouchableOpacity style={styles.enterHTHMatchBtn} onPress={() => cancelAlert()}>
-                  <View style={{backgroundColor: theme.colors.primary, flexDirection: 'row', borderRadius: 7, justifyContent: 'center', alignItems: 'center', flex: 1, gap: 10}}>
-                    <Text style={[styles.enterHTHMatchBtnText, {color: theme.colors.text}]}>Cancel Matchmaking</Text>
-                    <ActivityIndicator size={'small'}/>
-                  </View>
-              </TouchableOpacity>
+                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 1, flexDirection: 'row', gap: 10, borderTopLeftRadius: 50, borderBottomLeftRadius: 50}]} onPress={cancelAlert}>
+                      <Text style={styles.enterHTHMatchBtnText}>Cancel Matchmaking</Text>
+                      <SmallActivityIndicator/>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 0.2, borderTopRightRadius: 50, borderBottomRightRadius: 50}]}>
+                  <Icon name="gear" color={theme.colors.background} size={24} />
+                </TouchableOpacity>
               </View>
               ) : (
               <View style={styles.hthContainer}>
-                <TouchableOpacity style={styles.enterHTHMatchBtn} onPress={() => {
+                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 1, borderTopLeftRadius: 50, borderBottomLeftRadius: 50}]} onPress={() => {
                   navigation.navigate('EnterMatch')
                   }}>
-                    <View style={{backgroundColor: theme.colors.primary, borderRadius: 10,borderWidth: 1, borderColor: theme.colors.accent, height: 50, justifyContent: 'center', alignItems: 'center', flex: 1}}>
                       <Text style={styles.enterHTHMatchBtnText}>Start a Match</Text>
-                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 0.2, borderTopRightRadius: 50, borderBottomRightRadius: 50}]}>
+                  <Icon name="gear" color={theme.colors.background} size={24} />
                 </TouchableOpacity>
               </View>
               )}

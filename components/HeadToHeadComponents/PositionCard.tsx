@@ -98,7 +98,8 @@ const PositionCard = (props:any) => {
               inGame: true,
               owns: true,
               assets: props.assets,
-              qty: props.qty
+              qty: props.qty,
+              endAt: props.endAt
           
             })}>
 

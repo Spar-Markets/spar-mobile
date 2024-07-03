@@ -21,7 +21,8 @@ const SearchCard = (props:any) => {
               buyingPower: props.buyingPower,
               ticker: props.ticker,
               assets: props.assets,
-              inGame: props.inGame
+              inGame: props.inGame,
+              endAt: props.endAt
             })
           } style={styles.searchCard}>
             <Text style={styles.searchTickerText}>{props.ticker}</Text>

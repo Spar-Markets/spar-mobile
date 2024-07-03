@@ -115,9 +115,9 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     gameCardPercentageContainer: {
       borderRadius: 8,
-      backgroundColor: theme.colors.primary,
-      borderWidth: 2,
-      borderColor: theme.colors.secondary
+      //backgroundColor: theme.colors.primary,
+      //borderWidth: 2,
+      //borderColor: theme.colors.secondary
     },
     gameCardIndicator: {
       backgroundColor: theme.colors.accent,
@@ -127,18 +127,18 @@ const createHomeStyles = (theme: any, width: number) => {
       marginLeft: 1,
     },
     gameCardPercentageText: {
-      fontSize: 15,
-      paddingHorizontal: 10,
+      fontSize: 18,
+      //paddingHorizontal: 10,
       paddingVertical: 3,
       fontFamily: 'InterTight-Bold',
     },
     gameCardAmountWageredContainer: {
-      borderRadius: 8,
+      borderRadius: 50,
       backgroundColor: theme.colors.primary,
       borderWidth: 2,
       borderColor: theme.colors.secondary,
       marginTop: 5, 
-      marginLeft: 5,
+      marginLeft: 10,
       padding: 4,
       paddingHorizontal: 10,
       justifyContent: 'center',
@@ -151,7 +151,7 @@ const createHomeStyles = (theme: any, width: number) => {
       fontFamily: 'InterTight-Bold',
     },
     gameCardModeContainer: {
-      borderRadius: 8,
+      borderRadius: 50,
       backgroundColor: theme.colors.primary,
       marginTop: 5, 
       marginLeft: 5,
@@ -171,7 +171,7 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // Timer
     timerContainer: {
-      borderRadius: 8,
+      borderRadius: 50,
       borderWidth: 2,
       borderColor: theme.colors.secondary,
       backgroundColor: theme.colors.primary,
@@ -197,7 +197,9 @@ const createHomeStyles = (theme: any, width: number) => {
       justifyContent: 'center',
       width: '100%',
       paddingHorizontal: 20,
-      height: 60
+      height: 60,
+      flexDirection: 'row',
+      gap: 3
     },
     gradientBorder: {
       padding:3,
@@ -207,12 +209,16 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     enterHTHMatchBtn: {
       height: 50,
-      borderRadius: 7,
+      backgroundColor: theme.colors.text,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flex: 1
     },
     enterHTHMatchBtnText: {
       fontSize: 16,
-      color: theme.colors.text,
+      color: theme.colors.background,
       fontFamily: 'InterTight-Black',
+
     }, 
     dropdownCollection: {
       flexDirection: 'row', 
@@ -286,7 +292,7 @@ const createHomeStyles = (theme: any, width: number) => {
       fontFamily: 'InterTight-Bold',
     },
     depositBtn: {
-      borderRadius: 10,
+      borderRadius: 50,
       backgroundColor: theme.colors.accent,
       justifyContent: 'center',
     },

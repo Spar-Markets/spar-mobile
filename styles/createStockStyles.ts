@@ -263,7 +263,8 @@ const createStockSearchStyles = (theme: any, width: number) => {
     button: {
       flex: 1,
       paddingVertical: 15,
-      marginHorizontal:40
+      justifyContent: 'center',
+      alignItems: 'center'
     },
     buttonText: {
       color: theme.colors.text,

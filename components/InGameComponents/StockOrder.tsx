@@ -33,7 +33,8 @@ interface stockOrderParams {
   buyingPower: number;
   isBuying: boolean;
   isSelling: boolean;
-  qty: number
+  qty: number,
+  endAt: Date
 }
 
 const StockOrder = (props: any) => {
@@ -228,10 +229,10 @@ const StockOrder = (props: any) => {
   return (
     <View style={styles.container}>
       {params?.isBuying == true &&
-        <HTHPageHeader text={"Buying " + params?.ticker} endAt={Date.now() + 900000} />
+        <HTHPageHeader text={"Buying " + params?.ticker} endAt={params?.endAt} />
       }
       {params?.isSelling == true &&
-        <HTHPageHeader text={"Selling " + params?.ticker} endAt={Date.now() + 900000} />
+        <HTHPageHeader text={"Selling " + params?.ticker} endAt={params?.endAt} />
       }
       <View style={{ alignItems: 'center' }}>
         {params?.isBuying && <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Bold' }}>${params?.buyingPower.toFixed(2)} Available</Text>}
@@ -269,7 +270,7 @@ const StockOrder = (props: any) => {
       <View style={{ flex: 1 }}></View>
       <View style={{marginBottom: 50}}>
       <Animated.View style={{ transform: [{ translateY: keypadAnimation }] }}>
-      <TouchableOpacity onPressIn={handlePressIn}
+      {shareQuantity != "0" ? <TouchableOpacity onPressIn={handlePressIn}
         onPress={() => {
           if (inReview) {
             handleSubmitPress()
@@ -284,7 +285,10 @@ const StockOrder = (props: any) => {
         <Text style={globalStyles.primaryBtnText}>
           {inReview ? 'Submit' : 'Review'}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> : <View style={[
+          globalStyles.primaryBtn,
+          { marginBottom: 50, backgroundColor: theme.colors.primary }
+        ]}><Text style={globalStyles.primaryBtnText}>Review</Text></View>}
       </Animated.View>  
       <Animated.View style={[styles.expandingCircle, { transform: [{ scale: radius }], 
           top: circlePosition.y-500,
@@ -351,8 +355,8 @@ const StockOrder = (props: any) => {
             <TouchableOpacity style={styles.button} onPress={handleDecimal}>
               <Text style={[styles.buttonText, { textAlign: 'center' }]}>.</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleDelete}>
-              <Text style={[styles.buttonText, { textAlign: 'right' }]}>DEL</Text>
+            <TouchableOpacity style={[styles.button,{justifyContent: 'center', alignItems: 'center'}]} onPress={handleDelete}>
+              <Icon name="long-arrow-left" size={24} color={theme.colors.text} style={{}}></Icon>
             </TouchableOpacity>
           </View>
         </View>

@@ -88,60 +88,8 @@ const GameScreenGraph = (props:any) => {
 
   }, []);
 
-
 // this is to get the live portfolio value
 const [livePortfolioValue, setLivePortfolioValue] = useState("")
-
-useEffect(() => {
-  //console.log(params?.oppFormattedData)
-  if (matchID != null) {
-    const ws = new WebSocket(websocketUrl);
-
-    ws.onopen = () => {
-      console.log('Connected to server');
-      ws.send(
-        JSON.stringify({
-          matchID: matchID,
-          type: 'match',
-        }),
-      );
-    };
-
-    ws.onmessage = event => {
-      console.log(`Received message: ${event.data}`);
-      // calculate portfolio value
-      function calculatePortfolioValue() {
-        // when websocket opens 
-
-
-        
-      }
-
-
-    };
-
-    ws.onerror = error => {
-      console.error(
-        'WebSocket error:',
-        error.message || JSON.stringify(error),
-      );
-    };
-
-    // close websocket once component unmounts
-    return () => {
-      if (ws) {
-        ws.close(
-          1000,
-          'Closing websocket connection due to page being closed',
-        );
-        console.log('Closed websocket connection due to page closing');
-      }
-    };
-  } else {
-    console.log('game screen activematchID is nothing but should update ');
-  }
-}, []);
-
 
   const { state, isActive } = useChartPressState({ x: 0, y: { normalizedValue: 0 } });
   

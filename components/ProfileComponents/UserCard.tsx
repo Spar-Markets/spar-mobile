@@ -47,6 +47,8 @@ const UserCard = (props:any) => {
             setLoading(false)
         }
     }, [profileImage])
+
+    const [imageLoading, setImageLoading] = useState(true)
     
     if (loading) {
         return (
@@ -59,11 +61,11 @@ const UserCard = (props:any) => {
 
     return (
         <TouchableOpacity style={{marginHorizontal: 20, flexDirection: 'row', height: 50, alignItems: 'center', gap: 20}} onPress={() => navigation.navigate("OtherProfile", {otherUserID: props.userID})}>
-            {profileImage && <Image style={styles.userCardPic} source={{uri: profileImage}}></Image>}
+            {profileImage && <Image style={styles.userCardPic} onLoad={() => setImageLoading(false)} source={{uri: profileImage}}></Image>}
             {noPic == true && <View style={[styles.userCardPic, {backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.tertiary, justifyContent: 'center', alignItems: 'center'}]}>
                 <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text}}>{props.username.slice(0,1)}</Text>
             </View>}
-            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>{props.username}</Text>
+            {(!imageLoading || noPic) && <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>{props.username}</Text>}
         </TouchableOpacity>
     )
 }

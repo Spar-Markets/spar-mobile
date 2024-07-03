@@ -8,9 +8,10 @@ import {
   NativeModules,
   ScrollView,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
+import {useIsFocused, useNavigation, useRoute, useFocusEffect} from '@react-navigation/native';
 import axios from 'axios';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -31,12 +32,14 @@ import GameScreenGraph from './GameScreenGraph';
 import {GraphPoint} from 'react-native-graph';
 import { set } from 'lodash';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
+import { Button } from 'react-native';
 
 const socket = new WebSocket(websocketUrl);
 
 interface RouteParams {
   matchID: string
   userID: string
+  endAt: Date
 }
 
 interface PortfolioSnapshot {
@@ -45,6 +48,7 @@ interface PortfolioSnapshot {
 }
 
 const GameScreen = () => {
+
   const navigation = useNavigation<any>();
   const route = useRoute();
 
@@ -59,8 +63,7 @@ const GameScreen = () => {
 
   const [loading, setLoading] = useState(true)
 
-
-  
+  const [matchIsEnded, setMatchIsEnded] = useState(false);
 
   const [match, setMatch] = useState<any>(null)
   const [yourPointData, setYourPointData] = useState<GraphPoint[]>([]);
@@ -78,6 +81,17 @@ const GameScreen = () => {
 
   // time left in match WHEN component mounts
   const [timeLeft, setTimeLeft] = useState(null);
+  
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const goHome = () => {
+    //setModalVisible(false);
+    navigation.goBack()
+  };
 
   // useEffect for updating time
   useEffect(() => {
@@ -90,7 +104,9 @@ const GameScreen = () => {
 
       if (timeUntilEnd <= 0) {
         // If the match end time has already passed, navigate back immediately
-        navigation.navigate('Home');
+        //navigation.navigate('Home');
+        setMatchIsEnded(true);
+        openModal();
       } else {
         // Set a timeout to navigate back when the match ends
         const timeoutId = setTimeout(() => {
@@ -136,6 +152,9 @@ const GameScreen = () => {
       }
     }
   }, [match]);
+
+  // focus logic for websockets
+  
 
   const setUserMatchData = async (yourUserNumber: string, opponentUserNumber: string) => {
     if (match) {
@@ -226,9 +245,9 @@ const GameScreen = () => {
       rows.push(
         <View key={i} style={styles.positionRow}>
           <PositionCard ticker={assets[i].ticker} qty={assets[i].totalShares} matchID={matchID} 
-          buyingPower={match[you].buyingPower} assets={match[you].assets}/>
+          buyingPower={match[you].buyingPower} assets={match[you].assets} endAt={params?.endAt}/>
           {assets[i + 1] && <PositionCard ticker={assets[i + 1].ticker} qty={assets[i + 1].totalShares} matchID={matchID} 
-          buyingPower={match[you].buyingPower} yourAssets={match[you].assets} oppAssets={match[opp].assets}/>}
+          buyingPower={match[you].buyingPower} assets={match[you].assets} endAt={params?.endAt}/>}
         </View>
       );
     }
@@ -246,7 +265,7 @@ const GameScreen = () => {
 
   return (
    <View style={styles.container}>
-      <HTHPageHeader text="Head-to-Head" endAt={new Date(Date.now() + 900000)}/>
+      <HTHPageHeader text="Head-to-Head" endAt={params?.endAt}/>
       <ScrollView showsVerticalScrollIndicator={false}>
         <GameScreenGraph yourFormattedData={yourFormattedData} oppFormattedData={oppFormattedData} matchID={matchID} userID={userID} yourColor={yourColor} oppName={opponentUsername}/>
         <View style={{marginHorizontal: 20}}>
@@ -309,9 +328,32 @@ const GameScreen = () => {
         userNumber: you, 
         buyingPower: match[you].buyingPower, 
         assets: assets,
+        endAt: params?.endAt        
         })} style={[globalStyles.primaryBtn, { marginBottom: 50, backgroundColor: theme.colors.accent, justifyContent: 'center', marginTop: 10 }]}>
         <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
       </TouchableOpacity>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        //onRequestClose={closeModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>The match has ended.</Text>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity style={[styles.closeButton, {borderRightWidth: 1, borderRightColor: theme.colors.primary}]} onPress={goHome}>
+                <Text style={styles.textStyle}>Go Home</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.closeButton, {borderLeftWidth: 1, borderLeftColor: theme.colors.primary}]} onPress={goHome}>
+                <Text style={styles.textStyle}>Match Summary</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      
    </View>
   );
 };

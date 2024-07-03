@@ -17,7 +17,7 @@ import { useTheme } from './components/ContextComponents/ThemeContext';
 import { useStatusBarHeight } from './components/ContextComponents/StatusBarHeightContext';
 import { useDimensions } from './components/ContextComponents/DimensionsContext';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator()
 
 const CoreApp = (): React.ReactElement => {
   Icon.loadFont();

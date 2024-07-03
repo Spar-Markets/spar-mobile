@@ -13,35 +13,28 @@ const createProfileStyles = (theme: any, width: number) => {
     }, 
     header: {
         flexDirection: 'row',
-        marginHorizontal: 10, 
+        marginHorizontal: 20, 
         gap: 10,
-        paddingBottom: 10
+        paddingBottom: 10,
     },
     headerBtn: {
         paddingHorizontal: 10,
     },
     profileContainer: {
         alignItems: 'center',
-        marginTop: 10,
-        paddingVertical: 10
     },
     profilePic: {
         borderRadius: 50,
         width: 100,
         height: 100,
         borderWidth: 2,
-        borderColor: '#81BFB4',
-        justifyContent: 'center',
-        alignItems: 'center'
+        borderColor: theme.colors.tertiary,
     },
     rankContainer: {
         backgroundColor: '#81BFB4',
         paddingVertical:5 ,
         paddingHorizontal: 10,
         borderRadius:10,
-        position: 'absolute',
-        bottom: 0,
-        left: (width)/2 - 20
     },
     rankText: {
         fontFamily: 'InterTight-Bold',
@@ -50,22 +43,19 @@ const createProfileStyles = (theme: any, width: number) => {
     usernameText: {
         fontFamily: 'InterTight-Black',
         color: theme.colors.text,
-        textAlign: 'center',
-        marginTop: 20,
         fontSize: 20
     },
     mainContainer: {
         borderRadius: 10,
-        borderWidth: 2,
-        borderColor: '#81BFB4',
-        paddingVertical: 5,
         paddingHorizontal: 15,
-        flex: 1
+        flex: 1,
+        backgroundColor: theme.colors.primary,
+        justifyContent: 'center',
+        height: 70
     },
     mainContainerType: {
         color: theme.colors.tertiary,
         fontFamily: 'InterTight-Regular',
-        fontSize: 15
     },
     mainContainerText: {
         color: theme.colors.text,

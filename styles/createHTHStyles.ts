@@ -149,6 +149,45 @@ const createHTHStyles = (theme: any, width: number) => {
         flexDirection: 'row',
         marginTop: 5,
         justifyContent: 'space-between',
+        
+      },
+      modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.9)', // Semi-transparent background
+      },
+      modalView: {
+        width: '80%',
+        backgroundColor: theme.colors.background,
+        borderRadius: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        borderWidth: 2,
+        borderColor: theme.colors.primary
+      },
+      closeButton: {
+        borderTopWidth: 2,
+        borderTopColor: theme.colors.primary,
+        padding: 20,
+        elevation: 2,
+        flex: 1
+      },
+      textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      modalText: {
+        textAlign: 'center',
+        fontFamily: 'InterTight-Bold',
+        color: theme.colors.text,
+        fontSize: 20,
+        paddingVertical: 20
       },
     
 

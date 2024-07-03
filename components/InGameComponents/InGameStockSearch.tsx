@@ -34,6 +34,7 @@ interface RouteParams {
   buyingPower: number;
   user: string
   assets: Array<any>
+  endAt: Date
 }
 
 const InGameStockSearch = () => {
@@ -93,7 +94,7 @@ const InGameStockSearch = () => {
 
   return (
     <View style={styles.container}>
-      <HTHPageHeader text="Trade" endAt={new Date(Date.now() + 900000)}/>
+      <HTHPageHeader text="Trade" endAt={params?.endAt}/>
       <TextInput
         style={styles.searchBox}
         onChangeText={handleSearch}
@@ -139,7 +140,8 @@ const InGameStockSearch = () => {
                     inGame={true} 
                     buyingPower={params?.buyingPower} 
                     matchID={params?.matchID} 
-                    assets={params?.assets}/>
+                    assets={params?.assets}
+                    endAt={params?.endAt}/>
                 </View>
               )}
             />

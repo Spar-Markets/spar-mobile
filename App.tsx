@@ -75,6 +75,11 @@ const AppContent = (): React.ReactElement => {
             component={CoreApp}
           />
           <Stack.Screen
+            name="Home"
+            component={Home}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
             name="Profile"
             component={Profile}
             options={{headerShown: false}}

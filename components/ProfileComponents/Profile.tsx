@@ -110,9 +110,7 @@ const Profile  = ({ navigation }: any) => {
   return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.headerBtn}>
-            <Icon name={"bars"} size={24} color={theme.colors.opposite} />
-          </TouchableOpacity>
+          <Text style={styles.usernameText}>{userData?.username}</Text>
           <View style={{flex: 1}}></View>
           <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate("ProfileSearch")}>
             <Icon name={"search"} size={24} color={theme.colors.opposite} />
@@ -123,18 +121,17 @@ const Profile  = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
         <ScrollView>
+          <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, marginHorizontal: 20}}>
           <TouchableOpacity style={styles.profileContainer} onPress={choosePhotoFromLibrary}>
             {image ? <Image style={styles.profilePic} source={{uri: image}}/> : 
               <View style={styles.profilePic}>
                 <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 30}}>{userData?.username.slice(0,1).toUpperCase()}</Text>
               </View>}
-            <View style={styles.rankContainer}>
-              <Text style={styles.rankText}>Diamond</Text>
-            </View>
           </TouchableOpacity>
-          <Text style={styles.usernameText}>@{userData?.username}</Text>
-          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Regular', fontSize: 14, marginHorizontal: 20, textAlign: 'center', marginTop: 10}}>Trading, Trading, GME TO THE MOON, GME TO THE MOON, GME TO THE MOOOON!</Text>
-          <View style={{flexDirection: 'row', gap: 10, marginTop: 20, marginHorizontal: 20}}>
+            <View style={styles.mainContainer}>
+              <Text style={styles.mainContainerType}>Wins</Text>
+              <Text style={styles.mainContainerText}>23</Text>
+            </View>
             <View style={styles.mainContainer}>
               <Text style={styles.mainContainerType}>Followers</Text>
               <Text style={styles.mainContainerText}>{userData?.followers ? userData?.followers.length : 0 ?? 0}</Text>
@@ -143,25 +140,15 @@ const Profile  = ({ navigation }: any) => {
               <Text style={styles.mainContainerType}>Following</Text>
               <Text style={styles.mainContainerText}>{userData?.following ? userData?.following.length : 0 ?? 0}</Text>
             </View>
-
+          
           </View>
-          <View style={{marginTop: 20, marginHorizontal: 20, gap: 2}}>
-            <Text style={styles.progressText}>656/1000 pts.</Text>
-            <View style={styles.progressBarBackground}>
-              <View style={styles.progressBarProgress}></View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-                <View style={[styles.rankIndicator,{ backgroundColor: '#81BFB4'}]}></View>
-                <Text style={styles.rankProgressText}>Diamond</Text>
-              </View>
-              <View style={{flex: 1}}></View>
-              <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <Text style={styles.rankProgressText}>Ruby</Text>
-                <View style={[styles.rankIndicator,{ backgroundColor: '#FF4B8C'}]}></View>
-              </View>
+          <View style={{marginHorizontal: 20, marginTop: 20, flexDirection: 'row', alignItems: 'center', gap: 10}}>
+            <Text style={styles.usernameText}>Xipeng Chen</Text>
+            <View style={styles.rankContainer}>
+              <Text style={styles.rankText}>Diamond Trader</Text>
             </View>
           </View>
+          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Regular', marginHorizontal: 20, marginTop: 10}}>Trader at Citadel, World Chess Champion</Text>
 
           {/*<View style={{marginTop: 20}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 20}}>

@@ -42,7 +42,8 @@ interface RouteParams {
   inGame: boolean;
   assets: Array<any>;
   owns: boolean;
-  qty: number
+  qty: number,
+  endAt: Date
 }
 
 // apply stockdetails props interface so it knows its formatted correctly
@@ -101,13 +102,17 @@ const StockDetails = () => {
  
   const [currentAccentColorValue, setCurrentAccentColorValue] = useState(theme.colors.primary);
   
-  let asset
-  let owns
+  const [asset, setAsset] = useState<any | null>(null)
+  const [owns, setOwns] = useState(false)
 
-  if (params?.assets) {
-    asset = params?.assets.find((asset: any) => asset.ticker === ticker);
-    owns = (asset != undefined)
-  }
+  useEffect(() => {
+    if (params?.assets) {
+      console.log(params?.assets)
+      setAsset(params?.assets.find((asset: any) => asset.ticker === ticker));
+      setOwns(asset != undefined)
+    }
+  
+  })
 
 
   useEffect(() => {
@@ -220,7 +225,7 @@ const StockDetails = () => {
       {!loading && (
         <View style={{flex: 1}}>
           <View style={styles.stockDetailsContainer}>
-            {params?.inGame ? <HTHPageHeader endAt={Date.now() + 900000}/> : <PageHeader/>}
+            {params?.inGame ? <HTHPageHeader endAt={params?.endAt}/> : <PageHeader/>}
             {params?.inGame != true && <View style={{}}>
               
               {isWatchingStock ? 
@@ -237,13 +242,13 @@ const StockDetails = () => {
               <ScrollView style={{paddingBottom: 60}} showsVerticalScrollIndicator={false}>
                 <View>
                   <StockDetailGraph 
-                  ticker={ticker} 
-                  livePrice={livePrice} 
-                  timeframe={timeFrameSelected} 
-                  name={tickerData.detailsResponse.results.name} 
-                  logoUrl={tickerData.detailsResponse.results.branding != undefined ? tickerData.detailsResponse.results.branding.icon_url + "?apiKey=" + polygonKey : "logoUrlError"}
-                  currentAccentColorValue={currentAccentColorValue}
-                  setCurrentAccentColorValue={setCurrentAccentColorValue}
+                    ticker={ticker} 
+                    livePrice={livePrice} 
+                    timeframe={timeFrameSelected} 
+                    name={tickerData.detailsResponse.results.name} 
+                    logoUrl={tickerData.detailsResponse.results.branding != undefined ? tickerData.detailsResponse.results.branding.icon_url + "?apiKey=" + polygonKey : "logoUrlError"}
+                    currentAccentColorValue={currentAccentColorValue}
+                    setCurrentAccentColorValue={setCurrentAccentColorValue}
                   />
                 </View>
                 {(owns == true || params?.owns == true) && <View style={{marginHorizontal: 25, marginTop: 10}}>
@@ -252,11 +257,11 @@ const StockDetails = () => {
                     <View style={{flex: 0.7, gap: 10}}>
                       <View>
                         <Text style={styles.statType}>Shares</Text>
-                        <Text style={styles.statData}>{asset.totalShares}</Text>
+                        {asset && <Text style={styles.statData}>{asset.totalShares}</Text>}
                       </View>
                       <View>
                         <Text style={styles.statType}>Avg. Cost</Text>
-                        <Text style={styles.statData}>${asset.avgCostBasis.toFixed(2)}</Text>
+                        {asset && <Text style={styles.statData}>${asset.avgCostBasis.toFixed(2)}</Text>}
                       </View>
                     </View>
                     <View style={{gap: 10}}>
@@ -368,7 +373,8 @@ const StockDetails = () => {
               isBuying: true, 
               ticker: params?.ticker, 
               matchID: params?.matchID, 
-              buyingPower: params?.buyingPower})}>
+              buyingPower: params?.buyingPower,
+              endAt: params?.endAt})}>
               <Text style={styles.tradeButtonText}>Buy</Text>
             </TouchableOpacity>
             {(owns == true || params?.owns == true) &&
@@ -377,7 +383,8 @@ const StockDetails = () => {
               isSelling: true, 
               ticker: params?.ticker, 
               matchID: params?.matchID, 
-              qty: params?.qty})}>
+              qty: params?.qty,
+              endAt: params?.endAt})}>
                 <Text style={[styles.tradeButtonText]}>Sell</Text>
             </TouchableOpacity>
             }
