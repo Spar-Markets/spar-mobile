@@ -335,6 +335,8 @@ const GameCard = (props: any) => {
           return;
         }
 
+        
+
         const message = uint8ArrayToString(buffer); 
 
         try {
@@ -342,24 +344,29 @@ const GameCard = (props: any) => {
           //console.log(JSONMessage)
           if (JSONMessage.type == "updatedAssets") {
             // Handle updated assets
+            console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             const yourUpdatedAssets = JSONMessage[`${you}Assets`];
             const oppUpdatedAssets = JSONMessage[`${opp}Assets`];
 
             const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
             const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
-
+            
             // both cases
             setYourAssets(yourUpdatedAssets);
             setOpponentAssets(oppUpdatedAssets);
 
             if (yourNewAsset) {
+              console.log("YOUR NEW ASSET JUST BOUGHT:", yourNewAsset)
               if (ws.current) {
+                console.log("SUBSCRIBING TO YOUR NEW ASSET:", yourNewAsset.ticker)
                 ws.current.send(JSON.stringify({ ticker: yourNewAsset.ticker }));
               }
             }
 
             if (oppNewAsset) {
+              console.log("OPP NEW ASSET JUST BOUGHT:", oppNewAsset)
               if (ws.current) {
+                console.log("SUBSCRIBING TO OPP NEW ASSET:", oppNewAsset.ticker)
                 ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
               }
             }
@@ -367,9 +374,10 @@ const GameCard = (props: any) => {
      
             console.log("Updated your assets state:", yourUpdatedAssets);
 
-            console.log("Updated your assets state:", oppUpdatedAssets);;
+            console.log("Updated opp assets state:", oppUpdatedAssets);;
 
           } else if (message != "" && gotInitialPrices && yourAssets && opponentAssets) {
+            //console.log(JSONMessage)
             const { sym, c: currentPrice } = JSONMessage[0];
             const isTickerInYourAssets = yourAssets.some(stock => stock.ticker === sym);
             const isTickerInOppAssets = opponentAssets.some(stock => stock.ticker === sym);
@@ -428,14 +436,6 @@ const GameCard = (props: any) => {
       return () => {
         // make loading true
         console.log("Game card out of focus");
-        /*setYourPointData(null)
-        setOpponentPointData(null)
-        setYourFormattedData(null)
-        setOppFormattedData(null)
-        setYourAssets(null)
-        setOpponentAssets(null)*/
-        //setLoading(true)
-        //setLoading(true)
         if (ws.current) {
           setYourPointData(null)
           setOpponentPointData(null)
@@ -443,6 +443,8 @@ const GameCard = (props: any) => {
           setOppFormattedData(null)
           setYourAssets(null)
           setOpponentAssets(null)
+          setYourTickerPrices({})
+          setOppTickerPrices({})
           setMatch(null)
           setGotInitialPrices(false);
           setLoading(true)
@@ -484,19 +486,39 @@ const GameCard = (props: any) => {
     if (oppFormattedData) {
       oppFormattedData[oppFormattedData.length-1].normalizedValue = oppTotalLivePrice + match[opp]?.buyingPower - 100000
     }
-
+    /**/
     if (yourFormattedData && oppFormattedData) {
       //console.log(yourTotalLivePrice, oppTotalLivePrice)
       if (yourTotalLivePrice + match[you]?.buyingPower >= oppTotalLivePrice + match[opp]?.buyingPower) {
         setYourColor(theme.colors.stockUpAccent)
         setOppColor(theme.colors.tertiary)
+
       } else {
         setYourColor(theme.colors.stockDownAccent)
         setOppColor(theme.colors.tertiary)
       }
+      const yourMax = Math.max(...yourFormattedData.map((item:any) => item.normalizedValue))
+      const oppMax = Math.max(...oppFormattedData.map((item:any) => item.normalizedValue))
+      const yourMin = Math.min(...yourFormattedData.map((item:any) => item.normalizedValue))
+      const oppMin = Math.min(...oppFormattedData.map((item:any) => item.normalizedValue))
+      
+
+      if (oppMax > yourMax) {
+        setMaxY(oppMax)
+        //console.log("Data: " + data2Max, dataMax)
+      } else {
+        setMaxY(yourMax)
+        //console.log("Data: " + data2Max, dataMax)
+      }
+
+      if (oppMin > yourMin) {
+        setMinY(yourMin)
+      } else {
+        setMinY(oppMin)
+      }
     }
   }
-}, [yourTickerPrices, oppTickerPrices])
+}, [yourTickerPrices, oppTickerPrices, yourAssets, opponentAssets])
   //END OF SOCKET STUFF--------------------------------------------------------
 
   const hexToRGBA = (hex:any, alpha = 1) => {
@@ -532,7 +554,7 @@ const GameCard = (props: any) => {
 
   return (
     <View>
-    {!loading ?
+    {!loading && match ?
     <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
       navigation.navigate("GameScreen", {matchID: match.matchID, userID: props.userID, endAt: match.endAt})
       

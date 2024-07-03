@@ -128,18 +128,18 @@ const Profile  = ({ navigation }: any) => {
                 <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 30}}>{userData?.username.slice(0,1).toUpperCase()}</Text>
               </View>}
           </TouchableOpacity>
-            <View style={styles.mainContainer}>
+            <TouchableOpacity style={styles.mainContainer}>
               <Text style={styles.mainContainerType}>Wins</Text>
               <Text style={styles.mainContainerText}>23</Text>
-            </View>
-            <View style={styles.mainContainer}>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.mainContainer}>
               <Text style={styles.mainContainerType}>Followers</Text>
               <Text style={styles.mainContainerText}>{userData?.followers ? userData?.followers.length : 0 ?? 0}</Text>
-            </View>
-            <View style={styles.mainContainer}>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.mainContainer}>
               <Text style={styles.mainContainerType}>Following</Text>
               <Text style={styles.mainContainerText}>{userData?.following ? userData?.following.length : 0 ?? 0}</Text>
-            </View>
+            </TouchableOpacity>
           
           </View>
           <View style={{marginHorizontal: 20, marginTop: 20, flexDirection: 'row', alignItems: 'center', gap: 10}}>
