@@ -37,7 +37,7 @@ const useUserData = (userID?: string) => {
         try {
           console.log("server url FROM env:", `${process.env.SERVER_URL}`);
           console.log("Server url endpoint:", `${serverUrl}/getUser`);
-          console.log("UserID:", userID);
+          console.log("USEUSER, UserID:", userID);
           const response = await axios.post(`${serverUrl}/getUser`, { userID });
           //console.log('Fetched User Data:', response.data);
           setUserData(response.data);

@@ -271,9 +271,9 @@ const Home: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     const getUserID = async () => {
-      console.log('Gettign userID');
+      console.log('Getting userID');
       const userID = await AsyncStorage.getItem('userID');
-      console.log('UserId:', userID);
+      console.log('In HOME, UserID:', userID);
       setUserID(userID!);
     };
     getUserID();
