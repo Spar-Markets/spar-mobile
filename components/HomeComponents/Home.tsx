@@ -1,35 +1,64 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, Image, TouchableOpacity, Alert, ActivityIndicator, Dimensions, Animated, FlatList, StyleSheet, ScrollView, Platform, PermissionsAndroid } from 'react-native';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Dimensions,
+  Animated,
+  FlatList,
+  StyleSheet,
+  ScrollView,
+  Platform,
+  PermissionsAndroid,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useTheme } from '../ContextComponents/ThemeContext';
-import { useDimensions } from '../ContextComponents/DimensionsContext';
+import {useTheme} from '../ContextComponents/ThemeContext';
+import {useDimensions} from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import ToggleButton from './ToggleButton';
 import DiscoverCard from './DiscoverCard';
-import { useDispatch, useSelector } from 'react-redux';
-import { setIsInMatchmaking } from '../../GlobalDataManagment/userSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {setIsInMatchmaking} from '../../GlobalDataManagment/userSlice';
 import useUserDetails from '../../hooks/useUserDetails';
 import GameCard from './GameCard';
 import GameCardSkeleton from './GameCardSkeleton';
-import { serverUrl } from '../../constants/global';
+import {serverUrl} from '../../constants/global';
 import StockCard from '../StockComponents/StockCard';
-import { Blur, BlurMask, Canvas, Circle, Group, RadialGradient, Rect, vec } from '@shopify/react-native-skia';
+import {
+  Blur,
+  BlurMask,
+  Canvas,
+  Circle,
+  Group,
+  RadialGradient,
+  Rect,
+  vec,
+} from '@shopify/react-native-skia';
 import LinearGradient from 'react-native-linear-gradient';
-import { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import HapticFeedback from "react-native-haptic-feedback";
+import {
+  Easing,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
+import HapticFeedback from 'react-native-haptic-feedback';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../firebase/firebase';
+import {getDownloadURL, ref} from 'firebase/storage';
+import {storage} from '../../firebase/firebase';
 import RNFS from 'react-native-fs';
-import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
-import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
+import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
+import {setProfileImageUri} from '../../GlobalDataManagment/imageSlice';
 import SmallActivityIndicator from '../GlobalComponents/SmallActivityIndicator';
 
-
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 const Home: React.FC = () => {
   interface MatchData {
@@ -49,28 +78,30 @@ const Home: React.FC = () => {
   }
 
   // Layout and Style Initialization
-  const { theme } = useTheme();
-  const { width, height } = useDimensions();
+  const {theme} = useTheme();
+  const {width, height} = useDimensions();
   const styles = createHomeStyles(theme, width);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
-  const [balance, setBalance] = useState("0.00");
+  const [balance, setBalance] = useState('0.00');
   const [searchingForMatch, setSearchingForMatch] = useState(false);
   const [activeMatches, setActiveMatches] = useState<string[]>([]);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState('');
   const [matchData, setMatchData] = useState<MatchData[]>([]);
-  const [userID, setUserID] = useState("");
-  const [watchedStocks, setWatchedStocks] = useState<String[]>([])
-  const [profileImage, setProfileImage] = useState<string | null>(null)
-  const [imageLoading, setImageLoading] = useState(true)
+  const [userID, setUserID] = useState('');
+  const [watchedStocks, setWatchedStocks] = useState<String[]>([]);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const dispatch = useDispatch();
-  const { userData } = useUserDetails();
+  const {userData} = useUserDetails();
 
-  const isInMatchmaking = useSelector((state: any) => state.user.isInMatchmaking);
+  const isInMatchmaking = useSelector(
+    (state: any) => state.user.isInMatchmaking,
+  );
 
   const requestPermissions = async () => {
     if (Platform.OS === 'ios') {
@@ -85,15 +116,15 @@ const Home: React.FC = () => {
       }
     } else if (Platform.OS === 'android') {
       const readPermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
       );
 
       const writePermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       );
 
       const cameraPermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA
+        PermissionsAndroid.PERMISSIONS.CAMERA,
       );
 
       if (
@@ -123,14 +154,16 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-
     const getProfilePicture = async () => {
       await requestPermissions();
       if (userData?.userID) {
         try {
           const profileImagePath = await AsyncStorage.getItem('profileImgPath');
           if (profileImagePath) {
-            console.log('Profile image path from AsyncStorage:', profileImagePath);
+            console.log(
+              'Profile image path from AsyncStorage:',
+              profileImagePath,
+            );
             //setProfileImage(profileImagePath)
             dispatch(setProfileImageUri(profileImagePath));
           } else {
@@ -139,17 +172,19 @@ const Home: React.FC = () => {
         } catch (error) {
           console.error('Failed to load profile image path:', error);
         } finally {
-          setImageLoading(false)
+          setImageLoading(false);
         }
       }
-    }
-    getProfilePicture()
-  }, [userData?.userID])
+    };
+    getProfilePicture();
+  }, [userData?.userID]);
 
   const fetchMatchIDs = async () => {
     try {
       const userID = await AsyncStorage.getItem('userID');
-      const response = await axios.post(serverUrl + '/getUserMatches', { userID });
+      const response = await axios.post(serverUrl + '/getUserMatches', {
+        userID,
+      });
       console.log('Matches1: ', response.data);
       setActiveMatches(response.data);
     } catch (error) {
@@ -159,15 +194,18 @@ const Home: React.FC = () => {
 
   const getMatchData = async () => {
     try {
-      console.log(`Server Url: ${process.env.SERVER_URL}`)
-      console.log("getmatchdata", activeMatches);
+      console.log(`Server Url: ${process.env.SERVER_URL}`);
+      console.log('getmatchdata', activeMatches);
       const md: MatchData[] = [];
       for (const id of activeMatches) {
-        const matchDataResponse = await axios.post(serverUrl + '/getMatchData', { matchID: id });
+        const matchDataResponse = await axios.post(
+          serverUrl + '/getMatchData',
+          {matchID: id},
+        );
         md.push(matchDataResponse.data);
       }
       setMatchData(md);
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
       console.error('in get match data error' + error);
     }
@@ -176,7 +214,9 @@ const Home: React.FC = () => {
   const cancelMatchmaking = async () => {
     try {
       const userID = await AsyncStorage.getItem('userID');
-      const response = await axios.post(serverUrl + '/cancelMatchmaking', { userID });
+      const response = await axios.post(serverUrl + '/cancelMatchmaking', {
+        userID,
+      });
       console.log(response);
       dispatch(setIsInMatchmaking(false));
       setSearchingForMatch(false);
@@ -188,7 +228,9 @@ const Home: React.FC = () => {
   const getIsInMatchMaking = async () => {
     try {
       const userID = await AsyncStorage.getItem('userID');
-      const response = await axios.post(serverUrl + '/areTheyMatchmaking', { userID });
+      const response = await axios.post(serverUrl + '/areTheyMatchmaking', {
+        userID,
+      });
       console.log(response.data.result);
       if (response.data.result) {
         console.log('User is in matchmaking');
@@ -210,7 +252,7 @@ const Home: React.FC = () => {
         onPress: () => console.log('Cancel Pressed'),
         style: 'cancel',
       },
-      { text: 'Yes', onPress: () => cancelMatchmaking() },
+      {text: 'Yes', onPress: () => cancelMatchmaking()},
     ]);
   };
 
@@ -218,36 +260,34 @@ const Home: React.FC = () => {
     navigation.push('Feed');
   };
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (userData) {
-      setWatchedStocks(userData.watchedStocks)
+      setWatchedStocks(userData.watchedStocks);
     }
-  }, [userData])
+  }, [userData]);
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     const getUserID = async () => {
-      console.log("Gettign userID")
-      const userID = await AsyncStorage.getItem("userID");
-      console.log("UserId:", userID)
+      console.log('Gettign userID');
+      const userID = await AsyncStorage.getItem('userID');
+      console.log('UserId:', userID);
       setUserID(userID!);
-    }
-    getUserID()
+    };
+    getUserID();
     getIsInMatchMaking();
     fetchMatchIDs();
   }, []);
 
- useEffect(() => {
+  useEffect(() => {
     if (activeMatches.length !== 0) {
       getMatchData();
     } else {
       console.log();
     }
   }, [activeMatches]);
-
-
 
   const animation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
@@ -264,114 +304,226 @@ const Home: React.FC = () => {
   const flatListRef = useRef<FlatList<any>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const onViewRef = useRef(({ viewableItems }: { viewableItems: any }) => {
+  const onViewRef = useRef(({viewableItems}: {viewableItems: any}) => {
     if (viewableItems.length > 0) {
       setCurrentIndex(viewableItems[0].index);
     }
   });
 
-  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
+  const viewConfigRef = useRef({viewAreaCoveragePercentThreshold: 30});
 
-  const [selectedWatchList, setSelectedWatchList] = useState(0)
+  const [selectedWatchList, setSelectedWatchList] = useState(0);
 
-  const profileImageUri = useSelector((state:any) => state.image.profileImageUri);
+  const profileImageUri = useSelector(
+    (state: any) => state.image.profileImageUri,
+  );
 
-  const watchListButton = (emoji: string, name: string, index:number) => {
+  const watchListButton = (emoji: string, name: string, index: number) => {
     return (
-      <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', marginRight: 20}} onPress={() => {
-          setSelectedWatchList(index)
-          HapticFeedback.trigger("impactMedium", {
+      <TouchableOpacity
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: 20,
+        }}
+        onPress={() => {
+          setSelectedWatchList(index);
+          HapticFeedback.trigger('impactMedium', {
             enableVibrateFallback: true,
-            ignoreAndroidSystemSettings: false
+            ignoreAndroidSystemSettings: false,
           });
         }}>
-        <View style={{width: 60, height: 60, justifyContent: 'center', alignItems: 'center'}}>
-         <View style={[selectedWatchList == index ? {backgroundColor: theme.colors.tertiary} : {backgroundColor: theme.colors.accent}, {width: 51, height: 51, borderRadius: 10, position: 'absolute', right: 3, top: 6}]}></View>
-         <View style={[selectedWatchList == index ? {backgroundColor: theme.colors.accent} : {backgroundColor: theme.colors.primary}, {width: 50, height: 50, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center'}]}>
-          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>{emoji}</Text>
-         </View>
+        <View
+          style={{
+            width: 60,
+            height: 60,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View
+            style={[
+              selectedWatchList == index
+                ? {backgroundColor: theme.colors.tertiary}
+                : {backgroundColor: theme.colors.accent},
+              {
+                width: 51,
+                height: 51,
+                borderRadius: 10,
+                position: 'absolute',
+                right: 3,
+                top: 6,
+              },
+            ]}></View>
+          <View
+            style={[
+              selectedWatchList == index
+                ? {backgroundColor: theme.colors.accent}
+                : {backgroundColor: theme.colors.primary},
+              {
+                width: 50,
+                height: 50,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: theme.colors.accent,
+                justifyContent: 'center',
+                alignItems: 'center',
+              },
+            ]}>
+            <Text
+              style={{
+                color: theme.colors.text,
+                fontFamily: 'InterTight-Black',
+                fontSize: 16,
+              }}>
+              {emoji}
+            </Text>
+          </View>
         </View>
-        <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 12, maxWidth: 80}} adjustsFontSizeToFit>{name}</Text>
+        <Text
+          style={{
+            fontFamily: 'InterTight-Black',
+            color: theme.colors.text,
+            fontSize: 12,
+            maxWidth: 80,
+          }}
+          adjustsFontSizeToFit>
+          {name}
+        </Text>
       </TouchableOpacity>
-    )
-  }
-
+    );
+  };
 
   const createListButton = () => {
     return (
-      <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', marginRight: 20}} onPress={() => {
-          HapticFeedback.trigger("impactMedium", {
+      <TouchableOpacity
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: 20,
+        }}
+        onPress={() => {
+          HapticFeedback.trigger('impactMedium', {
             enableVibrateFallback: true,
-            ignoreAndroidSystemSettings: false
+            ignoreAndroidSystemSettings: false,
           });
-          navigation.navigate("CreateList")
+          navigation.navigate('CreateList');
         }}>
-        <View style={{width: 60, height: 60, justifyContent: 'center', alignItems: 'center'}}>
-         {/*<View style={{backgroundColor: theme.colors.accent, width: 51, height: 51, borderRadius: 10, position: 'absolute', right: 3, top: 6}}></View>*/}
-         <View style={{backgroundColor: theme.colors.primary, width: 50, height: 50, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center'}}>
-          <Icon name="plus-circle" size={24} color={theme.colors.accent}></Icon>
-         </View>
+        <View
+          style={{
+            width: 60,
+            height: 60,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          {/*<View style={{backgroundColor: theme.colors.accent, width: 51, height: 51, borderRadius: 10, position: 'absolute', right: 3, top: 6}}></View>*/}
+          <View
+            style={{
+              backgroundColor: theme.colors.primary,
+              width: 50,
+              height: 50,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: theme.colors.accent,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Icon
+              name="plus-circle"
+              size={24}
+              color={theme.colors.accent}></Icon>
+          </View>
         </View>
-        <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 12, maxWidth: 80}} adjustsFontSizeToFit>Create List</Text>
+        <Text
+          style={{
+            fontFamily: 'InterTight-Black',
+            color: theme.colors.text,
+            fontSize: 12,
+            maxWidth: 80,
+          }}
+          adjustsFontSizeToFit>
+          Create List
+        </Text>
       </TouchableOpacity>
-    )
-  }
-
+    );
+  };
 
   if (loading) {
     return (
       <View style={styles.container}>
-          <View style={styles.header}>
-            <View style={{ flex: 1 }} />
-            <TouchableOpacity>
-              <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
-              <Icon name="bars" style={styles.icon} size={24} />
-            </TouchableOpacity>
-          </View>
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <CustomActivityIndicator size={60} color={theme.colors.text}/>
+        <View style={styles.header}>
+          <View style={{flex: 1}} />
+          <TouchableOpacity>
+            <Icon
+              name="search"
+              style={[styles.icon, {marginRight: 5}]}
+              size={24}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Menu')}>
+            <Icon name="bars" style={styles.icon} size={24} />
+          </TouchableOpacity>
+        </View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <CustomActivityIndicator size={60} color={theme.colors.text} />
         </View>
       </View>
-    )
+    );
   }
 
-
-
   return (
-    <LinearGradient colors={[theme.colors.background, theme.colors.background]} start={{x: 0, y:0}} end={{x: 1, y: 1}} style={{ flex: 1 }}>
-      <View style={styles.container}>     
+    <LinearGradient
+      colors={[theme.colors.background, theme.colors.background]}
+      start={{x: 0, y: 0}}
+      end={{x: 1, y: 1}}
+      style={{flex: 1}}>
+      <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-              {profileImageUri ? <Image style={styles.profilePic} source={{uri: profileImageUri}}/> : 
-              <View style={styles.profilePic}>
-              </View>}
-            <View style={{ flex: 1 }} />
+            {profileImageUri ? (
+              <Image
+                style={styles.profilePic}
+                source={{uri: profileImageUri}}
+              />
+            ) : (
+              <View style={styles.profilePic}></View>
+            )}
+            <View style={{flex: 1}} />
             <TouchableOpacity>
-              <Icon name="search" style={[styles.icon, { marginRight: 5 }]} size={24} />
+              <Icon
+                name="search"
+                style={[styles.icon, {marginRight: 5}]}
+                size={24}
+              />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
+            <TouchableOpacity onPress={() => navigation.navigate('Menu')}>
               <Icon name="bars" style={styles.icon} size={24} />
             </TouchableOpacity>
           </View>
-      
+
           <ToggleButton onToggle={handleToggle} />
-          <Animated.View style={{ flex: 1, flexDirection: 'row', width: screenWidth, transform: [{ translateX: animation }] }}>
+          <Animated.View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              width: screenWidth,
+              transform: [{translateX: animation}],
+            }}>
             <View>
               <FlatList
-                data={searchingForMatch || isInMatchmaking ? [null, ...matchData] : matchData}
-                renderItem={({ item, index }) =>
+                data={
+                  searchingForMatch || isInMatchmaking
+                    ? [null, ...matchData]
+                    : matchData
+                }
+                renderItem={({item, index}) =>
                   item ? (
-                    <GameCard userID={userID} matchID={item.matchID}/>
+                    <GameCard userID={userID} matchID={item.matchID} />
                   ) : (
                     <GameCardSkeleton />
                   )
                 }
                 keyExtractor={(item, index) => index.toString()}
-                ItemSeparatorComponent={() => (
-                  <View style={{width: 0}}></View>
-                )}
+                ItemSeparatorComponent={() => <View style={{width: 0}}></View>}
                 horizontal
                 pagingEnabled
                 snapToInterval={width}
@@ -380,46 +532,114 @@ const Home: React.FC = () => {
                 //onScrollEndDrag={handleScrollEnd}
                 //onMomentumScrollEnd={handleScrollEnd}
                 snapToAlignment="start"
-                decelerationRate={-10} 
+                decelerationRate={-10}
                 onViewableItemsChanged={onViewRef.current}
                 viewabilityConfig={viewConfigRef.current}
               />
               {searchingForMatch || isInMatchmaking ? (
-              <View style={styles.hthContainer}>
-                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 1, flexDirection: 'row', gap: 10, borderTopLeftRadius: 50, borderBottomLeftRadius: 50}]} onPress={cancelAlert}>
-                      <Text style={styles.enterHTHMatchBtnText}>Cancel Matchmaking</Text>
-                      <SmallActivityIndicator/>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 0.2, borderTopRightRadius: 50, borderBottomRightRadius: 50}]}>
-                  <Icon name="gear" color={theme.colors.background} size={24} />
-                </TouchableOpacity>
-              </View>
+                <View style={styles.hthContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.enterHTHMatchBtn,
+                      {
+                        flex: 1,
+                        flexDirection: 'row',
+                        gap: 10,
+                        borderTopLeftRadius: 50,
+                        borderBottomLeftRadius: 50,
+                      },
+                    ]}
+                    onPress={cancelAlert}>
+                    <Text style={styles.enterHTHMatchBtnText}>
+                      Cancel Matchmaking
+                    </Text>
+                    <SmallActivityIndicator />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.enterHTHMatchBtn,
+                      {
+                        flex: 0.2,
+                        borderTopRightRadius: 50,
+                        borderBottomRightRadius: 50,
+                      },
+                    ]}>
+                    <Icon
+                      name="gear"
+                      color={theme.colors.background}
+                      size={24}
+                    />
+                  </TouchableOpacity>
+                </View>
               ) : (
-              <View style={styles.hthContainer}>
-                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 1, borderTopLeftRadius: 50, borderBottomLeftRadius: 50}]} onPress={() => {
-                  navigation.navigate('EnterMatch')
-                  }}>
-                      <Text style={styles.enterHTHMatchBtnText}>Start a Match</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.enterHTHMatchBtn, {flex: 0.2, borderTopRightRadius: 50, borderBottomRightRadius: 50}]}>
-                  <Icon name="gear" color={theme.colors.background} size={24} />
-                </TouchableOpacity>
-              </View>
+                <View style={styles.hthContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.enterHTHMatchBtn,
+                      {
+                        flex: 1,
+                        borderTopLeftRadius: 50,
+                        borderBottomLeftRadius: 50,
+                      },
+                    ]}
+                    onPress={() => {
+                      navigation.navigate('EnterMatch');
+                    }}>
+                    <Text style={styles.enterHTHMatchBtnText}>
+                      Start a Match
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.enterHTHMatchBtn,
+                      {
+                        flex: 0.2,
+                        borderTopRightRadius: 50,
+                        borderBottomRightRadius: 50,
+                      },
+                    ]}>
+                    <Icon
+                      name="gear"
+                      color={theme.colors.background}
+                      size={24}
+                    />
+                  </TouchableOpacity>
+                </View>
               )}
-                {matchData.length + (searchingForMatch || isInMatchmaking ? 1: 0) > 1 && <View style={styles1.paginationContainer}>
-                  {Array.from({ length: matchData.length + (searchingForMatch || isInMatchmaking ? 1 : 0) }).map((_, index) => (
+              {matchData.length +
+                (searchingForMatch || isInMatchmaking ? 1 : 0) >
+                1 && (
+                <View style={styles1.paginationContainer}>
+                  {Array.from({
+                    length:
+                      matchData.length +
+                      (searchingForMatch || isInMatchmaking ? 1 : 0),
+                  }).map((_, index) => (
                     <View
                       key={index}
                       style={[
                         styles1.paginationDot,
-                        { backgroundColor: currentIndex === index ? theme.colors.accent : theme.colors.text }
+                        {
+                          backgroundColor:
+                            currentIndex === index
+                              ? theme.colors.accent
+                              : theme.colors.text,
+                        },
                       ]}
                     />
                   ))}
-                </View>}
+                </View>
+              )}
             </View>
             <View>
-              <Text style={{ color: theme.colors.text, fontWeight: 'bold', fontSize: 14, marginBottom: 10, marginLeft: 5 }}></Text>
+              <Text
+                style={{
+                  color: theme.colors.text,
+                  fontWeight: 'bold',
+                  fontSize: 14,
+                  marginBottom: 10,
+                  marginLeft: 5,
+                }}></Text>
             </View>
           </Animated.View>
           {/*<View style={{ marginTop: 20, gap: 5, marginHorizontal: 20 }}>
@@ -427,34 +647,49 @@ const Home: React.FC = () => {
             <DiscoverCard title={"Referral Program"} image={require("../../assets/images/referralIcon.png")} message={"Refer your friend to Spar, and when they sign up and play a match, you get $5"} />
             <DiscoverCard title={"Spar Tutorials"} image={require("../../assets/images/tutorialsIcon.png")} message={"Learn about the functionality of Spar and develop your Spar skills to succeed"} />
                 </View>*/}
-          <View style={{ marginTop: 20}}>
-            <Text style={{ color: theme.colors.text, fontSize: 16, fontFamily: 'InterTight-Bold', marginHorizontal: 20}}>Lists</Text>
-            <ScrollView horizontal style={{paddingHorizontal: 20, marginVertical: 5}} showsHorizontalScrollIndicator={false}>
+          <View style={{marginTop: 20}}>
+            <Text
+              style={{
+                color: theme.colors.text,
+                fontSize: 16,
+                fontFamily: 'InterTight-Bold',
+                marginHorizontal: 20,
+              }}>
+              Lists
+            </Text>
+            <ScrollView
+              horizontal
+              style={{paddingHorizontal: 20, marginVertical: 5}}
+              showsHorizontalScrollIndicator={false}>
               {createListButton()}
             </ScrollView>
-            <View style={{marginHorizontal: 20}}> 
-            {watchedStocks.map((ticker, index) => {
-              return (
-              <View key={index}>
-                <View style={{ width: (width-40)}}>
-                  <StockCard ticker={ticker}/>
-                </View>
-              </View>
-              );
-            })}
+            <View style={{marginHorizontal: 20}}>
+              {watchedStocks.map((ticker, index) => {
+                return (
+                  <View key={index}>
+                    <View style={{width: width - 40}}>
+                      <StockCard ticker={ticker} />
+                    </View>
+                  </View>
+                );
+              })}
             </View>
           </View>
         </ScrollView>
       </View>
-      
 
       <View style={styles.depositsContainer}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 20 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginHorizontal: 20,
+          }}>
           <View>
             <Text style={styles.balance}>${userData?.balance.toString()}</Text>
             <Text style={styles.fundText}>Available Funds</Text>
           </View>
-          <View style={{ flex: 1 }}></View>
+          <View style={{flex: 1}}></View>
           <TouchableOpacity style={styles.depositBtn}>
             <Text style={styles.depositBtnText}>Deposit</Text>
           </TouchableOpacity>

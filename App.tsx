@@ -3,11 +3,14 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Animated, StatusBar, View} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import { createStackNavigator, CardStyleInterpolators, StackCardStyleInterpolator } from '@react-navigation/stack'
+import {
+  createStackNavigator,
+  CardStyleInterpolators,
+  StackCardStyleInterpolator,
+} from '@react-navigation/stack';
 import SuccessScreen from './components/SuccessScreen';
 import Profile from './components/ProfileComponents/Profile';
 import {PlaidTheme} from './styles/style';
-import Onboardscreen1 from './components/OnboardScreen';
 import Home from './components/HomeComponents/Home';
 import CoreApp from './CoreApp';
 import Deposit from './components/Deposit';
@@ -18,15 +21,18 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GameScreen from './components/HeadToHeadComponents/GameScreen';
 import InGameStockSearch from './components/InGameComponents/InGameStockSearch';
 import StockOrder from './components/InGameComponents/StockOrder';
-import { ThemeProvider, useTheme } from './components/ContextComponents/ThemeContext';
-import { StatusBarHeightProvider } from './components/ContextComponents/StatusBarHeightContext';
-import { DimensionsProvider } from './components/ContextComponents/DimensionsContext';
+import {
+  ThemeProvider,
+  useTheme,
+} from './components/ContextComponents/ThemeContext';
+import {StatusBarHeightProvider} from './components/ContextComponents/StatusBarHeightContext';
+import {DimensionsProvider} from './components/ContextComponents/DimensionsContext';
 import EnterMatch from './components/HeadToHeadComponents/EnterMatch';
 import CommentPage from './components/FeedComponents/CommentPage';
 import Feed from './components/FeedComponents/Feed';
 
-import { Provider } from 'react-redux';
-import { store } from './GlobalDataManagment/store';
+import {Provider} from 'react-redux';
+import {store} from './GlobalDataManagment/store';
 import CreatePost from './components/FeedComponents/CreatePost';
 import SignupScreen from './components/OnboardComponents/SignupScreen';
 import useAuth from './hooks/useAuth';
@@ -45,16 +51,11 @@ import ProfileSearch from './components/ProfileComponents/ProfileSearch';
 import OtherProfile from './components/ProfileComponents/OtherProfile';
 import ProfileActivity from './components/ProfileComponents/ProfileActivity';
 
-
-
-
-
-
 const Stack = createNativeStackNavigator();
 
 const AppContent = (): React.ReactElement => {
-  const { theme, toggleTheme } = useTheme();
-  const { user, loading } = useAuth();
+  const {theme, toggleTheme} = useTheme();
+  const {user, loading} = useAuth();
 
   if (loading) {
     return <SplashScreen />;
@@ -64,16 +65,18 @@ const AppContent = (): React.ReactElement => {
   if (user) {
     return (
       <NavigationContainer theme={theme}>
-        <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'}/>
-        <Stack.Navigator initialRouteName="CoreApp" screenOptions={{
+        <StatusBar
+          backgroundColor={theme.colors.background}
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        />
+        <Stack.Navigator
+          initialRouteName="CoreApp"
+          screenOptions={{
             headerShown: false,
             gestureEnabled: true,
             gestureDirection: 'horizontal',
           }}>
-          <Stack.Screen
-            name="CoreApp"
-            component={CoreApp}
-          />
+          <Stack.Screen name="CoreApp" component={CoreApp} />
           <Stack.Screen
             name="Home"
             component={Home}
@@ -122,7 +125,8 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="EnterMatch"
             component={EnterMatch}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
               animation: 'slide_from_right',
@@ -131,7 +135,8 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="Feed"
             component={Feed}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
               animation: 'slide_from_right',
@@ -140,7 +145,8 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="CommentPage"
             component={CommentPage}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
               animation: 'slide_from_bottom',
@@ -149,7 +155,8 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="CreatePost"
             component={CreatePost}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
               animation: 'slide_from_bottom',
@@ -158,7 +165,8 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="Menu"
             component={Menu}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
             }}
@@ -172,23 +180,24 @@ const AppContent = (): React.ReactElement => {
             name="OrderSummary"
             component={OrderSummary}
             options={{
-              animation: 'fade'
+              animation: 'fade',
             }}
           />
           <Stack.Screen
             name="CreateList"
             component={CreateList}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
-              animation: 'slide_from_bottom'
-              
+              animation: 'slide_from_bottom',
             }}
           />
           <Stack.Screen
             name="ProfileSearch"
             component={ProfileSearch}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
             }}
@@ -196,7 +205,8 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="OtherProfile"
             component={OtherProfile}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
             }}
@@ -204,19 +214,21 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="ProfileActivity"
             component={ProfileActivity}
-            options={{headerShown: false,
+            options={{
+              headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
-              animation: 'slide_from_bottom'
+              animation: 'slide_from_bottom',
             }}
           />
         </Stack.Navigator>
       </NavigationContainer>
-    )
+    );
   } else {
     return (
       <NavigationContainer theme={theme}>
-        <Stack.Navigator screenOptions={{
+        <Stack.Navigator
+          screenOptions={{
             headerShown: false,
             gestureEnabled: true,
           }}>
@@ -225,57 +237,54 @@ const AppContent = (): React.ReactElement => {
             component={Onboard1}
             options={{headerShown: false}}
           />
-          <Stack.Screen
-            name="SignupScreen"
-            component={SignupScreen}
-          />
+          <Stack.Screen name="SignupScreen" component={SignupScreen} />
           <Stack.Screen
             name="EmailScreen"
             component={EmailScreen}
             options={{
-              animation: 'fade'
+              animation: 'fade',
             }}
           />
           <Stack.Screen
             name="PasswordScreen"
             component={PasswordScreen}
             options={{
-              animation: 'fade'
+              animation: 'fade',
             }}
           />
           <Stack.Screen
             name="UsernameScreen"
             component={UsernameScreen}
             options={{
-              animation: 'fade'
+              animation: 'fade',
             }}
           />
           <Stack.Screen
             name="SignInScreen"
             component={SignInScreen}
             options={{
-              animation: 'fade'
+              animation: 'fade',
             }}
           />
         </Stack.Navigator>
       </NavigationContainer>
-    )
+    );
   }
-}
+};
 
 const App = (): React.ReactElement => {
   return (
-      <ThemeProvider>
-        <DimensionsProvider>
-          <StatusBarHeightProvider>
-            <GestureHandlerRootView style={{flex: 1}}>
-              <Provider store={store}>
-                <AppContent/>
-              </Provider>
-            </GestureHandlerRootView>
-          </StatusBarHeightProvider>
-        </DimensionsProvider>
-      </ThemeProvider>
+    <ThemeProvider>
+      <DimensionsProvider>
+        <StatusBarHeightProvider>
+          <GestureHandlerRootView style={{flex: 1}}>
+            <Provider store={store}>
+              <AppContent />
+            </Provider>
+          </GestureHandlerRootView>
+        </StatusBarHeightProvider>
+      </DimensionsProvider>
+    </ThemeProvider>
   );
 };
 
