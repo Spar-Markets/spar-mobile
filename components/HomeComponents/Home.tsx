@@ -206,6 +206,7 @@ const Home: React.FC = () => {
       }
       setMatchData(md);
       setLoading(false);
+      console.log('SET MATCH DATA PAGE SHOULD NOW LOAD');
     } catch (error) {
       console.error('in get match data error' + error);
     }
@@ -285,7 +286,7 @@ const Home: React.FC = () => {
     if (activeMatches.length !== 0) {
       getMatchData();
     } else {
-      console.log();
+      setLoading(false);
     }
   }, [activeMatches]);
 

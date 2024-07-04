@@ -50,19 +50,23 @@ import CreateList from './components/HomeComponents/CreateList';
 import ProfileSearch from './components/ProfileComponents/ProfileSearch';
 import OtherProfile from './components/ProfileComponents/OtherProfile';
 import ProfileActivity from './components/ProfileComponents/ProfileActivity';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useSelector} from 'react-redux';
+import {RootState} from './GlobalDataManagment/store';
 
 const Stack = createNativeStackNavigator();
 
 const AppContent = (): React.ReactElement => {
   const {theme, toggleTheme} = useTheme();
   const {user, loading} = useAuth();
+  const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
 
   if (loading) {
     return <SplashScreen />;
   }
 
   //onboard or main stack depending on user status
-  if (user) {
+  if (user && userIsMade) {
     return (
       <NavigationContainer theme={theme}>
         <StatusBar

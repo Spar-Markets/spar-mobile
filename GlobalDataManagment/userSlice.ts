@@ -2,11 +2,13 @@ import { createSlice } from '@reduxjs/toolkit';
 
 interface UserState {
     isInMatchmaking: boolean
+    isUserMade: boolean
 }
 
 const initialState = {
-  isInMatchmaking: null
-};
+  isInMatchmaking: null,
+  isUserMade: null
+}
 
 const userSlice = createSlice({
   name: 'user',
@@ -15,8 +17,11 @@ const userSlice = createSlice({
     setIsInMatchmaking: (state, action) => {
       state.isInMatchmaking = action.payload;
     },
+    setUserIsMade: (state, action) => {
+      state.isUserMade = action.payload;
+    }
   },
 });
 
-export const { setIsInMatchmaking } = userSlice.actions;
+export const { setIsInMatchmaking, setUserIsMade } = userSlice.actions;
 export default userSlice.reducer;

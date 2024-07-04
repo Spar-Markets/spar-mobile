@@ -21,6 +21,8 @@ import {serverUrl} from '../../constants/global';
 import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {useDispatch} from 'react-redux';
+import {setUserIsMade} from '../../GlobalDataManagment/userSlice';
 
 const UsernameScreen = (props: any) => {
   // Layout and Style Initialization
@@ -41,6 +43,8 @@ const UsernameScreen = (props: any) => {
   const route = useRoute<any>();
   const email = route.params?.email;
   const password = route.params?.password;
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (usernameInputRef.current) {
@@ -72,9 +76,16 @@ const UsernameScreen = (props: any) => {
           console.log('About to set userID');
           console.log('Credentials:', credentials);
           console.log('Credentials UID', (credentials.user as any).uid);
-          await AsyncStorage.setItem('userID', (credentials.user as any).uid);
+          await AsyncStorage.setItem(
+            'userID',
+            (credentials.user as any).uid,
+          ).then(() => {
+            dispatch(setUserIsMade(true));
+          });
         }
       }
+
+      // set
       // console.log(response.data)
 
       // it should navigate right here
