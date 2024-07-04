@@ -85,15 +85,18 @@ const OtherProfile  = ({ navigation }: any) => {
 
   const getUserData = async () => {
     try {
+      console.log("About to run if statement")
         if (userData?.userID) {
-        await getProfileImage()
-        await checkFollowStatus()
-        const response = await axios.post(`${serverUrl}/getUser`, { userID: params?.otherUserID });
-        setOtherUserData(response.data);
-        setLoading(false);
+          console.log("About to run functions");
+          await getProfileImage()
+          await checkFollowStatus()
+          console.log("About to call getUser endpoint:", `${serverUrl}/getUser`, "with data:", params?.otherUserID)
+          const response = await axios.post(`${serverUrl}/getUser`, { userID: params?.otherUserID });
+          setOtherUserData(response.data);
+          setLoading(false);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Creamy error fetching user data:', error);
       } 
   }
 

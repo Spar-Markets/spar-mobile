@@ -59,7 +59,10 @@ const UsernameScreen = (props: any) => {
 
         // Sets userID globally in async
         if (response) {
-            await AsyncStorage.setItem('userID', (credentials.user as any).uid);
+          console.log("About to set userID")
+          console.log("Credentials:", credentials)
+          console.log("Credentials UID", (credentials.user as any).uid)
+          await AsyncStorage.setItem('userID', (credentials.user as any).uid);
         }
         }
         // console.log(response.data)

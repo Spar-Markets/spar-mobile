@@ -34,12 +34,16 @@ const SignupScreen = (props: any) => {
    * @todo need to do username check against database...
    * */
   const handleSubmit = async () => {
+    console.log("STEP 1")
     if (emailInput !== '' && passwordInput !== '' && passwordConfirmInput !== '' && username !== '') {
+      console.log("STEP 2")
       if (passwordInput === passwordConfirmInput) {
+        console.log("STEP 3")
         try {
+          console.log("STEP 4")
           // Check for username uniqueness needs to be here before auth flow
           const credentials = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
-          // console.log(credentials)
+          console.log("Credentials:", credentials)
           if (credentials.user) {
             const response = await axios.post(serverUrl + '/createUser', {
               email: (credentials.user as any).email,
@@ -49,6 +53,8 @@ const SignupScreen = (props: any) => {
 
             // Sets userID globally in async
             if (response) {
+              console.log("Credentials inside if statement:", credentials);
+              console.log("Credentials UID:", (credentials.user as any).uid)
               await AsyncStorage.setItem('userID', (credentials.user as any).uid);
             }
           }
