@@ -138,12 +138,12 @@ const StockCard = (props:any) => {
     const { onDataFetched } = props;
 
     useEffect(() => {
-        if (pointData.length > 0) {
+        if (pointData.length > 0 && name) {
           setIsLoading(false);
         } else {
           setIsLoading(true);
         }
-    }, [pointData]);
+    }, [pointData, name]);
 
     const [percentDiff, setPercentDiff] = useState("")
     const [valueDiff, setValueDiff] = useState("")
@@ -260,8 +260,29 @@ const StockCard = (props:any) => {
         calculatePercentAndValueDiffAndColor();
     }, [pointData]);
 
+    const hexToRGBA = (hex:any, alpha = 1) => {
+      let r = 0, g = 0, b = 0;
+    
+      // Remove the hash at the start if it's there
+      hex = hex.replace(/^#/, '');
+    
+      // Parse r, g, b values
+      if (hex.length === 3) {
+        r = parseInt(hex[0] + hex[0], 16);
+        g = parseInt(hex[1] + hex[1], 16);
+        b = parseInt(hex[2] + hex[2], 16);
+      } else if (hex.length === 6) {
+        r = parseInt(hex[0] + hex[1], 16);
+        g = parseInt(hex[2] + hex[3], 16);
+        b = parseInt(hex[4] + hex[5], 16);
+      }
+    
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
     if (isLoading) {
         return (
+        <View>
         <View style={{marginVertical: 10, height: 40, width: width-40}}>
           <View style={{flexDirection: 'row'}}>
             <View>
@@ -276,7 +297,8 @@ const StockCard = (props:any) => {
               <Skeleton animation={"pulse"} height={10} width={90} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
             </View>
           </View>
-        </View>)
+        </View>
+        <View style={{height: 1, width: '100%', backgroundColor: theme.colors.tertiary, marginVertical: 10}}/></View>)
     }
 
     return (
@@ -299,13 +321,15 @@ const StockCard = (props:any) => {
                     {({ points }) => (
                         <>
                         <Line points={points.value} color={currentAccentColor} 
-                        strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
+                        strokeWidth={1} animate={{ type: "timing", duration: 300 }}/>
                         </>
                     )}
                     </CartesianChart>}
                     <View style={{justifyContent: 'center'}}>
                         <Text style={styles.stockCardValue}>${(pointData[pointData.length-1].value).toFixed(2)}</Text>
-                        <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
+                        <View style={{backgroundColor: hexToRGBA(currentAccentColor, 0.3), paddingHorizontal: 10, paddingVertical: 3, justifyContent: 'center', alignItems: 'center', borderRadius: 5}}>
+                          <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
+                        </View>
                     </View>
                 </View>
                 <View style={{height: 1, width: '100%', backgroundColor: theme.colors.tertiary, marginVertical: 10}}/>

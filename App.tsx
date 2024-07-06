@@ -34,7 +34,7 @@ import Feed from './components/FeedComponents/Feed';
 import {Provider} from 'react-redux';
 import {store} from './GlobalDataManagment/store';
 import CreatePost from './components/FeedComponents/CreatePost';
-import SignupScreen from './components/OnboardComponents/SignupScreen';
+
 import useAuth from './hooks/useAuth';
 import LoginScreen from './components/OnboardComponents/LoginScreen';
 import Menu from './components/GlobalComponents/Menu';
@@ -241,7 +241,6 @@ const AppContent = (): React.ReactElement => {
             component={Onboard1}
             options={{headerShown: false}}
           />
-          <Stack.Screen name="SignupScreen" component={SignupScreen} />
           <Stack.Screen
             name="EmailScreen"
             component={EmailScreen}

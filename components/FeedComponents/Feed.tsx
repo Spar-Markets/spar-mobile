@@ -43,7 +43,7 @@ const Feed: React.FC = () => {
     
     try {
       const response = await axios.get(`${serverUrl}/posts`, {
-        params: { limit: 10, skip: reset ? 0 : skip }
+        params: { limit: 100, skip: reset ? 0 : skip }
       });
   
       const fetchedPosts: PostType[] = response.data.posts.map((post: PostType) => ({
@@ -53,15 +53,15 @@ const Feed: React.FC = () => {
 
       if (reset) {
         dispatch(setPosts(fetchedPosts));
-        setSkip(10); // Reset skip to the next batch
+        setSkip(100); // Reset skip to the next batch
       } else {
         // Check for duplicates before appending
         const newPosts = fetchedPosts.filter(fp => !posts.some(p => p.postId === fp.postId));
         dispatch(appendPosts(newPosts));
-        setSkip(prevSkip => prevSkip + 10); // Increase skip for the next batch
+        setSkip(prevSkip => prevSkip + 100); // Increase skip for the next batch
       }
   
-      if (fetchedPosts.length < 10) {
+      if (fetchedPosts.length < 100) {
         setHasMorePosts(false); // No more posts to fetch
       } else {
         setHasMorePosts(true); // There are more posts to fetch

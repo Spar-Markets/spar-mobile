@@ -5,6 +5,7 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import PageHeader from '../GlobalComponents/PageHeader';
 import { TextInput } from 'react-native-gesture-handler';
+import CreateWatchlistButton from './CreateWatchlistButton';
 
 
 
@@ -66,7 +67,7 @@ const CreateList = () => {
                     <TouchableOpacity
                       key={index}
                       onPress={() => onSelectEmoji(emoji)}
-                      style={styles.emojiContainer}
+                      style={[styles.emojiContainer, emoji == selectedEmoji && {backgroundColor: theme.colors.tertiary}]}
                     >
                       <Text style={styles.emoji}>{emoji}</Text>
                     </TouchableOpacity>
@@ -109,17 +110,10 @@ const CreateList = () => {
           <View style={{flex: 1, marginHorizontal: 20}}>
             <EmojiPicker onSelectEmoji={handleSelectEmoji} />
           </View>
-          <View style={{backgroundColor: theme.colors.background, width: '100%', height: 150, borderTopColor: theme.colors.primary, borderTopWidth: 2}}>
-            <View style={{alignItems: 'center', justifyContent: 'center', marginRight: 20}}>
-                <View style={{width: 60, height: 60, justifyContent: 'center', alignItems: 'center'}}>
-                <View style={{backgroundColor: theme.colors.accent, width: 51, height: 51, borderRadius: 10, position: 'absolute', right: 3, top: 6}}></View>
-                <View style={{backgroundColor: theme.colors.tertiary, width: 50, height: 50, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>{selectedEmoji}</Text>
-                </View>
-                </View>
-                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 12, maxWidth: 80}} adjustsFontSizeToFit>{name}</Text>
-            </View>
+          <View style={{marginBottom: 50}}>
+            <CreateWatchlistButton watchListName={name} watchListIcon={selectedEmoji} onCreateListPage={true}/>
           </View>
+
         </View>
     )
 }

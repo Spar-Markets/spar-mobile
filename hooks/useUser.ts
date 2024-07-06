@@ -14,11 +14,11 @@ interface UserData {
   skillRating: Number
   userID: string;
   username: string;
-  watchedStocks: [string]
   followers: [string],
   following: [string],
   outgoingFollowRequests: [string],
   incomingFollowRequests: [string]
+  watchLists: [object]
 }
 
 /**
@@ -35,9 +35,9 @@ const useUserData = (userID?: string) => {
     if (userID) {
       const fetchUserData = async () => {
         try {
-          console.log("server url FROM env:", `${process.env.SERVER_URL}`);
-          console.log("Server url endpoint:", `${serverUrl}/getUser`);
-          console.log("USEUSER, UserID:", userID);
+          //console.log("server url FROM env:", `${process.env.SERVER_URL}`);
+          //console.log("Server url endpoint:", `${serverUrl}/getUser`);
+          //console.log("USEUSER, UserID:", userID);
           const response = await axios.post(`${serverUrl}/getUser`, { userID });
           //console.log('Fetched User Data:', response.data);
           setUserData(response.data);

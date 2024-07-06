@@ -32,6 +32,8 @@ import {polygonKey} from '../../constants/global';
 import postSlice from '../../GlobalDataManagment/postSlice';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
+import WatchlistButton from '../HomeComponents/WatchlistButton';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
@@ -66,6 +68,10 @@ const StockDetails = () => {
 
   const [loading, setLoading] = useState(true)
   const [isWatchingStock, setIsWatchingStock] = useState<any>(null)
+
+  const [watchLists, setWatchLists] = useState<Object[]>([]);
+
+  const [queueToAdd, setQueueToAdd] = useState<string[]>([]);
 
   function formatLargeNumber(number: number) {
     if (number >= 1e12) {
@@ -186,7 +192,7 @@ const StockDetails = () => {
 
   const togglePopup = () => {
     setVisible(!visible);
-    translateY.value = withTiming(visible ? 300 : 0, {
+    translateY.value = withTiming(visible ? 400 : 0, {
       duration: 500,
       easing: Easing.out(Easing.exp), // You can use any Easing function you prefer here
     });
@@ -196,7 +202,43 @@ const StockDetails = () => {
     });
   };
 
+  useEffect(() => {
+    if (userData) {
+      setWatchLists(userData.watchLists);
+    }
+  }, [userData]);
 
+  const handleQueueChange = (watchListName: string) => {
+    setQueueToAdd((prevQueue) => {
+      if (prevQueue.includes(watchListName)) {
+        console.log(prevQueue.filter((name) => name !== watchListName))
+        return prevQueue.filter((name) => name !== watchListName);
+      } else {
+        console.log([...prevQueue, watchListName])
+        return [...prevQueue, watchListName];
+      }
+    });
+  };
+
+  const addToWatchlist = async () => {
+    if (userData?.userID) {
+      try {
+        console.log("Send waitlist straight to the moon");
+        console.log("UserID:",userData?.userID);
+        console.log("watchListNames", queueToAdd);
+        console.log("stockTicker:", ticker);
+        const response = await axios.post(serverUrl + "/addToWatchList", 
+        {userID: userData?.userID, watchListNames: queueToAdd, stockTicker: ticker})
+        if (response.status === 200) {
+          togglePopup()
+          setVisible(false)
+        }
+        
+      } catch (error) {
+        console.log("Error:", error)
+      }
+    }
+  }
 
   const PopupWatchlistSelector = () => {
   
@@ -205,6 +247,28 @@ const StockDetails = () => {
           <View style={styles.popupContent}>
             <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 18}}>Add {ticker} to a List</Text>
           </View>
+          <ScrollView style={{width: width}}>
+            
+            <CreateWatchlistButton/>
+            
+            <View style={{marginHorizontal: 20}}>
+              {watchLists.map((watchList:any, index) => {
+                return (
+                    <WatchlistButton key={index} 
+                    watchListName={watchList.watchListName} 
+                    watchListIcon={watchList.watchListIcon}
+                    numberOfAssets={watchList.watchedStocks.length}
+                    onAddToWatchListPage={true}
+                    isSelected={queueToAdd.includes(watchList.watchListName)}
+                    onQueueChange={handleQueueChange}
+                    />
+                );
+              })}
+            </View>
+          </ScrollView>
+          <TouchableOpacity onPress={addToWatchlist} style={{marginBottom: 50, backgroundColor: theme.colors.text, width: width-40, height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 15}}>
+              <Text style={{fontFamily: 'InterTight-Bold', color: theme.colors.background}}>Submit</Text>
+          </TouchableOpacity>
         </Animated.View>
     );
   };

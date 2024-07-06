@@ -605,7 +605,7 @@ const GameCard = (props: any) => {
               </View>
             </View>
           </View>
-          <View style={{ height: 190}}>
+          <View style={{ height: 204}}>
           <View style={{
                 position: 'absolute',
                 top: 10,

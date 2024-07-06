@@ -4,6 +4,8 @@ import {onAuthStateChanged} from 'firebase/auth';
 import {auth} from '../firebase/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import User from '../types/User';
+import {useDispatch} from 'react-redux';
+import {setUserIsMade} from '../GlobalDataManagment/userSlice';
 
 /**
  * Used to log in to firebase and persistence
@@ -13,11 +15,14 @@ const useAuth = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     const loadUser = async () => {
       const storedUser = await AsyncStorage.getItem('user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
+        dispatch(setUserIsMade(true));
       }
       setLoading(false);
     };

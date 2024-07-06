@@ -57,6 +57,8 @@ import RNFS from 'react-native-fs';
 import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
 import {setProfileImageUri} from '../../GlobalDataManagment/imageSlice';
 import SmallActivityIndicator from '../GlobalComponents/SmallActivityIndicator';
+import CreateWatchlistButton from './CreateWatchlistButton';
+import WatchlistButton from './WatchlistButton';
 
 const {width} = Dimensions.get('window');
 
@@ -86,18 +88,20 @@ const Home: React.FC = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const [balance, setBalance] = useState('0.00');
   const [searchingForMatch, setSearchingForMatch] = useState(false);
-  const [activeMatches, setActiveMatches] = useState<string[]>([]);
+  const [activeMatches, setActiveMatches] = useState<string[] | null>(null);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
   const [username, setUsername] = useState('');
   const [matchData, setMatchData] = useState<MatchData[]>([]);
   const [userID, setUserID] = useState('');
-  const [watchedStocks, setWatchedStocks] = useState<String[]>([]);
+  const [watchLists, setWatchLists] = useState<Object[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
 
   const dispatch = useDispatch();
   const {userData} = useUserDetails();
+
+  const [noMatches, setNoMatches] = useState(false)
 
   const isInMatchmaking = useSelector(
     (state: any) => state.user.isInMatchmaking,
@@ -197,7 +201,7 @@ const Home: React.FC = () => {
       console.log(`Server Url: ${process.env.SERVER_URL}`);
       console.log('getmatchdata', activeMatches);
       const md: MatchData[] = [];
-      for (const id of activeMatches) {
+      for (const id of activeMatches!) {
         const matchDataResponse = await axios.post(
           serverUrl + '/getMatchData',
           {matchID: id},
@@ -265,7 +269,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (userData) {
-      setWatchedStocks(userData.watchedStocks);
+      setWatchLists(userData.watchLists);
     }
   }, [userData]);
 
@@ -283,10 +287,13 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (activeMatches.length !== 0) {
-      getMatchData();
-    } else {
-      setLoading(false);
+    if (activeMatches){
+      if (activeMatches.length !== 0) {
+        getMatchData();
+      } else {
+        setNoMatches(true)
+        setLoading(false)
+      }
     }
   }, [activeMatches]);
 
@@ -394,59 +401,7 @@ const Home: React.FC = () => {
     );
   };
 
-  const createListButton = () => {
-    return (
-      <TouchableOpacity
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: 20,
-        }}
-        onPress={() => {
-          HapticFeedback.trigger('impactMedium', {
-            enableVibrateFallback: true,
-            ignoreAndroidSystemSettings: false,
-          });
-          navigation.navigate('CreateList');
-        }}>
-        <View
-          style={{
-            width: 60,
-            height: 60,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          {/*<View style={{backgroundColor: theme.colors.accent, width: 51, height: 51, borderRadius: 10, position: 'absolute', right: 3, top: 6}}></View>*/}
-          <View
-            style={{
-              backgroundColor: theme.colors.primary,
-              width: 50,
-              height: 50,
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: theme.colors.accent,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Icon
-              name="plus-circle"
-              size={24}
-              color={theme.colors.accent}></Icon>
-          </View>
-        </View>
-        <Text
-          style={{
-            fontFamily: 'InterTight-Black',
-            color: theme.colors.text,
-            fontSize: 12,
-            maxWidth: 80,
-          }}
-          adjustsFontSizeToFit>
-          Create List
-        </Text>
-      </TouchableOpacity>
-    );
-  };
+
 
   if (loading) {
     return (
@@ -480,14 +435,10 @@ const Home: React.FC = () => {
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            {profileImageUri ? (
-              <Image
-                style={styles.profilePic}
-                source={{uri: profileImageUri}}
-              />
-            ) : (
-              <View style={styles.profilePic}></View>
-            )}
+            <Image
+              style={{width: 19, height: 35}}
+              source={require('../../assets/images/logo.png')}
+            />
             <View style={{flex: 1}} />
             <TouchableOpacity>
               <Icon
@@ -510,6 +461,10 @@ const Home: React.FC = () => {
               transform: [{translateX: animation}],
             }}>
             <View>
+              {noMatches && 
+                <View style={{width: (Dimensions.get('window').width), height: 250, justifyContent: 'center', alignItems: 'center'}}>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>It looks empty in here...</Text>
+                </View>}
               <FlatList
                 data={
                   searchingForMatch || isInMatchmaking
@@ -579,8 +534,8 @@ const Home: React.FC = () => {
                       styles.enterHTHMatchBtn,
                       {
                         flex: 1,
-                        borderTopLeftRadius: 50,
-                        borderBottomLeftRadius: 50,
+                        borderTopLeftRadius: 10,
+                        borderBottomLeftRadius: 10,
                       },
                     ]}
                     onPress={() => {
@@ -595,8 +550,8 @@ const Home: React.FC = () => {
                       styles.enterHTHMatchBtn,
                       {
                         flex: 0.2,
-                        borderTopRightRadius: 50,
-                        borderBottomRightRadius: 50,
+                        borderTopRightRadius: 10,
+                        borderBottomRightRadius: 10,
                       },
                     ]}>
                     <Icon
@@ -648,30 +603,30 @@ const Home: React.FC = () => {
             <DiscoverCard title={"Referral Program"} image={require("../../assets/images/referralIcon.png")} message={"Refer your friend to Spar, and when they sign up and play a match, you get $5"} />
             <DiscoverCard title={"Spar Tutorials"} image={require("../../assets/images/tutorialsIcon.png")} message={"Learn about the functionality of Spar and develop your Spar skills to succeed"} />
                 </View>*/}
-          <View style={{marginTop: 20}}>
+          <View style={{marginVertical: 20}}>
             <Text
               style={{
                 color: theme.colors.text,
-                fontSize: 16,
+                fontSize: 20,
                 fontFamily: 'InterTight-Bold',
                 marginHorizontal: 20,
               }}>
               Lists
             </Text>
-            <ScrollView
-              horizontal
-              style={{paddingHorizontal: 20, marginVertical: 5}}
-              showsHorizontalScrollIndicator={false}>
-              {createListButton()}
-            </ScrollView>
+            
+            <CreateWatchlistButton/>
+            
             <View style={{marginHorizontal: 20}}>
-              {watchedStocks.map((ticker, index) => {
+              {watchLists.map((watchList:any, index) => {
                 return (
-                  <View key={index}>
-                    <View style={{width: width - 40}}>
-                      <StockCard ticker={ticker} />
-                    </View>
-                  </View>
+
+                    <WatchlistButton key={index} 
+                    watchListName={watchList.watchListName} 
+                    watchListIcon={watchList.watchListIcon}
+                    numberOfAssets={watchList.watchedStocks.length}
+                    assets={watchList.watchedStocks}
+                    />
+                  
                 );
               })}
             </View>

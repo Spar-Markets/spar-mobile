@@ -13,6 +13,8 @@ import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { getDownloadURL, ref } from 'firebase/storage';
+import { useDispatch } from 'react-redux';
+import {setUserIsMade} from '../../GlobalDataManagment/userSlice';
 
 const SignInScreen = (props: any) => {
   const { user } = useAuth();
@@ -33,6 +35,8 @@ const SignInScreen = (props: any) => {
   const emailInputRef = useRef<TextInput>(null);
 
   const passwordInputRef = useRef<TextInput>(null);
+
+  const dispatch = useDispatch();
   
   const handleSubmit = async () => {
     if(emailInput != "" && passwordInput != "") {
@@ -45,7 +49,9 @@ const SignInScreen = (props: any) => {
             if (credentials.user) {
                 //sets userID globally in async
                console.log(credentials.user)
-               await AsyncStorage.setItem('userID', (credentials.user as any).uid);
+               await AsyncStorage.setItem('userID', (credentials.user as any).uid).then(() => {
+                dispatch(setUserIsMade(true));
+              });;
             }
         
         } catch (error) {

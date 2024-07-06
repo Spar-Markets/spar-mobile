@@ -316,7 +316,7 @@ popup: {
   position: 'absolute',
   bottom: 0,
   width: '100%',
-  height: 300,
+  height: 400,
   backgroundColor: theme.colors.background,
   alignItems: 'center',
   shadowColor: '#000',
@@ -327,10 +327,11 @@ popup: {
   borderTopColor: theme.colors.primary,
   borderTopWidth: 2,
   zIndex: 2,
+ 
 },
 popupContent: {
-  flex: 1,
-  padding: 10,
+  paddingTop: 20,
+  paddingBottom: 5
 },
 
  
