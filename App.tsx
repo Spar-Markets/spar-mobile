@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Animated, StatusBar, View} from 'react-native';
@@ -61,12 +61,17 @@ const AppContent = (): React.ReactElement => {
   const {user, loading} = useAuth();
   const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
 
+
+  useEffect(() => {
+    console.log("userIsMade has changed", userIsMade);
+  },[userIsMade])
+
   if (loading) {
     return <SplashScreen />;
   }
 
   //onboard or main stack depending on user status
-  if (user && userIsMade) {
+  if (user && userIsMade == true) {
     return (
       <NavigationContainer theme={theme}>
         <StatusBar

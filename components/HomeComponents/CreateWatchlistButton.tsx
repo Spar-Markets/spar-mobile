@@ -77,7 +77,7 @@ const CreateWatchlistButton = (props:any) => {
             <Icon
               name="plus-circle"
               size={24}
-              color={theme.colors.accent}></Icon>
+              color={theme.colors.tertiary}></Icon>
             </View>
           </View>
           <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Create List</Text>

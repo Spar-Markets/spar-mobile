@@ -39,7 +39,7 @@ const CoreApp = (): React.ReactElement => {
   
               if (route.name === 'Home') {
                 iconName = 'home';
-              } else if (route.name === 'Stocks') {
+              } else if (route.name === 'Discover') {
                 iconName = 'search';
               } else if (route.name === 'Bank') {
                 iconName = 'bank';
@@ -60,11 +60,11 @@ const CoreApp = (): React.ReactElement => {
             tabBarInactiveTintColor: theme.colors.tertiary,
             tabBarStyle: { backgroundColor: theme.colors.background, 
               height: 80, borderTopWidth: 0}, // Black background for the tab bar
-            tabBarLabel: () => null
+            tabBarLabelStyle: {fontFamily: "InterTight-Bold", fontSize: 11}
             })}>
             
             <Tab.Screen name="Home" component={Home} options={{headerShown: false, title: 'Home'}}/>
-            <Tab.Screen name="Stocks" component={StockSearch} options={{headerShown: false}}/>
+            <Tab.Screen name="Discover" component={StockSearch} options={{headerShown: false}}/>
             <Tab.Screen name="Feed" component={Feed} options={{headerShown:false}}/>
             <Tab.Screen name="Bank" component={Bank} options={{headerShown: false}}/>
             <Tab.Screen name="Profile" component={Profile} options={{headerShown: false}}/>

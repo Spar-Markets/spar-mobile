@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { Text, TouchableOpacity, View, useColorScheme} from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { Svg, Circle } from 'react-native-svg';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
+import { Animated } from 'react-native';
 
 const Timer = (props: any) => {
 
@@ -48,10 +49,42 @@ const Timer = (props: any) => {
         }, 1000);
         return () => clearInterval(timer);
     }, [props.endDate]);
+
+        // Create an animated value
+        const fadeAnim = useRef(new Animated.Value(1)).current;
+
+        useEffect(() => {
+            const flashAnimation = () => {
+                Animated.sequence([
+                    Animated.timing(fadeAnim, {
+                        toValue: 0,
+                        duration: 1000,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(fadeAnim, {
+                        toValue: 1,
+                        duration: 1000,
+                        useNativeDriver: true,
+                    }),
+                ]).start(() => flashAnimation());
+            };
+    
+            flashAnimation();
+        }, [fadeAnim]);
     
 
     return (
         <View style={styles.timerContainer}>
+            <Animated.View style={{ opacity: fadeAnim }}>
+              <Svg height="10" width="10">
+                  <Circle
+                      cx="5"
+                      cy="5"
+                      r="4"
+                      fill={theme.colors.stockDownAccent}
+                  />
+              </Svg>
+            </Animated.View>
             <Text style={styles.timeText}>{timeRemaining}</Text>
         </View>
     )

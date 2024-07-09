@@ -49,6 +49,7 @@ const GameCard = (props: any) => {
   const [yourTotalPrice, setYourTotalPrice] = useState(0)
   const [oppTotalPrice, setOppTotalPrice] = useState(0)
   const [gotInitialPrices, setGotInitialPrices] = useState(false)
+  const [initialDataLoad, setInitialDataLoad] = useState(false)
   
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
@@ -170,26 +171,39 @@ const GameCard = (props: any) => {
     await getInitialPrices();
     console.log("Just ran step 4");
   }
+  
 
-  // grab updated match data every time gamecard comes into focus
+  // put into loading state when out of focus
   useFocusEffect(
     React.useCallback(() => {
-      console.log("------------------------------------------------------------------")
-      console.log("STEP 1: GETTING MATCH DATA FROM MONGO")
-      getMatchData()
-      console.log("POST STEP 1: Just got match data");
-    }, [])
+      //console.log("INITIAL DATA LOADED", initialDataLoad)
+      if (initialDataLoad) {
+        setLoading(false)
+      }
+      return () => {
+        console.log("INITIAL DATA LOADED", initialDataLoad)
+        setLoading(true);
+      }
+    }, [initialDataLoad])
   )
 
+
+  // grab updated match data every time gamecard comes into focus
+  useEffect(() => {
+    console.log("------------------------------------------------------------------")
+    console.log("STEP 1: GETTING MATCH DATA FROM MONGO")
+    getMatchData()
+    console.log("POST STEP 1: Just got match data");
+  }, [])
+
+
   //sets match data (i.e. point data, other username)
-  useFocusEffect(
-    React.useCallback(() => {
-      if (match) {
-        console.log("STEP 2: SETTING UNFORMATTED POINT DATA")
-        setData();
-      }
-    }, [match])
-  );
+  useEffect(() => {
+    if (match) {
+      console.log("STEP 2: SETTING UNFORMATTED POINT DATA")
+      setData();
+    }
+  }, [match]);
 
   // Log the state to check if data is populated
   useEffect(() => {
@@ -266,10 +280,16 @@ const GameCard = (props: any) => {
   useEffect(() => {
     if (gotInitialPrices == true) {
       console.log("STEP 5: INITIAL PRICES WERE SET")
-      //console.log(yourTickerPrices)
+      //console.log(yourTickerPrices
+      setInitialDataLoad(true)
+      console.log("SET INITIAL DATA LOAD TO TRUE")
       setLoading(false)
     }
   }, [gotInitialPrices])
+
+  useEffect(() => {
+    console.log("JOE LOG: Initial data load is now", initialDataLoad);
+  }, [initialDataLoad])
 
   //ALL SOCKET STUFF ---------------------------------------
   function uint8ArrayToString(array:any) {
@@ -299,10 +319,11 @@ const GameCard = (props: any) => {
   const RETRY_DELAY = 2000; // Delay between retries in milliseconds
 
 
-  /*useEffect(() => {
+  /* useEffect(() => {
     console.log("YOUR ASSETS:", yourAssets)
     console.log("OPP ASSETS:", opponentAssets)
-  }, [yourAssets, opponentAssets])*/
+  }, [yourAssets, opponentAssets])
+  */
   
   const setupSocket = async () => {    
     console.log("Opening socket with url:", websocketUrl);  
@@ -334,8 +355,6 @@ const GameCard = (props: any) => {
         if (event.data == "Websocket connected successfully") {
           return;
         }
-
-        
 
         const message = uint8ArrayToString(buffer); 
 
@@ -370,7 +389,6 @@ const GameCard = (props: any) => {
                 ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
               }
             }
-
      
             console.log("Updated your assets state:", yourUpdatedAssets);
 
@@ -401,7 +419,6 @@ const GameCard = (props: any) => {
         }
       };
 
-
     ws.current.onerror = (error) => {
         console.log('WebSocket error:', error || JSON.stringify(error));
         if (retries < MAX_RETRIES) {
@@ -420,40 +437,6 @@ const GameCard = (props: any) => {
     };
   };
 
-  // This is now useFocusEffect instead of useEffect
-  // runs the callback function every time screen is put into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log("Game card in focus");
-      // Do something while screen is focused
-
-      if (loading == false) {
-        console.log("Focus Assets:", yourAssets)
-        setupSocket();
-        
-        // cleanup code when screen is no longer focused
-      }
-      return () => {
-        // make loading true
-        console.log("Game card out of focus");
-        if (ws.current) {
-          setYourPointData(null)
-          setOpponentPointData(null)
-          setYourFormattedData(null)
-          setOppFormattedData(null)
-          setYourAssets(null)
-          setOpponentAssets(null)
-          setYourTickerPrices({})
-          setOppTickerPrices({})
-          setMatch(null)
-          setGotInitialPrices(false);
-          setLoading(true)
-          ws.current.close(1000, 'Closing websocket connection due to page being closed');
-          ws.current = null;  // Ensure the reference is cleared
-        }
-    };
-    }, [loading])
-  );
 
   //sets total live prices for each user
   useEffect(() => {
@@ -469,7 +452,7 @@ const GameCard = (props: any) => {
       }
     });
     setYourTotalPrice(yourTotalLivePrice + match[you]?.buyingPower)
-    if (yourFormattedData) {
+    if (yourFormattedData && yourFormattedData.length >= 1) {
       yourFormattedData[yourFormattedData.length-1].normalizedValue = yourTotalLivePrice + match[you]?.buyingPower - 100000
     }
 
@@ -483,7 +466,7 @@ const GameCard = (props: any) => {
       }
     });
     setOppTotalPrice(oppTotalLivePrice + match[opp]?.buyingPower)
-    if (oppFormattedData) {
+    if (oppFormattedData && oppFormattedData.length >= 1) {
       oppFormattedData[oppFormattedData.length-1].normalizedValue = oppTotalLivePrice + match[opp]?.buyingPower - 100000
     }
     /**/
@@ -551,6 +534,53 @@ const GameCard = (props: any) => {
   const length = 10;
   const arrayWithZeroValues = Array.from({ length }, (_, index) => ({ index, value: 0 }));
 
+  useEffect(() => {
+    if (initialDataLoad == true) {
+      setupSocket();
+    }
+  }, [initialDataLoad])
+
+  // This is now useFocusEffect instead of useEffect
+  // runs the callback function every time screen is put into focus
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     console.log("Game card in focus");
+  //     // Do something while screen is focused
+
+  //     if (loading == false) {
+  //       console.log("Focus Assets:", yourAssets)
+  //       setupSocket();
+        
+  //       // cleanup code when screen is no longer focused
+  //     }
+  //     return () => {
+  //       // make loading true
+  //       console.log("Game card out of focus");
+  //       if (ws.current) {
+  //         setYourPointData(null)
+  //         setOpponentPointData(null)
+  //         setYourFormattedData(null)
+  //         setOppFormattedData(null)
+  //         setYourAssets(null)
+  //         setOpponentAssets(null)
+  //         setYourTickerPrices({})
+  //         setOppTickerPrices({})
+  //         setMatch(null)
+  //         setGotInitialPrices(false);
+  //         setLoading(true)
+  //         ws.current.close(1000, 'Closing websocket connection due to page being closed');
+  //         ws.current = null;  // Ensure the reference is cleared
+  //       }
+  //   };
+  //   }, [loading])
+  // );
+  
+  if (loading && initialDataLoad) {
+    return (
+      <View style={{height: 250, width: width}}></View>
+    )
+  }
+
 
   return (
     <View>
@@ -567,18 +597,18 @@ const GameCard = (props: any) => {
       }>
         <View style={{borderRadius: 8}}>
           <View style={{ flexDirection: 'row' }}>
-            <View style={styles.gameCardAmountWageredContainer}>
-              <Text style={styles.gameCardAmountWageredText}>${match.wagerAmt}</Text>
-            </View>
             <View style={styles.gameCardModeContainer}>
               <Text style={styles.gameCardModeText}>{match.matchType}</Text>
             </View>
+            <LinearGradient colors={["#FFD700", "#FFA500"]} style={styles.gameCardAmountWageredContainer}>
+              <Text style={styles.gameCardAmountWageredText}>${match.wagerAmt}</Text>
+            </LinearGradient>
             <View style={{ flex: 1 }}></View>
             <Timer endDate={match.endAt} timeFrame={match.timeFrame} />
           </View>
-          <View style={{ gap: 10, marginHorizontal: 10, marginTop: 10, flex: 1, flexDirection: 'row'}}>
+          <View style={{ gap: 10, marginHorizontal: 20, paddingTop: 10,flexDirection: 'row'}}>
             <View>
-            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center'}}>
               <View style={[styles.gameCardIndicator, { backgroundColor: yourColor }]}></View>
                 <View style={{ justifyContent: 'center' }}>
                   <Text style={styles.gameCardPlayerText}>You</Text>
@@ -605,7 +635,7 @@ const GameCard = (props: any) => {
               </View>
             </View>
           </View>
-          <View style={{ height: 204}}>
+          <View style={{marginTop: 5, height: 150}}>
           <View style={{
                 position: 'absolute',
                 top: 10,
@@ -628,6 +658,7 @@ const GameCard = (props: any) => {
                   }}
                 </CartesianChart>
               </View>
+            {oppFormattedData && oppFormattedData?.length >= 1 && 
             <View style={{
                 position: 'absolute',
                 top: 10,
@@ -651,7 +682,8 @@ const GameCard = (props: any) => {
                 </>
               )}
             </CartesianChart>
-            </View>
+            </View>}
+            {yourFormattedData && yourFormattedData.length >= 1 && 
             <View style={{
                 position: 'absolute',
                 top: 10,
@@ -675,7 +707,7 @@ const GameCard = (props: any) => {
                 </>
               )}
             </CartesianChart>
-            </View>
+            </View>}
           </View>
         </View>
     </TouchableOpacity>

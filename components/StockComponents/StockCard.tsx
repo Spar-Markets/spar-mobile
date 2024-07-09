@@ -10,6 +10,7 @@ import axios from 'axios'
 import {serverUrl, websocketUrl} from '../../constants/global';
 import getMarketFraction from '../../utility/getMarketFraction'
 import { Skeleton } from '@rneui/base';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 
@@ -23,6 +24,8 @@ const StockCard = (props:any) => {
     const [isLoading, setIsLoading] = useState(true)
 
     const [name, setName] = useState("")
+
+    const [currentIcon, setCurrentIcon] = useState("")
 
 
     useEffect(() => {
@@ -161,11 +164,13 @@ const StockCard = (props:any) => {
             (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
       
           if (valueDiff < 0) {
-            setValueDiff("-$" + Math.abs(valueDiff).toFixed(2));
+            setValueDiff("$" + Math.abs(valueDiff).toFixed(2));
             setCurrentAccentColor(theme.colors.stockDownAccent)
+            setCurrentIcon("arrow-circle-down")
           } else {
             setValueDiff("$" + Math.abs(valueDiff).toFixed(2));
             setCurrentAccentColor(theme.colors.stockUpAccent)
+            setCurrentIcon("arrow-circle-up")
           }
         } else {
           setPercentDiff("0.00");
@@ -283,14 +288,14 @@ const StockCard = (props:any) => {
     if (isLoading) {
         return (
         <View>
-        <View style={{marginVertical: 10, height: 40, width: width-40}}>
+        <View style={{marginVertical: 10, height: 40, width: width-70}}>
           <View style={{flexDirection: 'row'}}>
             <View>
-              <Skeleton animation={"pulse"} height={20} width={45} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+              <Skeleton animation={"pulse"} height={20} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5, width: 45}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
               <Skeleton animation={"pulse"} height={10} width={90} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
             </View>
             <View style={{flex: 1, marginHorizontal: 30}}>
-            <Skeleton animation={"pulse"} height={35} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
+              <Skeleton animation={"pulse"} height={35} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
             </View>
             <View style={{alignItems: 'flex-end'}}>
               <Skeleton animation={"pulse"} height={20} width={45} style={{backgroundColor: theme.colors.primary, borderRadius: 10, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.tertiary}}></Skeleton>
@@ -298,7 +303,7 @@ const StockCard = (props:any) => {
             </View>
           </View>
         </View>
-        <View style={{height: 1, width: '100%', backgroundColor: theme.colors.tertiary, marginVertical: 10}}/></View>)
+        </View>)
     }
 
     return (
@@ -309,7 +314,7 @@ const StockCard = (props:any) => {
           
             })}>
 
-                <View style={{flexDirection: 'row', marginVertical: 10, gap: 40, justifyContent: 'center', height: 40}}>
+                <View style={{flexDirection: 'row', marginVertical: 10, gap: 20, justifyContent: 'center', height: 40}}>
                     <View style={{justifyContent: 'center'}}>
                         <Text style={styles.stockCardTicker}>{props.ticker}</Text>
                         <Text style={[styles.stockCardName, {width: width/4}]} numberOfLines={1} ellipsizeMode='tail'>{name}</Text>
@@ -327,12 +332,12 @@ const StockCard = (props:any) => {
                     </CartesianChart>}
                     <View style={{justifyContent: 'center'}}>
                         <Text style={styles.stockCardValue}>${(pointData[pointData.length-1].value).toFixed(2)}</Text>
-                        <View style={{backgroundColor: hexToRGBA(currentAccentColor, 0.3), paddingHorizontal: 10, paddingVertical: 3, justifyContent: 'center', alignItems: 'center', borderRadius: 5}}>
+                        <View style={{backgroundColor: hexToRGBA(currentAccentColor, 0.3), paddingHorizontal: 10, paddingVertical: 3, justifyContent: 'center', alignItems: 'center', borderRadius: 5, flexDirection: 'row', gap: 5}}>
+                          <Icon name={currentIcon} color={currentAccentColor}/>
                           <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
                         </View>
                     </View>
                 </View>
-                <View style={{height: 1, width: '100%', backgroundColor: theme.colors.tertiary, marginVertical: 10}}/>
         </TouchableOpacity>
     )
 }

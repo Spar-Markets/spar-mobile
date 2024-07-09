@@ -3,7 +3,8 @@ import { Pressable, Platform, Image, Button, StatusBar, StyleSheet, Text, Toucha
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
-import MIcon from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CircularProgress from 'react-native-circular-progress-indicator';
 import { SvgXml } from 'react-native-svg';
 import { serverUrl } from '../../constants/global';
@@ -22,6 +23,9 @@ import ImageResizer from '@bam.tech/react-native-image-resizer'
 import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import { useDispatch, useSelector } from 'react-redux';
 import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
+import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
+import WatchlistButton from '../HomeComponents/WatchlistButton';
+import { SegmentedButtons } from 'react-native-paper';
 
 
 const Profile  = ({ navigation }: any) => {
@@ -30,7 +34,10 @@ const Profile  = ({ navigation }: any) => {
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
   const [image, setImage] = useState<string | null>(null)
+  const [watchLists, setWatchLists] = useState<Object[]>([]);
 
+  MaterialCommunityIcons.loadFont()
+  MaterialIcons.loadFont()
 
   const { userData } = useUserDetails();
 
@@ -52,6 +59,12 @@ const Profile  = ({ navigation }: any) => {
     };
     getProfileImage();
   }, []);
+
+  useEffect(() => {
+    if (userData) {
+      setWatchLists(userData.watchLists);
+    }
+  }, [userData]);
 
   const dispatch = useDispatch();
   const profileImageUri = useSelector((state:any) => state.image.profileImageUri);
@@ -102,6 +115,8 @@ const Profile  = ({ navigation }: any) => {
     }
   }, [image]);
 
+  const [value, setValue] = useState('');
+
  
   if (loading || !userData) {
     return <View></View>
@@ -110,73 +125,131 @@ const Profile  = ({ navigation }: any) => {
   return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.usernameText}>{userData?.username}</Text>
           <View style={{flex: 1}}></View>
           <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate("ProfileSearch")}>
             <Icon name={"search"} size={24} color={theme.colors.opposite} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate("ProfileActivity")}>
             <Icon name={"heart"} size={24} color={theme.colors.opposite}></Icon>
-            <View style={{position: 'absolute', right:5, top:0, height: 10, width: 10, backgroundColor: 'red', borderRadius: 100}}></View>
+            <View style={{position: 'absolute', right:5, top:-2, height: 12, width: 12, backgroundColor: 'red', borderRadius: 100, borderWidth: 2, borderColor: theme.colors.background}}></View>
           </TouchableOpacity>
         </View>
-        <ScrollView>
-          <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, marginHorizontal: 20}}>
-          <TouchableOpacity style={styles.profileContainer} onPress={choosePhotoFromLibrary}>
+        <ScrollView style={{marginHorizontal: 20}}>
+          
+          <TouchableOpacity onPress={choosePhotoFromLibrary}>
             {image ? <Image style={styles.profilePic} source={{uri: image}}/> : 
               <View style={styles.profilePic}>
-                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 30}}>{userData?.username.slice(0,1).toUpperCase()}</Text>
+                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 15}}>{"💸"/*userData?.username.slice(0,1).toUpperCase()*/}</Text>
               </View>}
           </TouchableOpacity>
-            <TouchableOpacity style={styles.mainContainer}>
-              <Text style={styles.mainContainerType}>Wins</Text>
-              <Text style={styles.mainContainerText}>23</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.mainContainer}>
-              <Text style={styles.mainContainerType}>Followers</Text>
-              <Text style={styles.mainContainerText}>{userData?.followers ? userData?.followers.length : 0 ?? 0}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.mainContainer}>
-              <Text style={styles.mainContainerType}>Following</Text>
-              <Text style={styles.mainContainerText}>{userData?.following ? userData?.following.length : 0 ?? 0}</Text>
-            </TouchableOpacity>
           
+         
+          <View style={{marginTop: 15}}>
+            <Text style={styles.usernameText}>{userData?.username}</Text>
           </View>
-          <View style={{marginHorizontal: 20, marginTop: 20, flexDirection: 'row', alignItems: 'center', gap: 10}}>
-            <Text style={styles.usernameText}>Xipeng Chen</Text>
-            <View style={styles.rankContainer}>
-              <Text style={styles.rankText}>Diamond Trader</Text>
-            </View>
-          </View>
-          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Regular', marginHorizontal: 20, marginTop: 10}}>Trader at Citadel, World Chess Champion</Text>
 
-          {/*<View style={{marginTop: 20}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 20}}>
-              <Text style={styles.labelText}>Friends</Text>
-              <TouchableOpacity style={styles.findFriendsBtn}>
-                <Text style={styles.findFriendsBtnTxt}>Find People</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{marginTop: 10, paddingHorizontal: 20}}>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic1.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic2.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic3.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic4.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
-              </TouchableOpacity>
-            </ScrollView>
+          <View style={{flexDirection: 'row', gap: 10, marginVertical: 10}}>
+            <TouchableOpacity style={styles.mainContainer}>
+              <Text style={styles.mainContainerType}>{userData?.followers ? userData?.followers.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Followers</Text></Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.mainContainer}>
+              <Text style={styles.mainContainerType}>{userData?.following ? userData?.following.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Following</Text></Text>
+            </TouchableOpacity>
+          </View>
+          
+          <Text style={styles.bioText}>Trading is too easy</Text>
+          
+          {/*REFER A FRIEND*/}
+          <View style={{marginTop: 15}}>
+            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.purpleAccent, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
+              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.opposite, justifyContent: 'center', alignItems: 'center'}}>
+                <Icon name={"gift"} size={24} color={theme.colors.background}></Icon>
+              </View>
+              <View>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Refer a Friend</Text>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Medium'}}>Invite your friends and get $5</Text>
+              </View>
+              <View style={{flex: 1}}></View>
+              <Icon name={"chevron-right"} size={24} color={theme.colors.opposite} style={{marginRight: 10}}></Icon>
+            </TouchableOpacity>
+          </View>
+
+          {/*ACCOUNT*/}
+          <View style={{marginTop: 15}}>
+            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.primary, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
+              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center'}}>
+                <Icon name={"user"} size={24} color={theme.colors.text}></Icon>
+              </View>
+              <View>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Account</Text>
+              </View>
+              <View style={{flex: 1}}></View>
+              <Icon name={"chevron-right"} size={24} color={theme.colors.secondary} style={{marginRight: 10}}></Icon>
+            </TouchableOpacity>
+          </View>
+
+          {/*Activity*/}
+          <View style={{marginTop: 15}}>
+            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.primary, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
+              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center'}}>
+                <Icon name={"area-chart"} size={24} color={theme.colors.text}></Icon>
+              </View>
+              <View>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Activity</Text>
+              </View>
+              <View style={{flex: 1}}></View>
+              <Icon name={"chevron-right"} size={24} color={theme.colors.secondary} style={{marginRight: 10}}></Icon>
+            </TouchableOpacity>
+          </View>
+
+          {/*Settings*/}
+          <View style={{marginTop: 15}}>
+            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.primary, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
+              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center'}}>
+                <Icon name={"gear"} size={24} color={theme.colors.text}></Icon>
+              </View>
+              <View>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Settings</Text>
+              </View>
+              <View style={{flex: 1}}></View>
+              <Icon name={"chevron-right"} size={24} color={theme.colors.secondary} style={{marginRight: 10}}></Icon>
+            </TouchableOpacity>
+          </View>
+
+
+          
+
+          
+          
+          <View style={{marginVertical: 20}}>
+            {/*<Text
+              style={{
+                color: theme.colors.text,
+                fontSize: 20,
+                fontFamily: 'InterTight-Bold',
+                marginHorizontal: 20,
+              }}>
+              Lists
+            </Text>
             
+            <CreateWatchlistButton/>
+            
+            <View style={{marginHorizontal: 20}}>
+              {watchLists.map((watchList:any, index) => {
+                return (
+
+                    <WatchlistButton key={index} 
+                    watchListName={watchList.watchListName} 
+                    watchListIcon={watchList.watchListIcon}
+                    numberOfAssets={watchList.watchedStocks.length}
+                    assets={watchList.watchedStocks}
+                    />
+                  
+                );
+              })}
             </View>*/}
+          </View>
+
         </ScrollView>
       </View>
     );

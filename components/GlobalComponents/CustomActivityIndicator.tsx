@@ -6,7 +6,7 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import { Text } from 'react-native';
 
-const CustomActivityIndicator = ({ size = 50, color = '#000' }) => {
+const CustomActivityIndicator = ({ size = 50, color = '#000', text="" }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const { theme } = useTheme();
@@ -48,6 +48,7 @@ const CustomActivityIndicator = ({ size = 50, color = '#000' }) => {
           />
         </Svg>
       </Animated.View>
+      {text != "" && <Text>{text}</Text>}
     </View>
   );
 };

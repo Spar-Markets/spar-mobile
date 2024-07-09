@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   Image,
   Text,
@@ -34,6 +34,7 @@ import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
 import WatchlistButton from '../HomeComponents/WatchlistButton';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
@@ -111,6 +112,9 @@ const StockDetails = () => {
   const [asset, setAsset] = useState<any | null>(null)
   const [owns, setOwns] = useState(false)
 
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  
+
   useEffect(() => {
     if (params?.assets) {
       console.log(params?.assets)
@@ -147,61 +151,6 @@ const StockDetails = () => {
     }
   }, [userData, params]);
 
-  /*useEffect(() => {
-    if (tickerData != null && isWatchingStock != null) {
-      //console.log("FINAL USE EFFECT STOCK:", isWatchingStock)
-      setLoading(false)
-    } else {
-      setLoading(true)
-    }
-  }, [isWatchingStock])*/
-
-  const toggleWatchStock = async () => {
-    try {
-      //setIsWatchingStock(!isWatchingStock)
-      togglePopup()
-     /* if (isWatchingStock) {
-        const watchStockResponse = await axios.post(serverUrl+"/unwatchStock", 
-          {userID: userData?.userID, ticker: tickerData.detailsResponse.results.ticker})
-        console.log(watchStockResponse.data)
-      } else {
-        const watchStockResponse = await axios.post(serverUrl+"/watchStock", 
-          {userID: userData?.userID, ticker: tickerData.detailsResponse.results.ticker})
-        console.log(watchStockResponse.data)
-      }*/
-    } catch {
-      console.log("error watching stock")
-    }
-  }
-
-  const [visible, setVisible] = useState(false);
-  const translateY = useSharedValue(700); // Initial position off the screen
-  const dimOpacity = useSharedValue(0);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
-
-  const dimStyle = useAnimatedStyle(() => {
-    return {
-      opacity: dimOpacity.value,
-    };
-  });
-
-  const togglePopup = () => {
-    setVisible(!visible);
-    translateY.value = withTiming(visible ? 400 : 0, {
-      duration: 500,
-      easing: Easing.out(Easing.exp), // You can use any Easing function you prefer here
-    });
-    dimOpacity.value = withTiming(visible ? 0 : 0.5, {
-      duration: 500,
-      easing: Easing.out(Easing.exp),
-    });
-  };
-
   useEffect(() => {
     if (userData) {
       setWatchLists(userData.watchLists);
@@ -230,8 +179,7 @@ const StockDetails = () => {
         const response = await axios.post(serverUrl + "/addToWatchList", 
         {userID: userData?.userID, watchListNames: queueToAdd, stockTicker: ticker})
         if (response.status === 200) {
-          togglePopup()
-          setVisible(false)
+          closeListMenu()
         }
         
       } catch (error) {
@@ -240,39 +188,25 @@ const StockDetails = () => {
     }
   }
 
-  const PopupWatchlistSelector = () => {
-  
-    return (
-        <Animated.View style={[styles.popup, animatedStyle]}>
-          <View style={styles.popupContent}>
-            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 18}}>Add {ticker} to a List</Text>
-          </View>
-          <ScrollView style={{width: width}}>
-            
-            <CreateWatchlistButton/>
-            
-            <View style={{marginHorizontal: 20}}>
-              {watchLists.map((watchList:any, index) => {
-                return (
-                    <WatchlistButton key={index} 
-                    watchListName={watchList.watchListName} 
-                    watchListIcon={watchList.watchListIcon}
-                    numberOfAssets={watchList.watchedStocks.length}
-                    onAddToWatchListPage={true}
-                    isSelected={queueToAdd.includes(watchList.watchListName)}
-                    onQueueChange={handleQueueChange}
-                    />
-                );
-              })}
-            </View>
-          </ScrollView>
-          <TouchableOpacity onPress={addToWatchlist} style={{marginBottom: 50, backgroundColor: theme.colors.text, width: width-40, height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 15}}>
-              <Text style={{fontFamily: 'InterTight-Bold', color: theme.colors.background}}>Submit</Text>
-          </TouchableOpacity>
-        </Animated.View>
-    );
+  const expandListMenu = async () => {
+    try {
+      bottomSheetRef.current?.expand(); // Expand the Bottom Sheet when star is clicked
+    } catch {
+      console.log('error watching stock');
+    }
   };
-  
+
+  const closeListMenu = async () => {
+    try {
+      bottomSheetRef.current?.close(); // Expand the Bottom Sheet when star is clicked
+    } catch {
+      console.log('error watching stock');
+    }
+  };
+
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
   if (loading) {
     return (
@@ -293,10 +227,10 @@ const StockDetails = () => {
             {params?.inGame != true && <View style={{}}>
               
               {isWatchingStock ? 
-                <TouchableOpacity style={styles.headerRightBtn} onPress={toggleWatchStock}>
+                <TouchableOpacity style={styles.headerRightBtn} onPress={expandListMenu}>
                   <Icon name="star" style={{color: "#fac61e"}} size={28}/> 
                 </TouchableOpacity> : 
-                <TouchableOpacity style={styles.headerRightBtn} onPress={toggleWatchStock}>
+                <TouchableOpacity style={styles.headerRightBtn} onPress={expandListMenu}>
                   <Icon name="star-o" style={{color: theme.colors.opposite}} size={28}/>
                 </TouchableOpacity>}
               
@@ -304,7 +238,7 @@ const StockDetails = () => {
               </View>}
             {tickerData != null && params != undefined  ? (
               <ScrollView style={{paddingBottom: 60}} showsVerticalScrollIndicator={false}>
-                <View>
+                <View >
                   <StockDetailGraph 
                     ticker={ticker} 
                     livePrice={livePrice} 
@@ -454,14 +388,48 @@ const StockDetails = () => {
             }
           </View>
           }
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={['50%']}
+        index={-1}
+        enablePanDownToClose
+        onChange={handleSheetChanges}  
+        backgroundStyle={{backgroundColor: theme.colors.primary, borderColor: theme.colors.secondary, borderTopWidth: 1, borderRadius: 0}}
+        handleIndicatorStyle={{backgroundColor: theme.colors.opposite}}
+      >
+        <BottomSheetView style={{flex: 1}}>
+        <View style={styles.popup}>
+          <View style={styles.popupContent}>
+            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 18}}>Add {ticker} to a List</Text>
+          </View>
+          <ScrollView style={{width: width}}>
+            
+            <CreateWatchlistButton/>
+            
+            <View style={{marginHorizontal: 20}}>
+              {watchLists.map((watchList:any, index) => {
+                return (
+                    <WatchlistButton key={index} 
+                    watchListName={watchList.watchListName} 
+                    watchListIcon={watchList.watchListIcon}
+                    numberOfAssets={watchList.watchedStocks.length}
+                    onAddToWatchListPage={true}
+                    isSelected={queueToAdd.includes(watchList.watchListName)}
+                    onQueueChange={handleQueueChange}
+                    />
+                );
+              })}
+            </View>
+          </ScrollView>
+          <TouchableOpacity onPress={addToWatchlist} style={{marginBottom: 50, backgroundColor: theme.colors.text, width: width-40, height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 15}}>
+              <Text style={{fontFamily: 'InterTight-Bold', color: theme.colors.background}}>Submit</Text>
+          </TouchableOpacity>
         </View>
+        </BottomSheetView>
+        </BottomSheet>
+        </View>
+        
       )}
-      {visible && (
-        <Animated.View style={[styles.dimBackground, dimStyle]}>
-          <TouchableOpacity style={styles.dimTouchable} onPress={togglePopup} />
-        </Animated.View>
-      )}
-      <PopupWatchlistSelector/>
     </View>
   );
 };

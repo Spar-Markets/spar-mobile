@@ -40,6 +40,7 @@ const ToggleButton = ({onToggle}:any) => {
 
     return (
         <View style={styles.toggleContainer}>
+            <View style={[styles.animatedBackground, {backgroundColor: theme.colors.tertiary, height: 2, width: '100%', marginTop: 39}]}/>
             <Animated.View style={[styles.animatedBackground, {left: animation}]}/>
             <TouchableOpacity style={styles.toggleButton} onPress={() => handleToggle('head-to-head')}>
                 <Animated.Text style={[styles.toggleText, {color: headToHeadColor}]}>Head-to-Head</Animated.Text>

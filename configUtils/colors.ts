@@ -6,12 +6,13 @@
 export const darkColors = {
     dark: true,
     colors: {
-        primary: '#1a3040', //main boxes
-        secondary: '#27475e',
-        tertiary: '#366485',
-        background: '#111f29',
+        primary: '#212121',//'#1a3040', //main boxes
+        secondary: '#424242',
+        tertiary: '#636363',
+        background: '#111111',
         border: '#000',
         accent: '#60FFCF', //most buttons
+        darkAccent: '#32CD32',
         accent2: '#3c3c3c', //border, some buttons
         text: '#ffffff', 
         secondaryText: '#909090',
@@ -30,7 +31,8 @@ export const darkColors = {
         news: '#0000dd',
         dub: '#dd00dd',
         question: '#00dddd',
-        darkAccent: '#1e634e'
+        purpleAccent: '#3357FF'
+
 
 
         
@@ -64,7 +66,8 @@ export const lightColors = {
         news: '#0000dd',
         dub: '#dd00dd',
         question: '#00dddd',
-        darkAccent: '#154234'
+        darkAccent: '#154234',
+        purpleAccent: '#3357FF'
     }
 }
 

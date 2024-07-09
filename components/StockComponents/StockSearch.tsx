@@ -1,159 +1,158 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   TouchableOpacity,
   View,
-  useColorScheme,
-  NativeModules,
   TextInput,
-  FlatList,
+  SectionList,
+  useColorScheme,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
-import {serverUrl} from '../../constants/global';
-import StockCard from '../StockCard';
 import fuzzysort from 'fuzzysort';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockSearchStyles from '../../styles/createStockStyles';
-
 import useUserDetails from '../../hooks/useUserDetails';
 import SearchCard from './SearchCard';
-import GainerCard from './GainerCard';
+import { serverUrl } from '../../constants/global';
+import UserCard from '../ProfileComponents/UserCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface stockObject {
+interface StockObject {
   ticker: string;
   companyName: string;
 }
 
-const StockSearch = () => {
+interface ProfileObject {
+  username: string;
+  userID: string;
+}
 
+interface CombinedObject {
+  ticker?: string;
+  companyName?: string;
+  username?: string;
+  userID?: string;
+  type: 'profile' | 'stock';
+}
+
+const StockSearch: React.FC = () => {
   const { theme } = useTheme();
-  const { width, height } = useDimensions();
+  const { width } = useDimensions();
   const styles = createStockSearchStyles(theme, width);
 
   const navigation = useNavigation<any>();
-  const colorScheme = useColorScheme();
-  const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [stockSearch, setStockSearch] = useState('');
-  const [listOfTickers, setListOfTickers] = useState<stockObject[]>([]);
-  const [searchResults, setSearchResults] = useState<stockObject[]>([]);
+  const [listOfTickers, setListOfTickers] = useState<StockObject[]>([]);
+  const [listOfProfiles, setProfileList] = useState<ProfileObject[]>([]);
+  const [sections, setSections] = useState<any[]>([]);
+
+  const [isFocused, setIsFocused] = useState(false);
+
+  const {userData} = useUserDetails();
+
+  const [following, setFollowing] = useState<String[]>([])
+  const [followers, setFollowers] = useState<String[]>([])
 
   const goBack = () => {
     navigation.goBack();
   };
 
+
   const updateTickerList = async () => {
-    const response = await axios.get(serverUrl + '/getTickerList');
-    setListOfTickers(response.data);
+    try {
+      const response = await axios.get(serverUrl + '/getTickerList');
+      const response2 = await axios.post(serverUrl + '/getProfileList');
+      const tickerlistresponse = response.data;
+      const profileListResponse = response2.data;
+      
+      setProfileList(profileListResponse);
+      setListOfTickers(tickerlistresponse);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
-
-  const { userData } = useUserDetails();
-  const [gainerList, setGainerList] = useState<any[]>([])
-
-  useEffect(() => {
-    const getGainers = async () => {
-      try {
-        console.log("Getting Gainers");
-        const response = await axios.post(serverUrl + '/getGainers');
-        if (response.data) {
-          setGainerList(response.data.tickers)
-        }
-      } catch (error) {
-        console.error("Error fetching gainers:", error);
-      }
-    };
-  
-    getGainers();
-  }, []);
 
   useEffect(() => {
     updateTickerList();
   }, []);
 
-  const handleSearch = async (text: string) => {
+  const handleSearch = (text: string) => {
     setStockSearch(text);
+    setFollowing(userData?.following ?? [])
+    setFollowers(userData?.followers ?? [])
     if (text) {
-      const results = fuzzysort.go(text, listOfTickers, {
+      const stockResults = fuzzysort.go(text, listOfTickers, {
         keys: ['ticker', 'companyName'],
-        limit: 7
-      })
+        limit: 5,
+      });
 
-      const formattedResults: stockObject[] = []
-      for (let result of results) {
-        formattedResults.push(result.obj);
-      }
+      const profileResults = fuzzysort.go(text, listOfProfiles, {
+        keys: ['username'],
+        limit: 7,
+      });
 
-      setSearchResults(formattedResults);
+      const formattedStockResults = stockResults.map(result => ({
+        ...result.obj,
+        type: 'stock',
+      }));
+      const formattedProfileResults = profileResults.map(result => ({
+        ...result.obj,
+        type: 'profile',
+      }));
+
+      const sections = [
+        { title: 'Stocks', data: formattedStockResults },
+        { title: 'Profiles', data: formattedProfileResults },
+      ].filter(section => section.data.length > 0);
+
+      setSections(sections);
+    } else {
+      setSections([]);
     }
   };
 
-  const CategoryButton = (category: string) => {
-    return (
-      <TouchableOpacity style={{backgroundColor: theme.colors.primary, borderRadius: 10}}>
-        <Text
-          style={styles.categoryButton}>
-          {category}
-        </Text>
-      </TouchableOpacity>
-    );
+  const renderItem = ({ item }: { item: CombinedObject }) => {
+    if (item.type === 'profile') {
+      return <UserCard username={item.username} otherUserID={item.userID} yourUserID={userData?.userID} following={following} followers={followers}/>;
+    }
+    return <SearchCard ticker={item.ticker} name={item.companyName} />;
   };
+
+  const renderSectionHeader = ({ section: { title } }: { section: { title: string } }) => (
+    <View style={[title == "Profiles" && {paddingVertical: 10}, {backgroundColor: theme.colors.background, marginHorizontal: 20}]}>
+      <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 24}}>{title}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Discover</Text>
       </View>
+      <View>
       <TextInput
-        style={styles.searchBox}
+        style={[styles.searchBox, isFocused && { borderWidth: 2, borderColor: theme.colors.text }]}
         onChangeText={handleSearch}
         value={stockSearch}
-        placeholder="Search Stocks, Crypto..."
+        placeholder="Search Assets & People..."
+        placeholderTextColor={theme.colors.tertiary}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
       />
-      <View style={{}}>
-        {stockSearch == '' ? (
-          /*<View style={{marginHorizontal: 20}}>
-            <Text
-              style={{
-                fontFamily: 'InterTight-Black',
-                color: 'white',
-                fontSize: 14,
-                marginLeft: 5
-              }}>
-              Explore by Category
-            </Text>
-            <View style={{flexDirection: 'row', gap: 5, marginTop: 15}}>
-              {CategoryButton('Artifical Intelligence')}
-              {CategoryButton('Semiconductors')}
-              {CategoryButton('Biotechnology')}
-            </View>
-            <View style={{flexDirection: 'row', gap: 5, marginTop: 10}}>
-              {CategoryButton('Consumer Discretionary')}
-              {CategoryButton('Financials')}
-              {CategoryButton('Energy')}
-            </View>
-            </View>*/
-            <View>
-
-            </View>
+      </View>
+      <View style={{flex: 1}}>
+        {stockSearch === '' ? (
+          <View></View>
         ) : (
-          <View>
-            <FlatList
-              data={searchResults}
-              keyExtractor={item => item.ticker}
-              renderItem={({item}) => (
-                <View>
-                  {/* <Text style={{color: '#FFFFFF'}}>
-                    {item.ticker} - {item.companyName}
-                  </Text> */}
-                  <SearchCard
-                    ticker={item.ticker} name={item.companyName}/>
-                </View>
-              )}
+          <SectionList
+            sections={sections}
+            keyExtractor={item => item.type === 'profile' ? item.username! : item.ticker!}
+            renderItem={renderItem}
+            renderSectionHeader={renderSectionHeader}
+            keyboardDismissMode='on-drag'
             />
-          </View>
         )}
       </View>
     </View>

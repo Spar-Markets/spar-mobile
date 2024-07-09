@@ -15,21 +15,35 @@ const SearchCard = (props:any) => {
 
 
     return (
-        <TouchableOpacity onPress={() =>
-            navigation.navigate('StockDetails', {
-              matchID: props.matchID,
-              buyingPower: props.buyingPower,
-              ticker: props.ticker,
-              assets: props.assets,
-              inGame: props.inGame,
-              endAt: props.endAt
-            })
-          } style={styles.searchCard}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('StockDetails', {
+            matchID: props.matchID,
+            buyingPower: props.buyingPower,
+            ticker: props.ticker,
+            assets: props.assets,
+            inGame: props.inGame,
+            endAt: props.endAt,
+          })
+        }
+        style={styles.searchCard}
+      >
+        {props.username ? (
+          <>
+            <Text style={styles.searchCompanyText}>{props.username}</Text>
+            <Text style={styles.searchTickerText}>User Profile</Text>
+          </>
+        ) : (
+          <>
             <Text style={styles.searchTickerText}>{props.ticker}</Text>
             <Text style={styles.searchCompanyText}>{props.name}</Text>
+
             <View style={styles.searchCardGap}></View>
-        </TouchableOpacity>
-    )
+          </>
+        )}
+      </TouchableOpacity>
+    );
+    
 }
 
 export default SearchCard

@@ -1,6 +1,6 @@
 import { Dimensions, StyleSheet } from 'react-native';
 import { useStatusBarHeight } from '../components/ContextComponents/StatusBarHeightContext';
-import { mdiBorderColor } from '@mdi/js';
+
 
 const createStockSearchStyles = (theme: any, width: number) => {
   const statusBarHeight = useStatusBarHeight();
@@ -16,14 +16,14 @@ const createStockSearchStyles = (theme: any, width: number) => {
         height: 40,
         color: theme.colors.text,
         fontSize: 14,
-        fontFamily: 'InterTight-regular',
+        fontFamily: 'InterTight-SemiBold',
         marginHorizontal: 20,
         marginTop:5,
         marginBottom: 10,
         backgroundColor: theme.colors.primary,
         borderColor: theme.colors.tertiary,
-        borderWidth: 1,
-        borderRadius: 10,
+        borderWidth: 2,
+        borderRadius: 5,
         paddingLeft: 10,
     },
     categoryButton: {
@@ -103,7 +103,6 @@ const createStockSearchStyles = (theme: any, width: number) => {
       height: 48,
     },
     timeButtonSelectedContainer: {
-      backgroundColor: theme.colors.primary,
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 8,
@@ -113,7 +112,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
       paddingHorizontal: 5
     },
     timeButtonSelectedText: {
-      color: theme.colors.background,
+      color: theme.colors.text,
       paddingHorizontal: 10,
       paddingVertical: 5,
       fontFamily: 'InterTight-Black',
@@ -130,7 +129,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
       paddingHorizontal: 5
     },
     timeButtonText: {
-      color: theme.colors.primary,
+      color: theme.colors.tertiary,
       paddingHorizontal: 10,
       paddingVertical: 5,
       fontFamily: 'InterTight-Black',
@@ -313,19 +312,11 @@ dimTouchable: {
   flex: 1,
 },
 popup: {
-  position: 'absolute',
-  bottom: 0,
-  width: '100%',
-  height: 400,
-  backgroundColor: theme.colors.background,
+  width: width,
+  flex: 1,
+  marginBottom: 0,
   alignItems: 'center',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.8,
-  shadowRadius: 2,
   elevation: 5,
-  borderTopColor: theme.colors.primary,
-  borderTopWidth: 2,
   zIndex: 2,
  
 },

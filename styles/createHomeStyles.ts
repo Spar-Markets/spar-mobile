@@ -37,7 +37,6 @@ const createHomeStyles = (theme: any, width: number) => {
     
     // ToggleButton
     toggleContainer: {
-      marginVertical: 10,
       flexDirection: 'row',
       height: 40,
       width: width,  
@@ -45,7 +44,7 @@ const createHomeStyles = (theme: any, width: number) => {
     animatedBackground: {
       position: 'absolute',
       width: '50%',
-      height: 2,
+      height: 4,
       backgroundColor: theme.colors.text,
       marginTop: 38
     },
@@ -104,9 +103,10 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // GameCard
     gameCardContainer: {
-      backgroundColor: 'transparent',
       //borderColor: theme.colors.primary,
       width: (Dimensions.get('window').width),
+      height: 250,
+      paddingTop: 10
     },
     gameCardPlayerText: {
       color: theme.colors.text,
@@ -133,37 +133,33 @@ const createHomeStyles = (theme: any, width: number) => {
       fontFamily: 'InterTight-Bold',
     },
     gameCardAmountWageredContainer: {
-      borderRadius: 50,
+      borderRadius: 3,
       backgroundColor: theme.colors.primary,
-      borderWidth: 2,
-      borderColor: theme.colors.secondary,
       marginTop: 5, 
-      marginLeft: 10,
+      marginLeft: 5,
       padding: 4,
       paddingHorizontal: 10,
       justifyContent: 'center',
       alignItems: 'center'
     },
     gameCardAmountWageredText: {
-      color: theme.colors.text,
+      color: theme.colors.background,
       fontWeight: 'bold',
       fontSize: 14,
       fontFamily: 'InterTight-Bold',
     },
     gameCardModeContainer: {
-      borderRadius: 50,
-      backgroundColor: theme.colors.primary,
+      borderRadius: 3,
+      backgroundColor: theme.colors.accent,
       marginTop: 5, 
-      marginLeft: 5,
-      borderWidth: 2,
-      borderColor: theme.colors.secondary,
+      marginLeft: 20,
       padding: 5,
       paddingHorizontal: 10,
       justifyContent: 'center',
       alignItems: 'center'
     },
     gameCardModeText: {
-      color: theme.colors.accent,
+      color: theme.colors.primary,
       fontWeight: 'bold',
       fontSize: 14,
       fontFamily: 'InterTight-Bold',
@@ -171,21 +167,17 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // Timer
     timerContainer: {
-      borderRadius: 50,
-      borderWidth: 2,
-      borderColor: theme.colors.secondary,
-      backgroundColor: theme.colors.primary,
+      borderRadius: 6,
       marginTop: 5, 
-      marginLeft: 5,
-      padding: 4,
-      paddingHorizontal: 10,
+      marginRight: 20,
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: 5
+      flexDirection: 'row',
+      gap: 5
     },
     timeText: {
-      fontSize: 12,
-      color: theme.colors.text,
+      fontSize: 15,
+      color: theme.colors.stockDownAccent,
       fontWeight: 'bold',
       fontFamily: 'InterTight-Bold',
     },
@@ -193,13 +185,12 @@ const createHomeStyles = (theme: any, width: number) => {
     // HeadToHeadEntry
     hthContainer: {
       borderRadius: 10,
-      marginTop: 10,
+      marginVertical: 10,
       justifyContent: 'center',
       width: '100%',
       paddingHorizontal: 20,
-      height: 60,
       flexDirection: 'row',
-      gap: 3
+      gap: 3,
     },
     gradientBorder: {
       padding:3,
@@ -209,14 +200,17 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     enterHTHMatchBtn: {
       height: 50,
-      backgroundColor: theme.colors.text,
+      backgroundColor: theme.colors.secondary,
       justifyContent: 'center',
       alignItems: 'center',
-      flex: 1
+      flex: 1,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: theme.colors.tertiary
     },
     enterHTHMatchBtnText: {
       fontSize: 16,
-      color: theme.colors.background,
+      color: theme.colors.text,
       fontFamily: 'InterTight-Black',
 
     }, 
@@ -281,10 +275,15 @@ const createHomeStyles = (theme: any, width: number) => {
       borderTopWidth: 1,
       borderColor: theme.colors.primary
     },
-    balance: {
+    portfolio: {
       color: theme.colors.text,
-      fontSize: 20,
+      fontSize: 28,
       fontFamily: 'InterTight-Black',
+    },
+    portfolioPercentage: {
+      color: theme.colors.accent,
+      fontSize: 12,
+      fontFamily: 'InterTight-Bold'
     },
     fundText: {
       color: theme.colors.secondaryText,
@@ -338,6 +337,54 @@ const createHomeStyles = (theme: any, width: number) => {
     emoji: {
       fontSize: 24,
     },
+    addButton: {
+      height: 40,
+      borderRadius: 30,
+      paddingHorizontal: 15,
+      backgroundColor: theme.colors.accent,
+      justifyContent: 'center',
+      alignItems: 'center',
+      elevation: 1000,
+      zIndex: 1000,
+      marginHorizontal: 20,
+      marginBottom: 10,
+      flexDirection: 'row',
+      gap: 10
+  },
+  matchmakingCategory: {
+    marginHorizontal: 20, 
+    backgroundColor: theme.colors.accent, 
+    paddingHorizontal: 15, 
+    paddingVertical: 6,
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  matchmakingCategoryText: {
+    color: theme.colors.background,
+    fontFamily: 'InterTight-Bold'
+  },
+  matchmakingWagerBtn: {
+    height: 40,
+    width: 80,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10
+  },
+  matchmakingWagerTxt: {
+    color: theme.colors.text,
+    fontFamily: 'InterTight-Black',
+    fontSize: 18
+  },
+  stockCardDiff: {
+    color: theme.colors.stockUpAccent,
+    fontSize: 11,
+    fontWeight: 'bold',
+    textAlign: 'right'
+  },
 
   });
 };

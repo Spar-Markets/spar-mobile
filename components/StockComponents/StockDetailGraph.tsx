@@ -42,7 +42,8 @@ const StockDetailGraph = (props: any) => {
     <View>
       {timeFrameSelected == timeFrame ? (
         <TouchableOpacity
-          style={[styles.timeButtonSelectedContainer, {backgroundColor: currentAccentColorValue}]}>
+          style={[styles.timeButtonSelectedContainer]}>
+          <View style={{height: 2, width: '100%', backgroundColor: currentAccentColorValue}}></View>
           <Text style={styles.timeButtonSelectedText}>{timeFrame}</Text>
         </TouchableOpacity>
       ) : (
@@ -58,7 +59,8 @@ const StockDetailGraph = (props: any) => {
             }
           }}
           style={styles.timeButtonContainer}>
-          <Text style={[styles.timeButtonText, {color: currentAccentColorValue}]}>{timeFrame}</Text>
+            <View style={{height: 2, width: '100%', backgroundColor: 'transparent'}}></View>
+          <Text style={[styles.timeButtonText]}>{timeFrame}</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -148,12 +150,8 @@ const StockDetailGraph = (props: any) => {
 
     return (
       <Group>
-        {/*<SkiaText                           
-          text={"Time"}
-          x={adjustedX}
-          font={percentValFont}
-    color={theme.colors.text}/>*/}
-        <Rect x={adjustedX} y={0} width={2} height={400} color={theme.colors.secondaryText}/>
+        <Circle cx={x} cy={y} r={6} color={theme.colors.opposite}/>
+        <Rect x={adjustedX} y={0} width={1} height={400} color={theme.colors.opposite}/>
       </Group>
     );
   }
@@ -161,7 +159,6 @@ const StockDetailGraph = (props: any) => {
   function LiveIndicator({ x, y, color }: { x: number, y: number, color: any }) {
     return (
       <Group>
-        <Circle cx={x} cy={y} r={12} color={color} opacity={0.05} />
         <Circle cx={x} cy={y} r={7} color={color} opacity={0.2} />
         <Circle cx={x} cy={y} r={3} color={color}/>
       </Group>
@@ -466,7 +463,7 @@ const StockDetailGraph = (props: any) => {
             </View>
             }
           </View>
-          <View style={{ height: 400 }}>
+          <View style={{ height: 400, marginVertical: 20 }}>
               {allPointData &&
               <>
               <View style={{
@@ -476,7 +473,7 @@ const StockDetailGraph = (props: any) => {
                 right: 0,
                 bottom: 0,
               }}>
-                {/*reference line*/}
+                
                 <CartesianChart data={pointData} xKey="index" yKeys={["normalizedValue"]}
                   domain={{ y: 
                   [
@@ -538,42 +535,9 @@ const StockDetailGraph = (props: any) => {
 
                       return (
                       <>
+
                         <Group>
-                        {/*<SkiaText 
-                          text={isActive ? "$" + (normalizedPriceValue.value.value + pointData[0].value).toFixed(2) : "$" + (livePrice[0]?.c ?? pointData[pointData.length-1].value).toFixed(2)}
-                          x={20}
-                          y={priceFontSize}
-                          font={priceFont}
-                          color={theme.colors.text}
-                        ></SkiaText>
-                        <SkiaText 
-                          text={isActive ? animatedValueDiff.value + " (" + animatedPercentDiff.value + "%)" + currentDate.value :
-
-                                onLoadValueDiff + " (" + onloadPercentDiff + "%)"  + lastDate.value
-                          }
-                          x={20}
-                          y={priceFontSize + percentValFontSize + 5}
-                          font={percentValFont}
-                          color={currentAccentColorValue}
-                          
-                        ></SkiaText>*/}
-                        </Group>
-                        <Group>
-            
-                          {/*(circlePositions.map((fraction, index) => {
-                            const positionIndex = parseFloat((fraction * (points.normalizedValue.length - 1)).toPrecision(2));
-                            const posX = points.normalizedValue[positionIndex]?.x || 0;
-                            const posY = points.normalizedValue[positionIndex]?.y || -400;
-
-                            return (
-                              <Circle key={index} c={vec(posX, posY)} r={12} color={currentGradientAccent}>
-                                <BlurMask blur={20} style="normal" />
-                              </Circle>
-                            );
-                          })*/}
-
-                          <Line points={repeatedPoints} color={theme.colors.tertiary} 
-                          strokeWidth={1} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                         
                           <Line points={points.normalizedValue} color={currentAccentColorValue} 
                           strokeWidth={2} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
                           {isActive && <ToolTip x={state.x.position} y={state.y.normalizedValue.position} 
@@ -614,6 +578,7 @@ const StockDetailGraph = (props: any) => {
             style={{paddingLeft: 20}}
             />
         </View>
+        
     </View>
   );
   };

@@ -7,16 +7,21 @@ import {useNavigation} from '@react-navigation/native';
 import {signOut} from 'firebase/auth';
 import {auth} from '../../firebase/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import { setUserIsMade } from '../../GlobalDataManagment/userSlice';
 
 const Menu = () => {
   const {theme} = useTheme();
   const {width, height} = useDimensions();
   const styles = createGlobalStyles(theme, width);
 
+  const dispatch = useDispatch();
+
   const handleLogout = async () => {
     await signOut(auth);
     await AsyncStorage.removeItem('profileImgPath');
     await AsyncStorage.removeItem('userID');
+    dispatch(setUserIsMade(false))
   };
 
   const navigation = useNavigation<any>();

@@ -107,7 +107,7 @@ const StockOrder = (props: any) => {
   };
 
   const handlePress = (value: string) => {
-    HapticFeedback.trigger("impactSmall", {
+    HapticFeedback.trigger("impactMedium", {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false
     });
@@ -125,6 +125,10 @@ const StockOrder = (props: any) => {
   };
 
   const handleDelete = () => {
+    HapticFeedback.trigger("impactMedium", {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    });
     if (shareQuantity.length > 1) {
       setShareQuantity(prevInput => prevInput.slice(0, -1));
     } else {
@@ -133,6 +137,10 @@ const StockOrder = (props: any) => {
   };
 
   const handleDecimal = () => {
+    HapticFeedback.trigger("impactMedium", {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    });
     if (!shareQuantity.includes('.')) {
       setShareQuantity(prevInput => prevInput + '.');
     }

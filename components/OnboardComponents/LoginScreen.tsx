@@ -9,6 +9,8 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import { setUserIsMade } from '../../GlobalDataManagment/userSlice';
 
 
 const LoginScreen = () => {
@@ -24,6 +26,8 @@ const LoginScreen = () => {
     const [emailInput, setEmailInput] = useState("")
     const [passwordInput, setPasswordInput] = useState("")
 
+    const dispatch = useDispatch();
+
     const handleSubmit = async () => {
         if(emailInput != "" && passwordInput != "") {
             try {
@@ -36,6 +40,7 @@ const LoginScreen = () => {
                     //sets userID globally in async
                    console.log(credentials.user)
                    await AsyncStorage.setItem('userID', (credentials.user as any).uid);
+                   dispatch(setUserIsMade(true));
                 }
             
             } catch (error) {

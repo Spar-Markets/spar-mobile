@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -28,7 +28,7 @@ import { SharedValue, runOnJS, useAnimatedReaction, useDerivedValue } from 'reac
 import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint, RadialGradient, vec, BlurMask } from '@shopify/react-native-skia';
 import { ActivityIndicator } from 'react-native';
 
-const socket = new WebSocket(websocketUrl);
+// const ws = useRef<WebSocket | null>(null);
 
 /*interface RouteParams {
   matchID: string
@@ -72,8 +72,6 @@ const GameScreenGraph = (props:any) => {
     const youDataMin = Math.min(...(yourFormattedData).map((item:any) => item.normalizedValue))
     const oppDataMin = Math.min(...(oppFormattedData).map((item:any) => item.normalizedValue))
 
-    
-
     if (oppDataMax > yourDataMax) {
       setMaxY(oppDataMax)
     } else {
@@ -88,10 +86,130 @@ const GameScreenGraph = (props:any) => {
 
   }, []);
 
-// this is to get the live portfolio value
-const [livePortfolioValue, setLivePortfolioValue] = useState("")
+  // this is to get the live portfolio value
+  const [livePortfolioValue, setLivePortfolioValue] = useState("")
 
   const { state, isActive } = useChartPressState({ x: 0, y: { normalizedValue: 0 } });
+
+/**
+ * Websocket stuff
+ */
+
+// const setupSocket = async () => {    
+//   console.log("Opening socket with url:", websocketUrl);  
+//   const socket = new WebSocket(websocketUrl);
+
+//   ws.current = socket;
+  
+//   ws.current.onopen = () => {
+//       console.log(`Connected to GameCard Asset Websocket, but not ready for messages...`);
+//       if (ws.current! && yourAssets && opponentAssets) {
+//         console.log(`Connection for GameCard Asset Websocket is open and ready for messages`);
+//         // first send match ID
+//         ws.current!.send(JSON.stringify({ matchID: match.matchID }))
+//         yourAssets.forEach((asset:any) => {
+//           ws.current!.send(JSON.stringify({ ticker: asset.ticker}));
+//         })
+//         opponentAssets.forEach((asset:any) => {
+//           ws.current!.send(JSON.stringify({ ticker: asset.ticker}));
+//         })
+//       } else {
+//         console.log('WebSocket is not open');
+//       }
+//   };
+
+//     // WebSocket message handling
+//     ws.current.onmessage = (event) => {
+//       const buffer = new Uint8Array(event.data);
+
+//       if (event.data == "Websocket connected successfully") {
+//         return;
+//       }
+
+      
+
+//       const message = uint8ArrayToString(buffer); 
+
+//       try {
+//         const JSONMessage = JSON.parse(message);
+//         //console.log(JSONMessage)
+//         if (JSONMessage.type == "updatedAssets") {
+//           // Handle updated assets
+//           console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+//           const yourUpdatedAssets = JSONMessage[`${you}Assets`];
+//           const oppUpdatedAssets = JSONMessage[`${opp}Assets`];
+
+//           const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
+//           const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
+          
+//           // both cases
+//           setYourAssets(yourUpdatedAssets);
+//           setOpponentAssets(oppUpdatedAssets);
+
+//           if (yourNewAsset) {
+//             console.log("YOUR NEW ASSET JUST BOUGHT:", yourNewAsset)
+//             if (ws.current) {
+//               console.log("SUBSCRIBING TO YOUR NEW ASSET:", yourNewAsset.ticker)
+//               ws.current.send(JSON.stringify({ ticker: yourNewAsset.ticker }));
+//             }
+//           }
+
+//           if (oppNewAsset) {
+//             console.log("OPP NEW ASSET JUST BOUGHT:", oppNewAsset)
+//             if (ws.current) {
+//               console.log("SUBSCRIBING TO OPP NEW ASSET:", oppNewAsset.ticker)
+//               ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
+//             }
+//           }
+
+   
+//           console.log("Updated your assets state:", yourUpdatedAssets);
+
+//           console.log("Updated opp assets state:", oppUpdatedAssets);;
+
+//         } else if (message != "" && gotInitialPrices && yourAssets && opponentAssets) {
+//           //console.log(JSONMessage)
+//           const { sym, c: currentPrice } = JSONMessage[0];
+//           const isTickerInYourAssets = yourAssets.some(stock => stock.ticker === sym);
+//           const isTickerInOppAssets = opponentAssets.some(stock => stock.ticker === sym);
+//           //console.log(yourAssets)
+//           if (isTickerInYourAssets) {
+//             setYourTickerPrices(prevPrices => ({
+//               ...prevPrices,
+//               [sym]: currentPrice,
+//             }));
+//           }
+
+//           if (isTickerInOppAssets) {
+//             setOppTickerPrices(prevPrices => ({
+//               ...prevPrices,
+//               [sym]: currentPrice,
+//             }));
+//           }
+//         }
+//       } catch (error) {
+//         console.error("Error processing WebSocket message:", error);
+//       }
+//     };
+
+
+//   ws.current.onerror = (error) => {
+//       console.log('WebSocket error:', error || JSON.stringify(error));
+//       if (retries < MAX_RETRIES) {
+//         console.log(`Retrying connection (${retries + 1}/${MAX_RETRIES})...`);
+//         setRetries(retries + 1);
+//         setTimeout(() => {
+//             setupSocket();
+//         }, RETRY_DELAY);
+//       } else {
+//         console.error('Maximum retry attempts reached. Unable to connect to WebSocket.');
+//       }
+//   };
+
+//   ws.current.onclose = () => {
+//       console.log(`Connection to GameCard Asset Websocket closed`);
+//   };
+// };
   
   function ToolTip({ x, y}: { x: SharedValue<number>, y: SharedValue<number>}) {
     return (

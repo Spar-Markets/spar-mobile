@@ -16,6 +16,7 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import PageHeader from '../GlobalComponents/PageHeader';
 import UserCard from './UserCard';
+import useUserDetails from '../../hooks/useUserDetails';
 
 interface SearchProfile {
   userID: string;
@@ -29,6 +30,8 @@ const ProfileSearch = () => {
   const route = useRoute();
 
   const navigation = useNavigation<any>();
+
+  const {userData} = useUserDetails()
 
   const [userProfiles, setUserProfiles] = useState([]);
   const [profileSearch, setProfileSearch] = useState("");
@@ -75,7 +78,7 @@ const ProfileSearch = () => {
     <View style={styles.container}>
       <PageHeader text="Find People" />
       <View
-        style={{
+        style={{ 
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
@@ -102,7 +105,7 @@ const ProfileSearch = () => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} userID={item.userID} />
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={userData?.userID} following={userData?.following}/>
               </View>
             )}
           />

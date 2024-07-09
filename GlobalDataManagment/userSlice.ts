@@ -6,8 +6,8 @@ interface UserState {
 }
 
 const initialState = {
-  isInMatchmaking: null,
-  isUserMade: null
+  isInMatchmaking: false,
+  isUserMade: false
 }
 
 const userSlice = createSlice({
