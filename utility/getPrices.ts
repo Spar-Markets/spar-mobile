@@ -14,9 +14,9 @@ const getPrices = async (ticker: string, isOneDayData: boolean) => {
         {ticker: String(ticker), isOneDayData: isOneDayData}
       )
       
-     
-        // Check if response is successful and has data
-        //console.log("Response 1D", response.data["1D"])
+      
+      // Check if response is successful and has data
+      //console.log("Response 1D", response.data["1D"])
 
         const formatData = (data:TickerPricestamp[], timeframe: string) => {
           const firstPrice = data[0].price
@@ -58,9 +58,9 @@ const getPrices = async (ticker: string, isOneDayData: boolean) => {
           }
 
          // return {"1D":oneDayFormattedData,"1W":oneWeekFormattedData, "1M":oneMonthFormattedData}
-         
+          
          return result
-
+          
         }
       
     } catch (error) {

@@ -71,6 +71,8 @@ const StockDetailGraph = (props: any) => {
     const getPricesForSelectedTime = async () => {
       try {
         const allPoints = await getPrices(props.ticker, false);
+        // Need to get previous day 
+        const oneDayCloseComparison = await 
         if (allPoints) {
           //console.log("ALL POINT DATA:", allPoints["3M"])
           setPointData(allPoints["1D"])
