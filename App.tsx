@@ -53,6 +53,7 @@ import ProfileActivity from './components/ProfileComponents/ProfileActivity';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 import {RootState} from './GlobalDataManagment/store';
+import FollowersFollowing from './components/ProfileComponents/FollowersFollowing';
 
 const Stack = createNativeStackNavigator();
 
@@ -228,6 +229,15 @@ const AppContent = (): React.ReactElement => {
               gestureEnabled: true,
               gestureDirection: 'horizontal',
               animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen
+            name="FollowersFollowing"
+            component={FollowersFollowing}
+            options={{
+              headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
             }}
           />
         </Stack.Navigator>

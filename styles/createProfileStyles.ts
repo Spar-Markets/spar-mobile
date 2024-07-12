@@ -125,13 +125,30 @@ const createProfileStyles = (theme: any, width: number) => {
         backgroundColor: theme.colors.primary,
         borderColor: theme.colors.tertiary,
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 5,
         paddingLeft: 10,
     },
     userCardPic: {
         width: 40,
         height: 40,
         borderRadius: 10
+    },
+    sectionContainer: {
+        flexDirection: 'row', 
+        width: width-40, 
+        backgroundColor: theme.colors.primary, 
+        borderRadius:10, 
+        alignItems: 'center',
+        padding: 10, 
+        gap: 20
+    },
+    sectionIconContainer: {
+        width: 60, 
+        height: 60, 
+        borderRadius: 8, 
+        backgroundColor: theme.colors.secondary, 
+        justifyContent: 'center', 
+        alignItems: 'center'
     }
     
     

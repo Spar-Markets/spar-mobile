@@ -22,6 +22,7 @@ import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Pain
 import { GraphPoint } from 'react-native-graph';
 import { Skeleton } from '@rneui/base';
 import {serverUrl, websocketUrl} from '../../constants/global';
+import getMarketFraction from '../../utility/getMarketFraction';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
@@ -94,27 +95,6 @@ const StockDetailGraph = (props: any) => {
 
   const { state, isActive } = useChartPressState({ x: 0, y: { normalizedValue: 0 } });
   
-  const getMarketFraction = (currentDate:Date) => {
-    // Define the market open and close times
-    const marketOpen = new Date(currentDate);
-    marketOpen.setHours(9, 30, 0, 0); // 9:30 AM
-
-    const marketClose = new Date(currentDate);
-    marketClose.setHours(16, 0, 0, 0); // 4:00 PM
-
-    // Calculate the total market duration in milliseconds
-    const marketDuration = marketClose.getTime() - marketOpen.getTime();
-
-    // Calculate the elapsed time from market open to the current time
-    const elapsedTime = currentDate.getTime() - marketOpen.getTime();
-
-    // Calculate the fraction of the market day completed
-    const fractionCompleted = elapsedTime / marketDuration;
-
-    // Ensure the fraction is between 0 and 1
-    //console.log(fractionCompleted)
-    return Math.min(Math.max(fractionCompleted, 0), 1);
-  }
 
   const [marketFraction, setMarketFraction] = useState(1);
 
@@ -197,7 +177,7 @@ const StockDetailGraph = (props: any) => {
 
   const currentDate = useDerivedValue(() => {
     if (pointData.length > 0) {
-      console.log(currentIndex.value, pointData[currentIndex.value]?.date)
+      //console.log(currentIndex.value, pointData[currentIndex.value]?.date)
       return " • " + pointData[currentIndex.value]?.date
     }
     return ""
@@ -380,7 +360,7 @@ const StockDetailGraph = (props: any) => {
       const currentInterval = Math.floor(livePriceMinutes / 5);
 
       if (isCloseToFiveMinuteInterval(livePriceMinutes, livePriceSeconds) && currentInterval !== lastInterval) {
-        console.log("ADDING DATA POINT");
+        //console.log("ADDING DATA POINT");
         setPointData((prevPointData) => {
           const newPointData = [...prevPointData];
           // Update the last point with the current live price
@@ -401,7 +381,7 @@ const StockDetailGraph = (props: any) => {
         });
         setLastInterval(currentInterval); // Update the last interval
       } else {
-        console.log("animated point");
+        //console.log("animated point");
         if (isFirstAnimation == true) {
         setPointData((prevPointData) => {
           const newPointData = [...prevPointData, {}];
@@ -539,7 +519,7 @@ const StockDetailGraph = (props: any) => {
                         <Group>
                          
                           <Line points={points.normalizedValue} color={currentAccentColorValue} 
-                          strokeWidth={2} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                          strokeWidth={2} animate={{ type: "timing", duration: 0 }} curveType='linear'></Line>
                           {isActive && <ToolTip x={state.x.position} y={state.y.normalizedValue.position} 
                           color={currentAccentColorValue}/>}
                           {timeFrameSelected == "1D" && <LiveIndicator x={points.normalizedValue[points.normalizedValue.length-1].x}

@@ -33,13 +33,16 @@ import {GraphPoint} from 'react-native-graph';
 import { set } from 'lodash';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 import { Button } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
 
-const socket = new WebSocket(websocketUrl);
+//const socket = new WebSocket(websocketUrl);
 
 interface RouteParams {
   matchID: string
   userID: string
   endAt: Date
+  opponentUsername: string
 }
 
 interface PortfolioSnapshot {
@@ -60,17 +63,22 @@ const GameScreen = () => {
   const params = route.params as RouteParams | undefined;
   const matchID = params?.matchID
   const userID = params?.userID
+  const opponentUsername = params?.opponentUsername
+
+  const ws = useSelector((state: RootState) => state.websockets[matchID!]);
 
   const [loading, setLoading] = useState(true)
 
   const [matchIsEnded, setMatchIsEnded] = useState(false);
+
+  const matches = useSelector((state: RootState) => state.matches);
+  const { yourAssets, opponentAssets } = matches[matchID!]
 
   const [match, setMatch] = useState<any>(null)
   const [yourPointData, setYourPointData] = useState<GraphPoint[]>([]);
   const [opponentPointData, setOpponentPointData] = useState<any>([]);
   const [yourFormattedData, setYourFormattedData] = useState<any[] | null>(null)
   const [oppFormattedData, setOppFormattedData] = useState<any[] | null>(null)
-  const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
   const [yourColor, setYourColor] = useState("#fff")
@@ -79,8 +87,8 @@ const GameScreen = () => {
   const [firstPlace, setFirstPlace] = useState("")
   const [secondPlace, setSecondPlace] = useState("")
 
-  const [yourAssets, setYourAssets] = useState<any[] | null>(null);
-  const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null);
+  //const [yourAssets, setYourAssets] = useState<any[] | null>(null);
+  //const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null);
 
   // time left in match WHEN component mounts
   const [timeLeft, setTimeLeft] = useState(null);
@@ -99,6 +107,7 @@ const GameScreen = () => {
   // useEffect for updating time
   useEffect(() => {
     // only execute if match object exists
+    console.log("ASSETS FROM REDUX", yourAssets, opponentAssets)
     if (match && match.endAt) {
       // Calculate time until match end
       const end = new Date(match.endAt);
@@ -122,6 +131,18 @@ const GameScreen = () => {
       }
     }
   }, [match, navigation]);
+
+
+  useEffect(() => {
+    if (ws) {
+      console.log("-------------------------------------")
+      console.log("MATCH ID", matchID)
+      console.log("WEBSOCKET IN GAMESCREEN")
+      console.log("WS PRINTING!!!!!!!!!", ws)
+      ws.send(JSON.stringify({type: "GameScreenConnection"}))
+      console.log("-------------------------------------")
+    }
+  }, [])
 
 
   useEffect(() => {
@@ -162,30 +183,29 @@ const GameScreen = () => {
   const setUserMatchData = async (yourUserNumber: string, opponentUserNumber: string) => {
     if (match) {
       try {
-        const yourSnapshots: PortfolioSnapshot[] = match[yourUserNumber].snapshots;
+
+        const snapshots = await axios.post(serverUrl + '/getSnapshots', { matchID: match.matchID })
+        const yourSnapshots: PortfolioSnapshot[] = snapshots.data[`${yourUserNumber}Snapshots`];
+        
         const yourPoints: GraphPoint[] = yourSnapshots.map((snapshot) => ({
           value: snapshot.value,
           date: new Date(snapshot.timeField), // Ensure date is in timestamp format
         }));
         setYourPointData(yourPoints);
 
-        const oppSnapshots: PortfolioSnapshot[] = match[opponentUserNumber].snapshots;
+        const oppSnapshots: PortfolioSnapshot[] = snapshots.data[`${opponentUserNumber}Snapshots`];
         const oppPoints: GraphPoint[] = oppSnapshots.map((snapshot) => ({
           value: snapshot.value,
           date: new Date(snapshot.timeField), // Ensure date is in timestamp format
         }));
         setOpponentPointData(oppPoints);
 
-        const response = await axios.post(serverUrl + '/getUsernameByID', { userID: match[opponentUserNumber].userID });
-        setOpponentUsername(response.data.username);
-
-
         setAssets(match[yourUserNumber].assets)
         console.log("Assets:", match[yourUserNumber].assets)
 
 
       } catch (error) {
-        console.log('Game card error:', error);
+        console.log('Game screen error:', error);
       }
     }
   };
@@ -204,33 +224,37 @@ const GameScreen = () => {
   }
 
   useEffect(() => {
-    const sourceData = yourPointData.filter((item:any, index:any) => index % 2 === 0)
-    const data = sourceData // Select every 10th item
-    .map((item:any, index:number) => ({
-      value: item.value,
-      normalizedValue: item.value - 100000,
-      index: index,
-      date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
-    }));
-    setYourFormattedData(data)
+    if (yourPointData && opponentPointData) {
+      const sourceData = yourPointData.filter((item:any, index:any) => index % 2 === 0)
+      const data = sourceData // Select every 10th item
+      .map((item:any, index:number) => ({
+        value: item.value,
+        normalizedValue: item.value - 100000,
+        index: index,
+        date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
+      }));
+      setYourFormattedData(data)
 
-    const sourceData2 = opponentPointData.filter((item:any, index:any) => index % 2 === 0)
-    const data2 = sourceData2 // Select every 10th item
-    .map((item:any, index:number) => ({
-      value: item.value,
-      normalizedValue: item.value - 100000,
-      index: index,
-      date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
-    }));
-    setOppFormattedData(data2)
+      const sourceData2 = opponentPointData.filter((item:any, index:any) => index % 2 === 0)
+      const data2 = sourceData2 // Select every 10th item
+      .map((item:any, index:number) => ({
+        value: item.value,
+        normalizedValue: item.value - 100000,
+        index: index,
+        date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
+      }));
+      setOppFormattedData(data2)
 
-    if (data[data.length-1]) {
-      if (data[data.length-1].value >= data2[data2.length-1].value) {
-        setYourColor(theme.colors.stockUpAccent)
-        setLeaderboard(you, opp)
-      } else {
-        setYourColor(theme.colors.stockDownAccent)
-        setLeaderboard(opp, you)
+      if (data[data.length-1] && data2[data2.lenght-1]) {
+        if (data[data.length-1].value >= data2[data2.length-1].value) {
+          setYourColor(theme.colors.stockUpAccent)
+          setLeaderboard(you, opp)
+          console.log("SETTING LEADERBOARD IF")
+        } else {
+          setYourColor(theme.colors.stockDownAccent)
+          setLeaderboard(opp, you)
+          console.log("SETTING LEADERBOARD ELSE")
+        }
       }
     }
     
@@ -253,12 +277,12 @@ const GameScreen = () => {
 
   const renderRows = () => {
     const rows = [];
-    for (let i = 0; i < assets.length; i += 2) {
+    for (let i = 0; i < yourAssets.length; i += 2) {
       rows.push(
         <View key={i} style={styles.positionRow}>
-          <PositionCard ticker={assets[i].ticker} qty={assets[i].totalShares} matchID={matchID} 
+          <PositionCard ticker={yourAssets[i].ticker} qty={yourAssets[i].totalShares} matchID={matchID} 
           buyingPower={match[you].buyingPower} assets={match[you].assets} endAt={params?.endAt}/>
-          {assets[i + 1] && <PositionCard ticker={assets[i + 1].ticker} qty={assets[i + 1].totalShares} matchID={matchID} 
+          {yourAssets[i + 1] && <PositionCard ticker={yourAssets[i + 1].ticker} qty={yourAssets[i + 1].totalShares} matchID={matchID} 
           buyingPower={match[you].buyingPower} assets={match[you].assets} endAt={params?.endAt}/>}
         </View>
       );
@@ -269,8 +293,11 @@ const GameScreen = () => {
   
   if (loading) {
     return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <CustomActivityIndicator size={60} color={theme.colors.text}/>
+        <View style={styles.container}>
+            <HTHPageHeader text="Head-to-Head" endAt={params?.endAt}/>
+            <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+              <CustomActivityIndicator size={60} color={theme.colors.text}/>
+            </View>
         </View>
     )
   }

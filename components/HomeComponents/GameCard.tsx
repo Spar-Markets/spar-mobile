@@ -15,6 +15,10 @@ import { Area, CartesianChart, Line, PointsArray, useLinePath } from 'victory-na
 import { Group, Path, useFont, Circle } from '@shopify/react-native-skia';
 import HapticFeedback from "react-native-haptic-feedback";
 import getCurrentPrice from '../../utility/getCurrentPrice';
+import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addOrUpdateMatch } from '../../GlobalDataManagment/matchesSlice';
+import { RootState } from '../../GlobalDataManagment/store';
 
 
 const GameCard = (props: any) => {
@@ -41,8 +45,8 @@ const GameCard = (props: any) => {
   const [maxY, setMaxY] = useState(0)
   const [yourColor, setYourColor] = useState("#fff")
   const [oppColor, setOppColor] = useState("#fff")
-  const [yourAssets, setYourAssets] = useState<any[] | null>(null)
-  const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null)
+  //const [yourAssets, setYourAssets] = useState<any[] | null>(null)
+  //const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null)
   const [yourTickerPrices, setYourTickerPrices] = useState<{ [ticker: string]: number }>({});
   const [oppTickerPrices, setOppTickerPrices] = useState<{ [ticker: string]: number }>({});
   const [match, setMatch] = useState<any | null>(null)
@@ -51,12 +55,20 @@ const GameCard = (props: any) => {
   const [gotInitialPrices, setGotInitialPrices] = useState(false)
   const [initialDataLoad, setInitialDataLoad] = useState(false)
   
+  const [yourAssets, setYourAssets] = useState<any[] | null>(null)
+  const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null)
+  
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
 
   const userID = props.userID;
   const matchID = props.matchID;
 
+  const dispatch = useDispatch()
+
+  const matches = useSelector((state: RootState) => state.matches);
+
+  //const { yourAssets, opponentAssets } = matches[matchID].;
 
   const getMatchData = async () => {
     try {
@@ -97,8 +109,12 @@ const GameCard = (props: any) => {
       //console.log("OPP ASSETS",match[opponentUserNumber].assets)
       console.log("YOUR ASSETS FROM MATCH OBJECT:", match[yourUserNumber].assets)
 
+
+      //initial load to setAssets for the first time from the database
       setYourAssets(match[yourUserNumber].assets)
       setOpponentAssets(match[opponentUserNumber].assets)
+      
+      dispatch(addOrUpdateMatch({matchID, yourAssets: match[yourUserNumber].assets, opponentAssets: match[opponentUserNumber].assets}))
       
       setYourPointData(yourPoints);
       setOpponentPointData(oppPoints);
@@ -196,11 +212,27 @@ const GameCard = (props: any) => {
     console.log("POST STEP 1: Just got match data");
   }, [])
 
-
+  const end = new Date(match.endAt);
+  const now = new Date();
+  const timeUntilEnd = end.getTime() - now.getTime();
   //sets match data (i.e. point data, other username)
   useEffect(() => {
     if (match) {
       console.log("STEP 2: SETTING UNFORMATTED POINT DATA")
+      if (timeUntilEnd <= 0) {
+        // If the match end time has already passed, navigate back immediately
+        //navigation.navigate('Home');
+        props.setActiveMatches(props.activeMatches.filter((match:any) => match.matchID !== matchID))
+      } else {
+        // Set a timeout to navigate back when the match ends
+        const timeoutId = setTimeout(() => {
+          // TODO: add popup saying match has ended
+          navigation.navigate('Home');
+        }, timeUntilEnd);
+
+        // Clear timeout if the component unmounts before the match ends
+        return () => clearTimeout(timeoutId);
+      }
       setData();
     }
   }, [match]);
@@ -324,6 +356,28 @@ const GameCard = (props: any) => {
     console.log("OPP ASSETS:", opponentAssets)
   }, [yourAssets, opponentAssets])
   */
+
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const sendHeartbeat = () => {
+    if (ws.current) {
+      console.log("SENDING WS HEARTBEAT")
+      const heartbeat = {type: "heartbeat"}
+      ws.current.send(JSON.stringify(heartbeat))
+    }
+  }
+
+  useEffect(() => {
+    heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000); // 30 seconds interval
+
+    // Clear the interval when the component unmounts
+    return () => {
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+      }
+    };
+  }, [])
+
   
   const setupSocket = async () => {    
     console.log("Opening socket with url:", websocketUrl);  
@@ -332,9 +386,10 @@ const GameCard = (props: any) => {
     ws.current = socket;
     
     ws.current.onopen = () => {
-        console.log(`Connected to GameCard Asset Websocket, but not ready for messages...`);
+        console.log(`Connected to GameCard Websocket, but not ready for messages...`);
         if (ws.current! && yourAssets && opponentAssets) {
-          console.log(`Connection for GameCard Asset Websocket is open and ready for messages`);
+          dispatch(addWebSocket({ id: matchID, ws: ws.current }));
+          console.log(`Connection for GameCard Websocket is open and ready for messages`);
           // first send match ID
           ws.current!.send(JSON.stringify({ matchID: match.matchID }))
           yourAssets.forEach((asset:any) => {
@@ -360,7 +415,7 @@ const GameCard = (props: any) => {
 
         try {
           const JSONMessage = JSON.parse(message);
-          //console.log(JSONMessage)
+          console.log("THIS IS THE RECIEVED MESSAGE", JSONMessage)
           if (JSONMessage.type == "updatedAssets") {
             // Handle updated assets
             console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -371,8 +426,12 @@ const GameCard = (props: any) => {
             const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
             
             // both cases
-            setYourAssets(yourUpdatedAssets);
-            setOpponentAssets(oppUpdatedAssets);
+            //setYourAssets(yourUpdatedAssets);
+            //setOpponentAssets(oppUpdatedAssets);
+            
+            //redux version
+            dispatch(addOrUpdateMatch({matchID, yourAssets: yourUpdatedAssets, opponentAssets: oppUpdatedAssets}))
+            //console.log("UPDATED ASSETS FROM REDUX", yourAssets, opponentAssets)
 
             if (yourNewAsset) {
               console.log("YOUR NEW ASSET JUST BOUGHT:", yourNewAsset)
@@ -433,7 +492,8 @@ const GameCard = (props: any) => {
     };
 
     ws.current.onclose = () => {
-        console.log(`Connection to GameCard Asset Websocket closed`);
+      dispatch(removeWebSocket(matchID));
+      console.log(`Connection to GameCard Asset Websocket closed`);
     };
   };
 
@@ -586,7 +646,12 @@ const GameCard = (props: any) => {
     <View>
     {!loading && match ?
     <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
-      navigation.navigate("GameScreen", {matchID: match.matchID, userID: props.userID, endAt: match.endAt})
+      navigation.navigate("GameScreen", {
+        matchID: match.matchID, 
+        userID: props.userID, 
+        endAt: match.endAt,
+        opponentUsername: opponentUsername,
+      })
       
         HapticFeedback.trigger("impactMedium", {
           enableVibrateFallback: true,
@@ -600,9 +665,9 @@ const GameCard = (props: any) => {
             <View style={styles.gameCardModeContainer}>
               <Text style={styles.gameCardModeText}>{match.matchType}</Text>
             </View>
-            <LinearGradient colors={["#FFD700", "#FFA500"]} style={styles.gameCardAmountWageredContainer}>
-              <Text style={styles.gameCardAmountWageredText}>${match.wagerAmt}</Text>
-            </LinearGradient>
+            <View style={styles.gameCardAmountWageredContainer}>
+              <Text style={[styles.gameCardAmountWageredText, {color: theme.colors.text}]}>${match.wagerAmt}</Text>
+            </View>
             <View style={{ flex: 1 }}></View>
             <Timer endDate={match.endAt} timeFrame={match.timeFrame} />
           </View>
@@ -674,7 +739,7 @@ const GameCard = (props: any) => {
               // 👇 and we'll use the Line component to render a line path.
                 <>
                 <Line points={points.normalizedValue} color={hexToRGBA(oppColor, 0.5)} 
-                strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
+                strokeWidth={2} animate={{ type: "timing", duration: 50 }}/>
                 <LiveIndicator x={points.normalizedValue[points.normalizedValue.length-1].x}
                 y={points.normalizedValue[points.normalizedValue.length-1].y!}
                 color={hexToRGBA(oppColor, 0.5)}
@@ -695,8 +760,10 @@ const GameCard = (props: any) => {
               domain={{y: [minY, maxY],
                 x: [0, yourFormattedData!.length/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000))]
               }}>  
-              {({ points }) => (
+              {({ points }) => {
+                //console.log(yourFormattedData)
               // 👇 and we'll use the Line component to render a line path.
+              return (
                 <>
                 <Line points={points.normalizedValue} color={yourColor} 
                 strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
@@ -704,8 +771,8 @@ const GameCard = (props: any) => {
                 y={points.normalizedValue[points.normalizedValue.length-1].y!}
                 color={yourColor}
                 />
-                </>
-              )}
+                </>)
+              }}
             </CartesianChart>
             </View>}
           </View>

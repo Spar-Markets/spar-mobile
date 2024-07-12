@@ -100,7 +100,7 @@ const Home: React.FC = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const [balance, setBalance] = useState('0.00');
   const [searchingForMatch, setSearchingForMatch] = useState(false);
-  const [activeMatches, setActiveMatches] = useState<string[] | null>(null);
+  const [activeMatches, setActiveMatches] = useState<string[]>([]);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
   const [username, setUsername] = useState('');
@@ -316,6 +316,7 @@ const Home: React.FC = () => {
   }, [activeMatches]);
 
   const animation = useRef(new Animated.Value(0)).current;
+  const barAnimation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
 
   const handleToggle = (option: any) => {
@@ -532,6 +533,7 @@ const Home: React.FC = () => {
     </View>
   );
 
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -619,11 +621,12 @@ const Home: React.FC = () => {
               </View>
 
             </View>
-          <ToggleButton onToggle={handleToggle} />
+          <ToggleButton onToggle={handleToggle} animation={barAnimation}/>
           <Animated.View
             style={{
               flex: 1,
-              width: screenWidth,
+              width: screenWidth*2,
+              flexDirection: 'row',
               transform: [{translateX: animation}],
             }}>
             <View style={{flex: 1}}>
@@ -640,10 +643,11 @@ const Home: React.FC = () => {
                     : matchData
                 }
                 renderItem={({item, index}) =>
+                 
                   item ? (
                     <>
-                      <GameCard userID={userID} matchID={item.matchID} />
-                      <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary, marginVertical: 10}}></View>
+                        <GameCard userID={userID} matchID={item} activeMatches={activeMatches} setActiveMatches={setActiveMatches}/>
+                        <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary, marginVertical: 10}}></View>
                     </> 
                   ) : (
                     <>
@@ -668,8 +672,13 @@ const Home: React.FC = () => {
               />}
 
             </View>
+            <View style={{flex: 1}}>
+              <View>
+                <Text>Tournaments</Text>
+              </View>
+            </View>
           </Animated.View>
-          
+
               
         </View>
 
@@ -677,9 +686,9 @@ const Home: React.FC = () => {
               {searchingForMatch || isInMatchmaking ? <TouchableOpacity style={[styles.addButton]} onPress={cancelAlert}>
                 <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold', fontSize: 20}}>Cancel Matchmaking</Text>
                 <SmallActivityIndicator />
-              </TouchableOpacity>: <TouchableOpacity style={styles.addButton} onPress={expandBottomSheet}>
-                <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Start a Match</Text>
-                <Icon name="plus" size={20} color={theme.colors.background} />
+              </TouchableOpacity>: <TouchableOpacity style={[styles.addButton, {backgroundColor: theme.colors.purpleAccent}]} onPress={expandBottomSheet}>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Start a Match</Text>
+                <Icon name="plus" size={20} color={theme.colors.text} />
               </TouchableOpacity>}
             </View>
             <BottomSheet

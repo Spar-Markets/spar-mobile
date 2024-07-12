@@ -4,20 +4,20 @@ import createHomeStyles from '../../styles/createHomeStyles';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 
-const ToggleButton = ({onToggle}:any) => {
+const ToggleButton = ({onToggle, animation}:any) => {
 
     // Layour and Style Initilization
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createHomeStyles(theme, width)
     const [active, setActive] = useState('head-to-head');
-    const animation = useRef(new Animated.Value(0)).current;
+    //const animation = useRef(new Animated.Value(0)).current;
 
     const toggleWidth = (Dimensions.get('window').width) //account for margin
 
     useEffect(() => {
         Animated.timing(animation, {
-          toValue: active === 'head-to-head' ? 0 : toggleWidth / 2,
+          toValue: active === 'head-to-head' ? 0 : toggleWidth/2,
           duration: 300,
           useNativeDriver: false,
         }).start();

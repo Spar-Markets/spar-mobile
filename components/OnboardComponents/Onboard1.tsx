@@ -222,7 +222,7 @@ const Onboard1 = () => {
 
     return (
         
-        <Animated.View style={[styles.onboardContainer, { opacity, backgroundColor }]}>
+        <Animated.View style={[styles.onboardContainer, { opacity }]}>
           <Text style={styles.sparText}>Spar</Text>
           <ScrollView
             horizontal
@@ -254,23 +254,22 @@ const Onboard1 = () => {
     
               return (
                 <View style={styles.slide} key={index}>
-                  <View style={styles.onboardImageContainer}>
-                    <Animated.Image style={[styles.onboardImage, { transform: [{ translateY: translateY[index] }] }]} source={item.source} />
-                  </View>
+                  <Animated.View style={[styles.onboardImageContainer ]}>
+                    <Animated.Image style={[styles.onboardImage, { transform: [{ translateY: translateY[index] }]}]} source={item.source} />
+                  </Animated.View>
                   <View style={styles.textContainer}>
-                  <Animated.Text
-                    style={[styles.labelText, { transform: [{ translateX }], opacity }]}
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                    minimumFontScale={0.5}
-                    >
-                    {item.label}
+                    <Animated.Text
+                      style={[styles.labelText, { transform: [{ translateX }], opacity }]}
+                      numberOfLines={2}
+                      adjustsFontSizeToFit
+                      >
+                      {item.label}
                     </Animated.Text>
                     <Animated.Text
-                    style={[styles.text, { transform: [{ translateX }], opacity }]}
-                    >
-                    {item.text}
-                </Animated.Text>
+                      style={[styles.text, { transform: [{ translateX }], opacity }]}
+                      >
+                      {item.text}
+                    </Animated.Text>
                 </View>
                 </View>
               );
@@ -299,12 +298,12 @@ const Onboard1 = () => {
               return (
                 <Animated.View
                   key={index}
-                  style={[styles.dot, {opacity: dotOpacity, backgroundColor}]}
+                  style={[styles.dot, {opacity: dotOpacity, backgroundColor }]}
                 />
               );
             })}
           </View>
-          <Animated.View style={[styles.buttonContainer, { transform: [{ translateY: buttonTranslateY }] }]}>
+          <Animated.View style={[styles.buttonContainer, /*{ transform: [{ translateY: buttonTranslateY }] }*/]}>
             <TouchableOpacity
               style={styles.button}
               onPress={handleGetStartedPress}

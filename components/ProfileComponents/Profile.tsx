@@ -144,15 +144,19 @@ const Profile  = ({ navigation }: any) => {
           </TouchableOpacity>
           
          
-          <View style={{marginTop: 15}}>
+          <View style={{marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
             <Text style={styles.usernameText}>{userData?.username}</Text>
+            <View style={{flex: 1}}></View>
+            <TouchableOpacity style={{paddingHorizontal: 20, paddingVertical: 5, backgroundColor: theme.colors.primary, borderRadius: 5}}>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Edit Profile</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={{flexDirection: 'row', gap: 10, marginVertical: 10}}>
-            <TouchableOpacity style={styles.mainContainer}>
+            <TouchableOpacity style={styles.mainContainer} onPress={() => navigation.navigate("FollowersFollowing", {type:"followers", username: userData?.username})}>
               <Text style={styles.mainContainerType}>{userData?.followers ? userData?.followers.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Followers</Text></Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.mainContainer}>
+            <TouchableOpacity style={styles.mainContainer} onPress={() => navigation.navigate("FollowersFollowing", {type:"following", username: userData?.username})}>
               <Text style={styles.mainContainerType}>{userData?.following ? userData?.following.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Following</Text></Text>
             </TouchableOpacity>
           </View>
@@ -161,65 +165,55 @@ const Profile  = ({ navigation }: any) => {
           
           {/*REFER A FRIEND*/}
           <View style={{marginTop: 15}}>
-            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.purpleAccent, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
-              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.opposite, justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity style={[styles.sectionContainer, {backgroundColor: theme.colors.purpleAccent}]}>
+              <View style={[styles.sectionIconContainer, {backgroundColor: theme.colors.opposite}]}>
                 <Icon name={"gift"} size={24} color={theme.colors.background}></Icon>
               </View>
               <View>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Refer a Friend</Text>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Medium'}}>Invite your friends and get $5</Text>
               </View>
-              <View style={{flex: 1}}></View>
-              <Icon name={"chevron-right"} size={24} color={theme.colors.opposite} style={{marginRight: 10}}></Icon>
             </TouchableOpacity>
           </View>
 
           {/*ACCOUNT*/}
           <View style={{marginTop: 15}}>
-            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.primary, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
-              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity style={styles.sectionContainer}>
+              <View style={styles.sectionIconContainer}>
                 <Icon name={"user"} size={24} color={theme.colors.text}></Icon>
               </View>
               <View>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Account</Text>
               </View>
-              <View style={{flex: 1}}></View>
-              <Icon name={"chevron-right"} size={24} color={theme.colors.secondary} style={{marginRight: 10}}></Icon>
+              
             </TouchableOpacity>
           </View>
 
           {/*Activity*/}
           <View style={{marginTop: 15}}>
-            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.primary, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
-              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity style={styles.sectionContainer}>
+              <View style={styles.sectionIconContainer}>
                 <Icon name={"area-chart"} size={24} color={theme.colors.text}></Icon>
               </View>
               <View>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Activity</Text>
               </View>
-              <View style={{flex: 1}}></View>
-              <Icon name={"chevron-right"} size={24} color={theme.colors.secondary} style={{marginRight: 10}}></Icon>
+              
             </TouchableOpacity>
           </View>
 
           {/*Settings*/}
           <View style={{marginTop: 15}}>
-            <TouchableOpacity style={{flexDirection: 'row', width: width-40, backgroundColor: theme.colors.primary, borderRadius:20, alignItems: 'center', padding: 10, gap: 20}}>
-              <View style={{width: 60, height: 60, borderRadius: 16, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity style={styles.sectionContainer}>
+              <View style={styles.sectionIconContainer}>
                 <Icon name={"gear"} size={24} color={theme.colors.text}></Icon>
               </View>
               <View>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Settings</Text>
               </View>
-              <View style={{flex: 1}}></View>
-              <Icon name={"chevron-right"} size={24} color={theme.colors.secondary} style={{marginRight: 10}}></Icon>
+              
             </TouchableOpacity>
           </View>
-
-
-          
-
-          
           
           <View style={{marginVertical: 20}}>
             {/*<Text

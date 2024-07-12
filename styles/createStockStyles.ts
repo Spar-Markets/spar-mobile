@@ -168,12 +168,22 @@ const createStockSearchStyles = (theme: any, width: number) => {
       borderWidth: 1,
       borderColor: theme.colors.tertiary
     },
+    discoverNewsCardContainer: {
+      width: width-40,
+      borderRadius: 10,
+    },
     newsTitle: {
       color: theme.colors.text,
       fontSize: 14,
       marginHorizontal: 15,
       fontFamily: 'InterTight-Bold',
       marginTop: 10
+    },
+    discoverNewsTitle: {
+      color: theme.colors.text,
+      fontSize: 16,
+      fontFamily: 'InterTight-Medium',
+      marginTop: 5
     },
     bottomContainer: {
       flexDirection: 'row',

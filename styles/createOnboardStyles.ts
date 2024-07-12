@@ -81,14 +81,14 @@ const createOnboardStyles = (theme: any, width: number) => {
         left: 20,
     },
     onboardImageContainer: {
-        borderRadius: 50,
+        borderRadius: 10,
         marginHorizontal: 20,
-        height: height * 0.4,
+        width: width-40,
         justifyContent: 'center',
         alignItems: 'center',
-        aspectRatio: 1,
         alignSelf: 'center',
         zIndex: 1000,
+        flex: 1
     },
     onboardScroll: {
         paddingTop: statusBarHeight + 50
@@ -96,36 +96,39 @@ const createOnboardStyles = (theme: any, width: number) => {
     onboardImage: {
         aspectRatio: 1,
         alignSelf: 'center',
+        width: '80%',
+        height: '80%',
     },
     labelText: {
         marginTop: 20,
         fontSize: 50,
-        textAlign: 'left',
+        textAlign: 'center',
         fontFamily: 'InterTight-Bold',
         color: theme.colors.text,
-        paddingHorizontal: 25
+        paddingHorizontal: 20
     },
     text: {
         marginTop: 5,
         fontSize: 20,
-        textAlign: 'left',
+        textAlign: 'center',
         paddingHorizontal: 25,
         fontFamily: 'InterTight-Medium',
         color: theme.colors.text,
     },
     textContainer: {
-        width: '90%',
+        width: '100%',
+        flex: 1,
     },
     pagination: {
         flexDirection: 'row',
         alignSelf: 'center',
     },
     dot: {
-        height: 10,
-        width: 10,
+        height: 7,
+        width: 40,
         backgroundColor: theme.colors.tertiary,
         margin: 8,
-        borderRadius: 5,
+        borderRadius:4,
     },
     buttonContainer: {
         paddingBottom: 50,

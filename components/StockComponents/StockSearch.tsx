@@ -6,6 +6,7 @@ import {
   TextInput,
   SectionList,
   useColorScheme,
+  FlatList,
 } from 'react-native';
 import axios from 'axios';
 import fuzzysort from 'fuzzysort';
@@ -18,6 +19,8 @@ import SearchCard from './SearchCard';
 import { serverUrl } from '../../constants/global';
 import UserCard from '../ProfileComponents/UserCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DiscoverNewsCard from './DiscoverNewsCard';
+import timeAgo from '../../utility/timeAgo';
 
 interface StockObject {
   ticker: string;
@@ -47,6 +50,7 @@ const StockSearch: React.FC = () => {
   const [listOfTickers, setListOfTickers] = useState<StockObject[]>([]);
   const [listOfProfiles, setProfileList] = useState<ProfileObject[]>([]);
   const [sections, setSections] = useState<any[]>([]);
+  const [news, setNews] = useState<any>()
 
   const [isFocused, setIsFocused] = useState(false);
 
@@ -64,11 +68,14 @@ const StockSearch: React.FC = () => {
     try {
       const response = await axios.get(serverUrl + '/getTickerList');
       const response2 = await axios.post(serverUrl + '/getProfileList');
+      const response3 = await axios.post(serverUrl + '/getNews')
       const tickerlistresponse = response.data;
       const profileListResponse = response2.data;
+      const newsResponse = response3.data.results;
       
       setProfileList(profileListResponse);
       setListOfTickers(tickerlistresponse);
+      setNews(newsResponse)
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -76,6 +83,7 @@ const StockSearch: React.FC = () => {
 
   useEffect(() => {
     updateTickerList();
+    console.log("News", news)
   }, []);
 
   const handleSearch = (text: string) => {
@@ -126,6 +134,18 @@ const StockSearch: React.FC = () => {
     </View>
   );
 
+  const newsRenderItem = ({item}:any) => {
+    return (
+      <DiscoverNewsCard 
+      title={item.title} 
+      publisherName={item.author} 
+      timePublished={new Date(item.published_utc).toLocaleTimeString()} 
+      article_url={item.article_url} 
+      image_url={item.image_url}
+      relatedTickers={item.tickers}/>
+    )
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -144,7 +164,14 @@ const StockSearch: React.FC = () => {
       </View>
       <View style={{flex: 1}}>
         {stockSearch === '' ? (
-          <View></View>
+          <FlatList 
+            data={news}
+            renderItem={newsRenderItem}
+            keyExtractor={item => item.id}
+            ItemSeparatorComponent={() => {
+              return (<View style={{width: width-40, height: 2, backgroundColor: theme.colors.primary, marginHorizontal: 20}}/>)
+            }}
+          />
         ) : (
           <SectionList
             sections={sections}
