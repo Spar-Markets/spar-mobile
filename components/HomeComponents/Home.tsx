@@ -243,7 +243,10 @@ const Home: React.FC = () => {
       console.log(response);
       dispatch(setIsInMatchmaking(false));
       setSearchingForMatch(false);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        console.log(error.response.message);
+      }
       console.error('Error in cancelMatchmaking in home.tsx:', error);
     }
   };
@@ -479,10 +482,11 @@ const Home: React.FC = () => {
 
         try {
           const JSONMessage = JSON.parse(message);
-          ///IMPLEMENT CHANGE STREAM STUFF FOR MATCHES
-  
-
-          
+          // Change stream handling for new matches
+          if (message.type == "matchCreated") {
+            const newMatch = message.newMatch;
+            console.log("NEW MATCH HAS BEEN CREATED FROM MATCHMAKING. Here it is:", newMatch);
+          }
         } catch (error) {
           console.error("Error processing WebSocket message:", error);
         }
