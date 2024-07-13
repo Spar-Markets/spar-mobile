@@ -766,7 +766,7 @@ const Home: React.FC = () => {
               )}
               <TouchableOpacity
                 style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.purpleAccent, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.purpleAccent : 'transparent', borderWidth: 2}]}
-                onPress={toggleAdditionalButtons}
+                onPress={() => {toggleAdditionalButtons(); expandBottomSheet()}}
               >
                 {showAdditionalButtons ? <Text style={{ color: theme.colors.purpleAccent, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Start a Match</Text>}
                 {!showAdditionalButtons && <Icon name="plus" size={20} color={theme.colors.text} />}
