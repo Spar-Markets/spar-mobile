@@ -63,6 +63,7 @@ const StockDetailGraph = (props: any) => {
 
   const [timeFrameSelected, setTimeFrameSelected] = useState<string>('1D');
   const [allPointData, setAllPointData] = useState<any>(null);
+  const [oneDayClose, setOneDayClose] = useState<number>(0);
 
   const {currentAccentColorValue, setCurrentAccentColorValue} = props;
 
@@ -106,7 +107,6 @@ const StockDetailGraph = (props: any) => {
   useEffect(() => {
     const getPricesForSelectedTime = async () => {
       try {
-        const allPoints = await getPrices(props.ticker, false);
         // Need to get previous, previous day close price
         const fetchCloseComparison = async () => {
           try {
@@ -114,11 +114,13 @@ const StockDetailGraph = (props: any) => {
               ticker: props.ticker,
             });
             console.log('fetchCloseComparison', response.data);
+            setOneDayClose(response.data.lastPrice)
           } catch (error) {
-            console.error('Error fetching close comparison:', error);
+            console.error('Error fetching close:', error);
           }
         };
         fetchCloseComparison();
+        const allPoints = await getPrices(props.ticker, false);
 
         if (allPoints) {
           //console.log("ALL POINT DATA:", allPoints["3M"])
@@ -218,10 +220,17 @@ const StockDetailGraph = (props: any) => {
 
   //gets percent difference based on array data
   const animatedPercentDiff = useDerivedValue(() => {
+    let percentDiff
     if (pointData.length > 0) {
-      const percentDiff =
-        (pointData[currentIndex.value]?.value - pointData[0].value) /
-        Math.abs(pointData[0].value);
+      if (timeFrameSelected != "1D") {
+        percentDiff =
+          (pointData[currentIndex.value]?.value - pointData[0].value) /
+          Math.abs(pointData[0].value);
+      } else {
+        percentDiff =
+        (pointData[currentIndex.value]?.value - oneDayClose) /
+        Math.abs(oneDayClose);
+      }
 
       return (100 * percentDiff).toFixed(2);
     }
@@ -229,10 +238,14 @@ const StockDetailGraph = (props: any) => {
   }, [pointData]);
 
   const animatedValueDiff = useDerivedValue(() => {
+    let valueDiff
     if (pointData.length > 0) {
-      const valueDiff =
-        pointData[currentIndex.value]?.value - pointData[0].value;
-
+      if (timeFrameSelected != "1D") {
+        valueDiff =
+          pointData[currentIndex.value]?.value - pointData[0].value;
+      } else {
+          valueDiff = pointData[currentIndex.value]?.value - oneDayClose;
+      }
       if (valueDiff < 0) {
         return '-$' + Math.abs(valueDiff).toFixed(2); //formatting negative differences
       }
@@ -283,15 +296,28 @@ const StockDetailGraph = (props: any) => {
   const [currentGradientAccent, setCurrentGradientAccent] = useState('');
 
   const calculatePercentAndValueDiffAndColor = useCallback(() => {
+    let percentDiff
     if (pointData.length > 0) {
-      const percentDiff =
-        ((pointData[pointData.length - 1]?.value || 0) - pointData[0].value) /
-        Math.abs(pointData[0].value);
+      if (timeFrameSelected != "1D") {
+        percentDiff =
+          ((pointData[pointData.length - 1]?.value || 0) - pointData[0].value) /
+          Math.abs(pointData[0].value);
+      } else {
+        percentDiff =
+          ((pointData[pointData.length - 1]?.value || 0) - oneDayClose) /
+          Math.abs(oneDayClose);
+      }
       const percentDiffValue = (100 * percentDiff).toFixed(2);
       setOnLoadPercentDiff(percentDiffValue);
-
-      const valueDiff =
-        (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
+      let valueDiff
+      
+      if (timeFrameSelected != "1D") {
+        valueDiff =
+          (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
+      } else {
+        valueDiff =
+        (pointData[pointData.length - 1]?.value || 0) - oneDayClose;
+      }
       if (pointData) {
         if (valueDiff < 0) {
           setOnLoadValueDiff('-$' + Math.abs(valueDiff).toFixed(2));
@@ -613,7 +639,7 @@ const StockDetailGraph = (props: any) => {
                       const repeatedPoints = points.normalizedValue.map(
                         point => ({
                           x: point.x, // Keep x as it is
-                          y: firstNormalizedPoint.y, // Set y to the first normalized point's y value
+                          y: 400, // Set y to the first normalized point's y value
                           xValue: 0,
                           yValue: 0,
                         }),

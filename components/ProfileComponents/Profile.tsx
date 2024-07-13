@@ -147,7 +147,15 @@ const Profile  = ({ navigation }: any) => {
           <View style={{marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
             <Text style={styles.usernameText}>{userData?.username}</Text>
             <View style={{flex: 1}}></View>
-            <TouchableOpacity style={{paddingHorizontal: 20, paddingVertical: 5, backgroundColor: theme.colors.primary, borderRadius: 5}}>
+            <TouchableOpacity style={{paddingHorizontal: 20, paddingVertical: 5, backgroundColor: theme.colors.primary, borderRadius: 5}}
+              onPress={() => navigation.navigate("editProfilePage", 
+                { 
+                  userID: userData?.userID, 
+                  username: userData?.username,
+                  // bio: userData?.bio
+                })
+              }
+            >
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Edit Profile</Text>
             </TouchableOpacity>
           </View>

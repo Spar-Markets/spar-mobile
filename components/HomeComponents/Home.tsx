@@ -100,11 +100,10 @@ const Home: React.FC = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const [balance, setBalance] = useState('0.00');
   const [searchingForMatch, setSearchingForMatch] = useState(false);
-  const [activeMatches, setActiveMatches] = useState<string[]>([]);
+  const [activeMatches, setActiveMatches] = useState<any>(null);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
   const [username, setUsername] = useState('');
-  const [matchData, setMatchData] = useState<MatchData[]>([]);
   const [userID, setUserID] = useState('');
   const [watchLists, setWatchLists] = useState<Object[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -119,6 +118,12 @@ const Home: React.FC = () => {
   const [wagerSelected, setWagerSelected] = useState<number | null>(10)
   const [timeframeSelected, setTimeFrameSelected] = useState(900)
   const [modeSelected, setModeSelected] = useState("Stock")
+
+  const [startMatchState, setStartMatchState] = React.useState({ open: false });
+
+  const onStartMatchStateChange = ({ open }:any) => setStartMatchState({ open });
+
+  const { open } = startMatchState;
 
   const isInMatchmaking = useSelector(
     (state: any) => state.user.isInMatchmaking,
@@ -214,12 +219,12 @@ const Home: React.FC = () => {
     }
   };
 
-  const getMatchData = async () => {
+  /*const getMatchData = async () => {
     try {
       console.log(`Server Url: ${process.env.SERVER_URL}`);
       console.log('getmatchdata', activeMatches);
       const md: MatchData[] = [];
-      for (const id of activeMatches!) {
+      for (const id of activeMatches) {
         const matchDataResponse = await axios.post(
           serverUrl + '/getMatchData',
           {matchID: id},
@@ -232,7 +237,7 @@ const Home: React.FC = () => {
     } catch (error) {
       console.error('in get match data error' + error);
     }
-  };
+  };*/
 
   const cancelMatchmaking = async () => {
     try {
@@ -243,6 +248,8 @@ const Home: React.FC = () => {
       console.log(response);
       dispatch(setIsInMatchmaking(false));
       setSearchingForMatch(false);
+      ws.current!.close();
+      ws.current = null
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
         console.log(error.response.message);
@@ -261,6 +268,10 @@ const Home: React.FC = () => {
       if (response.data.result) {
         console.log('User is in matchmaking');
         setSearchingForMatch(true);
+        if (!ws.current) {
+          setupSocket();
+        }
+        
       } else {
         console.log('User is not in matchmaking');
         setSearchingForMatch(false);
@@ -287,30 +298,27 @@ const Home: React.FC = () => {
   };
 
   const [loading, setLoading] = useState(true);
+  const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (userData) {
-      setWatchLists(userData.watchLists);
-    }
-  }, [userData]);
-
-  useEffect(() => {
-    setLoading(true);
-    const getUserID = async () => {
-      console.log('Getting userID');
-      const userID = await AsyncStorage.getItem('userID');
-      console.log('In HOME, UserID:', userID);
-      setUserID(userID!);
-    };
-    getUserID();
-    getIsInMatchMaking();
-    fetchMatchIDs();
+      setLoading(true);
+      const getUserID = async () => {
+        console.log('Getting userID');
+        const userID = await AsyncStorage.getItem('userID');
+        console.log('In HOME, UserID:', userID);
+        setUserID(userID!);
+      };
+      getUserID();
+      getIsInMatchMaking();
+      fetchMatchIDs();
   }, []);
 
   useEffect(() => {
-    if (activeMatches){
+    if (activeMatches) {
       if (activeMatches.length !== 0) {
-        getMatchData();
+        console.log("GETTING MATCH DATA!!!!!")
+        setNoMatches(false)
+        setLoading(false)
       } else {
         setNoMatches(true)
         setLoading(false)
@@ -405,7 +413,11 @@ const Home: React.FC = () => {
 
   const handleEnterMatchmaking = async (wager: number, matchLength: number, matchType: String) => {
     //retrieve user's skill rating
-
+    if (!ws.current) {
+      console.log("SETTING UP THE SERVER FOR MATCHMAKING")
+      setupSocket()
+    }
+    
     console.log(wager);
     console.log(matchLength);
     console.log(matchType);
@@ -440,7 +452,7 @@ const Home: React.FC = () => {
 
 
   //websocket stuff
-  const ws = useRef<WebSocket | null>(null);
+
   
   function uint8ArrayToString(array:any) {
     return array.reduce((data:any, byte:any) => data + String.fromCharCode(byte), '');
@@ -463,7 +475,7 @@ const Home: React.FC = () => {
         if (ws.current!) {
           console.log(`Connection for Matchmaking Websocket is open and ready for messages`);
           // first send match ID
-          ws.current!.send(JSON.stringify({ userID: userID }))
+          ws.current!.send(JSON.stringify({ type: "matchmaking", userID: userID }));
         } else {
           console.log('WebSocket is not open');
         }
@@ -472,20 +484,27 @@ const Home: React.FC = () => {
 
       // WebSocket message handling
       ws.current.onmessage = (event) => {
-        const buffer = new Uint8Array(event.data);
-
         if (event.data == "Websocket connected successfully") {
           return;
         }
 
-        const message = uint8ArrayToString(buffer); 
+        const message = event.data;
+
+        console.log("Home websocket message received:", message);
 
         try {
           const JSONMessage = JSON.parse(message);
           // Change stream handling for new matches
-          if (message.type == "matchCreated") {
-            const newMatch = message.newMatch;
-            console.log("NEW MATCH HAS BEEN CREATED FROM MATCHMAKING. Here it is:", newMatch);
+          if (JSONMessage.type == "matchCreated") {
+            const newMatch = JSONMessage.newMatch;
+            // do logic to display new match
+            activeMatches.push(newMatch.matchID)
+            setNoMatches(false)
+            dispatch(setIsInMatchmaking(false));
+            setSearchingForMatch(false)
+            ws.current!.close()
+            ws.current = null
+            console.log("MATCH ADDED:", newMatch.matchID)
           }
         } catch (error) {
           console.error("Error processing WebSocket message:", error);
@@ -537,6 +556,42 @@ const Home: React.FC = () => {
     </View>
   );
 
+  const [showAdditionalButtons, setShowAdditionalButtons] = useState(false);
+
+  const translateY = useRef(new Animated.Value(50)).current; // Start slightly below the button
+  const opacity = useRef(new Animated.Value(0)).current;
+
+
+  const toggleAdditionalButtons = () => {
+    if (showAdditionalButtons) {
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 50,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setShowAdditionalButtons(false));
+    } else {
+      setShowAdditionalButtons(true);
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  };
 
   if (loading) {
     return (
@@ -562,11 +617,8 @@ const Home: React.FC = () => {
   }
 
   return (
-    <LinearGradient
-      colors={[theme.colors.background, theme.colors.background]}
-      start={{x: 0, y: 0}}
-      end={{x: 1, y: 1}}
-      style={{flex: 1}}>
+    <View
+      style={{backgroundColor: theme.colors.background, flex: 1}}>
       <View style={styles.container}>
           <View style={styles.header}>
             <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10}}>
@@ -643,27 +695,28 @@ const Home: React.FC = () => {
               <FlatList
                 data={
                   searchingForMatch || isInMatchmaking
-                    ? [...matchData, null]
-                    : matchData
+                    ? [...activeMatches, null]
+                    : activeMatches
                 }
-                renderItem={({item, index}) =>
-                 
+                renderItem={({item, index}) => {
+                  return (
                   item ? (
                     <>
-                        <GameCard userID={userID} matchID={item} activeMatches={activeMatches} setActiveMatches={setActiveMatches}/>
-                        <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary, marginVertical: 10}}></View>
+                      <GameCard userID={userID} matchID={item}/>
+                      <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary}}></View>
                     </> 
                   ) : (
                     <>
                       <GameCardSkeleton/>
-                      <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary, marginVertical: 10}}></View>
+                      <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary}}></View>
                     </> 
                
-                  )
+                  ))
+                  }
                 }
                 keyExtractor={(item, index) => index.toString()}
                 ItemSeparatorComponent={() => <View style={{width: 0}}></View>}
-      
+                initialNumToRender={5}
                 //pagingEnabled
                 //snapToInterval={width}
 
@@ -673,6 +726,7 @@ const Home: React.FC = () => {
                 //decelerationRate={-10}
                 onViewableItemsChanged={onViewRef.current}
                 viewabilityConfig={viewConfigRef.current}
+                
               />}
 
             </View>
@@ -685,16 +739,41 @@ const Home: React.FC = () => {
 
               
         </View>
-
+            {
             <View style={{position: 'absolute', right: 0, bottom: 0}}>
-              {searchingForMatch || isInMatchmaking ? <TouchableOpacity style={[styles.addButton]} onPress={cancelAlert}>
+              {(searchingForMatch || isInMatchmaking) ? <TouchableOpacity style={[styles.addButton]} onPress={cancelAlert}>
                 <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold', fontSize: 20}}>Cancel Matchmaking</Text>
                 <SmallActivityIndicator />
-              </TouchableOpacity>: <TouchableOpacity style={[styles.addButton, {backgroundColor: theme.colors.purpleAccent}]} onPress={expandBottomSheet}>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Start a Match</Text>
-                <Icon name="plus" size={20} color={theme.colors.text} />
-              </TouchableOpacity>}
+              </TouchableOpacity>: 
+             <View>
+              {showAdditionalButtons && (
+                <Animated.View style={[{position: 'absolute', right: 0, bottom: 50, zIndex: 0}, { transform: [{ translateY }], opacity }]}>
+                  {/* Add your additional buttons here */}
+                  <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.colors.purpleAccent, flexDirection: 'row' }]}>
+
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Stock</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.colors.purpleAccent, flexDirection: 'row' }]}>
+                  
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Crypto</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.colors.purpleAccent, flexDirection: 'row' }]}>
+                    
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Options</Text>
+                  </TouchableOpacity>
+                  {/* Add more buttons as needed */}
+                </Animated.View>
+              )}
+              <TouchableOpacity
+                style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.purpleAccent, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.purpleAccent : 'transparent', borderWidth: 2}]}
+                onPress={toggleAdditionalButtons}
+              >
+                {showAdditionalButtons ? <Text style={{ color: theme.colors.purpleAccent, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Start a Match</Text>}
+                {!showAdditionalButtons && <Icon name="plus" size={20} color={theme.colors.text} />}
+              </TouchableOpacity>
+            </View>}
             </View>
+            }
             <BottomSheet
               ref={bottomSheetRef}
               snapPoints={[600]}
@@ -863,7 +942,7 @@ const Home: React.FC = () => {
               </BottomSheetView>
             </BottomSheet>
           </View>
-    </LinearGradient>
+    </View>
   );
 };
 

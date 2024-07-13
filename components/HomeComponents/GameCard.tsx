@@ -5,7 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {GraphPoint, LineGraph} from 'react-native-graph';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import axios from 'axios';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
@@ -19,6 +19,9 @@ import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websock
 import { useDispatch, useSelector } from 'react-redux';
 import { addOrUpdateMatch } from '../../GlobalDataManagment/matchesSlice';
 import { RootState } from '../../GlobalDataManagment/store';
+import { BlurView } from '@react-native-community/blur';
+import { Animated } from 'react-native';
+
 
 
 const GameCard = (props: any) => {
@@ -68,10 +71,15 @@ const GameCard = (props: any) => {
 
   const matches = useSelector((state: RootState) => state.matches);
 
+  const [matchIsOver, setMatchIsOver] = useState(false)
+
+  Icon.loadFont()
+
   //const { yourAssets, opponentAssets } = matches[matchID].;
 
   const getMatchData = async () => {
     try {
+      console.log("MATCH ID FROM HOME.TSX", matchID)
       const matchDataResponse = await axios.post(serverUrl + '/getMatchData', { matchID: matchID });
       if (matchDataResponse) {
         console.log("About to set match, STEP 2 should run in a sec");
@@ -212,30 +220,12 @@ const GameCard = (props: any) => {
     console.log("POST STEP 1: Just got match data");
   }, [])
 
-  const end = new Date(match.endAt);
-  const now = new Date();
-  const timeUntilEnd = end.getTime() - now.getTime();
-  //sets match data (i.e. point data, other username)
   useEffect(() => {
     if (match) {
-      console.log("STEP 2: SETTING UNFORMATTED POINT DATA")
-      if (timeUntilEnd <= 0) {
-        // If the match end time has already passed, navigate back immediately
-        //navigation.navigate('Home');
-        props.setActiveMatches(props.activeMatches.filter((match:any) => match.matchID !== matchID))
-      } else {
-        // Set a timeout to navigate back when the match ends
-        const timeoutId = setTimeout(() => {
-          // TODO: add popup saying match has ended
-          navigation.navigate('Home');
-        }, timeUntilEnd);
-
-        // Clear timeout if the component unmounts before the match ends
-        return () => clearTimeout(timeoutId);
-      }
-      setData();
+      setData()
     }
-  }, [match]);
+  }, [match])
+
 
   // Log the state to check if data is populated
   useEffect(() => {
@@ -343,6 +333,32 @@ const GameCard = (props: any) => {
     return null;
   }
 
+  /**
+   * Use effect for setting game over
+   */
+  useEffect(() => {
+    if (match && match.endAt) {
+      // Calculate time until match end
+      const end = new Date(match.endAt);
+      const now = new Date();
+      const timeUntilEnd = end.getTime() - now.getTime();
+
+      if (timeUntilEnd <= 0) {
+        // If the match end time has already passed, set the matchIsOver state variable
+        setMatchIsOver(true);
+      } else {
+        // Set a timeout to navigate back when the match ends
+        const timeoutId = setTimeout(() => {
+          // TODO: add popup saying match has ended
+          setMatchIsOver(true);
+        }, timeUntilEnd);
+
+        // Clear timeout if the component unmounts before the match ends
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [match, navigation]);
+
   const ws = useRef<WebSocket | null>(null);
 
   const [retries, setRetries] = useState(0);
@@ -361,7 +377,7 @@ const GameCard = (props: any) => {
   
   const sendHeartbeat = () => {
     if (ws.current) {
-      console.log("SENDING WS HEARTBEAT")
+      //console.log("SENDING WS HEARTBEAT")
       const heartbeat = {type: "heartbeat"}
       ws.current.send(JSON.stringify(heartbeat))
     }
@@ -644,6 +660,19 @@ const GameCard = (props: any) => {
 
   return (
     <View>
+      {matchIsOver && 
+      <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0}} blurType="dark" blurAmount={2} reducedTransparencyFallbackColor="black">
+        <Icon name="checkmark-circle" color={theme.colors.accent} size={40}/>
+        <Text style={{fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Match Completed!</Text>
+        <View style={{flexDirection: 'row', gap: 5}}>
+          <TouchableOpacity style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
+            <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>View Results</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
+            <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>Dismiss</Text>
+          </TouchableOpacity>
+        </View>
+      </BlurView>}
     {!loading && match ?
     <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
       navigation.navigate("GameScreen", {

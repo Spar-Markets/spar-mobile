@@ -27,6 +27,7 @@ import {
 } from './components/ContextComponents/ThemeContext';
 import {StatusBarHeightProvider} from './components/ContextComponents/StatusBarHeightContext';
 import {DimensionsProvider} from './components/ContextComponents/DimensionsContext';
+import editProfilePage from './components/ProfileComponents/editProfilePage';
 import EnterMatch from './components/HeadToHeadComponents/EnterMatch';
 import CommentPage from './components/FeedComponents/CommentPage';
 import Feed from './components/FeedComponents/Feed';
@@ -234,6 +235,15 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="FollowersFollowing"
             component={FollowersFollowing}
+            options={{
+              headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+            }}
+          />
+          <Stack.Screen
+            name="editProfilePage"
+            component={editProfilePage}
             options={{
               headerShown: false,
               gestureEnabled: true,
