@@ -11,6 +11,7 @@ interface UserData {
   balance: Number
   createdAt: string;
   email: string;
+  bio: string;
   pastmatches: any[];
   plaidPersonalAccess: string;
   skillRating: Number

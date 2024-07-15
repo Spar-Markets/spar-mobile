@@ -39,6 +39,7 @@
     "react-native-animated-numbers": "^0.6.2",
     "react-native-aws3": "^0.0.9",
     "react-native-circular-progress-indicator": "^4.4.2",
+    "react-native-confetti-cannon": "^1.5.2",
     "react-native-config": "^1.5.2",
     "react-native-countdown-circle-timer": "^3.2.1",
     "react-native-element-dropdown": "^2.10.2",

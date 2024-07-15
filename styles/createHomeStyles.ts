@@ -339,7 +339,7 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     addButton: {
       height: 40,
-      width: 150,
+      width: width/2.5,
       borderRadius: 30,
       paddingHorizontal: 15,
       backgroundColor: theme.colors.accent,
@@ -347,14 +347,14 @@ const createHomeStyles = (theme: any, width: number) => {
       alignItems: 'center',
       elevation: 1000,
       zIndex: 1000,
-      marginHorizontal: 20,
+      marginRight: 20,
       marginBottom: 10,
       flexDirection: 'row',
       gap: 10
   },
   matchmakingCategory: {
-    marginHorizontal: 20, 
-    backgroundColor: theme.colors.accent, 
+    marginHorizontal: 10, 
+    backgroundColor: theme.colors.secondary, 
     paddingHorizontal: 15, 
     paddingVertical: 6,
     borderRadius: 5,
@@ -363,17 +363,19 @@ const createHomeStyles = (theme: any, width: number) => {
     gap: 10
   },
   matchmakingCategoryText: {
-    color: theme.colors.background,
-    fontFamily: 'InterTight-Bold'
+    color: theme.colors.secondaryText,
+    fontFamily: 'InterTight-Bold',
+    marginLeft: 10
   },
   matchmakingWagerBtn: {
     height: 40,
-    width: 80,
-    backgroundColor: theme.colors.primary,
+    flex: 1,
+    backgroundColor: theme.colors.background,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10
+    borderWidth: 2,
+    borderColor: theme.colors.background
   },
   matchmakingWagerTxt: {
     color: theme.colors.text,

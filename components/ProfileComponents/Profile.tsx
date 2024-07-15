@@ -152,7 +152,7 @@ const Profile  = ({ navigation }: any) => {
                 { 
                   userID: userData?.userID, 
                   username: userData?.username,
-                  // bio: userData?.bio
+                  bio: userData?.bio
                 })
               }
             >
@@ -169,7 +169,7 @@ const Profile  = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
           
-          <Text style={styles.bioText}>Trading is too easy</Text>
+          <Text style={styles.bioText}>{userData.bio}</Text>
           
           {/*REFER A FRIEND*/}
           <View style={{marginTop: 15}}>

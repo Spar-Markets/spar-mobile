@@ -7,9 +7,9 @@ import useUserData from "./useUser";
  */
 const useUserDetails = () => {
   const { userID, user } = useAuthenticatedUser();
-  const { userData, loading, error } = useUserData(userID);
+  const { userData, loading } = useUserData(userID);
   
-  return { user, userData, loading, error };
+  return { user, userData, loading };
 };
 
 export default useUserDetails;

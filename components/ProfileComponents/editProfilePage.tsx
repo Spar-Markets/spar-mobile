@@ -41,182 +41,71 @@ import {storage} from '../../firebase/firebase';
 import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
-import {useDispatch, useSelector} from 'react-redux';
-import {setProfileImageUri} from '../../GlobalDataManagment/imageSlice';
-import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
-import WatchlistButton from '../HomeComponents/WatchlistButton';
-import {SegmentedButtons} from 'react-native-paper';
+import PageHeader from '../GlobalComponents/PageHeader';
 
-const Profile = ({navigation}: any) => {
+interface RouteParams {
+  userID: string,
+  username: string,
+  bio: string
+}
+
+const Profile = ({navigation, route}: any) => {
   const {theme} = useTheme();
   const {width, height} = useDimensions();
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
-  const [image, setImage] = useState<string | null>(null);
-  const [watchLists, setWatchLists] = useState<Object[]>([]);
-  const [newBioValue, setNewBioVal] = useState<string>("")
 
-  MaterialCommunityIcons.loadFont();
-  MaterialIcons.loadFont();
+  // Route params: userID, username, and bio
+  const { userID, username, bio } = route.params as RouteParams;
+
+  // username and bio state
+  // TODO: Set default state to current username and bio, passed in through route params
+  const [newUsername, setNewUsername] = useState<string>(username);
+  const [newBio, setNewBio] = useState<string>(bio)
 
   const {userData} = useUserDetails();
 
-  const [loading, setLoading] = useState(true);
+  const handleSaveProfile = async () => {
+    // Format new profile data to send to server
+    const newProfileData = {
+      userID: userID,
+      newUsername: newUsername,
+      newBio: newBio
+    }
 
+    console.log("New Username:", newUsername);
+    console.log("New bio:", newBio);
 
-  const handleBioChange = async () => {
-    //ensure that the new bio value does not equal params.bioText so that it is a valid change 
-    //enable or disable a button based on a boolean variable
-  }
+    // Call server
+    try {
+      const response = axios.post(serverUrl + "/updateUserProfile", newProfileData);
 
-  useEffect(() => {
-    const getProfileImage = async () => {
-      try {
-        const profileImagePath = await AsyncStorage.getItem('profileImgPath');
-        if (profileImagePath) {
-          console.log(
-            'Profile image path from AsyncStorage:',
-            profileImagePath,
-          );
-          setImage(profileImagePath);
+      // TODO: Set new username and userbio locally. Potentially redux. Your call Joe
+    } catch (error: any) {
+      // Handle errors
+      if (error.response) {
+        if (error.response.status == 409) {
+          // TODO: Handle this. This error code will happen if username is already taken
+        } else {
+          // TODO: Handle generic server error
         }
-      } catch (error) {
-        console.error('Failed to load profile image path:', error);
-      } finally {
-        setLoading(false);
       }
-    };
-    getProfileImage();
-  }, []);
-
-  useEffect(() => {
-    if (userData) {
-      setWatchLists(userData.watchLists);
     }
-  }, [userData]);
 
-  const dispatch = useDispatch();
-  const profileImageUri = useSelector(
-    (state: any) => state.image.profileImageUri,
-  );
-
-  const choosePhotoFromLibrary = () => {
-    ImagePicker.openPicker({
-      cropping: true,
-      cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
-      cropperToolbarColor: theme.colors.accent, // Toolbar color of the cropper
-      cropperToolbarWidgetColor: theme.colors.text, // Toolbar widget color of the cropper
-      cropperCircleOverlay: true,
-      width: 100,
-      height: 100,
-    })
-      .then(async (image: any) => {
-        const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-        setImage(imageUri);
-        console.log(imageUri);
-        uploadProfileImageToFirebase(imageUri);
-        await AsyncStorage.setItem('profileImgPath', imageUri);
-
-        dispatch(setProfileImageUri(imageUri));
-      })
-      .catch((error: any) => {
-        console.log('Image picker error:', error);
-      });
-  };
-
-  const uploadProfileImageToFirebase = async (imageUri: string) => {
-    if (imageUri) {
-      const uri = imageUri; // The URI of the image to be resized
-      const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
-      const quality = 100; // The quality of the resized image (0-100)
-
-      ImageResizer.createResizedImage(uri, 150, 150, format, quality).then(
-        async response => {
-          const imageRes = await fetch(response.uri);
-          const blob = await imageRes.blob();
-          const imgRef = ref(storage, `profileImages/${userData?.userID}`);
-          await uploadBytes(imgRef, blob);
-          console.log('Image uploaded successfully');
-        },
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (image) {
-      setLoading(false);
-    }
-  }, [image]);
-
-  const [value, setValue] = useState('');
-
-  if (loading || !userData) {
-    return <View></View>;
+    // TODO: Navigate back to ProfilePage
   }
 
   return (
+    // TODO: Set restraints on bio and username (length, characters, etc.)
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={{flex: 1}}></View>
-        <TouchableOpacity
-          style={styles.headerBtn}
-          onPress={() => navigation.navigate('ProfileSearch')}>
-          <Icon name={'search'} size={24} color={theme.colors.opposite} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.headerBtn}
-          onPress={() => navigation.navigate('ProfileActivity')}>
-          <Icon name={'heart'} size={24} color={theme.colors.opposite}></Icon>
-          <View
-            style={{
-              position: 'absolute',
-              right: 5,
-              top: -2,
-              height: 12,
-              width: 12,
-              backgroundColor: 'red',
-              borderRadius: 100,
-              borderWidth: 2,
-              borderColor: theme.colors.background,
-            }}></View>
-        </TouchableOpacity>
+      <PageHeader text="Edit Profile"/>
+      <View style={{marginHorizontal: 20}}>
+        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Edit Username</Text>
+        <TextInput style={{color: theme.colors.text, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.tertiary, padding: 20}} onChangeText={setNewUsername} value={newUsername}/>
+        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Edit Bio</Text>
+        <TextInput style={{color: theme.colors.text, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.tertiary, padding: 20}} onChangeText={setNewBio} value={newBio}/>
+        <Button title="Save" onPress={handleSaveProfile}/>
       </View>
-      <ScrollView style={{marginHorizontal: 20}}>
-        <TouchableOpacity onPress={choosePhotoFromLibrary}>
-          {image ? (
-            <Image style={styles.profilePic} source={{uri: image}} />
-          ) : (
-            <View style={styles.profilePic}>
-              <Text
-                style={{
-                  fontFamily: 'InterTight-Black',
-                  color: theme.colors.text,
-                  fontSize: 15,
-                }}>
-                {'💸' /*userData?.username.slice(0,1).toUpperCase()*/}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-
-        <View style={{marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
-          <Text style={styles.usernameText}>Current Username: {userData?.username}</Text>
-          </View>
-
-          <TextInput
-          value={newBioValue}
-          onChange={handleBioChange()}
-          />
-
-          {/* make a text field here */}
-          <Text style={styles.bioText}>Current Bio: Trading is too easy</Text>
-
-          <TextInput
-            value={newBioValue}
-          />
-
-        <View style={{marginVertical: 20}}></View>
-      </ScrollView>
     </View>
   );
 };

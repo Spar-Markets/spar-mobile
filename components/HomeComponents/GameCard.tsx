@@ -21,10 +21,19 @@ import { addOrUpdateMatch } from '../../GlobalDataManagment/matchesSlice';
 import { RootState } from '../../GlobalDataManagment/store';
 import { BlurView } from '@react-native-community/blur';
 import { Animated } from 'react-native';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 
+interface GameCardProps {
+  userID: string;
+  matchID: string;
+  setActiveMatches: React.Dispatch<React.SetStateAction<any[]>>; // Adjust the type as per your needs
+  expandMatchSummarySheet: any
+  setActiveMatchSummaryMatchID: any
+}
 
-const GameCard = (props: any) => {
+
+const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, expandMatchSummarySheet, setActiveMatchSummaryMatchID }) => {
   const colorScheme = useColorScheme();
   const navigation = useNavigation<any>();
 
@@ -64,14 +73,14 @@ const GameCard = (props: any) => {
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
 
-  const userID = props.userID;
-  const matchID = props.matchID;
 
   const dispatch = useDispatch()
 
   const matches = useSelector((state: RootState) => state.matches);
 
   const [matchIsOver, setMatchIsOver] = useState(false)
+
+  const ws = useRef<WebSocket | null>(null);
 
   Icon.loadFont()
 
@@ -346,11 +355,17 @@ const GameCard = (props: any) => {
       if (timeUntilEnd <= 0) {
         // If the match end time has already passed, set the matchIsOver state variable
         setMatchIsOver(true);
+        console.log("CURRENT CLOSING THE GAMECARD WEBSOCKET SINCE MATCH ENDED")
+        ws.current!.close()
+        dispatch(removeWebSocket(matchID))
       } else {
         // Set a timeout to navigate back when the match ends
         const timeoutId = setTimeout(() => {
           // TODO: add popup saying match has ended
           setMatchIsOver(true);
+          console.log("CURRENT CLOSING THE GAMECARD WEBSOCKET SINCE MATCH ENDED")
+          ws.current!.close()
+          dispatch(removeWebSocket(matchID))
         }, timeUntilEnd);
 
         // Clear timeout if the component unmounts before the match ends
@@ -359,7 +374,6 @@ const GameCard = (props: any) => {
     }
   }, [match, navigation]);
 
-  const ws = useRef<WebSocket | null>(null);
 
   const [retries, setRetries] = useState(0);
 
@@ -665,19 +679,19 @@ const GameCard = (props: any) => {
         <Icon name="checkmark-circle" color={theme.colors.accent} size={40}/>
         <Text style={{fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Match Completed!</Text>
         <View style={{flexDirection: 'row', gap: 5}}>
-          <TouchableOpacity style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
+          <TouchableOpacity onPress={() => {setActiveMatchSummaryMatchID(matchID); expandMatchSummarySheet()}} style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
             <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>View Results</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
+          <TouchableOpacity onPress={() => setActiveMatches(prevMatches => prevMatches.filter(match => match !== matchID))} style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
             <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>Dismiss</Text>
           </TouchableOpacity>
-        </View>
+        </View> 
       </BlurView>}
     {!loading && match ?
     <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
       navigation.navigate("GameScreen", {
         matchID: match.matchID, 
-        userID: props.userID, 
+        userID: userID, 
         endAt: match.endAt,
         opponentUsername: opponentUsername,
       })

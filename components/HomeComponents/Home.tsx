@@ -119,11 +119,7 @@ const Home: React.FC = () => {
   const [timeframeSelected, setTimeFrameSelected] = useState(900)
   const [modeSelected, setModeSelected] = useState("Stock")
 
-  const [startMatchState, setStartMatchState] = React.useState({ open: false });
-
-  const onStartMatchStateChange = ({ open }:any) => setStartMatchState({ open });
-
-  const { open } = startMatchState;
+  const [activeMatchSummaryMatchID, setActiveMatchSummaryMatchID] = useState("")
 
   const isInMatchmaking = useSelector(
     (state: any) => state.user.isInMatchmaking,
@@ -358,6 +354,7 @@ const Home: React.FC = () => {
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const infoSheetRef = useRef<BottomSheet>(null)
+  const matchSummaryRef = useRef<BottomSheet>(null);
 
   const expandBottomSheet = async () => {
     try {
@@ -391,6 +388,22 @@ const Home: React.FC = () => {
     }
   };
 
+  const expandMatchSummarySheet = async () => {
+    try {
+      matchSummaryRef.current?.expand(); // Expand the Bottom Sheet when star is clicked
+    } catch {
+      console.log('error watching stock');
+    }
+  };
+
+  const closeMatchSummarySheet = async () => {
+    try {
+      matchSummaryRef.current?.close(); // Expand the Bottom Sheet when star is clicked
+    } catch {
+      console.log('error watching stock');
+    }
+  };
+
 	const renderBackdrop = useCallback(
 		(props:any) => (
 			<BottomSheetBackdrop
@@ -408,6 +421,10 @@ const Home: React.FC = () => {
   }, []);
 
   const handleInfoChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  const handleMatchSummaryChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
 
@@ -551,8 +568,8 @@ const Home: React.FC = () => {
 
   const ruleMessage = (title:string, message:string) => (
     <View>
-        <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>{title}</Text>
-        <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Bold' }}>{message}</Text>
+        <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 15 }}>{title}</Text>
+        <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Semibold' }} adjustsFontSizeToFit numberOfLines={3}>{message}</Text>
     </View>
   );
 
@@ -560,6 +577,7 @@ const Home: React.FC = () => {
 
   const translateY = useRef(new Animated.Value(50)).current; // Start slightly below the button
   const opacity = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
 
 
   const toggleAdditionalButtons = () => {
@@ -567,12 +585,18 @@ const Home: React.FC = () => {
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: 50,
-          duration: 100,
+          duration: 150,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
           toValue: 0,
-          duration: 100,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0,
+          duration: 150,
+          easing: Easing.out(Easing.quad),
           useNativeDriver: true,
         }),
       ]).start(() => setShowAdditionalButtons(false));
@@ -581,17 +605,29 @@ const Home: React.FC = () => {
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: 0,
-          duration: 100,
+          duration: 150,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
           toValue: 1,
-          duration: 100,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0.8,
+          duration: 150,
+          easing: Easing.out(Easing.quad),
           useNativeDriver: true,
         }),
       ]).start();
     }
   };
+
+  const interpolatedOpacity = opacityAnim.interpolate({
+    inputRange: [0, 0.8],
+    outputRange: [0, 0.8],
+  });
+  
 
   if (loading) {
     return (
@@ -702,7 +738,7 @@ const Home: React.FC = () => {
                   return (
                   item ? (
                     <>
-                      <GameCard userID={userID} matchID={item}/>
+                      <GameCard userID={userID} matchID={item} setActiveMatches={setActiveMatches} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID}/>
                       <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary}}></View>
                     </> 
                   ) : (
@@ -740,6 +776,21 @@ const Home: React.FC = () => {
               
         </View>
             {
+            <>
+            {showAdditionalButtons &&         
+            <Animated.View
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                right: 0,
+                left: 0,
+                backgroundColor: theme.colors.background,
+                opacity: interpolatedOpacity
+              }}
+            >
+          <TouchableOpacity onPress={() => toggleAdditionalButtons()} style={{ flex: 1 }} />
+        </Animated.View>}
             <View style={{position: 'absolute', right: 0, bottom: 0}}>
               {(searchingForMatch || isInMatchmaking) ? <TouchableOpacity style={[styles.addButton]} onPress={cancelAlert}>
                 <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold', fontSize: 20}}>Cancel Matchmaking</Text>
@@ -749,34 +800,40 @@ const Home: React.FC = () => {
               {showAdditionalButtons && (
                 <Animated.View style={[{position: 'absolute', right: 0, bottom: 50, zIndex: 0}, { transform: [{ translateY }], opacity }]}>
                   {/* Add your additional buttons here */}
-                  <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.colors.purpleAccent, flexDirection: 'row' }]}>
+                  <TouchableOpacity onPress={() => {expandBottomSheet(); toggleAdditionalButtons()}} style={[styles.addButton, { backgroundColor: theme.colors.accent, flexDirection: 'row' }]}>
 
-                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Stock</Text>
+                    <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black' }}>Stock</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.colors.purpleAccent, flexDirection: 'row' }]}>
-                  
-                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Crypto</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.colors.purpleAccent, flexDirection: 'row' }]}>
-                    
-                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Options</Text>
-                  </TouchableOpacity>
+                  <View style={[styles.addButton, { gap: 2, backgroundColor: theme.colors.primary, flexDirection: 'row' }]}>
+                    <MaterialIcons name="construction" size={24} color={theme.colors.tertiary}/>
+                    <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black' }}>Crypto</Text>
+                  </View>
+                  <View style={[styles.addButton, { gap: 2, backgroundColor: theme.colors.primary, flexDirection: 'row' }]}>
+                    <MaterialIcons name="construction" size={24} color={theme.colors.tertiary}/>
+                    <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black' }}>Options</Text>
+                  </View>
                   {/* Add more buttons as needed */}
                 </Animated.View>
               )}
+              <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity style={{height: 40, borderRadius: 50, backgroundColor: theme.colors.purpleAccent, width: 40, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
+                  <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.purpleAccent, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.purpleAccent : 'transparent', borderWidth: 2}]}
-                onPress={() => {toggleAdditionalButtons(); expandBottomSheet()}}
+                onPress={() => {toggleAdditionalButtons()}}
               >
-                {showAdditionalButtons ? <Text style={{ color: theme.colors.purpleAccent, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Start a Match</Text>}
-                {!showAdditionalButtons && <Icon name="plus" size={20} color={theme.colors.text} />}
+                {showAdditionalButtons ? <Text style={{ color: theme.colors.purpleAccent, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black' }}>Start a Match</Text>}
+                {!showAdditionalButtons && <Icon name="plus" size={20} color={theme.colors.background} />}
               </TouchableOpacity>
+              </View>
             </View>}
             </View>
+            </>
             }
             <BottomSheet
               ref={bottomSheetRef}
-              snapPoints={[600]}
+              snapPoints={[470]}
               index={-1}
               enablePanDownToClose
               onChange={handleSheetChanges}  
@@ -786,28 +843,26 @@ const Home: React.FC = () => {
             >
               <BottomSheetView style={{flex: 1}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', marginHorizontal: 20}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 24}}>Head-to-Head Matchmaking</Text>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>Stock PVP</Text>
                   <View style={{flex: 1}}></View>
-                  <TouchableOpacity style={{paddingLeft: 10}} onPress={closeBottomSheet}>
-                    <Icon name="close" color={theme.colors.text} size={30}></Icon>
-                  </TouchableOpacity>
-                </View>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                <View>
-                  <View style={{flexDirection: 'row', marginVertical: 10, marginTop: 10}}>
-                    <View style={styles.matchmakingCategory}>
-                      <Text style={styles.matchmakingCategoryText}>Select Wager</Text>
-                      <Icon name="money" size={20} color={theme.colors.background}></Icon>
-                    </View>
+                  <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5}}>
+                    <View style={{width: 7, height: 7, borderRadius: 50, backgroundColor: theme.colors.accent}}/>
+                    <Text style={{fontFamily: 'InterTight-Regular', color: theme.colors.accent}}>156 Playing</Text>
                   </View>
-                    <ScrollView horizontal style={{paddingHorizontal: 20}} showsHorizontalScrollIndicator={false}>
+                </View>
+                <View>
+                <View style={{backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 10, borderRadius: 10}}>
+                  <View style={{flexDirection: 'row', marginVertical: 10, marginTop: 10}}>
+                    
+                      <Text style={styles.matchmakingCategoryText}>Select Wager</Text>
+                    
+                  </View>
+                    <View style={{paddingHorizontal: 10, marginBottom: 10, flexDirection: 'row', gap: 5}}>
                     {[
                       {amount: 0, label: 'Free'},
                       {amount: 5, label: '$5'},
                       {amount: 10, label: '$10'},
                       {amount: 25, label: '$25'},
-                      {amount: 100, label: '$100'},
-                      {amount: 250, label: '$250'}
                     ].map((wager, index) => (
                       <TouchableOpacity
                         key={wager.amount}
@@ -821,97 +876,58 @@ const Home: React.FC = () => {
                         <Text style={styles.matchmakingWagerTxt}>{wager.label}</Text>
                       </TouchableOpacity>
                     ))}
-                  </ScrollView>
-                </View>
-                <View>
-                  <View style={{flexDirection: 'row', marginVertical: 10}}>
-                    <View style={styles.matchmakingCategory}>
-                      <Text style={styles.matchmakingCategoryText}>Select Timeframe</Text>
-                      <EntypoIcons name="time-slot" size={20} color={theme.colors.background}></EntypoIcons>
-                    </View>
                   </View>
-                  <ScrollView horizontal style={{paddingHorizontal: 20}} showsHorizontalScrollIndicator={false}>
+                </View>
+                <View style={{backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 10, borderRadius: 10}}>
+                  <View style={{flexDirection: 'row', marginVertical: 10, marginTop: 10}}>
+
+                      <Text style={styles.matchmakingCategoryText}>Select Timeframe</Text>
+
+                  </View>
+                    <View style={{paddingHorizontal: 10, marginBottom: 10, flexDirection: 'row', gap: 5}}>
                     {[
                       {amount: 900, label: '15m'},
-                      {amount: 3600, label: '1hr'},
-                      {amount: 84600, label: '1d'},
-                      {amount: 592200, label: '1w'},
+                      {amount: 86400, label: '1d'},
+                      {amount: 604800, label: '1w'},
                     ].map((timeframe, index) => (
                       <TouchableOpacity
                         key={timeframe.amount}
                         style={[
                           styles.matchmakingWagerBtn,
                           timeframeSelected == timeframe.amount && {borderColor: theme.colors.text, borderWidth: 2},
-                          index === 4 && {marginRight: 40}
+                          index === 5 && {marginRight: 40}
                         ]}
                         onPress={() => setTimeFrameSelected(timeframe.amount)}
                       >
                         <Text style={styles.matchmakingWagerTxt}>{timeframe.label}</Text>
                       </TouchableOpacity>
                     ))}
-                  </ScrollView>
-                </View>
-                <View>
-                  <View style={{flexDirection: 'row', marginVertical: 10}}>
-                    <View style={styles.matchmakingCategory}>
-                      <Text style={styles.matchmakingCategoryText}>Select Mode</Text>
-                      <EntypoIcons name="area-graph" size={20} color={theme.colors.background}></EntypoIcons>
-                    </View>
                   </View>
-                  <ScrollView horizontal style={{paddingHorizontal: 20}} showsHorizontalScrollIndicator={false}>
-                    {[
-                      {label: 'Stock'},
-                      {label: 'Crypto'},
-                      {label: 'Options'},
-                    ].map((mode, index) => (
-                      <TouchableOpacity
-                        key={mode.label}
-                        style={[
-                          styles.matchmakingWagerBtn,
-                          modeSelected == mode.label && {borderColor: theme.colors.text, borderWidth: 2},
-                          index === 4 && {marginRight: 40}
-                        ]}
-                        onPress={() => setModeSelected(mode.label)}
-                      >
-                        <Text style={styles.matchmakingWagerTxt}>{mode.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
                 </View>
-                </ScrollView>
-                <View style={{width: width,backgroundColor: theme.colors.background, justifyContent: 'center', marginVertical: 10}}>
+                <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 20}}/>
+                <View style={{marginTop: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}>
+                  <View style={{alignItems: 'center'}}>
+                    <TouchableOpacity onPress={expandInfoSheet} style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+                      <Text style={{color:theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>Cost</Text>
+                      <MaterialIcons name={"info"} size={24} color={theme.colors.secondaryText}/>
+                    </TouchableOpacity>
+                    <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 28}}>${(1.1*(wagerSelected!)).toFixed(2)}</Text>
+                  </View>
+                  <View style={{marginHorizontal: 20}}>
+                  <Icon name="arrow-right" size={24} color={theme.colors.text}/>
+                  </View>
+                  <View style={{alignItems: 'center'}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+                      <Text style={{color:theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>Payout</Text>
+                    </View>
+                    <Text style={{color: theme.colors.accent, fontFamily: 'InterTight-Black', fontSize: 28}}>  ${ (2 * (wagerSelected!)).toFixed(2) }</Text>
+                  </View>
+                </View>
+                <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 20}}/>
+                </View>
+                <View style={{width: width,backgroundColor: theme.colors.background, justifyContent: 'center', marginVertical: 20}}>
                     {(wagerSelected != null && timeframeSelected != 0 && modeSelected != "") ? 
                     <>
-                    <View style={{flexDirection: 'row', marginHorizontal: 20, gap: 10}}>
-                      <View style={{marginVertical: 5, flexDirection: 'row', 
-                      backgroundColor: theme.colors.primary, padding: 10, borderRadius: 10, alignItems: 'center', gap: 10, flex: 1}}>
-                        <Icon name={"dollar"} size={24} color={theme.colors.opposite}></Icon>
-                        <View>
-                          {wagerSelected != 0 ? <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>Cost: ${(1.1* wagerSelected).toFixed(2)}</Text> :
-                          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>Cost: Free</Text>}
-                          <Text style={{color: theme.colors.secondaryText, fontSize: 14}}>(${wagerSelected.toFixed(2)} + ${(0.1*wagerSelected).toFixed(2)} Entry Fee)</Text>
-                        </View>
-                        <View style={{flex: 1}}></View>
-                      </View>
-                      <View style={{backgroundColor: theme.colors.primary, borderRadius: 10, justifyContent: 'center', padding: 10, marginVertical: 5,}}>
-                        <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-                          <View style={{flex: 1}}></View>
-                          <Text style={{color: theme.colors.accent, fontSize: 20, textAlign: 'right', fontFamily: 'InterTight-Bold', }}>29</Text>
-                        </View>
-                        <Text style={{color: theme.colors.accent, fontSize: 14, textAlign: 'right'}}>Players Matchmaking</Text>
-                      </View>
-                    </View>
-                    <LinearGradient colors={["#FFD700", "#FFA500"]} start={{x: 0, y: 0.5}} end={{x:1, y: 0.5}} style={{marginHorizontal: 20, marginTop: 5, marginBottom: 10, flexDirection: 'row', 
-                    backgroundColor: theme.colors.primary, padding: 10, borderRadius: 10, alignItems: 'center', gap: 10}}>
-                      <Icon name={"trophy"} size={24} color={theme.colors.background}></Icon>
-                      <View>
-                        <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold', fontSize: 20}}>Prize: ${(wagerSelected*2).toFixed(2)}</Text>
-                      </View>
-                      <View style={{flex: 1}}></View>
-                      <TouchableOpacity onPress={expandInfoSheet}>
-                        <Icon name={"info-circle"} size={24} color={theme.colors.background}></Icon>
-                      </TouchableOpacity>
-                    </LinearGradient>
                     <TouchableOpacity onPress={() => handleEnterMatchmaking(wagerSelected, timeframeSelected, modeSelected)} style={{marginHorizontal: 20, height: 50, backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
                       <Text style={{color: theme.colors.background, fontFamily: "InterTight-Bold", fontSize: 18}}>Enter Matchmaking</Text>
                     </TouchableOpacity>
@@ -924,7 +940,7 @@ const Home: React.FC = () => {
             </BottomSheet>
             <BottomSheet
               ref={infoSheetRef}
-              snapPoints={[400]}
+              snapPoints={[325]}
               index={-1}
               enablePanDownToClose
               onChange={handleInfoChanges}  
@@ -933,11 +949,36 @@ const Home: React.FC = () => {
               backdropComponent={renderBackdrop}
             >
               <BottomSheetView style={{flex: 1}}>
-                <View style={{ marginTop: 20, gap: 10, marginHorizontal: 20 }}>
-                    <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 24}}>Match Details</Text>
-                    {ruleMessage("Match Rules", "With $100,000 in simulated buying power, trade stocks and achieve a greater return than your opponent to win.")}
-                    {ruleMessage("Prize", "The prize pool is the sum of the entry fees minus 10% that goes to us so we can improve our platform and offer free-to-play tournaments.")}
+                <View style={{gap: 10, marginHorizontal: 20 }}>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>Match Rules</Text>
+                    {ruleMessage("Details", "With $100,000 in simulated buying power, trade stocks and achieve a greater return than your opponent to win.")}
+                    {ruleMessage("Entry Fee", "The prize pool is twice the wager collected. We charge a 10% entry fee on the wager selected.")}
                     {ruleMessage("Matchmaking", `If you aren’t matched up or you cancel matchmaking before a match begins, your $${wagerSelected} will be credited back to your account.`)}
+                </View>
+                <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 20}}/>
+                <View style={{flexDirection: 'row', alignItems: 'center', gap: 5, marginHorizontal: 20, marginTop: 20}}>
+                  <Icon name="dollar" size={15} color={theme.colors.text}/>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 15}}>Payout if Win</Text>
+                  <View style={{flex: 1}}></View>
+                  <Text style={{color: theme.colors.accent, fontFamily: 'InterTight-Bold', fontSize: 15}}>${ (2 * (wagerSelected!)).toFixed(2) }</Text>
+                </View>
+              </BottomSheetView>
+            </BottomSheet>
+            {/*END OF MATCH RESULTS*/}
+            <BottomSheet
+              ref={matchSummaryRef}
+              snapPoints={['90%']}
+              index={-1}
+              enablePanDownToClose
+              onChange={handleMatchSummaryChanges}  
+              backgroundStyle={{backgroundColor: theme.colors.background}}
+              handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
+              backdropComponent={renderBackdrop}
+            >
+              <BottomSheetView style={{flex: 1}}>
+                <View style={{gap: 10, marginHorizontal: 20, alignItems: 'center', flex: 1}}>
+                    <Text style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 20}}>Match Summary</Text>
+                    <Text style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 12}}>{activeMatchSummaryMatchID}</Text>
                 </View>
               </BottomSheetView>
             </BottomSheet>
