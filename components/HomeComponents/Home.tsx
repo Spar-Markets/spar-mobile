@@ -816,14 +816,14 @@ const Home: React.FC = () => {
                 </Animated.View>
               )}
               <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity style={{height: 40, borderRadius: 50, backgroundColor: theme.colors.purpleAccent, width: 40, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
+              <TouchableOpacity style={{height: 40, borderRadius: 50, backgroundColor: theme.colors.opposite, width: 40, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
                   <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.purpleAccent, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.purpleAccent : 'transparent', borderWidth: 2}]}
+                style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.opposite, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
                 onPress={() => {toggleAdditionalButtons()}}
               >
-                {showAdditionalButtons ? <Text style={{ color: theme.colors.purpleAccent, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black' }}>Start a Match</Text>}
+                {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black' }}>Start a Match</Text>}
                 {!showAdditionalButtons && <Icon name="plus" size={20} color={theme.colors.background} />}
               </TouchableOpacity>
               </View>
