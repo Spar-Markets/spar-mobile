@@ -432,16 +432,25 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
 
   if (ws.current!) {
     ws.current.onmessage = (event) => {
-      const buffer = new Uint8Array(event.data);
+      // const buffer = new Uint8Array(event.data);
 
       if (event.data == "Websocket connected successfully") {
         return;
       }
 
-      const message = uint8ArrayToString(buffer); 
+
+      // const message = uint8ArrayToString(buffer); 
+      // const json = JSON.parse(message);
+      // console.log("MESSAGE:", message);
+      // // test tf
+      console.log("EVENT:", event)
+      console.log("event.data:", event.data);
+      // console.log("buffer:", buffer);
 
       try {
-        const JSONMessage = JSON.parse(message);
+        console.log("ABOUT TO PARSE");
+        const JSONMessage = JSON.parse(event.data);
+        console.log("JUST PARSED");
         if (JSONMessage.type == "updatedAssets") {
           // Handle updated assets
           console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -483,8 +492,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           //console.log("Updated opp assets state:", oppUpdatedAssets);;
           
           //console.log("UPDATED ASSETS FROM REDUX", matchAssets[matchID].yourAssets, matchAssets[matchID].yourAssets)
-
-        } else if (message != "" && gotInitialPrices && yourAssets && opponentAssets) {
+        } else if (JSONMessage.type == "buyingPowerUpdate") {
+          // TODO: handle buying power update
+          console.log("Buying power update");
+          
+        } else if (JSONMessage != "" && gotInitialPrices && yourAssets && opponentAssets) {
           //console.log(JSONMessage)
           //console.log("INSIDE PRICE STUFF THING ------------")
           const { sym, c: currentPrice } = JSONMessage[0];
