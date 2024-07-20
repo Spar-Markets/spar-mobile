@@ -495,7 +495,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         } else if (JSONMessage.type == "buyingPowerUpdate") {
           // TODO: handle buying power update
           console.log("Buying power update");
-          
+
         } else if (JSONMessage != "" && gotInitialPrices && yourAssets && opponentAssets) {
           //console.log(JSONMessage)
           //console.log("INSIDE PRICE STUFF THING ------------")
