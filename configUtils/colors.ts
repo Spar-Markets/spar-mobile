@@ -31,7 +31,8 @@ export const darkColors = {
         news: '#0000dd',
         dub: '#dd00dd',
         question: '#00dddd',
-        purpleAccent: '#F5BD02'
+        purpleAccent: '#F5BD02',
+        redAccent: '#FF006B'
 
 
 
@@ -67,7 +68,8 @@ export const lightColors = {
         dub: '#dd00dd',
         question: '#00dddd',
         darkAccent: '#154234',
-        purpleAccent: '#3357FF'
+        purpleAccent: '#3357FF',
+        redAccent: '#FF006B'
     }
 }
 

@@ -412,7 +412,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   
   const sendHeartbeat = () => {
     if (ws.current) {
-      //console.log("SENDING WS HEARTBEAT")
+      console.log("SENDING WS HEARTBEAT FROM GAMECARD")
+      console.log("FROM GAME CARD", ws.current)
       const heartbeat = {type: "heartbeat"}
       ws.current.send(JSON.stringify(heartbeat))
     }

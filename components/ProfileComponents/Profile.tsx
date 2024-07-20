@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FeatherIcons from 'react-native-vector-icons/Feather'
 import CircularProgress from 'react-native-circular-progress-indicator';
 import { SvgXml } from 'react-native-svg';
 import { serverUrl } from '../../constants/global';
@@ -26,6 +27,7 @@ import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
 import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
 import WatchlistButton from '../HomeComponents/WatchlistButton';
 import { SegmentedButtons } from 'react-native-paper';
+import PageHeader from '../GlobalComponents/PageHeader';
 
 
 const Profile  = ({ navigation }: any) => {
@@ -38,6 +40,8 @@ const Profile  = ({ navigation }: any) => {
 
   MaterialCommunityIcons.loadFont()
   MaterialIcons.loadFont()
+  FeatherIcons.loadFont()
+
 
   const { userData } = useUserDetails();
 
@@ -129,8 +133,8 @@ const Profile  = ({ navigation }: any) => {
   }
 
   return (
-      <View style={styles.container}>
-        <View style={styles.header}>
+      <View style={[styles.container]}>
+        {/*<View style={styles.header}>
           <View style={{flex: 1}}></View>
           <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate("ProfileSearch")}>
             <Icon name={"search"} size={24} color={theme.colors.opposite} />
@@ -139,95 +143,139 @@ const Profile  = ({ navigation }: any) => {
             <Icon name={"heart"} size={24} color={theme.colors.opposite}></Icon>
             <View style={{position: 'absolute', right:5, top:-2, height: 12, width: 12, backgroundColor: 'red', borderRadius: 100, borderWidth: 2, borderColor: theme.colors.background}}></View>
           </TouchableOpacity>
-        </View>
-        <ScrollView style={{marginHorizontal: 20}}>
-          
-          <TouchableOpacity onPress={choosePhotoFromLibrary}>
-            {image ? <Image style={styles.profilePic} source={{uri: image}}/> : 
-              <View style={styles.profilePic}>
-                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 15}}>{"💸"/*userData?.username.slice(0,1).toUpperCase()*/}</Text>
-              </View>}
+        </View>*/}
+        <PageHeader text="Profile"/>
+        <ScrollView style={{marginTop: 10}}>
+          <View style={{backgroundColor: theme.colors.primary, paddingBottom: 20, borderBottomLeftRadius: 10, borderBottomRightRadius: 10}}>
+          <TouchableOpacity style={{position: 'absolute', top: 60, right: 20, zIndex: 1, backgroundColor: theme.colors.background, width: 40, height: 40, borderRadius: 500, justifyContent: 'center', alignItems: 'center'}}>
+            <FeatherIcons name="edit-2" color={theme.colors.text} size={18}/>
           </TouchableOpacity>
+          <Image source={require("../../assets/images/banner1.png")} style={{zIndex: 0, width: width, height: 150, position: 'absolute', top: 0, left: 0, right: 0}}></Image>
+            
+            <View style={{marginHorizontal: 20, marginTop: 105}}>
+            <TouchableOpacity onPress={choosePhotoFromLibrary}>
+              {image ? <Image style={[styles.profilePic, {borderWidth: 2, borderColor: theme.colors.text}]} source={{uri: image}}/> : 
+                <View style={styles.profilePic}>
+                  <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 15}}>{"💸"/*userData?.username.slice(0,1).toUpperCase()*/}</Text>
+                </View>}
+            </TouchableOpacity>
+            
           
-         
-          <View style={{marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
-            <Text style={styles.usernameText}>{userData?.username}</Text>
-            <View style={{flex: 1}}></View>
-            <TouchableOpacity style={{paddingHorizontal: 20, paddingVertical: 5, backgroundColor: theme.colors.primary, borderRadius: 5}}
-              onPress={() => navigation.navigate("editProfilePage", 
-                { 
-                  userID: userData?.userID, 
-                  username: userData?.username,
-                  bio: userData?.bio
-                })
-              }
-            >
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Edit Profile</Text>
+            <View style={{marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
+              <Text style={styles.usernameText}>{userData?.username}</Text>
+              <View style={{flex: 1}}></View>
+              <TouchableOpacity style={{height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}
+                onPress={() => navigation.navigate("editProfilePage", 
+                  { 
+                    userID: userData?.userID, 
+                    username: userData?.username,
+                    bio: userData?.bio
+                  })
+                }
+              >
+                <FeatherIcons name="edit-2" color={theme.colors.text} size={18}/>
+              </TouchableOpacity>
+            </View>
+
+            <View style={{flexDirection: 'row', gap: 10, marginVertical: 10}}>
+              <TouchableOpacity style={styles.mainContainer} onPress={() => navigation.navigate("FollowersFollowing", {type:"followers", username: userData?.username})}>
+                <Text style={styles.mainContainerType}>{userData?.followers ? userData?.followers.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Followers</Text></Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mainContainer} onPress={() => navigation.navigate("FollowersFollowing", {type:"following", username: userData?.username})}>
+                <Text style={styles.mainContainerType}>{userData?.following ? userData?.following.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Following</Text></Text>
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.bioText}>{userData.bio}</Text>
+            </View>
+          </View>
+          
+          <Text style={{color: theme.colors.text, marginTop: 20, marginLeft: 15, fontFamily: 'InterTight-Bold', fontSize: 18}}>Finances</Text>
+          <View style={{flexDirection: 'row', marginTop: 10, marginHorizontal: 10, gap: 10}}>
+            <View style={{backgroundColor: theme.colors.primary, paddingHorizontal: 15, paddingVertical: 15, borderRadius: 10, flex: 1}}>
+              <Text style={{fontFamily: 'InterTight-Bold', color: theme.colors.accent}}>Balance</Text>
+              <Text style={{fontFamily: 'InterTight-Bold', fontSize: 20, color: theme.colors.text}}>$100,000.00</Text>
+            </View>
+          </View>
+
+          <View style={{marginTop: 10, marginHorizontal: 10, gap: 10}}>
+            <TouchableOpacity style={{borderWidth: 2, borderColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center', borderRadius: 10, flex: 1, paddingVertical: 15}}>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Withdraw</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10, flex: 1, paddingVertical: 15}}>
+              <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Deposit</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={{flexDirection: 'row', gap: 10, marginVertical: 10}}>
-            <TouchableOpacity style={styles.mainContainer} onPress={() => navigation.navigate("FollowersFollowing", {type:"followers", username: userData?.username})}>
-              <Text style={styles.mainContainerType}>{userData?.followers ? userData?.followers.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Followers</Text></Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.mainContainer} onPress={() => navigation.navigate("FollowersFollowing", {type:"following", username: userData?.username})}>
-              <Text style={styles.mainContainerType}>{userData?.following ? userData?.following.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Following</Text></Text>
-            </TouchableOpacity>
-          </View>
-          
-          <Text style={styles.bioText}>{userData.bio}</Text>
-          
-          {/*REFER A FRIEND*/}
-          <View style={{marginTop: 15}}>
-            <TouchableOpacity style={[styles.sectionContainer, {backgroundColor: theme.colors.purpleAccent}]}>
-              <View style={[styles.sectionIconContainer, {backgroundColor: theme.colors.opposite}]}>
-                <Icon name={"gift"} size={24} color={theme.colors.background}></Icon>
-              </View>
-              <View>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Refer a Friend</Text>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Medium'}}>Invite your friends and get $5</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <View style={{borderRadius: 10, backgroundColor: theme.colors.primary, marginTop: 10, marginHorizontal: 10}}>
 
-          {/*ACCOUNT*/}
-          <View style={{marginTop: 15}}>
-            <TouchableOpacity style={styles.sectionContainer}>
-              <View style={styles.sectionIconContainer}>
-                <Icon name={"user"} size={24} color={theme.colors.text}></Icon>
-              </View>
-              <View>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Account</Text>
-              </View>
+
+            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 20, paddingVertical: 15, paddingHorizontal: 15}}>
+
+              <MaterialCommunityIcons name="bank" size={24} color={theme.colors.text} style={{width: 30}}/>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Payment Methods</Text>
+              <View style={{flex: 1}}/>
+              <FeatherIcons name="chevron-right" size={24} color={theme.colors.text}/>
+              </TouchableOpacity>      
+              <View style={{backgroundColor: theme.colors.background, height: 2}}></View>
+            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 20, paddingVertical: 15, paddingHorizontal: 15}}>
+
+              <MaterialCommunityIcons name="file-document-multiple" size={24} color={theme.colors.text} style={{width: 30}}/>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Documents</Text>
+              <View style={{flex: 1}}/>
+              <FeatherIcons name="chevron-right" size={24} color={theme.colors.text}/>
+            </TouchableOpacity>      
+            <View style={{backgroundColor: theme.colors.background, height: 2}}></View>
+            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 20, paddingVertical: 15, paddingHorizontal: 15}}>
               
-            </TouchableOpacity>
-          </View>
+              <MaterialCommunityIcons name="bank-transfer" size={24} color={theme.colors.text} style={{width: 30}}/>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Transfers</Text>
+              <View style={{flex: 1}}/>
+              <FeatherIcons name="chevron-right" size={24} color={theme.colors.text}/>
+            </TouchableOpacity> 
 
-          {/*Activity*/}
-          <View style={{marginTop: 15}}>
-            <TouchableOpacity style={styles.sectionContainer}>
-              <View style={styles.sectionIconContainer}>
-                <Icon name={"area-chart"} size={24} color={theme.colors.text}></Icon>
-              </View>
-              <View>
+            </View>
+
+          <Text style={{color: theme.colors.text, marginTop: 20, marginLeft: 15, fontFamily: 'InterTight-Bold', fontSize: 18}}>General</Text>
+          <View style={{borderRadius: 10, backgroundColor: theme.colors.primary, marginTop: 10, marginHorizontal: 10}}>
+
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 20, paddingVertical: 15, paddingHorizontal: 15}}>
+
+                <FeatherIcons name="activity" size={24} color={theme.colors.text} style={{width: 30}}/>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Activity</Text>
-              </View>
-              
+                <View style={{flex: 1}}/>
+                <FeatherIcons name="chevron-right" size={24} color={theme.colors.text}/>
+              </TouchableOpacity>
+              <View style={{backgroundColor: theme.colors.background, height: 2}}></View>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 20, paddingVertical: 15, paddingHorizontal: 15}}>
+
+                <FeatherIcons name="eye" size={24} color={theme.colors.text} style={{width: 30}}/>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Watchlists</Text>
+                <View style={{flex: 1}}/>
+                <FeatherIcons name="chevron-right" size={24} color={theme.colors.text}/>
+              </TouchableOpacity>   
+              <View style={{backgroundColor: theme.colors.background, height: 2}}></View>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 20, paddingVertical: 15, paddingHorizontal: 15}}>
+
+                <Icon name="gear" size={24} color={theme.colors.text} style={{width: 30}}/>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Settings</Text>
+                <View style={{flex: 1}}/>
+                <FeatherIcons name="chevron-right" size={24} color={theme.colors.text}/>
+              </TouchableOpacity> 
+  
+          </View>
+
+          <Text style={{color: theme.colors.text, marginTop: 20, marginLeft: 15, fontFamily: 'InterTight-Bold', fontSize: 18}}>Social</Text>
+          <View style={{marginTop: 10, marginHorizontal: 10, gap: 10, flexDirection: 'row'}}>
+            <TouchableOpacity style={{backgroundColor: theme.colors.opposite, justifyContent: 'center', alignItems: 'center', borderRadius: 10, flex: 1, paddingVertical: 15}}>
+              <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Challenge Friends</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10, flex: 0.7, paddingVertical: 15}}>
+              <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Find Friends</Text>
             </TouchableOpacity>
           </View>
 
-          {/*Settings*/}
-          <View style={{marginTop: 15}}>
-            <TouchableOpacity style={styles.sectionContainer}>
-              <View style={styles.sectionIconContainer}>
-                <Icon name={"gear"} size={24} color={theme.colors.text}></Icon>
-              </View>
-              <View>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Settings</Text>
-              </View>
-              
-            </TouchableOpacity>
-          </View>
+
           
           <View style={{marginVertical: 20}}>
             {/*<Text

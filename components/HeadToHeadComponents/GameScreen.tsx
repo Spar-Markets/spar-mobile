@@ -107,6 +107,7 @@ const GameScreen = () => {
   // useEffect for updating time
   useEffect(() => {
     // only execute if match object exists
+    //console.log("WS FROM REDUX",ws)
     console.log("ASSETS FROM REDUX", yourAssets, opponentAssets)
     if (match && match.endAt) {
       // Calculate time until match end

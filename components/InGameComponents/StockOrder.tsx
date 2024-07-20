@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -25,6 +25,8 @@ import {TextInput} from 'react-native-gesture-handler';
 import HapticFeedback from 'react-native-haptic-feedback';
 import Sound from 'react-native-sound';
 import {Image} from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
 
 interface stockOrderParams {
   ticker: string;
@@ -64,6 +66,12 @@ const StockOrder = (props: any) => {
       'params passed when navigating to Stock Order are in incorrect format.',
     );
   }
+
+  const ws = useSelector((state: RootState) => state.websockets[params?.ticker]);
+
+  useEffect(() => {
+    console.log(ws)
+  }, [ws])
 
   const purchaseStock = async () => {
     try {

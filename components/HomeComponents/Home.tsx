@@ -577,6 +577,7 @@ const Home: React.FC = () => {
         <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Semibold' }} adjustsFontSizeToFit numberOfLines={3}>{message}</Text>
     </View>
   );
+  
 
   const [showAdditionalButtons, setShowAdditionalButtons] = useState(false);
 

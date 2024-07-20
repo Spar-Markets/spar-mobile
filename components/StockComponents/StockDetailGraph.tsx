@@ -50,12 +50,17 @@ import {Skeleton} from '@rneui/base';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import getMarketFraction from '../../utility/getMarketFraction';
 import axios from 'axios';
+import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
+import { useDispatch } from 'react-redux';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
   const colorScheme = useColorScheme();
+
+
+  const dispatch = useDispatch()
 
   const {theme} = useTheme();
   const {width, height} = useDimensions();
@@ -355,6 +360,28 @@ const StockDetailGraph = (props: any) => {
   const MAX_RETRIES = 5; // Maximum number of retry attempts
   const RETRY_DELAY = 2000; // Delay between retries in milliseconds
 
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const sendHeartbeat = () => {
+    if (ws.current) {
+      console.log("SENDING WS HEARTBEAT ON STOCK DETAILS")
+      console.log("FROM STOCK DETAILS", ws.current)
+      const heartbeat = {type: "heartbeat"}
+      ws.current.send(JSON.stringify(heartbeat))
+    }
+  }
+
+  useEffect(() => {
+    heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000); // 30 seconds interval
+
+    // Clear the interval when the component unmounts
+    return () => {
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+      }
+    };
+  }, [])
+
   const setupSocket = async (ticker: any) => {
     /*if (ws.current && (ws.current.readyState === WebSocket.OPEN || 
       ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.CLOSING)) {
@@ -369,7 +396,8 @@ const StockDetailGraph = (props: any) => {
 
     ws.current.onopen = () => {
       console.log(`Connected to ${ticker}, but not ready for messages...`);
-      if (ws.current!.readyState === WebSocket.OPEN) {
+      if (ws.current!) {
+        dispatch(addWebSocket({ id: ticker, ws: ws.current! }));
         console.log(`Connection for ${ticker} is open and ready for messages`);
         ws.current!.send(JSON.stringify({ticker: ticker, status: 'add'}));
       } else {
@@ -408,6 +436,7 @@ const StockDetailGraph = (props: any) => {
 
     ws.current.onclose = () => {
       console.log(`Connection to ${ticker} closed`);
+      dispatch(removeWebSocket(ticker))
     };
   };
 

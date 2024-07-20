@@ -7,21 +7,18 @@ const createGlobalStyles = (theme: any, width: number) => {
 
     // Page Header
     headerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 10,
         
     },
     headerText: {
         color: theme.colors.text,
-        textAlign: 'center',
-        fontSize: 20,
-        fontFamily: 'InterTight-Black',
+        fontSize: 16,
+        fontFamily: 'InterTight-Bold',
     },
     headerBackBtn: {
-        position: 'absolute',
-        left: 20
+        marginLeft: 20,
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center'
     },
     headerRightBtn: {
         position: 'absolute',
