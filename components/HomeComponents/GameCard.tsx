@@ -69,6 +69,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   
   const [yourAssets, setYourAssets] = useState<any[] | null>(null)
   const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null)
+
+  const [yourBuyingPower, setYourBuyingPower] = useState(0)
+  const [oppBuyingPower, setOppBuyingPower] = useState(0)
   
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
@@ -145,8 +148,12 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       //initial load to setAssets for the first time from the database
       setYourAssets(match[yourUserNumber].assets)
       setOpponentAssets(match[opponentUserNumber].assets)
+
+      setYourBuyingPower(match[yourUserNumber].buyingPower)
+      setOppBuyingPower(match[opponentUserNumber].buyingPower)
+
       
-      dispatch(addOrUpdateMatch({matchID, yourAssets: match[yourUserNumber].assets, opponentAssets: match[opponentUserNumber].assets}))
+      dispatch(addOrUpdateMatch({matchID, yourAssets: match[yourUserNumber].assets, opponentAssets: match[opponentUserNumber].assets, yourBuyingPower: match[yourUserNumber].buyingPower, oppBuyingPower: match[opponentUserNumber].buyingPower}))
       console.log("AFTER DISPATCH YOUR ASSETS:", matchAssets.yourAssets)
       console.log("AFTER DISPATCH OPP ASSETS:", matchAssets.opponentAssets)
       
@@ -457,6 +464,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           const yourUpdatedAssets = JSONMessage[`${you}Assets`];
           const oppUpdatedAssets = JSONMessage[`${opp}Assets`];
 
+          const yourBuyingPower = JSONMessage[`${you}BuyingPower`]
+          const oppBuyingPower = JSONMessage[`${opp}BuyingPower`]
+
           const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
           const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
           console.log("THIS IS THE RECIEVED MESSAGE", JSONMessage)
@@ -466,7 +476,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           //setOpponentAssets(oppUpdatedAssets);
           console.log("UPDATED ASSETS", yourUpdatedAssets)
           //redux version
-          dispatch(addOrUpdateMatch({matchID, yourAssets: yourUpdatedAssets, opponentAssets: oppUpdatedAssets}))
+          dispatch(addOrUpdateMatch({matchID, yourAssets: yourUpdatedAssets, opponentAssets: oppUpdatedAssets, yourBuyingPower: yourBuyingPower, oppBuyingPower: oppBuyingPower}))
           //const match = useSelector(state => state.matches[matchID])
 
           if (yourNewAsset) {
@@ -492,10 +502,6 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           //console.log("Updated opp assets state:", oppUpdatedAssets);;
           
           //console.log("UPDATED ASSETS FROM REDUX", matchAssets[matchID].yourAssets, matchAssets[matchID].yourAssets)
-        } else if (JSONMessage.type == "buyingPowerUpdate") {
-          // TODO: handle buying power update
-          console.log("Buying power update");
-
         } else if (JSONMessage != "" && gotInitialPrices && yourAssets && opponentAssets) {
           //console.log(JSONMessage)
           //console.log("INSIDE PRICE STUFF THING ------------")
@@ -582,9 +588,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         //console.log(`Ticker price for ${asset.ticker} not found`);
       }
     });
-    setYourTotalPrice(yourTotalLivePrice + match[you]?.buyingPower)
+    setYourTotalPrice(yourTotalLivePrice + yourBuyingPower)
     if (yourFormattedData && yourFormattedData.length >= 1) {
-      yourFormattedData[yourFormattedData.length-1].normalizedValue = yourTotalLivePrice + match[you]?.buyingPower - 100000
+      yourFormattedData[yourFormattedData.length-1].normalizedValue = yourTotalLivePrice + yourBuyingPower - 100000
     }
 
     let oppTotalLivePrice = 0;
@@ -596,14 +602,14 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         //console.log(`Ticker price for ${asset.ticker} not found`);
       }
     });
-    setOppTotalPrice(oppTotalLivePrice + match[opp]?.buyingPower)
+    setOppTotalPrice(oppTotalLivePrice + oppBuyingPower)
     if (oppFormattedData && oppFormattedData.length >= 1) {
-      oppFormattedData[oppFormattedData.length-1].normalizedValue = oppTotalLivePrice + match[opp]?.buyingPower - 100000
+      oppFormattedData[oppFormattedData.length-1].normalizedValue = oppTotalLivePrice + oppBuyingPower - 100000
     }
     /**/
     if (yourFormattedData && oppFormattedData) {
       //console.log(yourTotalLivePrice, oppTotalLivePrice)
-      if (yourTotalLivePrice + match[you]?.buyingPower >= oppTotalLivePrice + match[opp]?.buyingPower) {
+      if (yourTotalLivePrice + yourBuyingPower >= oppTotalLivePrice + oppBuyingPower) {
         setYourColor(theme.colors.stockUpAccent)
         setOppColor(theme.colors.tertiary)
 

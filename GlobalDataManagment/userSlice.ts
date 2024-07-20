@@ -6,6 +6,7 @@ interface UserState {
     userID: string | null;
     username: string;
     userBio: string;
+    balance:number
 }
 
 const initialState = {
@@ -13,7 +14,9 @@ const initialState = {
   isUserMade: false,
   userID: null,
   username: null,
-  userBio: null
+  userBio: null,
+  balance: null,
+
 }
 
 const userSlice = createSlice({

@@ -66,13 +66,14 @@ const GameScreen = () => {
   const opponentUsername = params?.opponentUsername
 
   const ws = useSelector((state: RootState) => state.websockets[matchID!]);
+  
 
   const [loading, setLoading] = useState(true)
 
   const [matchIsEnded, setMatchIsEnded] = useState(false);
 
   const matches = useSelector((state: RootState) => state.matches);
-  const { yourAssets, opponentAssets } = matches[matchID!]
+  const { yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower } = matches[matchID!]
 
   const [match, setMatch] = useState<any>(null)
   const [yourPointData, setYourPointData] = useState<GraphPoint[]>([]);
@@ -315,7 +316,7 @@ const GameScreen = () => {
             }}>
             <Text style={styles.buyingPowerText}>Buying Power</Text>
             <View style={{flex: 1}}></View>
-            <Text style={styles.buyingPowerText}>${(match[you].buyingPower).toFixed(2)}</Text>
+            <Text style={styles.buyingPowerText}>${(yourBuyingPower).toFixed(2)}</Text>
           </View>
           <View style={{height: 2, backgroundColor: theme.colors.tertiary, marginTop: 15}}></View>
           <View style={{marginTop: 15}}>

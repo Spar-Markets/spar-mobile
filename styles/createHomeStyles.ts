@@ -100,12 +100,13 @@ const createHomeStyles = (theme: any, width: number) => {
     discoverCardImage: {
       marginLeft: 10
     },
-
+    
     // GameCard
     gameCardContainer: {
       //borderColor: theme.colors.primary,
       width: (Dimensions.get('window').width),
       height: 250,
+
     },
     gameCardPlayerText: {
       color: theme.colors.text,
