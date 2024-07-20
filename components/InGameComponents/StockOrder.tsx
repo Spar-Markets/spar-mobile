@@ -25,18 +25,20 @@ import {TextInput} from 'react-native-gesture-handler';
 import HapticFeedback from 'react-native-haptic-feedback';
 import Sound from 'react-native-sound';
 import {Image} from 'react-native';
-import { useSelector } from 'react-redux';
+
+// imports to access userID
 import { RootState } from '../../GlobalDataManagment/store';
+import { useSelector } from 'react-redux';
 
 interface stockOrderParams {
   ticker: string;
   matchID: string;
-  tradeType: string;
   buyingPower: number;
   isBuying: boolean;
   isSelling: boolean;
   qty: number;
   endAt: Date;
+  currentPrice: number;
 }
 
 const StockOrder = (props: any) => {
@@ -44,13 +46,19 @@ const StockOrder = (props: any) => {
   const colorScheme = useColorScheme();
 
   const route = useRoute();
+
+  const params = route.params as stockOrderParams | undefined;
+  const { ticker } = params!;
+
   const {theme} = useTheme();
   const {width, height} = useDimensions();
   const styles = createStockSearchStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
 
+  const userID = useSelector((state: RootState) => state.user.userID);
+
   const [shareQuantity, setShareQuantity] = useState('0');
-  const [marketPrice, setMarketPrice] = useState(124.34);
+  const [currentPrice, setCurrentPrice] = useState(params?.currentPrice || 0);
   const [inReview, setInReview] = useState(false);
 
   const goBack = () => {
@@ -58,8 +66,6 @@ const StockOrder = (props: any) => {
   };
   Icon.loadFont();
 
-  const params = route.params as stockOrderParams | undefined;
-  //console.log('StockOrder params:', params);
   if (params == undefined) {
     console.error('STOCKORDER: params undefined');
     throw new Error(
@@ -72,10 +78,22 @@ const StockOrder = (props: any) => {
   useEffect(() => {
     console.log(ws)
   }, [ws])
+  // get current price initially
+  useEffect(() => {
+    const getAndSetCurrentPrice = async () => {
+      try {
+        const response = await axios.get(serverUrl + `/getCurrentPrice/${ticker}`);
+        setCurrentPrice(response.data.currentPrice);
+      } catch (error) {
+        console.error("Error getting current price in stock order:", error);
+      }
+    }
+
+    getAndSetCurrentPrice();
+  }, [])
 
   const purchaseStock = async () => {
     try {
-      const userID = await AsyncStorage.getItem('userID');
       const buyResponse = await axios.post(serverUrl + '/purchaseStock', {
         userID: userID,
         matchID: params?.matchID,
@@ -183,7 +201,7 @@ const StockOrder = (props: any) => {
   const formattedShareQuantity = formatShareQuantity(shareQuantity);
 
   const estimatedCost = (
-    marketPrice * parseFloat(shareQuantity)
+    currentPrice * parseFloat(shareQuantity)
   ).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -297,7 +315,7 @@ const StockOrder = (props: any) => {
         <View style={{flexDirection: 'row', marginVertical: 20}}>
           <Text style={styles.orderFieldText}>Market Price</Text>
           <View style={{flex: 1}}></View>
-          <Text style={styles.orderFieldText}>${props.currentPrice}</Text>
+          <Text style={styles.orderFieldText}>${currentPrice}</Text>
         </View>
         <View style={{height: 1, backgroundColor: theme.colors.primary}}></View>
       </View>
