@@ -22,8 +22,8 @@ const createProfileStyles = (theme: any, width: number) => {
     },
     profilePic: {
         borderRadius: 50,
-        width: 60,
-        height: 60,
+        width: 80,
+        height: 80,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: theme.colors.primary

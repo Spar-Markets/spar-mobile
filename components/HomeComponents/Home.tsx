@@ -20,6 +20,8 @@ import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FeatherIcon from 'react-native-vector-icons/Feather'
 import {useTheme} from '../ContextComponents/ThemeContext';
 import {useDimensions} from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
@@ -64,11 +66,14 @@ import WatchlistButton from './WatchlistButton';
 import { FAB, Portal, PaperProvider } from 'react-native-paper';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Svg, Circle as SvgCircle } from 'react-native-svg';
+import AnimatedRing from '../GlobalComponents/AnimatedRing';
 const {width} = Dimensions.get('window');
 
 Icon.loadFont()
 EntypoIcons.loadFont()
 MaterialIcons.loadFont()
+MaterialCommunityIcons.loadFont()
+FeatherIcon.loadFont()
 
 const Home: React.FC = () => {
   interface MatchData {
@@ -108,6 +113,7 @@ const Home: React.FC = () => {
   const [watchLists, setWatchLists] = useState<Object[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
+  const [gameModeSelected, setGameModeSelected] = useState("Head-to-Head")
 
   const dispatch = useDispatch();
   const {userData} = useUserDetails();
@@ -187,7 +193,6 @@ const Home: React.FC = () => {
               'Profile image path from AsyncStorage:',
               profileImagePath,
             );
-            //setProfileImage(profileImagePath)
             dispatch(setProfileImageUri(profileImagePath));
           } else {
             await fetchProfileImageFromFirebase();
@@ -627,6 +632,15 @@ const Home: React.FC = () => {
     inputRange: [0, 0.8],
     outputRange: [0, 0.8],
   });
+
+  const GameModeButton = (props:any) => {
+    return (
+      <TouchableOpacity onPress={() => setGameModeSelected(props.text)} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.primary}, {paddingHorizontal: 20, borderRadius: 5, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
+        <MaterialCommunityIcons name={props.icon} color={gameModeSelected == props.text ? theme.colors.accent : theme.colors.text} size={20}/>
+        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
+      </TouchableOpacity>
+    )
+  }
   
 
   if (loading) {
@@ -657,77 +671,68 @@ const Home: React.FC = () => {
       style={{backgroundColor: theme.colors.background, flex: 1}}>
       <View style={styles.container}>
           <View style={styles.header}>
-            <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10}}>
-            <Image
-              style={{width: 13, height: 22}}
-              source={require('../../assets/images/logo.png')}
-            />
-            <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text, fontSize: 25}}>Spar</Text>
-            </View>
-            <View style={{flex: 1}} />
-            <TouchableOpacity onPress={() => navigation.navigate('Menu')}>
-              <Icon name="bars" style={styles.icon} size={24} />
-            </TouchableOpacity>
-            
-          </View>
-          <View style={{flex: 1}}>
-          <View style={{ 
-            width: width-40, 
-            marginHorizontal: 20, 
-            marginTop: 10, 
-            marginBottom: 10,
-            flexDirection: 'row',
-            alignItems: 'center'}}>
-              <View>
-                <Text style={styles.portfolio}>${userData?.balance.toFixed(2)}</Text>
-                <View style={{flexDirection: 'row', marginTop: 5}}>
-                  <View style={{
-                      backgroundColor: hexToRGBA(theme.colors.accent, 0.3), 
-                      paddingHorizontal: 10, 
-                      paddingVertical: 3, 
-                      justifyContent: 'center', 
-                      alignItems: 'center', 
-                      borderRadius: 5, 
-                      flexDirection: 'row', 
-                      gap: 5}}>
-                      <Icon name={"arrow-circle-up"} color={theme.colors.accent}/>
-                      <Text style={[styles.stockCardDiff, {color: theme.colors.accent}]}>{5.44} (10.32%) Today</Text>
-                      <View style={{flex: 1}}></View>
-                    </View>
-                </View>
-              </View>
-              <View style={{flex: 1}}></View>
-              <View style={{flexDirection: 'row', gap: 10}}>
-              <TouchableOpacity style={{alignItems: 'center', gap: 5}}>
-                <View style={{width: 45, height: 45, backgroundColor: theme.colors.primary, borderColor: theme.colors.tertiary, borderWidth: 2, justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
-                    <MaterialIcons name="leaderboard" size={20} color={theme.colors.opposite}/>
-                </View>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 12}}>Rankings</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{alignItems: 'center', gap: 5}}>
-                <View style={{width: 45, height: 45, backgroundColor: theme.colors.primary, borderColor: theme.colors.tertiary, borderWidth: 2, justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
-                    <EntypoIcons name="plus" size={20} color={theme.colors.opposite}/>
-                </View>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 12}}>Add Funds</Text>
-              </TouchableOpacity>
-              </View>
 
-            </View>
-          <ToggleButton onToggle={handleToggle} animation={barAnimation}/>
-          <Animated.View
+          <TouchableOpacity onPress={() => navigation.navigate("Menu")} style={{justifyContent: 'center', alignItems: 'center'}}>
+                  <Image
+                    style={{width: 16, height: 30}}
+                    source={require('../../assets/images/logo.png')}
+                  />
+
+              </TouchableOpacity>
+
+            <View style={{flex: 1}}></View>
+            
+              <View style={{justifyContent: 'center', flexDirection: 'row'}}>
+                <View style={{backgroundColor: theme.colors.primary, height: 35, borderWidth: 1, borderColor: theme.colors.secondary, borderRadius: 5, flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingHorizontal: 10}}>${userData?.balance.toFixed(2)}</Text>
+                  <TouchableOpacity style={{backgroundColor: theme.colors.accent, borderRadius: 5, borderWidth: 1, borderColor: theme.colors.accent, height: 35, width: 35, justifyContent: 'center', alignItems: 'center'}}>
+                    {/*<Text style={{color: theme.colors.background, fontFamily: 'InterTight-Black'}}>Deposit</Text>*/}
+                    <MaterialCommunityIcons name="wallet" color={theme.colors.background} size={20}/>
+                  </TouchableOpacity>
+                </View>
+              </View>
+           
+               
+              <View style={{justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.colors.tertiary, borderRadius: 5}}>
+                  {/*<Image
+                    style={{width: 16, height: 30}}
+                    source={require('../../assets/images/logo.png')}
+                  />*/}
+                  {profileImageUri && <Image width={35} height={35} source={{uri: profileImageUri}} style={{borderRadius: 5}}></Image>}
+              </View>
+            {/*<TouchableOpacity style={{backgroundColor: theme.colors.primary, borderRadius: 5, width: 35, height:35, justifyContent: 'center', alignItems: 'center'}} onPress={() => navigation.navigate('Menu')}>
+              <Icon name="user-o" color={theme.colors.text} size={20} />
+            </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: theme.colors.primary, borderRadius: 5, width: 35, height:35, justifyContent: 'center', alignItems: 'center'}} onPress={() => navigation.navigate('Menu')}>
+              <Icon name="bell-o" color={theme.colors.text} size={20} />
+            </TouchableOpacity>*/}
+          </View>
+          <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginVertical: 10}}></View>
+          <View style={{flex: 1}}>
+          {/*<ToggleButton onToggle={handleToggle} animation={barAnimation}/>*/}
+          <View style={{height: 40, marginBottom: 10}}>
+            <ScrollView horizontal style={{width: width}} showsHorizontalScrollIndicator={false}>
+              <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
+                <GameModeButton text={'Head-to-Head'} icon={"sword-cross"}/>
+                <GameModeButton text={'Tournaments'} icon={"tournament"}/>
+                <GameModeButton text={'Predictions'} icon={"brain"}/>
+              </View>
+            </ScrollView>
+          </View>
+
+          <View
             style={{
               flex: 1,
-              width: screenWidth*2,
-              flexDirection: 'row',
-              transform: [{translateX: animation}],
             }}>
             <View style={{flex: 1}}>
               {noMatches && !searchingForMatch && !isInMatchmaking &&
-                <View style={{width: (Dimensions.get('window').width), flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10}}>
+                <View style={{width: width, flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10}}>
                   {/*<Image source={require("../../assets/images/empty.png")} style={{width: 200, height: 200}}></Image>*/}
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>It looks empty in here, Start a Match...</Text>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>It looks empty in here, Start a Match!</Text>
                 </View>}
+
               {!noMatches && 
+             
               <FlatList
                 data={
                   searchingForMatch || isInMatchmaking
@@ -737,15 +742,15 @@ const Home: React.FC = () => {
                 renderItem={({item, index}) => {
                   return (
                   item ? (
-                    <>
+                    <View style={index != 0 && {marginTop: 15}}>
                       <GameCard userID={userID} matchID={item} setActiveMatches={setActiveMatches} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID}/>
                       <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary}}></View>
-                    </> 
+                    </View> 
                   ) : (
-                    <>
+                    <View style={index != 0 && {marginTop: 15}}>
                       <GameCardSkeleton/>
                       <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary}}></View>
-                    </> 
+                    </View> 
                
                   ))
                   }
@@ -766,12 +771,7 @@ const Home: React.FC = () => {
               />}
 
             </View>
-            <View style={{flex: 1}}>
-              <View>
-                <Text>Tournaments</Text>
-              </View>
-            </View>
-          </Animated.View>
+          </View>
 
               
         </View>
@@ -792,16 +792,20 @@ const Home: React.FC = () => {
           <TouchableOpacity onPress={() => toggleAdditionalButtons()} style={{ flex: 1 }} />
         </Animated.View>}
             <View style={{position: 'absolute', right: 0, bottom: 0}}>
-              {(searchingForMatch || isInMatchmaking) ? <TouchableOpacity style={[styles.addButton]} onPress={cancelAlert}>
-                <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold', fontSize: 20}}>Cancel Matchmaking</Text>
-                <SmallActivityIndicator />
-              </TouchableOpacity>: 
+              {(searchingForMatch || isInMatchmaking) ? 
+              <View style={[styles.addButton, {backgroundColor: theme.colors.primary}]}>
+                <SmallActivityIndicator color={theme.colors.text}/>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 15}}>Searching for Match</Text>
+                <View style={{flex: 1}}/>
+                <TouchableOpacity onPress={cancelAlert} style={{backgroundColor: theme.colors.stockDownAccent, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 5}}>
+                  <Text style={{fontFamily: 'InterTight-Bold'}}>Cancel</Text>
+                </TouchableOpacity>
+              </View>: 
              <View>
               {showAdditionalButtons && (
                 <Animated.View style={[{position: 'absolute', right: 0, bottom: 50, zIndex: 0}, { transform: [{ translateY }], opacity }]}>
                   {/* Add your additional buttons here */}
                   <TouchableOpacity onPress={() => {expandBottomSheet(); toggleAdditionalButtons()}} style={[styles.addButton, { backgroundColor: theme.colors.accent, flexDirection: 'row' }]}>
-
                     <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black' }}>Stock</Text>
                   </TouchableOpacity>
                   <View style={[styles.addButton, { gap: 2, backgroundColor: theme.colors.primary, flexDirection: 'row' }]}>
@@ -815,18 +819,17 @@ const Home: React.FC = () => {
                   {/* Add more buttons as needed */}
                 </Animated.View>
               )}
-              <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity style={{height: 40, borderRadius: 50, backgroundColor: theme.colors.opposite, width: 40, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
-                  <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.opposite, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
-                onPress={() => {toggleAdditionalButtons()}}
-              >
-                {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black' }}>Start a Match</Text>}
-                {!showAdditionalButtons && <Icon name="plus" size={20} color={theme.colors.background} />}
-              </TouchableOpacity>
-              </View>
+              {gameModeSelected == "Head-to-Head" && <View style={{flexDirection: 'row'}}>
+                {/*<TouchableOpacity onPress={() => navigation.navigate("PastMatches")} style={{height: 40, borderRadius: 5, backgroundColor: theme.colors.opposite, width: (width-45)*0.12, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
+                    <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
+                </TouchableOpacity>*/}
+                <TouchableOpacity
+                  style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.accent, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
+                  onPress={() => {toggleAdditionalButtons()}}
+                >
+                  {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 15 }}>Start a Match</Text>}
+                </TouchableOpacity>
+              </View>}
             </View>}
             </View>
             </>

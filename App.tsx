@@ -55,8 +55,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 import {RootState} from './GlobalDataManagment/store';
 import FollowersFollowing from './components/ProfileComponents/FollowersFollowing';
+import PastMatches from './components/HeadToHeadComponents/PastMatches';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 
 const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
 const AppContent = (): React.ReactElement => {
   const {theme, toggleTheme} = useTheme();
@@ -71,6 +74,7 @@ const AppContent = (): React.ReactElement => {
   if (loading) {
     return <SplashScreen />;
   }
+
 
   //onboard or main stack depending on user status
   if (user && userIsMade == true) {
@@ -244,6 +248,15 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="editProfilePage"
             component={editProfilePage}
+            options={{
+              headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+            }}
+          />
+          <Stack.Screen
+            name="PastMatches"
+            component={PastMatches}
             options={{
               headerShown: false,
               gestureEnabled: true,

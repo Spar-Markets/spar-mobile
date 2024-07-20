@@ -16,6 +16,7 @@ import Feed from './components/FeedComponents/Feed';
 import { useTheme } from './components/ContextComponents/ThemeContext';
 import { useStatusBarHeight } from './components/ContextComponents/StatusBarHeightContext';
 import { useDimensions } from './components/ContextComponents/DimensionsContext';
+import { Text } from 'react-native';
 
 const Tab = createBottomTabNavigator()
 
@@ -31,7 +32,7 @@ const CoreApp = (): React.ReactElement => {
   >
 </Auth0Provider>*/} //commented out because big issues with it
   return (
-
+        
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
@@ -51,18 +52,22 @@ const CoreApp = (): React.ReactElement => {
   
               // You can return any component that you like here!
               return ( 
-              <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+              <>
+              <View style={{height: 1, width: width/5, backgroundColor: theme.colors.primary, marginBottom: 10}}></View>
+              <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', gap: 3}}>
                 <Icon name={iconName} size={size} color={color} />
+                <Text style={{color: theme.colors.text, fontSize: 11, fontFamily: 'InterTight-Black'}}>{route.name}</Text>
+                <View style={[focused && {backgroundColor: theme.colors.accent}, {height: 2, width: width/15, marginTop: 5}]}></View>
               </View>
+              </>
               )
             },
-            tabBarActiveTintColor: theme.colors.opposite, // Mint green color for active tab
+            tabBarActiveTintColor: theme.colors.accent, // Mint green color for active tab
             tabBarInactiveTintColor: theme.colors.tertiary,
             tabBarStyle: { backgroundColor: theme.colors.background, 
-              height: 80, borderTopWidth: 0}, // Black background for the tab bar
-            tabBarLabelStyle: {fontFamily: "InterTight-Bold", fontSize: 11}
+              height: 110, borderTopWidth: 0}, // Black background for the tab bar
+            tabBarShowLabel: false
             })}>
-            
             <Tab.Screen name="Home" component={Home} options={{headerShown: false, title: 'Home'}}/>
             <Tab.Screen name="Discover" component={StockSearch} options={{headerShown: false}}/>
             <Tab.Screen name="Feed" component={Feed} options={{headerShown:false}}/>

@@ -20,7 +20,7 @@ import useUserDetails from '../../hooks/useUserDetails';
 import { storage } from '../../firebase/firebase';
 import { deleteObject, getDownloadURL, ref } from 'firebase/storage';
 import GameCardSkeleton from '../HomeComponents/GameCardSkeleton';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface PostProps extends PostType {
     postedTimeAgo: string;
@@ -58,9 +58,8 @@ const Post = (props:any) => {
             isUpvoted: props.isUpvoted,
             isDownvoted: props.isDownvoted,
             image: image //uri to image
-    })
-        
-    }
+            })
+        }
 
     // Sets initial votes on rerender
     const [loading, setLoading] = useState(true);
@@ -100,11 +99,15 @@ const Post = (props:any) => {
                 }
 
                 if (props.posterId) {
-                    const profileImageRef = ref(storage, `profileImages/${props.posterId}`);
-                    const profileUrl = await getDownloadURL(profileImageRef);
-                    setProfileImageUri(profileUrl);
+                    const posterDoc = await axios.get(`${serverUrl}/getUser`, props.posterId) 
+                    if (posterDoc.data.hasDefaultProfileImage = "true") {
+                        setProfileImageUri(posterDoc.data.defaultProfileImage)
+                    } else {
+                        const profileImageRef = ref(storage, `profileImages/${props.posterId}`);
+                        const profileUrl = await getDownloadURL(profileImageRef);
+                        setProfileImageUri(profileUrl);
+                    }
                 }
-
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {

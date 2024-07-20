@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, Easing } from 'react-native';
+import { Animated, View, Easing, TouchableOpacity } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import { Text } from 'react-native';
 
-const CustomActivityIndicator = ({ size = 50, color = '#000', text="" }) => {
+const CustomActivityIndicator = ({ size = 50, color = '#000', text="", hasCancel=false }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const { theme } = useTheme();
@@ -48,7 +48,7 @@ const CustomActivityIndicator = ({ size = 50, color = '#000', text="" }) => {
           />
         </Svg>
       </Animated.View>
-      {text != "" && <Text>{text}</Text>}
+      {text != "" && <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', marginTop: 10}}>{text}</Text>}
     </View>
   );
 };

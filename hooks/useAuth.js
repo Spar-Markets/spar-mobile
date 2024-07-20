@@ -5,7 +5,7 @@ import {auth} from '../firebase/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import User from '../types/User';
 import {useDispatch} from 'react-redux';
-import {setUserIsMade} from '../GlobalDataManagment/userSlice';
+import {setUserID, setUserIsMade} from '../GlobalDataManagment/userSlice';
 
 /**
  * Used to log in to firebase and persistence
@@ -23,6 +23,7 @@ const useAuth = () => {
       if (storedUser) {
         setUser(JSON.parse(storedUser));
         dispatch(setUserIsMade(true));
+        dispatch(setUserID(JSON.parse(storedUser).uid));
       }
       setLoading(false);
     };

@@ -6,12 +6,12 @@
 export const darkColors = {
     dark: true,
     colors: {
-        primary: '#212121',//'#1a3040', //main boxes
-        secondary: '#424242',
-        tertiary: '#636363',
-        background: '#111111',
+        primary: '#222',//'#1a3040', //main boxes
+        secondary: '#444',
+        tertiary: '#666',
+        background: '#111',
         border: '#000',
-        accent: '#60FFCF', //most buttons
+        accent: '#13e8c5', //most buttons
         darkAccent: '#32CD32',
         accent2: '#3c3c3c', //border, some buttons
         text: '#ffffff', 

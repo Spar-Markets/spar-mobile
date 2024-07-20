@@ -5,6 +5,7 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import { Text } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 const SmallActivityIndicator = ({ size = 20, color = '#000' }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -32,7 +33,8 @@ const SmallActivityIndicator = ({ size = 20, color = '#000' }) => {
   });
 
   return (
-      <Animated.View style={{ transform: [{ rotate }] }}>
+
+      <Animated.View style={{ transform: [{ rotate }]}}>
         <Svg height={size} width={size} viewBox="0 0 100 100">
           <Circle
             cx="50"

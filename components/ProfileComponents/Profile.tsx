@@ -46,8 +46,13 @@ const Profile  = ({ navigation }: any) => {
   useEffect(() => {
     const getProfileImage = async () => {
       try {
+        
+        const defaultImage = await AsyncStorage.getItem('hasDefaultProfileImage');
+        const defaultProfileImage = await AsyncStorage.getItem('defaultProfileImage');
         const profileImagePath = await AsyncStorage.getItem('profileImgPath');
-        if (profileImagePath) {
+        if (defaultImage == 'true') {
+          setImage(defaultProfileImage);
+        } else if (profileImagePath) {
           console.log('Profile image path from AsyncStorage:', profileImagePath);
           setImage(profileImagePath);
         } 
@@ -83,6 +88,7 @@ const Profile  = ({ navigation }: any) => {
         setImage(imageUri);
         console.log(imageUri)
         uploadProfileImageToFirebase(imageUri)
+        await AsyncStorage.setItem('hasDefaultProfileImage', "false")
         await AsyncStorage.setItem('profileImgPath', imageUri)
 
         dispatch(setProfileImageUri(imageUri));

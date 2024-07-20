@@ -22,7 +22,7 @@ import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {useDispatch} from 'react-redux';
-import {setUserIsMade} from '../../GlobalDataManagment/userSlice';
+import {setUserID, setUserIsMade} from '../../GlobalDataManagment/userSlice';
 
 const UsernameScreen = (props: any) => {
   // Layout and Style Initialization
@@ -65,10 +65,25 @@ const UsernameScreen = (props: any) => {
       );
 
       if (credentials.user) {
+
+
+        // Array of profile images
+        const profileImages = ["profile1", "profile2", "profile3"];
+    
+        // Select a random profile image
+        const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
+
+        // Set the profile image string
+        await AsyncStorage.setItem('profileImage', `../../assets/images/${randomImage}`);
+
+        console.log('User profile image initialized in AsyncStorage');
+
         const response = await axios.post(serverUrl + '/createUser', {
           email: (credentials.user as any).email,
           userID: (credentials.user as any).uid,
           username: usernameInput,
+          defaultProfileImage: randomImage,
+          hasDefaultProfileImage: "true"
         });
 
         // Sets userID globally in async
@@ -81,7 +96,16 @@ const UsernameScreen = (props: any) => {
             (credentials.user as any).uid,
           ).then(() => {
             dispatch(setUserIsMade(true));
+            dispatch(setUserID((credentials.user as any).uid));
           });
+          try {
+            await AsyncStorage.setItem('defaultProfileImage', randomImage);
+            await AsyncStorage.setItem('hasDefaultProfileImage', 'true');
+
+            
+          } catch (error) {
+            console.error('Error initializing user profile image in AsyncStorage', error);
+          }
         }
       }
 

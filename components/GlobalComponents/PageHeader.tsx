@@ -18,7 +18,7 @@ const PageHeader = (props:any) => {
     return (
     <View style={styles.headerContainer}>
         {props.canGoBack != false && <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
-            <Icon name="arrow-left" style={{marginRight: 20, color: theme.colors.opposite}} size={24}/>
+            <Icon name="arrow-left" style={{color: theme.colors.opposite}} size={24}/>
         </TouchableOpacity>}
         <Text style={styles.headerText}>{props.text}</Text>
         

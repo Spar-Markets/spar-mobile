@@ -17,7 +17,7 @@ import HapticFeedback from "react-native-haptic-feedback";
 import getCurrentPrice from '../../utility/getCurrentPrice';
 import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { addOrUpdateMatch } from '../../GlobalDataManagment/matchesSlice';
+import { addOrUpdateMatch, initializeMatch } from '../../GlobalDataManagment/matchesSlice';
 import { RootState } from '../../GlobalDataManagment/store';
 import { BlurView } from '@react-native-community/blur';
 import { Animated } from 'react-native';
@@ -76,7 +76,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
 
   const dispatch = useDispatch()
 
-  const matches = useSelector((state: RootState) => state.matches);
+  const matchAssets = useSelector((state: RootState) => state.matches[matchID]);
 
   const [matchIsOver, setMatchIsOver] = useState(false)
 
@@ -85,6 +85,12 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   Icon.loadFont()
 
   //const { yourAssets, opponentAssets } = matches[matchID].;
+
+  useEffect(() => {
+    if (matchID) {
+      dispatch(initializeMatch({ matchID }));
+    }
+  }, [matchID]);
 
   const getMatchData = async () => {
     try {
@@ -98,6 +104,14 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       console.error('in get match data error' + error);
     }
   };
+
+  useEffect(() => {
+    if (matchAssets && initialDataLoad) {
+      console.log("Updated Match Assets", matchAssets)
+      setYourAssets(matchAssets.yourAssets)
+      setOpponentAssets(matchAssets.opponentAssets)
+    }
+  }, [matchAssets, initialDataLoad])
 
   const setUserMatchData = async (yourUserNumber: string, opponentUserNumber: string) => {
     try {
@@ -127,11 +141,14 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       console.log("YOUR ASSETS FROM MATCH OBJECT:", match[yourUserNumber].assets)
 
 
+
       //initial load to setAssets for the first time from the database
       setYourAssets(match[yourUserNumber].assets)
       setOpponentAssets(match[opponentUserNumber].assets)
       
       dispatch(addOrUpdateMatch({matchID, yourAssets: match[yourUserNumber].assets, opponentAssets: match[opponentUserNumber].assets}))
+      console.log("AFTER DISPATCH YOUR ASSETS:", matchAssets.yourAssets)
+      console.log("AFTER DISPATCH OPP ASSETS:", matchAssets.opponentAssets)
       
       setYourPointData(yourPoints);
       setOpponentPointData(oppPoints);
@@ -356,8 +373,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         // If the match end time has already passed, set the matchIsOver state variable
         setMatchIsOver(true);
         console.log("CURRENT CLOSING THE GAMECARD WEBSOCKET SINCE MATCH ENDED")
-        ws.current!.close()
-        dispatch(removeWebSocket(matchID))
+        if (ws.current!) {
+          ws.current!.close()
+          ws.current = null
+          dispatch(removeWebSocket(matchID))
+        }
       } else {
         // Set a timeout to navigate back when the match ends
         const timeoutId = setTimeout(() => {
@@ -365,6 +385,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           setMatchIsOver(true);
           console.log("CURRENT CLOSING THE GAMECARD WEBSOCKET SINCE MATCH ENDED")
           ws.current!.close()
+          ws.current = null
           dispatch(removeWebSocket(matchID))
         }, timeUntilEnd);
 
@@ -408,6 +429,88 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     };
   }, [])
 
+  if (ws.current!) {
+    ws.current.onmessage = (event) => {
+      const buffer = new Uint8Array(event.data);
+
+      if (event.data == "Websocket connected successfully") {
+        return;
+      }
+
+      const message = uint8ArrayToString(buffer); 
+
+      try {
+        const JSONMessage = JSON.parse(message);
+        if (JSONMessage.type == "updatedAssets") {
+          // Handle updated assets
+          console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+          const yourUpdatedAssets = JSONMessage[`${you}Assets`];
+          const oppUpdatedAssets = JSONMessage[`${opp}Assets`];
+
+          const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
+          const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
+          console.log("THIS IS THE RECIEVED MESSAGE", JSONMessage)
+          
+          // both cases
+          //setYourAssets(yourUpdatedAssets);
+          //setOpponentAssets(oppUpdatedAssets);
+          console.log("UPDATED ASSETS", yourUpdatedAssets)
+          //redux version
+          dispatch(addOrUpdateMatch({matchID, yourAssets: yourUpdatedAssets, opponentAssets: oppUpdatedAssets}))
+          //const match = useSelector(state => state.matches[matchID])
+
+          if (yourNewAsset) {
+            console.log("YOUR NEW ASSET JUST BOUGHT:", yourNewAsset)
+            if (ws.current) {
+              console.log("SUBSCRIBING TO YOUR NEW ASSET:", yourNewAsset.ticker)
+              ws.current.send(JSON.stringify({ ticker: yourNewAsset.ticker }));
+            }
+            setYourAssets(yourUpdatedAssets)
+          }
+
+          if (oppNewAsset) {
+            console.log("OPP NEW ASSET JUST BOUGHT:", oppNewAsset)
+            if (ws.current) {
+              console.log("SUBSCRIBING TO OPP NEW ASSET:", oppNewAsset.ticker)
+              ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
+            }
+            setOpponentAssets(oppUpdatedAssets)
+          }
+   
+          //console.log("Updated your assets state:", yourUpdatedAssets);
+
+          //console.log("Updated opp assets state:", oppUpdatedAssets);;
+          
+          //console.log("UPDATED ASSETS FROM REDUX", matchAssets[matchID].yourAssets, matchAssets[matchID].yourAssets)
+
+        } else if (message != "" && gotInitialPrices && yourAssets && opponentAssets) {
+          //console.log(JSONMessage)
+          //console.log("INSIDE PRICE STUFF THING ------------")
+          const { sym, c: currentPrice } = JSONMessage[0];
+          const isTickerInYourAssets = yourAssets.some(stock => stock.ticker === sym);
+          const isTickerInOppAssets = opponentAssets.some(stock => stock.ticker === sym);
+
+          //console.log(yourAssets)
+          if (isTickerInYourAssets) {
+            console.log("UPDATING PRICES!!!!!!!!!!!!!!!!!!!!")
+            setYourTickerPrices(prevPrices => ({
+              ...prevPrices,
+              [sym]: currentPrice,
+            }));
+          }
+
+          if (isTickerInOppAssets) {
+            setOppTickerPrices(prevPrices => ({
+              ...prevPrices,
+              [sym]: currentPrice,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Error processing WebSocket message:", error);
+      }
+    };
+  }
   
   const setupSocket = async () => {    
     console.log("Opening socket with url:", websocketUrl);  
@@ -432,81 +535,6 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           console.log('WebSocket is not open');
         }
     };
-
-      // WebSocket message handling
-      ws.current.onmessage = (event) => {
-        const buffer = new Uint8Array(event.data);
-
-        if (event.data == "Websocket connected successfully") {
-          return;
-        }
-
-        const message = uint8ArrayToString(buffer); 
-
-        try {
-          const JSONMessage = JSON.parse(message);
-          console.log("THIS IS THE RECIEVED MESSAGE", JSONMessage)
-          if (JSONMessage.type == "updatedAssets") {
-            // Handle updated assets
-            console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            const yourUpdatedAssets = JSONMessage[`${you}Assets`];
-            const oppUpdatedAssets = JSONMessage[`${opp}Assets`];
-
-            const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
-            const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
-            
-            // both cases
-            //setYourAssets(yourUpdatedAssets);
-            //setOpponentAssets(oppUpdatedAssets);
-            
-            //redux version
-            dispatch(addOrUpdateMatch({matchID, yourAssets: yourUpdatedAssets, opponentAssets: oppUpdatedAssets}))
-            //console.log("UPDATED ASSETS FROM REDUX", yourAssets, opponentAssets)
-
-            if (yourNewAsset) {
-              console.log("YOUR NEW ASSET JUST BOUGHT:", yourNewAsset)
-              if (ws.current) {
-                console.log("SUBSCRIBING TO YOUR NEW ASSET:", yourNewAsset.ticker)
-                ws.current.send(JSON.stringify({ ticker: yourNewAsset.ticker }));
-              }
-            }
-
-            if (oppNewAsset) {
-              console.log("OPP NEW ASSET JUST BOUGHT:", oppNewAsset)
-              if (ws.current) {
-                console.log("SUBSCRIBING TO OPP NEW ASSET:", oppNewAsset.ticker)
-                ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
-              }
-            }
-     
-            console.log("Updated your assets state:", yourUpdatedAssets);
-
-            console.log("Updated opp assets state:", oppUpdatedAssets);;
-
-          } else if (message != "" && gotInitialPrices && yourAssets && opponentAssets) {
-            //console.log(JSONMessage)
-            const { sym, c: currentPrice } = JSONMessage[0];
-            const isTickerInYourAssets = yourAssets.some(stock => stock.ticker === sym);
-            const isTickerInOppAssets = opponentAssets.some(stock => stock.ticker === sym);
-            //console.log(yourAssets)
-            if (isTickerInYourAssets) {
-              setYourTickerPrices(prevPrices => ({
-                ...prevPrices,
-                [sym]: currentPrice,
-              }));
-            }
-
-            if (isTickerInOppAssets) {
-              setOppTickerPrices(prevPrices => ({
-                ...prevPrices,
-                [sym]: currentPrice,
-              }));
-            }
-          }
-        } catch (error) {
-          console.error("Error processing WebSocket message:", error);
-        }
-      };
 
     ws.current.onerror = (error) => {
         console.log('WebSocket error:', error || JSON.stringify(error));
@@ -716,17 +744,19 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           </View>
           <View style={{ gap: 10, marginHorizontal: 20, paddingTop: 10,flexDirection: 'row'}}>
             <View>
-            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center'}}>
-              <View style={[styles.gameCardIndicator, { backgroundColor: yourColor }]}></View>
+              <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center'}}>
+                <View style={[styles.gameCardIndicator, { backgroundColor: yourColor }]}></View>
                 <View style={{ justifyContent: 'center' }}>
                   <Text style={styles.gameCardPlayerText}>You</Text>
                 </View>
-                {/*<View style={styles.gameCardPercentageContainer}>
-                  <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourTotalPrice).toFixed(2)} ({((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
-                </View>*/}
               </View>
               <View style={styles.gameCardPercentageContainer}>
-                  <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourTotalPrice).toFixed(2)} ({((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
+                  <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourTotalPrice).toFixed(2)}</Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <View style={{backgroundColor: hexToRGBA(yourColor, 0.2), alignItems: 'center', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 5}}>
+                    <Text style={{color: yourColor, fontFamily: 'InterTight-Bold', fontSize: 13}}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
+                </View>
               </View>
             </View>
             <View style={{flex: 1}}></View>
@@ -739,11 +769,17 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
                 <View style={[styles.gameCardIndicator, { backgroundColor: theme.colors.opposite }]}></View>
               </View>
               <View style={styles.gameCardPercentageContainer}>
-                  <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite }]}>${(oppTotalPrice).toFixed(2)} ({((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%)</Text>
+                  <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite, textAlign: 'right' }]}>${(oppTotalPrice).toFixed(2)}</Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <View style={{flex: 1}}/>
+                <View style={{backgroundColor: hexToRGBA(theme.colors.text, 0.2), alignItems: 'center', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 5}}>
+                    <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 13}}>{((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
+                </View>
               </View>
             </View>
           </View>
-          <View style={{marginTop: 5, height: 150}}>
+          <View style={{marginTop: 5, height: 135}}>
           <View style={{
                 position: 'absolute',
                 top: 10,
@@ -758,7 +794,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
                     <>
                       <Group>
                       <Line points={points.value} color={theme.colors.tertiary} 
-                      strokeWidth={1} animate={{ type: "timing", duration: 300 }} curveType='linear'></Line>
+                      strokeWidth={1} /*animate={{ type: "timing", duration: 300 }}*/ curveType='linear'></Line>
                       </Group>
                     </>
                     )
@@ -782,7 +818,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               // 👇 and we'll use the Line component to render a line path.
                 <>
                 <Line points={points.normalizedValue} color={hexToRGBA(oppColor, 0.5)} 
-                strokeWidth={2} animate={{ type: "timing", duration: 50 }}/>
+                strokeWidth={2} /*animate={{ type: "timing", duration: 50 }}*//>
                 <LiveIndicator x={points.normalizedValue[points.normalizedValue.length-1].x}
                 y={points.normalizedValue[points.normalizedValue.length-1].y!}
                 color={hexToRGBA(oppColor, 0.5)}
@@ -809,7 +845,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               return (
                 <>
                 <Line points={points.normalizedValue} color={yourColor} 
-                strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
+                strokeWidth={2} /*animate={{ type: "timing", duration: 300 }}*//>
                 <LiveIndicator x={points.normalizedValue[points.normalizedValue.length-1].x}
                 y={points.normalizedValue[points.normalizedValue.length-1].y!}
                 color={yourColor}

@@ -11,7 +11,7 @@ const createGlobalStyles = (theme: any, width: number) => {
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
-        marginLeft: 10
+        
     },
     headerText: {
         color: theme.colors.text,
@@ -21,7 +21,7 @@ const createGlobalStyles = (theme: any, width: number) => {
     },
     headerBackBtn: {
         position: 'absolute',
-        left: 10
+        left: 20
     },
     headerRightBtn: {
         position: 'absolute',

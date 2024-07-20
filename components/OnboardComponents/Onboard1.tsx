@@ -219,7 +219,6 @@ const Onboard1 = () => {
       }));
     
 
-
     return (
         
         <Animated.View style={[styles.onboardContainer, { opacity }]}>

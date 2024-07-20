@@ -16,7 +16,7 @@ const createHomeStyles = (theme: any, width: number) => {
       height: 40, 
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
+      gap: 5,
       marginHorizontal: 20
     },
     headerText: {
@@ -106,7 +106,6 @@ const createHomeStyles = (theme: any, width: number) => {
       //borderColor: theme.colors.primary,
       width: (Dimensions.get('window').width),
       height: 250,
-      paddingTop: 10
     },
     gameCardPlayerText: {
       color: theme.colors.text,
@@ -339,18 +338,18 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     addButton: {
       height: 40,
-      width: width/2.5,
-      borderRadius: 30,
+      width: width-40,
+      borderRadius: 5,
       paddingHorizontal: 15,
       backgroundColor: theme.colors.accent,
       justifyContent: 'center',
       alignItems: 'center',
       elevation: 1000,
       zIndex: 1000,
-      marginRight: 20,
+      marginHorizontal: 20,
       marginBottom: 10,
       flexDirection: 'row',
-      gap: 10
+      gap: 10,
   },
   matchmakingCategory: {
     marginHorizontal: 10, 
