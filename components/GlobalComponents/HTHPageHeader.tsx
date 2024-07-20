@@ -6,6 +6,7 @@ import createGlobalStyles from '../../styles/createGlobalStyles';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Timer from '../HomeComponents/Timer';
+import FeatherIcons from 'react-native-vector-icons/Feather'
 
 const HTHPageHeader = (props:any) => {
 
@@ -16,12 +17,14 @@ const HTHPageHeader = (props:any) => {
 
     const navigation = useNavigation<any>();
 
+    FeatherIcons.loadFont()
+
     return (
     <View style={styles.headerContainer}>
         {props.canGoBack != false && <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
-            <Icon name="chevron-left" style={{marginRight: 20, color: theme.colors.opposite}} size={24}/>
-        </TouchableOpacity>}
+        <FeatherIcons name="arrow-left" style={{color: theme.colors.opposite}} size={20}/>
         <Text style={styles.headerText}>{props.text}</Text>
+        </TouchableOpacity>}
         <View style={styles.headerRightBtn}>
             <Timer endDate={props.endAt} timeFrame={props.timeFrame} />
         </View>

@@ -4,12 +4,16 @@ interface UserState {
     isInMatchmaking: boolean
     isUserMade: boolean
     userID: string | null;
+    username: string;
+    userBio: string;
 }
 
 const initialState = {
   isInMatchmaking: false,
   isUserMade: false,
   userID: null,
+  username: null,
+  userBio: null
 }
 
 const userSlice = createSlice({
@@ -25,7 +29,13 @@ const userSlice = createSlice({
     setUserID: (state, action) => {
       state.userID = action.payload; // Create a reducer to update userID
     },
-  },
+    setUsername: (state, action) => {
+      state.username = action.payload;
+    },
+    setUserBio: (state, action) => {
+      state.userBio = action.payload;
+    }
+  }
 });
 
 export const { setIsInMatchmaking, setUserIsMade, setUserID } = userSlice.actions;

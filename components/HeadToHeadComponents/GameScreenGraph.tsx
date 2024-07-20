@@ -270,6 +270,7 @@ const GameScreenGraph = (props:any) => {
 
   useEffect(() => {
     calculateInitialPercentDiffAndColor();
+    console.log("DATA EJIFODFGSGF:", yourFormattedData, oppFormattedData)
   }, [yourFormattedData, oppFormattedData]);
 
   const [chartActive, setChartActive] = useState(false)

@@ -12,10 +12,10 @@ const createProfileStyles = (theme: any, width: number) => {
         flex: 1
     }, 
     header: {
+        position: 'absolute',
         flexDirection: 'row',
-        marginHorizontal: 20, 
-        gap: 10,
-        paddingBottom: 10,
+        top: statusBarHeight + 5,
+        right: 10
     },
     headerBtn: {
         paddingHorizontal: 10,

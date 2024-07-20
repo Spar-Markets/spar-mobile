@@ -23,6 +23,19 @@ const PageHeader = (props:any) => {
         {props.canGoBack != false && <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
             <FeatherIcons name="arrow-left" style={{color: theme.colors.opposite}} size={20}/>
             <Text style={styles.headerText}>{props.text}</Text>
+            <View style={{flex: 1}}></View>
+            {props.onProfile == true &&
+            <View style={{marginRight: 10, flexDirection: 'row'}}>
+                <TouchableOpacity style={{paddingHorizontal: 10}} onPress={() => navigation.navigate("ProfileSearch")}>
+                    <Icon name={"search"} size={20} color={theme.colors.opposite} />
+                </TouchableOpacity>
+                <TouchableOpacity style={{paddingHorizontal: 10}} onPress={() => navigation.navigate("ProfileActivity")}>
+                    <Icon name={"heart"} size={20} color={theme.colors.opposite}></Icon>
+                    <View style={{position: 'absolute', right:5, top:-2, height: 12, width: 12, backgroundColor: 'red', borderRadius: 100, borderWidth: 2, borderColor: theme.colors.background}}></View>
+                </TouchableOpacity>
+            </View>
+            
+            }
         </TouchableOpacity>}
     </View>
     )

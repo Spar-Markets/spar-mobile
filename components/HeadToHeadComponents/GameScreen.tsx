@@ -295,7 +295,7 @@ const GameScreen = () => {
   if (loading) {
     return (
         <View style={styles.container}>
-            <HTHPageHeader text="Head-to-Head" endAt={params?.endAt}/>
+            <HTHPageHeader text="Back" endAt={params?.endAt}/>
             <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
               <CustomActivityIndicator size={60} color={theme.colors.text}/>
             </View>
@@ -305,7 +305,7 @@ const GameScreen = () => {
 
   return (
    <View style={styles.container}>
-      <HTHPageHeader text="Head-to-Head" endAt={params?.endAt}/>
+      <HTHPageHeader text="Back" endAt={params?.endAt}/>
       <ScrollView showsVerticalScrollIndicator={false}>
         <GameScreenGraph yourFormattedData={yourFormattedData} oppFormattedData={oppFormattedData} matchID={matchID} userID={userID} yourColor={yourColor} oppName={opponentUsername}/>
         <View style={{marginHorizontal: 20}}>

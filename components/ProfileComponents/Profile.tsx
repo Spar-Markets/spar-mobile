@@ -144,10 +144,10 @@ const Profile  = ({ navigation }: any) => {
             <View style={{position: 'absolute', right:5, top:-2, height: 12, width: 12, backgroundColor: 'red', borderRadius: 100, borderWidth: 2, borderColor: theme.colors.background}}></View>
           </TouchableOpacity>
         </View>*/}
-        <PageHeader text="Profile"/>
+        <PageHeader text="Profile" onProfile={true}/>
         <ScrollView style={{marginTop: 10}}>
           <View style={{backgroundColor: theme.colors.primary, paddingBottom: 20, borderBottomLeftRadius: 10, borderBottomRightRadius: 10}}>
-          <TouchableOpacity style={{position: 'absolute', top: 60, right: 20, zIndex: 1, backgroundColor: theme.colors.background, width: 40, height: 40, borderRadius: 500, justifyContent: 'center', alignItems: 'center'}}>
+          <TouchableOpacity style={{position: 'absolute', top: 20, right: 20, zIndex: 1, backgroundColor: theme.colors.background, width: 40, height: 40, borderRadius: 500, justifyContent: 'center', alignItems: 'center'}}>
             <FeatherIcons name="edit-2" color={theme.colors.text} size={18}/>
           </TouchableOpacity>
           <Image source={require("../../assets/images/banner1.png")} style={{zIndex: 0, width: width, height: 150, position: 'absolute', top: 0, left: 0, right: 0}}></Image>
@@ -264,18 +264,6 @@ const Profile  = ({ navigation }: any) => {
               </TouchableOpacity> 
   
           </View>
-
-          <Text style={{color: theme.colors.text, marginTop: 20, marginLeft: 15, fontFamily: 'InterTight-Bold', fontSize: 18}}>Social</Text>
-          <View style={{marginTop: 10, marginHorizontal: 10, gap: 10, flexDirection: 'row'}}>
-            <TouchableOpacity style={{backgroundColor: theme.colors.opposite, justifyContent: 'center', alignItems: 'center', borderRadius: 10, flex: 1, paddingVertical: 15}}>
-              <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Challenge Friends</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10, flex: 0.7, paddingVertical: 15}}>
-              <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Find Friends</Text>
-            </TouchableOpacity>
-          </View>
-
-
           
           <View style={{marginVertical: 20}}>
             {/*<Text

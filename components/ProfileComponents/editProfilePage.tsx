@@ -100,11 +100,14 @@ const Profile = ({navigation, route}: any) => {
     <View style={styles.container}>
       <PageHeader text="Edit Profile"/>
       <View style={{marginHorizontal: 20}}>
-        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Edit Username</Text>
+        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 5, marginTop: 30}}>Edit Username</Text>
         <TextInput style={{color: theme.colors.text, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.tertiary, padding: 20}} onChangeText={setNewUsername} value={newUsername}/>
-        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Edit Bio</Text>
+        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 5, marginTop: 20}}>Edit Bio</Text>
         <TextInput style={{color: theme.colors.text, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.tertiary, padding: 20}} onChangeText={setNewBio} value={newBio}/>
-        <Button title="Save" onPress={handleSaveProfile}/>
+   
+        <TouchableOpacity onPress={handleSaveProfile} style={{backgroundColor: theme.colors.redAccent, justifyContent: 'center', alignItems: 'center', paddingVertical: 15, borderRadius: 10, marginTop: 30}}>
+          <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Confirm Changes</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
