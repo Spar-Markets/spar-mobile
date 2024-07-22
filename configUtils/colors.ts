@@ -11,7 +11,7 @@ export const darkColors = {
         tertiary: '#666',
         background: '#111',
         border: '#000',
-        accent: '#13e8c5', //most buttons
+        accent: '#a3d5ff', //most buttons
         darkAccent: '#32CD32',
         accent2: '#3c3c3c', //border, some buttons
         text: '#ffffff', 

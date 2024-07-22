@@ -50,8 +50,9 @@ import {Skeleton} from '@rneui/base';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import getMarketFraction from '../../utility/getMarketFraction';
 import axios from 'axios';
-import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
 import { useDispatch } from 'react-redux';
+import { updateStockPrice } from '../../GlobalDataManagment/stockSlice';
+import getCurrentPrice from '../../utility/getCurrentPrice';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
@@ -69,6 +70,8 @@ const StockDetailGraph = (props: any) => {
   const [timeFrameSelected, setTimeFrameSelected] = useState<string>('1D');
   const [allPointData, setAllPointData] = useState<any>(null);
   const [oneDayClose, setOneDayClose] = useState<number>(0);
+
+  const [currentPrice, setCurrentPrice] = useState<number>(0);
 
   const {currentAccentColorValue, setCurrentAccentColorValue} = props;
 
@@ -140,8 +143,21 @@ const StockDetailGraph = (props: any) => {
     getPricesForSelectedTime();
   }, [props.ticker]);
 
+  const grabCurrentPrice = async (ticker:string) => {
+    try {
+      const price = await getCurrentPrice(ticker);
+      if (price) {
+        setCurrentPrice(price);
+        dispatch(updateStockPrice(price))
+      }
+    } catch (error) {
+      console.error("stockdetailgraph: setting redux price error", error)
+    }
+  }
+
   useEffect(() => {
     if (allPointData) {
+      grabCurrentPrice(props.ticker);
       setDataLoading(false);
     } else {
       setDataLoading(true);
@@ -397,7 +413,6 @@ const StockDetailGraph = (props: any) => {
     ws.current.onopen = () => {
       console.log(`Connected to ${ticker}, but not ready for messages...`);
       if (ws.current!) {
-        dispatch(addWebSocket({ id: ticker, ws: ws.current! }));
         console.log(`Connection for ${ticker} is open and ready for messages`);
         ws.current!.send(JSON.stringify({ticker: ticker, status: 'add'}));
       } else {
@@ -410,12 +425,14 @@ const StockDetailGraph = (props: any) => {
       const message = uint8ArrayToString(buffer);
 
       //console.log(`Websocket Received message: ${message}`);
-
-      try {
-        const jsonMessage = JSON.parse(message);
-        setPassingLivePrice(jsonMessage);
-      } catch (error) {
-        setPassingLivePrice(message);
+      if (message != "") {
+        try {
+          const jsonMessage = JSON.parse(message);
+          setPassingLivePrice(jsonMessage);
+          dispatch(updateStockPrice(jsonMessage[0]?.c)) //close live price for aggregate
+        } catch (error) {
+          console.error("stock graph live data error", error)
+        }
       }
     };
 
@@ -436,7 +453,6 @@ const StockDetailGraph = (props: any) => {
 
     ws.current.onclose = () => {
       console.log(`Connection to ${ticker} closed`);
-      dispatch(removeWebSocket(ticker))
     };
   };
 
@@ -609,14 +625,14 @@ const StockDetailGraph = (props: any) => {
                 <Text style={styles.stockPriceText}>
                   $
                   {
-                    pointData[pointData.length - 1].value
+                    currentPrice//pointData[pointData.length - 1].value
                       .toFixed(2)
                       .split('.')[0]
                   }
                   <Text style={{fontSize: 15}}>
                     .
                     {
-                      pointData[pointData.length - 1].value
+                      currentPrice //pointData[pointData.length - 1].value
                         .toFixed(2)
                         .split('.')[1]
                     }

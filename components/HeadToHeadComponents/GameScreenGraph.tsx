@@ -28,6 +28,7 @@ import { SharedValue, runOnJS, useAnimatedReaction, useDerivedValue } from 'reac
 import { Canvas, Rect, Text as SkiaText, useFont, TextAlign, Group, Circle, Paint, RadialGradient, vec, BlurMask } from '@shopify/react-native-skia';
 import { ActivityIndicator } from 'react-native';
 
+
 // const ws = useRef<WebSocket | null>(null);
 
 /*interface RouteParams {
@@ -90,126 +91,6 @@ const GameScreenGraph = (props:any) => {
   const [livePortfolioValue, setLivePortfolioValue] = useState("")
 
   const { state, isActive } = useChartPressState({ x: 0, y: { normalizedValue: 0 } });
-
-/**
- * Websocket stuff
- */
-
-// const setupSocket = async () => {    
-//   console.log("Opening socket with url:", websocketUrl);  
-//   const socket = new WebSocket(websocketUrl);
-
-//   ws.current = socket;
-  
-//   ws.current.onopen = () => {
-//       console.log(`Connected to GameCard Asset Websocket, but not ready for messages...`);
-//       if (ws.current! && yourAssets && opponentAssets) {
-//         console.log(`Connection for GameCard Asset Websocket is open and ready for messages`);
-//         // first send match ID
-//         ws.current!.send(JSON.stringify({ matchID: match.matchID }))
-//         yourAssets.forEach((asset:any) => {
-//           ws.current!.send(JSON.stringify({ ticker: asset.ticker}));
-//         })
-//         opponentAssets.forEach((asset:any) => {
-//           ws.current!.send(JSON.stringify({ ticker: asset.ticker}));
-//         })
-//       } else {
-//         console.log('WebSocket is not open');
-//       }
-//   };
-
-//     // WebSocket message handling
-//     ws.current.onmessage = (event) => {
-//       const buffer = new Uint8Array(event.data);
-
-//       if (event.data == "Websocket connected successfully") {
-//         return;
-//       }
-
-      
-
-//       const message = uint8ArrayToString(buffer); 
-
-//       try {
-//         const JSONMessage = JSON.parse(message);
-//         //console.log(JSONMessage)
-//         if (JSONMessage.type == "updatedAssets") {
-//           // Handle updated assets
-//           console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-//           const yourUpdatedAssets = JSONMessage[`${you}Assets`];
-//           const oppUpdatedAssets = JSONMessage[`${opp}Assets`];
-
-//           const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
-//           const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
-          
-//           // both cases
-//           setYourAssets(yourUpdatedAssets);
-//           setOpponentAssets(oppUpdatedAssets);
-
-//           if (yourNewAsset) {
-//             console.log("YOUR NEW ASSET JUST BOUGHT:", yourNewAsset)
-//             if (ws.current) {
-//               console.log("SUBSCRIBING TO YOUR NEW ASSET:", yourNewAsset.ticker)
-//               ws.current.send(JSON.stringify({ ticker: yourNewAsset.ticker }));
-//             }
-//           }
-
-//           if (oppNewAsset) {
-//             console.log("OPP NEW ASSET JUST BOUGHT:", oppNewAsset)
-//             if (ws.current) {
-//               console.log("SUBSCRIBING TO OPP NEW ASSET:", oppNewAsset.ticker)
-//               ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
-//             }
-//           }
-
-   
-//           console.log("Updated your assets state:", yourUpdatedAssets);
-
-//           console.log("Updated opp assets state:", oppUpdatedAssets);;
-
-//         } else if (message != "" && gotInitialPrices && yourAssets && opponentAssets) {
-//           //console.log(JSONMessage)
-//           const { sym, c: currentPrice } = JSONMessage[0];
-//           const isTickerInYourAssets = yourAssets.some(stock => stock.ticker === sym);
-//           const isTickerInOppAssets = opponentAssets.some(stock => stock.ticker === sym);
-//           //console.log(yourAssets)
-//           if (isTickerInYourAssets) {
-//             setYourTickerPrices(prevPrices => ({
-//               ...prevPrices,
-//               [sym]: currentPrice,
-//             }));
-//           }
-
-//           if (isTickerInOppAssets) {
-//             setOppTickerPrices(prevPrices => ({
-//               ...prevPrices,
-//               [sym]: currentPrice,
-//             }));
-//           }
-//         }
-//       } catch (error) {
-//         console.error("Error processing WebSocket message:", error);
-//       }
-//     };
-
-
-//   ws.current.onerror = (error) => {
-//       console.log('WebSocket error:', error || JSON.stringify(error));
-//       if (retries < MAX_RETRIES) {
-//         console.log(`Retrying connection (${retries + 1}/${MAX_RETRIES})...`);
-//         setRetries(retries + 1);
-//         setTimeout(() => {
-//             setupSocket();
-//         }, RETRY_DELAY);
-//       } else {
-//         console.error('Maximum retry attempts reached. Unable to connect to WebSocket.');
-//       }
-//   };
-
-//   ws.current.onclose = () => {
-//       console.log(`Connection to GameCard Asset Websocket closed`);
-//   };
-// };
   
   function ToolTip({ x, y}: { x: SharedValue<number>, y: SharedValue<number>}) {
     return (
@@ -293,7 +174,9 @@ const GameScreenGraph = (props:any) => {
   return (
 
     <View style={{ height: 400}}>
-        <View style={{flexDirection: 'row', marginTop: 20, height: 80}}>
+        
+        
+        {/*<View style={{flexDirection: 'row', marginTop: 20, height: 80}}>
           <View style={{marginLeft: 20}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
               <View style={[styles.hthGameIndicator, {backgroundColor: props.yourColor}]}></View>
@@ -315,13 +198,38 @@ const GameScreenGraph = (props:any) => {
             </View>
             <Text style={[styles.portText, {textAlign: 'right'}]}>${isActive ? oppPriceValue.value.toFixed(2) : (oppFormattedData[oppFormattedData.length - 1].value).toFixed(2)}</Text>
           </View>
+        </View>*/}
+
+
+        <View style={{flexDirection: 'row', marginTop: 20, height: 180, gap: 10, justifyContent: 'center', width: width-40, marginHorizontal: 20}}>
+          <View style={{backgroundColor: theme.colors.primary, width: (width-40)/2, borderRadius: 10, justifyContent: 'center', alignItems: 'center', gap: 5}}>
+            <View style={{height: 60, width: 60, backgroundColor: theme.colors.tertiary, borderRadius: 500}}></View>
+            <Text style={styles.userText}>You</Text>
+            <View style={styles.percentIndicator}>
+              <Text style={[styles.percentText, {color: props.yourColor}]}>{isActive ? yourPercentDiff.value : yourInitialPercentDiff}%</Text>
+            </View>
+          </View>
+          <View style={{backgroundColor: theme.colors.primary, width: (width-40)/2, borderRadius: 10, justifyContent: 'center', alignItems: 'center', gap: 5}}>
+            <View style={{height: 60, width: 60, backgroundColor: theme.colors.tertiary, borderRadius: 500}}></View>
+            <Text style={styles.userText}>{props.oppName}</Text>
+            <View style={styles.percentIndicator}>
+              <Text style={[styles.percentText, {color: props.yourColor}]}>{isActive ? yourPercentDiff.value : yourInitialPercentDiff}%</Text>
+            </View>
+          </View>
+          <View style={{backgroundColor: theme.colors.primary, borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>VS</Text>
+          </View>
+          <View style={{backgroundColor: theme.colors.accent, borderBottomLeftRadius: 5, borderBottomRightRadius: 5, position: 'absolute', top: 0, paddingVertical: 3, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{color: theme.colors.primary, fontFamily: 'InterTight-Bold'}}>Stock</Text>
+          </View>
         </View>
+        
         <View style={{
         position: 'absolute',
-        top: 80,
+        top: 215,
         left: 0,
         right: 0,
-        bottom: 10,
+        bottom: 0,
         }}>
         <CartesianChart data={Array.from({ length: 50 }, (_, i) => ({
                 index: i,
@@ -341,10 +249,10 @@ const GameScreenGraph = (props:any) => {
         </View>
         <View style={{
             position: 'absolute',
-            top: 80,
+            top: 215,
             left: 0,
             right: 0,
-            bottom: 10,
+            bottom: 0,
             }}>
         <CartesianChart data={yourFormattedData} xKey="index" yKeys={["normalizedValue"]} 
             domain={{y: [minY, maxY],
@@ -365,10 +273,10 @@ const GameScreenGraph = (props:any) => {
         </View>
         <View style={{
             position: 'absolute',
-            top: 80,
+            top: 215,
             left: 0,
             right: 0,
-            bottom: 10,
+            bottom: 0,
             }}>
         <CartesianChart data={oppFormattedData} xKey="index" yKeys={["normalizedValue"]}
             domain={{y: [minY, maxY],

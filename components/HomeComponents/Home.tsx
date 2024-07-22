@@ -28,7 +28,7 @@ import createHomeStyles from '../../styles/createHomeStyles';
 import ToggleButton from './ToggleButton';
 import DiscoverCard from './DiscoverCard';
 import {useDispatch, useSelector} from 'react-redux';
-import {setIsInMatchmaking} from '../../GlobalDataManagment/userSlice';
+import {setIsInMatchmaking, setUserBio, setUsername} from '../../GlobalDataManagment/userSlice';
 import useUserDetails from '../../hooks/useUserDetails';
 import GameCard from './GameCard';
 import GameCardSkeleton from './GameCardSkeleton';
@@ -67,6 +67,7 @@ import { FAB, Portal, PaperProvider } from 'react-native-paper';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Svg, Circle as SvgCircle } from 'react-native-svg';
 import AnimatedRing from '../GlobalComponents/AnimatedRing';
+import { setGlobalTickers } from '../../GlobalDataManagment/stockDataSlice';
 const {width} = Dimensions.get('window');
 
 Icon.loadFont()
@@ -108,7 +109,7 @@ const Home: React.FC = () => {
   const [activeMatches, setActiveMatches] = useState<any>(null);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
-  const [username, setUsername] = useState('');
+  //const [username, setUsername] = useState('');
   const [userID, setUserID] = useState('');
   const [watchLists, setWatchLists] = useState<Object[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -130,6 +131,22 @@ const Home: React.FC = () => {
   const isInMatchmaking = useSelector(
     (state: any) => state.user.isInMatchmaking,
   );
+
+  useEffect(() => {
+    const getGlobalTickers = async () => {
+      try {
+        const response = await axios.get(serverUrl + '/getTickerList');
+        dispatch(setGlobalTickers(response.data))
+      } catch (error) {
+        console.error("global tickers error", error)
+      }
+    }
+    if (userData) {
+      dispatch(setUsername(userData.username))
+      dispatch(setUserBio(userData.bio))
+      getGlobalTickers();
+    }
+  }, [userData])
 
   const requestPermissions = async () => {
     if (Platform.OS === 'ios') {
@@ -350,8 +367,6 @@ const Home: React.FC = () => {
   });
 
   const viewConfigRef = useRef({viewAreaCoveragePercentThreshold: 30});
-
-  const [selectedWatchList, setSelectedWatchList] = useState(0);
 
   const profileImageUri = useSelector(
     (state: any) => state.image.profileImageUri,

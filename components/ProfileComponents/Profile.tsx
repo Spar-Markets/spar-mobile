@@ -28,6 +28,7 @@ import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
 import WatchlistButton from '../HomeComponents/WatchlistButton';
 import { SegmentedButtons } from 'react-native-paper';
 import PageHeader from '../GlobalComponents/PageHeader';
+import { RootState } from '../../GlobalDataManagment/store';
 
 
 const Profile  = ({ navigation }: any) => {
@@ -41,6 +42,9 @@ const Profile  = ({ navigation }: any) => {
   MaterialCommunityIcons.loadFont()
   MaterialIcons.loadFont()
   FeatherIcons.loadFont()
+
+  const username = useSelector((state: RootState) => state.user.username);
+  const userBio = useSelector((state: RootState) => state.user.userBio);
 
 
   const { userData } = useUserDetails();
@@ -162,14 +166,14 @@ const Profile  = ({ navigation }: any) => {
             
           
             <View style={{marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
-              <Text style={styles.usernameText}>{userData?.username}</Text>
+              <Text style={styles.usernameText}>{username}</Text>
               <View style={{flex: 1}}></View>
               <TouchableOpacity style={{height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}
                 onPress={() => navigation.navigate("editProfilePage", 
                   { 
                     userID: userData?.userID, 
-                    username: userData?.username,
-                    bio: userData?.bio
+                    username: username,
+                    bio: userBio
                   })
                 }
               >
@@ -177,7 +181,7 @@ const Profile  = ({ navigation }: any) => {
               </TouchableOpacity>
             </View>
 
-            <View style={{flexDirection: 'row', gap: 10, marginVertical: 10}}>
+            <View style={{flexDirection: 'row', gap: 10, marginBottom: 10}}>
               <TouchableOpacity style={styles.mainContainer} onPress={() => navigation.navigate("FollowersFollowing", {type:"followers", username: userData?.username})}>
                 <Text style={styles.mainContainerType}>{userData?.followers ? userData?.followers.length : 0 ?? 0} <Text style={{color: theme.colors.secondaryText}}>Followers</Text></Text>
               </TouchableOpacity>
@@ -186,7 +190,7 @@ const Profile  = ({ navigation }: any) => {
               </TouchableOpacity>
             </View>
             
-            <Text style={styles.bioText}>{userData.bio}</Text>
+            <Text style={styles.bioText}>{userBio}</Text>
             </View>
           </View>
           

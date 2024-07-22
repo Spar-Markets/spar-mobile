@@ -28,7 +28,8 @@ import {Image} from 'react-native';
 
 // imports to access userID
 import { RootState } from '../../GlobalDataManagment/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateYourTickerPrices } from '../../GlobalDataManagment/matchesSlice';
 
 interface stockOrderParams {
   ticker: string;
@@ -38,7 +39,6 @@ interface stockOrderParams {
   isSelling: boolean;
   qty: number;
   endAt: Date;
-  currentPrice: number;
 }
 
 const StockOrder = (props: any) => {
@@ -58,8 +58,9 @@ const StockOrder = (props: any) => {
   const userID = useSelector((state: RootState) => state.user.userID);
 
   const [shareQuantity, setShareQuantity] = useState('0');
-  const [currentPrice, setCurrentPrice] = useState(params?.currentPrice || 0);
   const [inReview, setInReview] = useState(false);
+
+  const stockPrice = useSelector((state:RootState) => state.stock);
 
   const goBack = () => {
     navigation.goBack();
@@ -78,19 +79,9 @@ const StockOrder = (props: any) => {
   useEffect(() => {
     console.log(ws)
   }, [ws])
-  // get current price initially
-  useEffect(() => {
-    const getAndSetCurrentPrice = async () => {
-      try {
-        const response = await axios.get(serverUrl + `/getCurrentPrice/${ticker}`);
-        setCurrentPrice(response.data.currentPrice);
-      } catch (error) {
-        console.error("Error getting current price in stock order:", error);
-      }
-    }
 
-    getAndSetCurrentPrice();
-  }, [])
+
+
 
   const purchaseStock = async () => {
     try {
@@ -201,7 +192,7 @@ const StockOrder = (props: any) => {
   const formattedShareQuantity = formatShareQuantity(shareQuantity);
 
   const estimatedCost = (
-    currentPrice * parseFloat(shareQuantity)
+    stockPrice * parseFloat(shareQuantity)
   ).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -315,7 +306,7 @@ const StockOrder = (props: any) => {
         <View style={{flexDirection: 'row', marginVertical: 20}}>
           <Text style={styles.orderFieldText}>Market Price</Text>
           <View style={{flex: 1}}></View>
-          <Text style={styles.orderFieldText}>${currentPrice}</Text>
+          <Text style={styles.orderFieldText}>${stockPrice}</Text>
         </View>
         <View style={{height: 1, backgroundColor: theme.colors.primary}}></View>
       </View>

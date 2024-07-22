@@ -21,13 +21,14 @@ const HTHPageHeader = (props:any) => {
 
     return (
     <View style={styles.headerContainer}>
-        {props.canGoBack != false && <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
-        <FeatherIcons name="arrow-left" style={{color: theme.colors.opposite}} size={20}/>
-        <Text style={styles.headerText}>{props.text}</Text>
+        {props.canGoBack != false && 
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
+            <FeatherIcons name="arrow-left" style={{color: theme.colors.opposite}} size={20}/>
+            <Text style={styles.headerText}>{props.text}</Text>
         </TouchableOpacity>}
-        <View style={styles.headerRightBtn}>
-            <Timer endDate={props.endAt} timeFrame={props.timeFrame} />
-        </View>
+        <View style={{flex: 1}}></View>
+        <Timer endDate={props.endAt} timeFrame={props.timeFrame} />
+
         
     </View>
     )

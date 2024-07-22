@@ -4,21 +4,19 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   yourColor: '#000', // Default color
   oppColor: '#000',  // Default color
+  globalTickers: []
 };
 
 const stockDataSlice = createSlice({
-  name: 'color',
+  name: 'stockData',
   initialState,
   reducers: {
-    setYourColor: (state, action) => {
-      state.yourColor = action.payload;
-    },
-    setOppColor: (state, action) => {
-      state.oppColor = action.payload;
-    },
+    setGlobalTickers: (state, action) => {
+      state.globalTickers = action.payload
+    }
   },
 });
 
-export const { setYourColor, setOppColor } = stockDataSlice.actions;
+export const { setGlobalTickers } = stockDataSlice.actions;
 
 export default stockDataSlice.reducer;

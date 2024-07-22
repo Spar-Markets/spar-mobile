@@ -42,6 +42,8 @@ import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import PageHeader from '../GlobalComponents/PageHeader';
+import { useDispatch } from 'react-redux';
+import { setUserBio, setUsername } from '../../GlobalDataManagment/userSlice';
 
 interface RouteParams {
   userID: string,
@@ -63,7 +65,7 @@ const Profile = ({navigation, route}: any) => {
   const [newUsername, setNewUsername] = useState<string>(username);
   const [newBio, setNewBio] = useState<string>(bio)
 
-  const {userData} = useUserDetails();
+  const dispatch = useDispatch()
 
   const handleSaveProfile = async () => {
     // Format new profile data to send to server
@@ -73,13 +75,18 @@ const Profile = ({navigation, route}: any) => {
       newBio: newBio
     }
 
+    dispatch(setUserBio(newBio))
+    dispatch(setUsername(newUsername))
+    
     console.log("New Username:", newUsername);
     console.log("New bio:", newBio);
 
     // Call server
     try {
-      const response = axios.post(serverUrl + "/updateUserProfile", newProfileData);
-
+      const response = await axios.post(serverUrl + "/updateUserProfile", newProfileData);
+      if (response.status === 200) {
+        navigation.goBack()
+      }
       // TODO: Set new username and userbio locally. Potentially redux. Your call Joe
     } catch (error: any) {
       // Handle errors
@@ -103,7 +110,7 @@ const Profile = ({navigation, route}: any) => {
         <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 5, marginTop: 30}}>Edit Username</Text>
         <TextInput style={{color: theme.colors.text, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.tertiary, padding: 20}} onChangeText={setNewUsername} value={newUsername}/>
         <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 5, marginTop: 20}}>Edit Bio</Text>
-        <TextInput style={{color: theme.colors.text, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.tertiary, padding: 20}} onChangeText={setNewBio} value={newBio}/>
+        <TextInput multiline style={{color: theme.colors.text, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.tertiary, padding: 20, paddingTop: 20}} onChangeText={setNewBio} value={newBio}/>
    
         <TouchableOpacity onPress={handleSaveProfile} style={{backgroundColor: theme.colors.redAccent, justifyContent: 'center', alignItems: 'center', paddingVertical: 15, borderRadius: 10, marginTop: 30}}>
           <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Confirm Changes</Text>

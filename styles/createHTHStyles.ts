@@ -112,8 +112,8 @@ const createHTHStyles = (theme: any, width: number) => {
     },
     userText: {
         color: theme.colors.text,
-        fontFamily: 'InterTight-Black',
-        fontSize: 20
+        fontFamily: 'InterTight-Bold',
+        fontSize: 16
     },
     percentIndicator: {
         backgroundColor: theme.colors.tertiary,

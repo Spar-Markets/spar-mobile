@@ -4,6 +4,8 @@ import userReducer from './userSlice';
 import imageReducer from './imageSlice';
 import websocketReducer from './websocketSlice';
 import matchesReducer from './matchesSlice'
+import stockDataSlice from './stockDataSlice';
+import stockSlice from './stockSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,8 @@ export const store = configureStore({
     image: imageReducer,
     websockets: websocketReducer,
     matches: matchesReducer,
+    stockData: stockDataSlice,
+    stock: stockSlice
   },
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware({

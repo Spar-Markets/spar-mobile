@@ -6,11 +6,17 @@ interface MatchObject {
   totalShares: number;
 }
 
+interface TickerPrices {
+  [ticker: string]: number;
+}
+
 interface MatchData {
   yourAssets: MatchObject[];
   opponentAssets: MatchObject[];
-  yourBuyingPower: number; 
+  yourBuyingPower: number;
   oppBuyingPower: number;
+  yourTickerPrices: TickerPrices;
+  oppTickerPrices: TickerPrices;
 }
 
 interface MatchesState {
@@ -26,16 +32,44 @@ const matchesSlice = createSlice({
     initializeMatch: (state, action: PayloadAction<{ matchID: string }>) => {
       const { matchID } = action.payload;
       if (!state[matchID]) {
-        state[matchID] = { yourAssets: [], opponentAssets: [], yourBuyingPower: 100000, oppBuyingPower: 100000 };
+        state[matchID] = {
+          yourAssets: [],
+          opponentAssets: [],
+          yourBuyingPower: 100000,
+          oppBuyingPower: 100000,
+          yourTickerPrices: {},
+          oppTickerPrices: {}
+        };
       }
     },
-    addOrUpdateMatch: (state, action: PayloadAction<{ matchID: string; yourAssets: MatchObject[]; opponentAssets: MatchObject[]; yourBuyingPower:number; oppBuyingPower:number }>) => {
-      const { matchID, yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower } = action.payload;
-      state[matchID] = { yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower };
+    addOrUpdateMatch: (state, action: PayloadAction<{ matchID: string; yourAssets: MatchObject[]; opponentAssets: MatchObject[]; yourBuyingPower: number; oppBuyingPower: number; yourTickerPrices?: TickerPrices; }>) => {
+      const { matchID, yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower, yourTickerPrices } = action.payload;
+      if (state[matchID]) {
+        state[matchID].yourAssets = yourAssets;
+        state[matchID].opponentAssets = opponentAssets;
+        state[matchID].yourBuyingPower = yourBuyingPower;
+        state[matchID].oppBuyingPower = oppBuyingPower;
+
+        if (yourTickerPrices) {
+          state[matchID].yourTickerPrices = { ...state[matchID].yourTickerPrices, ...yourTickerPrices };
+        }
+      }
+    },
+    updateYourTickerPrices: (state, action: PayloadAction<{ matchID: string; yourTickerPrices: TickerPrices }>) => {
+      const { matchID, yourTickerPrices } = action.payload;
+      if (state[matchID]) {
+        state[matchID].yourTickerPrices = { ...state[matchID].yourTickerPrices, ...yourTickerPrices };
+      }
+    },
+    updateOppTickerPrices: (state, action: PayloadAction<{ matchID: string; oppTickerPrices: TickerPrices }>) => {
+      const { matchID, oppTickerPrices } = action.payload;
+      if (state[matchID]) {
+        state[matchID].oppTickerPrices = { ...state[matchID].oppTickerPrices, ...oppTickerPrices };
+      }
     },
   },
 });
 
-export const { initializeMatch, addOrUpdateMatch } = matchesSlice.actions;
+export const { initializeMatch, addOrUpdateMatch, updateYourTickerPrices, updateOppTickerPrices } = matchesSlice.actions;
 
 export default matchesSlice.reducer;

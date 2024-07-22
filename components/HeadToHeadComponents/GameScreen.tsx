@@ -9,6 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Modal,
+  FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused, useNavigation, useRoute, useFocusEffect} from '@react-navigation/native';
@@ -65,7 +66,7 @@ const GameScreen = () => {
   const userID = params?.userID
   const opponentUsername = params?.opponentUsername
 
-  const ws = useSelector((state: RootState) => state.websockets[matchID!]);
+  //const ws = useSelector((state: RootState) => state.websockets[matchID!]);
   
 
   const [loading, setLoading] = useState(true)
@@ -73,7 +74,7 @@ const GameScreen = () => {
   const [matchIsEnded, setMatchIsEnded] = useState(false);
 
   const matches = useSelector((state: RootState) => state.matches);
-  const { yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower } = matches[matchID!]
+  const { yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower, yourTickerPrices, oppTickerPrices } = matches[matchID!]
 
   const [match, setMatch] = useState<any>(null)
   const [yourPointData, setYourPointData] = useState<GraphPoint[]>([]);
@@ -135,16 +136,16 @@ const GameScreen = () => {
   }, [match, navigation]);
 
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (ws) {
       console.log("-------------------------------------")
       console.log("MATCH ID", matchID)
       console.log("WEBSOCKET IN GAMESCREEN")
       console.log("WS PRINTING!!!!!!!!!", ws)
-      ws.send(JSON.stringify({type: "GameScreenConnection"}))
+      //ws.send(JSON.stringify({type: "GameScreenConnection"}))
       console.log("-------------------------------------")
     }
-  }, [])
+  }, [])*/
 
 
   useEffect(() => {
@@ -247,16 +248,16 @@ const GameScreen = () => {
       }));
       setOppFormattedData(data2)
 
-      if (data[data.length-1] && data2[data2.lenght-1]) {
-        if (data[data.length-1].value >= data2[data2.length-1].value) {
+      if (data[data.length-1] && data2[data2.length-1]) {
+        if (data[data.length-1].value > data2[data2.length-1].value) {
           setYourColor(theme.colors.stockUpAccent)
           setLeaderboard(you, opp)
           console.log("SETTING LEADERBOARD IF")
-        } else {
+        } else if (data[data.length-1].value < data2[data2.length-1].value) {
           setYourColor(theme.colors.stockDownAccent)
           setLeaderboard(opp, you)
           console.log("SETTING LEADERBOARD ELSE")
-        }
+        } 
       }
     }
     
@@ -277,29 +278,14 @@ const GameScreen = () => {
     }
   }, [yourFormattedData, oppFormattedData])
 
-  const renderRows = () => {
-    const rows = [];
-    for (let i = 0; i < yourAssets.length; i += 2) {
-      rows.push(
-        <View key={i} style={styles.positionRow}>
-          <PositionCard ticker={yourAssets[i].ticker} qty={yourAssets[i].totalShares} matchID={matchID} 
-          buyingPower={match[you].buyingPower} assets={match[you].assets} endAt={params?.endAt}/>
-          {yourAssets[i + 1] && <PositionCard ticker={yourAssets[i + 1].ticker} qty={yourAssets[i + 1].totalShares} matchID={matchID} 
-          buyingPower={match[you].buyingPower} assets={match[you].assets} endAt={params?.endAt}/>}
-        </View>
-      );
-    }
-    return rows;
-  };
-
   
   if (loading) {
     return (
         <View style={styles.container}>
             <HTHPageHeader text="Back" endAt={params?.endAt}/>
-            <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+            {/*<View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
               <CustomActivityIndicator size={60} color={theme.colors.text}/>
-            </View>
+            </View>*/}
         </View>
     )
   }
@@ -307,20 +293,27 @@ const GameScreen = () => {
   return (
    <View style={styles.container}>
       <HTHPageHeader text="Back" endAt={params?.endAt}/>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} style={{marginTop: 5}}>
+
         <GameScreenGraph yourFormattedData={yourFormattedData} oppFormattedData={oppFormattedData} matchID={matchID} userID={userID} yourColor={yourColor} oppName={opponentUsername}/>
         <View style={{marginHorizontal: 20}}>
           <View style={{
               flexDirection: 'row', 
-              marginTop: 15
+              marginTop: 15,
+              borderColor: theme.colors.primary, 
+              borderWidth: 1,
+              padding: 20,
+              borderRadius: 10,
+              alignItems: 'center',
+              gap: 10
             }}>
+            <Icon name="bank" color={theme.colors.text} size={20}/>
             <Text style={styles.buyingPowerText}>Buying Power</Text>
             <View style={{flex: 1}}></View>
-            <Text style={styles.buyingPowerText}>${(yourBuyingPower).toFixed(2)}</Text>
+            <Text style={styles.buyingPowerText}>${(yourBuyingPower.toLocaleString())}</Text>
           </View>
-          <View style={{height: 2, backgroundColor: theme.colors.tertiary, marginTop: 15}}></View>
-          <View style={{marginTop: 15}}>
-            <Text style={{fontSize: 18, color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Leaderboard</Text>
+          {/*<View style={{marginTop: 15}}>
+            <Text style={{fontSize: 18, color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 10}}>Leaderboard</Text>
             <View style={{flexDirection: 'row', marginTop: 5, gap: 20}}>
               <View style={{gap: 5}}>
                 <Text style={styles.leaderboardLabel}>#</Text>
@@ -357,12 +350,28 @@ const GameScreen = () => {
                 </View>
               </View>
             </View>
-          </View>
+
+
+          </View>*/}
+          {yourAssets.length >= 1 && 
           <View style={{marginTop: 20}}>
-            <Text style={{fontSize: 18, color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>My Positions</Text>
-            {renderRows()}
-          </View>
+            <Text style={{fontSize: 18, color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 10}}>My Positions</Text>
+            {yourAssets.map((asset, index) => (
+              <PositionCard
+                key={index}
+                ticker={asset.ticker}
+                qty={asset.totalShares}
+                matchID={matchID}
+                buyingPower={yourBuyingPower} // Adjust according to your data structure
+                assets={yourAssets} // Adjust according to your data structure
+                endAt={params?.endAt}
+              />
+            ))}
+          </View>}
         </View>
+    
+        {!yourAssets || yourAssets.length == 0 && <Text style={{color: theme.colors.tertiary, fontFamily: "InterTight-Bold", textAlign: 'center', marginTop: 80}}>No Positions, Get Trading!</Text>}
+
       </ScrollView>
       <TouchableOpacity onPress={() => navigation.navigate("InGameStockSearch", {
         matchID: matchID, 

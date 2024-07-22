@@ -4,10 +4,17 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockSearchStyles from '../../styles/createStockStyles';
 import { useNavigation } from '@react-navigation/native';
-import { CartesianChart, Line } from 'victory-native';
+import { Area, CartesianChart, Line } from 'victory-native';
 import getPrices from '../../utility/getPrices';
 import axios from 'axios'
-import { serverUrl } from '../../constants/global';
+import { polygonKey, serverUrl } from '../../constants/global';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
+import fuzzysort from 'fuzzysort';
+import { Group, RoundedRect } from '@shopify/react-native-skia';
+import { Rect } from 'react-native-svg';
+import LinearGradient from 'react-native-linear-gradient';
+import { Skeleton } from '@rneui/base';
 
 
 const PositionCard = (props:any) => {
@@ -20,6 +27,32 @@ const PositionCard = (props:any) => {
     const [isLoading, setIsLoading] = useState(true)
 
     const [name, setName] = useState("")
+
+
+    const matches = useSelector((state: RootState) => state.matches);
+    const { yourTickerPrices } = matches[props.matchID]
+
+    const [tickerData, setTickerData] = useState<any>(null)
+
+    useEffect(() => {
+      const getStockCardData = async () => {
+        try {
+          const response = await axios.post(serverUrl + "/getStockCardData", {ticker: props.ticker})
+          if (response.status === 200) {
+            console.log("branding", response.data.branding.icon_url + '?apikey=' + polygonKey)
+            setTickerData(response.data)
+          }
+        } catch (error) {
+          console.error("stock card", error)
+        }
+
+      }
+      getStockCardData()
+    }, [])
+
+
+
+
 
     useEffect(() => {
         const getPricesForSelectedTime = async () => {
@@ -45,17 +78,19 @@ const PositionCard = (props:any) => {
     }, [props.ticker]);
 
     useEffect(() => {
-        if (pointData.length > 0) {
+        if (pointData.length > 0 && tickerData) {
           setIsLoading(false);
         } else {
           setIsLoading(true);
         }
-    }, [pointData]);
+    }, [pointData, tickerData]);
 
     const [percentDiff, setPercentDiff] = useState("")
     const [valueDiff, setValueDiff] = useState("")
     const [currentAccentColor, setCurrentAccentColor] = useState("")
 
+
+    //FIX CALCULATE PERCENT DIFFERENCE MAYBE MAKE PERCENRT DIFF A UTILITY SINCE ELSEWHERE
     const calculatePercentAndValueDiffAndColor = useCallback(() => {
         if (pointData.length > 0) {
           const percentDiff =
@@ -84,8 +119,25 @@ const PositionCard = (props:any) => {
         calculatePercentAndValueDiffAndColor();
       }, [pointData]);
 
+      const hexToRGBA = (hex:any, alpha = 1) => {
+        let r = 0, g = 0, b = 0;
+      
+        // Check if hex is in shorthand format (e.g., #fff)
+        if (hex.length === 4) {
+          r = parseInt(hex[1] + hex[1], 16);
+          g = parseInt(hex[2] + hex[2], 16);
+          b = parseInt(hex[3] + hex[3], 16);
+        } else if (hex.length === 7) {
+          r = parseInt(hex[1] + hex[2], 16);
+          g = parseInt(hex[3] + hex[4], 16);
+          b = parseInt(hex[5] + hex[6], 16);
+        }
+        
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
     if (isLoading) {
-        return <View></View>
+      return <Skeleton animation={"pulse"} height={132} width={width-40} style={{ backgroundColor: '#050505', borderRadius: 5, marginBottom: 10}} skeletonStyle={{backgroundColor: theme.colors.primary}}></Skeleton>
     }
 
     return (
@@ -102,30 +154,38 @@ const PositionCard = (props:any) => {
               endAt: props.endAt
           
             })}>
-
-                <View style={{flexDirection: 'row', marginVertical: 10, marginHorizontal: 10}}>
-                    <View style={{justifyContent: 'center', flex: 1}}>
-                        <Text style={styles.stockCardTicker}>{props.ticker}</Text>
+              
+                <View style={{flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 20}}>
+                    <View style={{flex: 1, flexDirection: 'row', gap: 10}}>
+                      <View>
+                        {tickerData != null && <Image source={{uri: tickerData.branding.icon_url + '?apiKey=' + polygonKey}} height={40} width={40} style={{borderRadius: 500}}/>}
+                      </View>
+                      <View style={{justifyContent: 'center'}}>
+                          <Text style={styles.stockCardTicker}>{props.ticker}</Text>
+                          {tickerData != null && <Text style={styles.stockCardName}>{tickerData!.name}</Text>}
+                      </View>
                     </View>
                     <View style={{justifyContent: 'center'}}>
-                        <Text style={styles.stockCardValue}>${(pointData[pointData.length-1].value).toFixed(2)}</Text>
+                        {yourTickerPrices[props.ticker] && <Text style={styles.stockCardValue}>${(yourTickerPrices[props.ticker]).toFixed(2)}</Text>}
                         <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
                     </View>
                 </View>
+                {/*<View style={{backgroundColor: theme.colors.tertiary, width: '50%', borderBottomLeftRadius: 9, borderTopRightRadius: 9, alignItems: 'center', paddingVertical: 4, marginTop: 2}}>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>QTY: {props.qty}</Text>
+                </View>*/}
+                <View style={{width: (width-40), height: 50}}>
                 {pointData && 
                 <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
                 >
-                {({ points }) => (
-                    <>
-                    <Line points={points.value} color={currentAccentColor} 
-                    strokeWidth={2} animate={{ type: "timing", duration: 300 }}/>
-                    </>
+                {({ points, chartBounds }) => (
+                <>
+                  <Line points={points.value} color={currentAccentColor} strokeWidth={1.5} />
+                  <Area points={points.value} y0={chartBounds.bottom} color={hexToRGBA(currentAccentColor, 0.2)} />
+                </>
                 )}
-                </CartesianChart>}
-                <View style={{backgroundColor: theme.colors.tertiary, width: '50%', borderBottomLeftRadius: 9, borderTopRightRadius: 9, alignItems: 'center', paddingVertical: 4, marginTop: 2}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>QTY: {props.qty}</Text>
+                </CartesianChart>}   
                 </View>
-        
+                
         </TouchableOpacity>
     )
 }

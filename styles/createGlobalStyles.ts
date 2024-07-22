@@ -7,7 +7,7 @@ const createGlobalStyles = (theme: any, width: number) => {
 
     // Page Header
     headerContainer: {
-        
+        flexDirection: 'row',
     },
     headerText: {
         color: theme.colors.text,
@@ -21,9 +21,7 @@ const createGlobalStyles = (theme: any, width: number) => {
         alignItems: 'center'
     },
     headerRightBtn: {
-        position: 'absolute',
-        right: 0,
-        top: -2
+        
     },
     primaryBtn: {
         height: 50,

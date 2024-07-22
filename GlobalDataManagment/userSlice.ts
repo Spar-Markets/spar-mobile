@@ -37,9 +37,12 @@ const userSlice = createSlice({
     },
     setUserBio: (state, action) => {
       state.userBio = action.payload;
+    },
+    setBalance: (state, action) => {
+      state.balance = action.payload;
     }
   }
 });
 
-export const { setIsInMatchmaking, setUserIsMade, setUserID } = userSlice.actions;
+export const { setIsInMatchmaking, setUserIsMade, setUserID, setUserBio, setUsername } = userSlice.actions;
 export default userSlice.reducer;

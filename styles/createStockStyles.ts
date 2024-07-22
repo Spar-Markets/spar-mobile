@@ -225,11 +225,10 @@ const createStockSearchStyles = (theme: any, width: number) => {
     stockCardName: {
       color: theme.colors.secondaryText,
       fontSize: 12,
-      maxWidth: 120
     },
     stockCardValue: {
       color: theme.colors.text,
-      fontSize: 13,
+      fontSize: 15,
       fontWeight: 'bold',
       textAlign: 'right'
     },
@@ -292,12 +291,14 @@ const createStockSearchStyles = (theme: any, width: number) => {
   },
 
   positionCardContainer: {
-    borderRadius: 10,
+    width: (width-40),
+    backgroundColor: theme.colors.background,
     borderWidth: 1,
-    width: (width-45)/2,
-    height: 150,
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.tertiary
+    borderColor: theme.colors.primary,
+    justifyContent: 'center',
+    borderRadius: 0,
+    marginBottom: 10,
+    height: 133
   },
   positionCardName: {
     color: theme.colors.secondaryText,

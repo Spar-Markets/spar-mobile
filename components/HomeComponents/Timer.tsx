@@ -13,27 +13,32 @@ const Timer = (props: any) => {
     const { width, height } = useDimensions();
     const styles = createHomeStyles(theme, width)
 
-    const calculateTimeRemaining = (endDate: Date) => {
-        const endDateTime = new Date(endDate).getTime();
-        const currentTime = new Date().getTime();
+    const calculateTimeRemaining = (endDate:Date) => {
+      const endDateTime = new Date(endDate).getTime();
+      const currentTime = new Date().getTime();
     
-        const timeRemaining = Math.max(0, endDateTime - currentTime); // Ensure time remaining doesn't go negative
-        const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
-        const minutes = Math.floor(
-          (timeRemaining % (1000 * 60 * 60)) / (1000 * 60),
-        );
-        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+      const timeRemaining = Math.max(0, endDateTime - currentTime); // Ensure time remaining doesn't go negative
+      const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+      const milliseconds = Math.floor((timeRemaining % 1000) / 10); // Showing two digits for milliseconds
     
-        const formattedHours = hours < 10 ? `0${hours}` : `${hours}`;
+      const formattedMilliseconds = milliseconds < 10 ? `0${milliseconds}` : `${milliseconds}`;
+    
+      if (days > 0) {
+        return `${days} day${days > 1 ? 's' : ''}, ${hours} hour${hours !== 1 ? 's' : ''}`;
+      } else if (hours > 0) {
         const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
         const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-    
-        if (hours > 0) {
-          return `${formattedHours}:${formattedMinutes}`;
-        } else {
-          return `${formattedMinutes}:${formattedSeconds}`;
-        }
-      };
+        return `${hours}:${formattedMinutes}:${formattedSeconds}`;
+      } else if (minutes > 0) {
+        const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+        return `${minutes}:${formattedSeconds}`;
+      } else {
+        return `${seconds}.${formattedMilliseconds}`;
+      }
+    };
     
     const [timeRemaining, setTimeRemaining] = useState(
         calculateTimeRemaining(props.endDate)

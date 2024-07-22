@@ -100,7 +100,7 @@ const createHomeStyles = (theme: any, width: number) => {
     discoverCardImage: {
       marginLeft: 10
     },
-    
+
     // GameCard
     gameCardContainer: {
       //borderColor: theme.colors.primary,
@@ -168,7 +168,6 @@ const createHomeStyles = (theme: any, width: number) => {
     // Timer
     timerContainer: {
       borderRadius: 6,
-      marginTop: 5, 
       marginRight: 20,
       justifyContent: 'center',
       alignItems: 'center',

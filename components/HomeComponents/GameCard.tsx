@@ -15,9 +15,9 @@ import { Area, CartesianChart, Line, PointsArray, useLinePath } from 'victory-na
 import { Group, Path, useFont, Circle } from '@shopify/react-native-skia';
 import HapticFeedback from "react-native-haptic-feedback";
 import getCurrentPrice from '../../utility/getCurrentPrice';
-import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
+//import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { addOrUpdateMatch, initializeMatch } from '../../GlobalDataManagment/matchesSlice';
+import { addOrUpdateMatch, initializeMatch, updateOppTickerPrices, updateYourTickerPrices } from '../../GlobalDataManagment/matchesSlice';
 import { RootState } from '../../GlobalDataManagment/store';
 import { BlurView } from '@react-native-community/blur';
 import { Animated } from 'react-native';
@@ -59,8 +59,12 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   const [oppColor, setOppColor] = useState("#fff")
   //const [yourAssets, setYourAssets] = useState<any[] | null>(null)
   //const [opponentAssets, setOpponentAssets] = useState<any[] | null>(null)
-  const [yourTickerPrices, setYourTickerPrices] = useState<{ [ticker: string]: number }>({});
-  const [oppTickerPrices, setOppTickerPrices] = useState<{ [ticker: string]: number }>({});
+  //const [yourTickerPrices, setYourTickerPrices] = useState<{ [ticker: string]: number }>({});
+
+
+  
+  
+  //const [oppTickerPrices, setOppTickerPrices] = useState<{ [ticker: string]: number }>({});
   const [match, setMatch] = useState<any | null>(null)
   const [yourTotalPrice, setYourTotalPrice] = useState(0)
   const [oppTotalPrice, setOppTotalPrice] = useState(0)
@@ -80,6 +84,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   const dispatch = useDispatch()
 
   const matchAssets = useSelector((state: RootState) => state.matches[matchID]);
+  const yourTickerPrices = matchAssets ? matchAssets.yourTickerPrices : {};
+  const oppTickerPrices = matchAssets ? matchAssets.oppTickerPrices : {};
+  const newYourTickerPrices = { ...yourTickerPrices };
 
   const [matchIsOver, setMatchIsOver] = useState(false)
 
@@ -94,6 +101,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       dispatch(initializeMatch({ matchID }));
     }
   }, [matchID]);
+
 
   const getMatchData = async () => {
     try {
@@ -284,8 +292,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           acc[item.ticker] = item.currentPrice;
           return acc;
         }, {});
-    
-        setYourTickerPrices(yourInitialTickerPrices);
+        
+        //initial dispatch to redux (in case no messages come in when match made)
+        //setYourTickerPrices(yourInitialTickerPrices);
+        dispatch(updateYourTickerPrices({matchID: matchID, yourTickerPrices: yourInitialTickerPrices}));
+
     
         const oppInitialTickerPromises = opponentAssets.map(async (item) => {
           const currentPrice = await getCurrentPrice(item.ticker);
@@ -297,8 +308,10 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           acc[item.ticker] = item.currentPrice;
           return acc;
         }, {});
+
+        dispatch(updateOppTickerPrices({matchID: matchID, oppTickerPrices: oppInitialTickerPrices}));
     
-        setOppTickerPrices(oppInitialTickerPrices);
+        //setOppTickerPrices(oppInitialTickerPrices);
         //console.log("Your Prices", yourInitialTickerPrices)
         //console.log("Opp Prices", oppInitialTickerPrices)
         console.log("STEP 4: SETTING INITIAL PRICES FOR HELD ASSETS")
@@ -383,7 +396,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         if (ws.current!) {
           ws.current!.close()
           ws.current = null
-          dispatch(removeWebSocket(matchID))
+          //dispatch(removeWebSocket(matchID))
         }
       } else {
         // Set a timeout to navigate back when the match ends
@@ -393,7 +406,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           console.log("CURRENT CLOSING THE GAMECARD WEBSOCKET SINCE MATCH ENDED")
           ws.current!.close()
           ws.current = null
-          dispatch(removeWebSocket(matchID))
+          //dispatch(removeWebSocket(matchID))
         }, timeUntilEnd);
 
         // Clear timeout if the component unmounts before the match ends
@@ -419,8 +432,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   
   const sendHeartbeat = () => {
     if (ws.current) {
-      console.log("SENDING WS HEARTBEAT FROM GAMECARD")
-      console.log("FROM GAME CARD", ws.current)
+      //console.log("SENDING WS HEARTBEAT FROM GAMECARD")
+      //console.log("FROM GAME CARD", ws.current)
       const heartbeat = {type: "heartbeat"}
       ws.current.send(JSON.stringify(heartbeat))
     }
@@ -437,8 +450,10 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     };
   }, [])
 
+  
+
   if (ws.current!) {
-    ws.current.onmessage = (event) => {
+    ws.current.onmessage = async (event) => {
       // const buffer = new Uint8Array(event.data);
 
       if (event.data == "Websocket connected successfully") {
@@ -454,6 +469,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       console.log("event.data:", event.data);
       // console.log("buffer:", buffer);
 
+      
       try {
         console.log("ABOUT TO PARSE");
         const JSONMessage = JSON.parse(event.data);
@@ -476,7 +492,27 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           //setOpponentAssets(oppUpdatedAssets);
           console.log("UPDATED ASSETS", yourUpdatedAssets)
           //redux version
-          dispatch(addOrUpdateMatch({matchID, yourAssets: yourUpdatedAssets, opponentAssets: oppUpdatedAssets, yourBuyingPower: yourBuyingPower, oppBuyingPower: oppBuyingPower}))
+          
+          for (const asset of yourUpdatedAssets) {
+            if (!(asset.ticker in yourTickerPrices)) {
+              newYourTickerPrices[asset.ticker] = await getCurrentPrice(asset.ticker)
+            }
+          }
+        
+          console.log("LOG SUPER IMPORTANT:", newYourTickerPrices);
+        
+          dispatch(addOrUpdateMatch({
+            matchID,
+            yourAssets: yourUpdatedAssets,
+            opponentAssets: oppUpdatedAssets,
+            yourBuyingPower: yourBuyingPower,
+            oppBuyingPower: oppBuyingPower,
+            yourTickerPrices: newYourTickerPrices // Add new ticker prices here
+          }));
+
+          //NEED TO REINTIALIZE TICKER PRICES IF NEW TICKER WAS BOUGHT
+
+
           //const match = useSelector(state => state.matches[matchID])
 
           if (yourNewAsset) {
@@ -512,17 +548,42 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           //console.log(yourAssets)
           if (isTickerInYourAssets) {
             console.log("UPDATING PRICES!!!!!!!!!!!!!!!!!!!!")
-            setYourTickerPrices(prevPrices => ({
-              ...prevPrices,
+            const updatedPrices = {
+              ...yourTickerPrices,
               [sym]: currentPrice,
-            }));
+            };
+            dispatch(updateYourTickerPrices({ matchID, yourTickerPrices: updatedPrices }));
+            
+            /*setYourTickerPrices(prevPrices => {
+              const updatedPrices = {
+                ...prevPrices,
+                [sym]: currentPrice,
+              };
+              
+              // Dispatch the action with the updated prices
+              
+              
+              return updatedPrices; // Update local state
+            });*/
           }
 
           if (isTickerInOppAssets) {
-            setOppTickerPrices(prevPrices => ({
-              ...prevPrices,
+            const updatedPrices = {
+              ...oppTickerPrices,
               [sym]: currentPrice,
-            }));
+            };
+            dispatch(updateOppTickerPrices({ matchID, oppTickerPrices: updatedPrices }));
+            /*setOppTickerPrices(prevPrices => {
+              const updatedPrices = {
+                ...prevPrices,
+                [sym]: currentPrice,
+              };
+              
+              // Dispatch the action with the updated prices
+              
+              
+              return updatedPrices; // Update local state
+            });*/
           }
         }
       } catch (error) {
@@ -540,7 +601,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     ws.current.onopen = () => {
         console.log(`Connected to GameCard Websocket, but not ready for messages...`);
         if (ws.current! && yourAssets && opponentAssets) {
-          dispatch(addWebSocket({ id: matchID, ws: ws.current }));
+          //dispatch(addWebSocket({ id: matchID, ws: ws.current }));
           console.log(`Connection for GameCard Websocket is open and ready for messages`);
           // first send match ID
           ws.current!.send(JSON.stringify({ matchID: match.matchID }))
@@ -569,7 +630,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     };
 
     ws.current.onclose = () => {
-      dispatch(removeWebSocket(matchID));
+      //dispatch(removeWebSocket(matchID));
       console.log(`Connection to GameCard Asset Websocket closed`);
     };
   };
