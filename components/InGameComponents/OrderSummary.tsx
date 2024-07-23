@@ -46,7 +46,7 @@ const OrderSummary = (props: any) => {
   //console.log('StockOrder params:', params);
 
   const goBack = () => {
-    navigation.goBack()
+    navigation.popToTop()
   }
 
   return (

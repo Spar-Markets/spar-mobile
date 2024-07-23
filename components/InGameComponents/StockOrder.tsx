@@ -93,7 +93,6 @@ const StockOrder = (props: any) => {
       });
       console.log('Buy Response:', buyResponse.data);
       if (buyResponse) {
-        navigation.pop(2);
         navigation.replace('OrderSummary', {
           ticker: params?.ticker,
           shares: shareQuantity,

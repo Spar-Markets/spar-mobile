@@ -42,8 +42,8 @@ const matchesSlice = createSlice({
         };
       }
     },
-    addOrUpdateMatch: (state, action: PayloadAction<{ matchID: string; yourAssets: MatchObject[]; opponentAssets: MatchObject[]; yourBuyingPower: number; oppBuyingPower: number; yourTickerPrices?: TickerPrices; }>) => {
-      const { matchID, yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower, yourTickerPrices } = action.payload;
+    addOrUpdateMatch: (state, action: PayloadAction<{ matchID: string; yourAssets: MatchObject[]; opponentAssets: MatchObject[]; yourBuyingPower: number; oppBuyingPower: number; yourTickerPrices?: TickerPrices; oppTickerPrices?: TickerPrices; }>) => {
+      const { matchID, yourAssets, opponentAssets, yourBuyingPower, oppBuyingPower, yourTickerPrices, oppTickerPrices } = action.payload;
       if (state[matchID]) {
         state[matchID].yourAssets = yourAssets;
         state[matchID].opponentAssets = opponentAssets;
@@ -52,6 +52,9 @@ const matchesSlice = createSlice({
 
         if (yourTickerPrices) {
           state[matchID].yourTickerPrices = { ...state[matchID].yourTickerPrices, ...yourTickerPrices };
+        }
+        if (oppTickerPrices) {
+          state[matchID].oppTickerPrices = { ...state[matchID].oppTickerPrices, ...oppTickerPrices };
         }
       }
     },

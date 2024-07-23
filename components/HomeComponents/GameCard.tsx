@@ -1,11 +1,13 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Text, TouchableOpacity, View, useColorScheme} from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View, useColorScheme} from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {GraphPoint, LineGraph} from 'react-native-graph';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FeatherIcon from 'react-native-vector-icons/Feather'
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
@@ -22,6 +24,13 @@ import { RootState } from '../../GlobalDataManagment/store';
 import { BlurView } from '@react-native-community/blur';
 import { Animated } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import PositionCard from '../HeadToHeadComponents/PositionCard';
+import createGlobalStyles from '../../styles/createGlobalStyles';
+import TrapezoidView from '../GlobalComponents/TrapazoidView';
+import { Image } from 'react-native';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../firebase/firebase';
+import { Skeleton } from '@rneui/base';
 
 
 interface GameCardProps {
@@ -30,16 +39,20 @@ interface GameCardProps {
   setActiveMatches: React.Dispatch<React.SetStateAction<any[]>>; // Adjust the type as per your needs
   expandMatchSummarySheet: any
   setActiveMatchSummaryMatchID: any
+  profileImageUri: string
 }
 
 
-const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, expandMatchSummarySheet, setActiveMatchSummaryMatchID }) => {
+const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri }) => {
   const colorScheme = useColorScheme();
   const navigation = useNavigation<any>();
+
+  FeatherIcon.loadFont()
 
   const { theme } = useTheme();
   const { width, height } = useDimensions();
   const styles = createHomeStyles(theme, width);
+  const globalStyles = createGlobalStyles(theme, width);
 
 
   interface PortfolioSnapshot {
@@ -80,13 +93,19 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   const [you, setYou] = useState("")
   const [opp, setOpp] = useState("")
 
-
   const dispatch = useDispatch()
 
+  //const [yourTickerPrices, setYourTickerPrices] = useState({})
+  //const [oppTickerPrices, setOppTickerPrices] = useState({})
+
   const matchAssets = useSelector((state: RootState) => state.matches[matchID]);
-  const yourTickerPrices = matchAssets ? matchAssets.yourTickerPrices : {};
-  const oppTickerPrices = matchAssets ? matchAssets.oppTickerPrices : {};
-  const newYourTickerPrices = { ...yourTickerPrices };
+  //const yourTickerPrices = matchAssets ? matchAssets.yourTickerPrices : {};
+  //const oppTickerPrices = matchAssets ? matchAssets.oppTickerPrices : {};
+
+  const [yourTickerPrices, setYourTickerPrices] = useState<any>({})
+  const [oppTickerPrices, setOppTickerPrices] = useState<any>({})
+  //const newYourTickerPrices = { ...yourTickerPrices };
+  //const newOppTickerPrices = {...oppTickerPrices};
 
   const [matchIsOver, setMatchIsOver] = useState(false)
 
@@ -118,11 +137,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
 
   useEffect(() => {
     if (matchAssets && initialDataLoad) {
-      console.log("Updated Match Assets", matchAssets)
+      //console.log("Updated Match Assets", matchAssets)
       setYourAssets(matchAssets.yourAssets)
       setOpponentAssets(matchAssets.opponentAssets)
     }
-  }, [matchAssets, initialDataLoad])
+  }, [initialDataLoad])
 
   const setUserMatchData = async (yourUserNumber: string, opponentUserNumber: string) => {
     try {
@@ -180,10 +199,12 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       setUserMatchData('user1', 'user2');
       setYou('user1')
       setOpp('user2')
+      getOtherProfileImage('user2')
     } else if (match.user2.userID === userID) {
       setUserMatchData('user2', 'user1');
       setYou('user2')
       setOpp('user1')
+      getOtherProfileImage('user1')
     } else {
       console.error('Error determining whether active user is user1 or user2.');
     }
@@ -295,6 +316,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         
         //initial dispatch to redux (in case no messages come in when match made)
         //setYourTickerPrices(yourInitialTickerPrices);
+        setYourTickerPrices(yourInitialTickerPrices)
         dispatch(updateYourTickerPrices({matchID: matchID, yourTickerPrices: yourInitialTickerPrices}));
 
     
@@ -308,7 +330,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           acc[item.ticker] = item.currentPrice;
           return acc;
         }, {});
-
+        
+        setOppTickerPrices(oppInitialTickerPrices)
         dispatch(updateOppTickerPrices({matchID: matchID, oppTickerPrices: oppInitialTickerPrices}));
     
         //setOppTickerPrices(oppInitialTickerPrices);
@@ -454,26 +477,32 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
 
   if (ws.current!) {
     ws.current.onmessage = async (event) => {
-      // const buffer = new Uint8Array(event.data);
+      const buffer = new Uint8Array(event.data);
 
       if (event.data == "Websocket connected successfully") {
         return;
       }
 
 
-      // const message = uint8ArrayToString(buffer); 
-      // const json = JSON.parse(message);
-      // console.log("MESSAGE:", message);
+      const message = uint8ArrayToString(buffer); 
+      //const JSONMessage = JSON.parse(message);
+      //console.log("MESSAGE:", message);
       // // test tf
-      console.log("EVENT:", event)
-      console.log("event.data:", event.data);
+      //console.log("EVENT:", event)
+      //console.log("event.data:", event.data);
       // console.log("buffer:", buffer);
 
       
       try {
-        console.log("ABOUT TO PARSE");
-        const JSONMessage = JSON.parse(event.data);
-        console.log("JUST PARSED");
+        //console.log("ABOUT TO PARSE");
+        //console.log("CHECK THIS", event.data)
+        let JSONMessage
+        try {
+          JSONMessage = JSON.parse(event.data)
+        } catch {
+          JSONMessage = JSON.parse(message)
+        }
+        //console.log("JUST PARSED");
         if (JSONMessage.type == "updatedAssets") {
           // Handle updated assets
           console.log("INSIDE UPDATED ASSETS!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -483,10 +512,16 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           const yourBuyingPower = JSONMessage[`${you}BuyingPower`]
           const oppBuyingPower = JSONMessage[`${opp}BuyingPower`]
 
+          setYourBuyingPower(yourBuyingPower)
+          setOppBuyingPower(oppBuyingPower)
+
           const yourNewAsset = getNewTickerObject(yourUpdatedAssets, yourAssets);
           const oppNewAsset = getNewTickerObject(oppUpdatedAssets, opponentAssets);
           console.log("THIS IS THE RECIEVED MESSAGE", JSONMessage)
-          
+
+          const newYourTickerPrices = yourTickerPrices
+          const newOppTickerPrices = oppTickerPrices
+           
           // both cases
           //setYourAssets(yourUpdatedAssets);
           //setOpponentAssets(oppUpdatedAssets);
@@ -498,9 +533,15 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               newYourTickerPrices[asset.ticker] = await getCurrentPrice(asset.ticker)
             }
           }
+
+          for (const asset of oppUpdatedAssets) {
+            if (!(asset.ticker in oppTickerPrices)) {
+              newOppTickerPrices[asset.ticker] = await getCurrentPrice(asset.ticker)
+            }
+          }
         
           console.log("LOG SUPER IMPORTANT:", newYourTickerPrices);
-        
+
           dispatch(addOrUpdateMatch({
             matchID,
             yourAssets: yourUpdatedAssets,
@@ -547,14 +588,14 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
 
           //console.log(yourAssets)
           if (isTickerInYourAssets) {
-            console.log("UPDATING PRICES!!!!!!!!!!!!!!!!!!!!")
+            //console.log("UPDATING PRICES!!!!!!!!!!!!!!!!!!!!")
             const updatedPrices = {
               ...yourTickerPrices,
               [sym]: currentPrice,
             };
             dispatch(updateYourTickerPrices({ matchID, yourTickerPrices: updatedPrices }));
             
-            /*setYourTickerPrices(prevPrices => {
+            setYourTickerPrices((prevPrices:any) => {
               const updatedPrices = {
                 ...prevPrices,
                 [sym]: currentPrice,
@@ -564,7 +605,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               
               
               return updatedPrices; // Update local state
-            });*/
+            });
           }
 
           if (isTickerInOppAssets) {
@@ -573,7 +614,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               [sym]: currentPrice,
             };
             dispatch(updateOppTickerPrices({ matchID, oppTickerPrices: updatedPrices }));
-            /*setOppTickerPrices(prevPrices => {
+            setOppTickerPrices((prevPrices:any) => {
               const updatedPrices = {
                 ...prevPrices,
                 [sym]: currentPrice,
@@ -583,7 +624,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               
               
               return updatedPrices; // Update local state
-            });*/
+            });
           }
         }
       } catch (error) {
@@ -732,46 +773,23 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   const length = 10;
   const arrayWithZeroValues = Array.from({ length }, (_, index) => ({ index, value: 0 }));
 
+  const [otherProfileUri, setOtherProfileUri] = useState<any>(null)
+
+  const getOtherProfileImage = async (user:string) => {
+    try {
+      const imageRef = ref(storage, `profileImages/${match[user].userID}`);
+      const url = await getDownloadURL(imageRef);
+      setOtherProfileUri(url)
+    } catch (error) {
+      console.log("No image in firebase for other user")
+    }
+  }
+
   useEffect(() => {
     if (initialDataLoad == true) {
       setupSocket();
     }
   }, [initialDataLoad])
-
-  // This is now useFocusEffect instead of useEffect
-  // runs the callback function every time screen is put into focus
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     console.log("Game card in focus");
-  //     // Do something while screen is focused
-
-  //     if (loading == false) {
-  //       console.log("Focus Assets:", yourAssets)
-  //       setupSocket();
-        
-  //       // cleanup code when screen is no longer focused
-  //     }
-  //     return () => {
-  //       // make loading true
-  //       console.log("Game card out of focus");
-  //       if (ws.current) {
-  //         setYourPointData(null)
-  //         setOpponentPointData(null)
-  //         setYourFormattedData(null)
-  //         setOppFormattedData(null)
-  //         setYourAssets(null)
-  //         setOpponentAssets(null)
-  //         setYourTickerPrices({})
-  //         setOppTickerPrices({})
-  //         setMatch(null)
-  //         setGotInitialPrices(false);
-  //         setLoading(true)
-  //         ws.current.close(1000, 'Closing websocket connection due to page being closed');
-  //         ws.current = null;  // Ensure the reference is cleared
-  //       }
-  //   };
-  //   }, [loading])
-  // );
   
   if (loading && initialDataLoad) {
     return (
@@ -781,7 +799,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
 
 
   return (
-    <View>
+    <View style={{flex: 1}}>
       {matchIsOver && 
       <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0}} blurType="dark" blurAmount={2} reducedTransparencyFallbackColor="black">
         <Icon name="checkmark-circle" color={theme.colors.accent} size={40}/>
@@ -796,7 +814,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         </View> 
       </BlurView>}
     {!loading && match ?
-    <TouchableOpacity style={styles.gameCardContainer} onPress={() => {
+    <>
+      <View style={styles.gameCardContainer}/*style={styles.gameCardContainer}*/ /*onPress={() => {
       navigation.navigate("GameScreen", {
         matchID: match.matchID, 
         userID: userID, 
@@ -810,9 +829,62 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         });
       }
       
-      }>
-        <View style={{borderRadius: 8}}>
-          <View style={{ flexDirection: 'row' }}>
+      }*/>
+        <View style={{flexDirection: 'row', marginTop: 10, marginHorizontal: 10, marginBottom: 5, gap: 5}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
+            <FeatherIcon name="clock" color={theme.colors.stockDownAccent} size={20}/>
+            <Timer endDate={match.endAt} timeFrame={match.timeFrame} />
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
+            <FontAwesomeIcon name="gamepad" color={theme.colors.text} style={{marginBottom: 3}} size={20}/>
+            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>{match.matchType}</Text>
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
+            <FontAwesomeIcon name="money" color={theme.colors.text} size={20}/>
+            <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${match.wagerAmt}</Text>
+          </View>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false} style={{paddingTop: 0}}>
+          <View style={{backgroundColor: theme.colors.background, flexDirection: 'row', marginTop: 0, height: 180, gap: 10, justifyContent: 'center', marginHorizontal: 10, borderRadius: 5}}>
+            <View style={{marginRight: 10, backgroundColor: 'transparent', flex:1,  borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5}}>
+              <Image source={{uri: profileImageUri}} width={60} height={60} style={{borderRadius: 100}}></Image>
+              <Text style={styles.userText}>You</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(yourTotalPrice).toFixed(2)}</Text>
+              <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(yourColor, 0.3)}]}>
+                <Text style={[styles.percentText, {color: yourColor}]}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
+              </View>
+            </View>
+            <View style={{backgroundColor: 'transparent', borderRadius: 8, flex:1, justifyContent: 'center', alignItems: 'center', gap: 5}}>
+            <Image source={{uri: otherProfileUri}} width={60} height={60} style={{borderRadius: 100}}></Image>
+              <Text style={styles.userText}>{opponentUsername}</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(oppTotalPrice).toFixed(2)}</Text>
+              <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(oppColor, 0.3)}]}>
+                <Text style={[styles.percentText, {color: oppColor}]}>{((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
+              </View>
+            </View>
+            <View style={{backgroundColor: theme.colors.primary, borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>VS</Text>
+            </View>
+ 
+          </View>
+          <View style={{
+                flexDirection: 'row', 
+                marginTop: 5,
+                backgroundColor: theme.colors.background,
+                padding: 20,
+                borderRadius: 5,
+                alignItems: 'center',
+                gap: 10,
+                marginHorizontal: 10
+              }}>
+              <FontAwesomeIcon name="bank" color={theme.colors.text} size={20}/>
+              <Text style={{color: theme.colors.text}}>Buying Power</Text>
+              <View style={{flex: 1}}></View>
+              <Text style={{color: theme.colors.text}}>${(yourBuyingPower.toLocaleString())}</Text>
+          
+            </View>
+          {/*<View style={{ flexDirection: 'row' }}>
             <View style={styles.gameCardModeContainer}>
               <Text style={styles.gameCardModeText}>{match.matchType}</Text>
             </View>
@@ -858,7 +930,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
                 </View>
               </View>
             </View>
-          </View>
+          </View>*/}
           <View style={{marginTop: 5, height: 135}}>
           <View style={{
                 position: 'absolute',
@@ -935,9 +1007,42 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
             </CartesianChart>
             </View>}
           </View>
-        </View>
-    </TouchableOpacity>
-    : <GameCardSkeleton/>}
+          <View style={{marginHorizontal: 0}}>
+
+            {yourAssets && yourAssets.length >= 1 && 
+              <View style={{marginTop: 20}}>
+                <Text style={{fontSize: 18, marginHorizontal: 10, color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 10}}>My Positions</Text>
+                {yourAssets.map((asset, index) => (
+                  <PositionCard
+                    key={index}
+                    ticker={asset.ticker}
+                    qty={asset.totalShares}
+                    matchID={matchID}
+                    buyingPower={yourBuyingPower} // Adjust according to your data structure
+                    assets={yourAssets} // Adjust according to your data structure
+                    endAt={match.endAt}
+                  />
+                ))}
+              </View>}
+          </View>
+        </ScrollView>
+      </View>
+      <View>
+        <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
+            matchID: matchID, 
+            userNumber: you, 
+            buyingPower: yourBuyingPower, 
+            assets: yourAssets,
+            endAt: match.endAt   
+            })}} style={[globalStyles.primaryBtn, { marginBottom: 0, backgroundColor: theme.colors.accent, justifyContent: 'center', borderRadius: 5 }]}>
+            <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+    : 
+    <View style={{width: width-40, flex: 1, marginHorizontal: 20, marginTop: 10}}>
+      <Skeleton animation={"pulse"} style={{flex: 1, borderRadius: 10, backgroundColor: theme.colors.secondary}} skeletonStyle={{backgroundColor: theme.colors.primary}}/>
+    </View>}
     </View>
   );
 };

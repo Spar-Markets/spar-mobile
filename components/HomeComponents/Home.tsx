@@ -360,13 +360,13 @@ const Home: React.FC = () => {
   const flatListRef = useRef<FlatList<any>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const onViewRef = useRef(({viewableItems}: {viewableItems: any}) => {
+  const onViewRef = useRef(({ viewableItems }: { viewableItems: any }) => {
     if (viewableItems.length > 0) {
-      setCurrentIndex(viewableItems[0].index);
+      setCurrentIndex(viewableItems[0].index ?? 0);
     }
   });
 
-  const viewConfigRef = useRef({viewAreaCoveragePercentThreshold: 30});
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
   const profileImageUri = useSelector(
     (state: any) => state.image.profileImageUri,
@@ -651,13 +651,12 @@ const Home: React.FC = () => {
 
   const GameModeButton = (props:any) => {
     return (
-      <TouchableOpacity onPress={() => setGameModeSelected(props.text)} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.primary}, {paddingHorizontal: 20, borderRadius: 5, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
-        <MaterialCommunityIcons name={props.icon} color={gameModeSelected == props.text ? theme.colors.accent : theme.colors.text} size={20}/>
-        <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
+      <TouchableOpacity onPress={() => setGameModeSelected(props.text)} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.accent2}, {paddingHorizontal: 20, borderRadius: 5, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
+        <MaterialCommunityIcons name={props.icon} color={gameModeSelected == props.text ? theme.colors.background: theme.colors.text} size={20}/>
+        <Text style={{color: gameModeSelected == props.text ? theme.colors.background : theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
       </TouchableOpacity>
     )
-  }
-  
+  }  
 
   if (loading) {
     return (
@@ -701,32 +700,22 @@ const Home: React.FC = () => {
               <View style={{justifyContent: 'center', flexDirection: 'row'}}>
                 <View style={{backgroundColor: theme.colors.primary, height: 35, borderWidth: 1, borderColor: theme.colors.secondary, borderRadius: 5, flexDirection: 'row', alignItems: 'center'}}>
                   <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingHorizontal: 10}}>${userData?.balance.toFixed(2)}</Text>
-                  <TouchableOpacity style={{backgroundColor: theme.colors.accent, borderRadius: 5, borderWidth: 1, borderColor: theme.colors.accent, height: 35, width: 35, justifyContent: 'center', alignItems: 'center'}}>
-                    {/*<Text style={{color: theme.colors.background, fontFamily: 'InterTight-Black'}}>Deposit</Text>*/}
-                    <MaterialCommunityIcons name="wallet" color={theme.colors.background} size={20}/>
+                  <TouchableOpacity style={{backgroundColor: theme.colors.accent2, borderRadius: 5, borderWidth: 1, borderColor: theme.colors.accent2, height: 35, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Deposit</Text>
+                    {/*<MaterialCommunityIcons name="wallet" color={theme.colors.background} size={20}/>*/}
                   </TouchableOpacity>
                 </View>
               </View>
            
                
               <View style={{justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.colors.tertiary, borderRadius: 5}}>
-                  {/*<Image
-                    style={{width: 16, height: 30}}
-                    source={require('../../assets/images/logo.png')}
-                  />*/}
                   {profileImageUri && <Image width={35} height={35} source={{uri: profileImageUri}} style={{borderRadius: 5}}></Image>}
               </View>
-            {/*<TouchableOpacity style={{backgroundColor: theme.colors.primary, borderRadius: 5, width: 35, height:35, justifyContent: 'center', alignItems: 'center'}} onPress={() => navigation.navigate('Menu')}>
-              <Icon name="user-o" color={theme.colors.text} size={20} />
-            </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: theme.colors.primary, borderRadius: 5, width: 35, height:35, justifyContent: 'center', alignItems: 'center'}} onPress={() => navigation.navigate('Menu')}>
-              <Icon name="bell-o" color={theme.colors.text} size={20} />
-            </TouchableOpacity>*/}
           </View>
           <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginVertical: 10}}></View>
-          <View style={{flex: 1}}>
-          {/*<ToggleButton onToggle={handleToggle} animation={barAnimation}/>*/}
-          <View style={{height: 40, marginBottom: 10}}>
+          
+          
+          <View style={{height: 40}}>
             <ScrollView horizontal style={{width: width}} showsHorizontalScrollIndicator={false}>
               <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
                 <GameModeButton text={'Head-to-Head'} icon={"sword-cross"}/>
@@ -735,11 +724,8 @@ const Home: React.FC = () => {
               </View>
             </ScrollView>
           </View>
-
-          <View
-            style={{
-              flex: 1,
-            }}>
+          {gameModeSelected === 'Head-to-Head' && <View style={{flex: 1}}>
+          <View style={{flex: 1}}>
             <View style={{flex: 1}}>
               {noMatches && !searchingForMatch && !isInMatchmaking &&
                 <View style={{width: width, flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10}}>
@@ -750,6 +736,8 @@ const Home: React.FC = () => {
               {!noMatches && 
              
               <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
                 data={
                   searchingForMatch || isInMatchmaking
                     ? [...activeMatches, null]
@@ -758,56 +746,60 @@ const Home: React.FC = () => {
                 renderItem={({item, index}) => {
                   return (
                   item ? (
-                    <View style={index != 0 && {marginTop: 15}}>
-                      <GameCard userID={userID} matchID={item} setActiveMatches={setActiveMatches} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID}/>
-                      <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary}}></View>
-                    </View> 
-                  ) : (
-                    <View style={index != 0 && {marginTop: 15}}>
+                    <View style={{ width, height: '100%'}}>
+                      <GameCard userID={userID} matchID={item} setActiveMatches={setActiveMatches} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri}/>
+                    </View>
+                  ) : (       
                       <GameCardSkeleton/>
-                      <View style={{height: 6, width: width, backgroundColor: theme.colors.secondary}}></View>
-                    </View> 
-               
                   ))
                   }
                 }
                 keyExtractor={(item, index) => index.toString()}
-                ItemSeparatorComponent={() => <View style={{width: 0}}></View>}
                 initialNumToRender={5}
-                //pagingEnabled
-                //snapToInterval={width}
-
+                pagingEnabled
+                snapToInterval={width}
                 ref={flatListRef}
-         
-                //snapToAlignment="start"
-                //decelerationRate={-10}
+                snapToAlignment="start"
+                decelerationRate="fast"
                 onViewableItemsChanged={onViewRef.current}
-                viewabilityConfig={viewConfigRef.current}
-                
+                viewabilityConfig={viewConfigRef.current}                
               />}
 
-            </View>
-          </View>
+              </View>
+              {activeMatches.length > 1 && (
+                <View style={styles.indicatorContainer}>
+                  {activeMatches.map((_:any, index:number) => {
+                    return (
+                    <View
+                      key={index}
+                      style={[
+                        styles.indicator,
+                        currentIndex === index ? styles.activeIndicator : styles.inactiveIndicator
+                      ]}
+                    />)
+                  })}
+                </View>
+              )}
 
               
-        </View>
+          </View>
             {
             <>
             {showAdditionalButtons &&         
-            <Animated.View
-              style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                right: 0,
-                left: 0,
-                backgroundColor: theme.colors.background,
-                opacity: interpolatedOpacity
-              }}
-            >
-          <TouchableOpacity onPress={() => toggleAdditionalButtons()} style={{ flex: 1 }} />
-        </Animated.View>}
-            <View style={{position: 'absolute', right: 0, bottom: 0}}>
+                  <Animated.View
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      bottom: 0,
+                      right: 0,
+                      left: 0,
+                      backgroundColor: theme.colors.background,
+                      opacity: interpolatedOpacity
+                    }}
+                  >
+                <TouchableOpacity onPress={() => toggleAdditionalButtons()} style={{ flex: 1 }} />
+              </Animated.View>}
+            <View>
               {(searchingForMatch || isInMatchmaking) ? 
               <View style={[styles.addButton, {backgroundColor: theme.colors.primary}]}>
                 <SmallActivityIndicator color={theme.colors.text}/>
@@ -835,21 +827,24 @@ const Home: React.FC = () => {
                   {/* Add more buttons as needed */}
                 </Animated.View>
               )}
-              {gameModeSelected == "Head-to-Head" && <View style={{flexDirection: 'row'}}>
+              <View style={{flexDirection: 'row', backgroundColor: theme.colors.background, marginTop: 15}}>
                 {/*<TouchableOpacity onPress={() => navigation.navigate("PastMatches")} style={{height: 40, borderRadius: 5, backgroundColor: theme.colors.opposite, width: (width-45)*0.12, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
                     <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
                 </TouchableOpacity>*/}
                 <TouchableOpacity
-                  style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.accent, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
+                  style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.accent2, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
                   onPress={() => {toggleAdditionalButtons()}}
                 >
                   {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 15 }}>Start a Match</Text>}
                 </TouchableOpacity>
-              </View>}
+              </View>
             </View>}
             </View>
             </>
             }
+            </View>}
+
+
             <BottomSheet
               ref={bottomSheetRef}
               snapPoints={[470]}

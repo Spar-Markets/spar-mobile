@@ -103,7 +103,7 @@ const PositionCard = (props:any) => {
             (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
       
           if (valueDiff < 0) {
-            setValueDiff("-$" + Math.abs(valueDiff).toFixed(2));
+            setValueDiff("$" + Math.abs(valueDiff).toFixed(2));
             setCurrentAccentColor(theme.colors.stockDownAccent)
           } else {
             setValueDiff("$" + Math.abs(valueDiff).toFixed(2));
@@ -162,28 +162,30 @@ const PositionCard = (props:any) => {
                       </View>
                       <View style={{justifyContent: 'center'}}>
                           <Text style={styles.stockCardTicker}>{props.ticker}</Text>
-                          {tickerData != null && <Text style={styles.stockCardName}>{tickerData!.name}</Text>}
+                          {tickerData != null && <Text ellipsizeMode='tail' numberOfLines={1} style={[styles.stockCardName, {maxWidth: 150}]}>{tickerData!.name}</Text>}
                       </View>
                     </View>
                     <View style={{justifyContent: 'center'}}>
                         {yourTickerPrices[props.ticker] && <Text style={styles.stockCardValue}>${(yourTickerPrices[props.ticker]).toFixed(2)}</Text>}
                         <Text style={[styles.stockCardDiff, {color: currentAccentColor}]}>{valueDiff} ({percentDiff}%)</Text>
+                        <Text style={[styles.stockCardDiff, {color: theme.colors.text}]}>{props.qty} Shares</Text>
                     </View>
                 </View>
                 {/*<View style={{backgroundColor: theme.colors.tertiary, width: '50%', borderBottomLeftRadius: 9, borderTopRightRadius: 9, alignItems: 'center', paddingVertical: 4, marginTop: 2}}>
                   <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>QTY: {props.qty}</Text>
                 </View>*/}
-                <View style={{width: (width-40), height: 50}}>
+                <View style={{height: 50}}>
                 {pointData && 
                 <CartesianChart data={pointData} xKey="index" yKeys={["value"]} 
                 >
                 {({ points, chartBounds }) => (
                 <>
                   <Line points={points.value} color={currentAccentColor} strokeWidth={1.5} />
-                  <Area points={points.value} y0={chartBounds.bottom} color={hexToRGBA(currentAccentColor, 0.2)} />
+                  {/*<Area points={points.value} y0={chartBounds.bottom} color={hexToRGBA(currentAccentColor, 0.2)} />*/}
                 </>
                 )}
                 </CartesianChart>}   
+                <View style={{height: 10, width: '100%'}}></View>
                 </View>
                 
         </TouchableOpacity>

@@ -57,12 +57,12 @@ const CoreApp = (): React.ReactElement => {
               <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', gap: 3}}>
                 <Icon name={iconName} size={size} color={color} />
                 <Text style={{color: theme.colors.text, fontSize: 11, fontFamily: 'InterTight-Black'}}>{route.name}</Text>
-                <View style={[focused && {backgroundColor: theme.colors.accent}, {height: 2, width: width/15, marginTop: 5}]}></View>
+                <View style={[focused && {backgroundColor: theme.colors.accent2}, {height: 2, width: width/15, marginTop: 5}]}></View>
               </View>
               </>
               )
             },
-            tabBarActiveTintColor: theme.colors.accent, // Mint green color for active tab
+            tabBarActiveTintColor: theme.colors.accent2, // Mint green color for active tab
             tabBarInactiveTintColor: theme.colors.tertiary,
             tabBarStyle: { backgroundColor: theme.colors.background, 
               height: 110, borderTopWidth: 0}, // Black background for the tab bar

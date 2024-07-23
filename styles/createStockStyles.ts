@@ -291,14 +291,14 @@ const createStockSearchStyles = (theme: any, width: number) => {
   },
 
   positionCardContainer: {
-    width: (width-40),
     backgroundColor: theme.colors.background,
-    borderWidth: 1,
-    borderColor: theme.colors.primary,
+    //borderWidth: 1,
+    //borderColor: theme.colors.secondary,
     justifyContent: 'center',
-    borderRadius: 0,
-    marginBottom: 10,
-    height: 133
+    borderRadius: 8,
+    marginHorizontal: 10,
+    marginBottom: 10
+    
   },
   positionCardName: {
     color: theme.colors.secondaryText,

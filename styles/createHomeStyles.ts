@@ -11,6 +11,7 @@ const createHomeStyles = (theme: any, width: number) => {
       //backgroundColor: theme.colors.background,
       flex: 1,
       justifyContent: 'center',
+
     },
     header: {
       height: 40, 
@@ -101,13 +102,54 @@ const createHomeStyles = (theme: any, width: number) => {
       marginLeft: 10
     },
 
+    userText: {
+      color: theme.colors.text,
+      fontFamily: 'InterTight-Bold',
+      fontSize: 16
+    },
+    percentIndicator: {
+        backgroundColor: theme.colors.tertiary,
+        borderRadius: 5,
+    },
+    percentText: {
+        paddingHorizontal: 5,
+        paddingVertical: 3,
+        fontFamily: 'InterTight-Bold',
+        fontSize: 12
+    },
+
     // GameCard
     gameCardContainer: {
       //borderColor: theme.colors.primary,
-      width: (Dimensions.get('window').width),
-      height: 250,
-
+      width: (Dimensions.get('window').width-40),
+      backgroundColor: theme.colors.primary,
+      marginHorizontal: 20,
+      flex: 1,
+      borderRadius: 10,
+      marginVertical: 10,
+      
     },
+
+    indicatorContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 10,
+      marginHorizontal: 15
+    },
+    indicator: {
+      flex: 1,
+      height: 10,
+      borderRadius: 3,
+      marginHorizontal: 5,
+    },
+    activeIndicator: {
+      backgroundColor: theme.colors.opposite, // Active color
+    },
+    inactiveIndicator: {
+      backgroundColor: theme.colors.tertiary, // Inactive color
+    },
+
     gameCardPlayerText: {
       color: theme.colors.text,
       fontSize: 16,
@@ -149,10 +191,10 @@ const createHomeStyles = (theme: any, width: number) => {
       fontFamily: 'InterTight-Bold',
     },
     gameCardModeContainer: {
-      borderRadius: 3,
+      borderRadius: 6,
       backgroundColor: theme.colors.accent,
       marginTop: 5, 
-      marginLeft: 20,
+      marginLeft: 5,
       padding: 5,
       paddingHorizontal: 10,
       justifyContent: 'center',
@@ -167,12 +209,12 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // Timer
     timerContainer: {
-      borderRadius: 6,
-      marginRight: 20,
+      borderRadius: 5,
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
-      gap: 5
+      gap: 5,
+      paddingVertical: 5
     },
     timeText: {
       fontSize: 15,
