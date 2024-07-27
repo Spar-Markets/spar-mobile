@@ -50,8 +50,8 @@ import {Skeleton} from '@rneui/base';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import getMarketFraction from '../../utility/getMarketFraction';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import { updateStockPrice } from '../../GlobalDataManagment/stockSlice';
+import {useDispatch} from 'react-redux';
+import {updateStockPrice} from '../../GlobalDataManagment/stockSlice';
 import getCurrentPrice from '../../utility/getCurrentPrice';
 
 const StockDetailGraph = (props: any) => {
@@ -60,8 +60,7 @@ const StockDetailGraph = (props: any) => {
 
   const colorScheme = useColorScheme();
 
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const {theme} = useTheme();
   const {width, height} = useDimensions();
@@ -122,7 +121,7 @@ const StockDetailGraph = (props: any) => {
               ticker: props.ticker,
             });
             console.log('fetchCloseComparison', response.data);
-            setOneDayClose(response.data.lastPrice)
+            setOneDayClose(response.data.lastPrice);
           } catch (error) {
             console.error('Error fetching close:', error);
           }
@@ -143,17 +142,17 @@ const StockDetailGraph = (props: any) => {
     getPricesForSelectedTime();
   }, [props.ticker]);
 
-  const grabCurrentPrice = async (ticker:string) => {
+  const grabCurrentPrice = async (ticker: string) => {
     try {
       const price = await getCurrentPrice(ticker);
       if (price) {
         setCurrentPrice(price);
-        dispatch(updateStockPrice(price))
+        dispatch(updateStockPrice(price));
       }
     } catch (error) {
-      console.error("stockdetailgraph: setting redux price error", error)
+      console.error('stockdetailgraph: setting redux price error', error);
     }
-  }
+  };
 
   useEffect(() => {
     if (allPointData) {
@@ -241,16 +240,16 @@ const StockDetailGraph = (props: any) => {
 
   //gets percent difference based on array data
   const animatedPercentDiff = useDerivedValue(() => {
-    let percentDiff
+    let percentDiff;
     if (pointData.length > 0) {
-      if (timeFrameSelected != "1D") {
+      if (timeFrameSelected != '1D') {
         percentDiff =
           (pointData[currentIndex.value]?.value - pointData[0].value) /
           Math.abs(pointData[0].value);
       } else {
         percentDiff =
-        (pointData[currentIndex.value]?.value - oneDayClose) /
-        Math.abs(oneDayClose);
+          (pointData[currentIndex.value]?.value - oneDayClose) /
+          Math.abs(oneDayClose);
       }
 
       return (100 * percentDiff).toFixed(2);
@@ -259,13 +258,12 @@ const StockDetailGraph = (props: any) => {
   }, [pointData]);
 
   const animatedValueDiff = useDerivedValue(() => {
-    let valueDiff
+    let valueDiff;
     if (pointData.length > 0) {
-      if (timeFrameSelected != "1D") {
-        valueDiff =
-          pointData[currentIndex.value]?.value - pointData[0].value;
+      if (timeFrameSelected != '1D') {
+        valueDiff = pointData[currentIndex.value]?.value - pointData[0].value;
       } else {
-          valueDiff = pointData[currentIndex.value]?.value - oneDayClose;
+        valueDiff = pointData[currentIndex.value]?.value - oneDayClose;
       }
       if (valueDiff < 0) {
         return '-$' + Math.abs(valueDiff).toFixed(2); //formatting negative differences
@@ -317,9 +315,9 @@ const StockDetailGraph = (props: any) => {
   const [currentGradientAccent, setCurrentGradientAccent] = useState('');
 
   const calculatePercentAndValueDiffAndColor = useCallback(() => {
-    let percentDiff
+    let percentDiff;
     if (pointData.length > 0) {
-      if (timeFrameSelected != "1D") {
+      if (timeFrameSelected != '1D') {
         percentDiff =
           ((pointData[pointData.length - 1]?.value || 0) - pointData[0].value) /
           Math.abs(pointData[0].value);
@@ -330,14 +328,13 @@ const StockDetailGraph = (props: any) => {
       }
       const percentDiffValue = (100 * percentDiff).toFixed(2);
       setOnLoadPercentDiff(percentDiffValue);
-      let valueDiff
-      
-      if (timeFrameSelected != "1D") {
+      let valueDiff;
+
+      if (timeFrameSelected != '1D') {
         valueDiff =
           (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
       } else {
-        valueDiff =
-        (pointData[pointData.length - 1]?.value || 0) - oneDayClose;
+        valueDiff = (pointData[pointData.length - 1]?.value || 0) - oneDayClose;
       }
       if (pointData) {
         if (valueDiff < 0) {
@@ -377,15 +374,15 @@ const StockDetailGraph = (props: any) => {
   const RETRY_DELAY = 2000; // Delay between retries in milliseconds
 
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const sendHeartbeat = () => {
     if (ws.current) {
-      console.log("SENDING WS HEARTBEAT ON STOCK DETAILS")
-      console.log("FROM STOCK DETAILS", ws.current)
-      const heartbeat = {type: "heartbeat"}
-      ws.current.send(JSON.stringify(heartbeat))
+      console.log('SENDING WS HEARTBEAT ON STOCK DETAILS');
+      console.log('FROM STOCK DETAILS', ws.current);
+      const heartbeat = {type: 'heartbeat'};
+      ws.current.send(JSON.stringify(heartbeat));
     }
-  }
+  };
 
   useEffect(() => {
     heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000); // 30 seconds interval
@@ -396,7 +393,7 @@ const StockDetailGraph = (props: any) => {
         clearInterval(heartbeatIntervalRef.current);
       }
     };
-  }, [])
+  }, []);
 
   const setupSocket = async (ticker: any) => {
     /*if (ws.current && (ws.current.readyState === WebSocket.OPEN || 
@@ -425,13 +422,13 @@ const StockDetailGraph = (props: any) => {
       const message = uint8ArrayToString(buffer);
 
       //console.log(`Websocket Received message: ${message}`);
-      if (message != "") {
+      if (message != '') {
         try {
           const jsonMessage = JSON.parse(message);
           setPassingLivePrice(jsonMessage);
-          dispatch(updateStockPrice(jsonMessage[0]?.c)) //close live price for aggregate
+          dispatch(updateStockPrice(jsonMessage[0]?.c)); //close live price for aggregate
         } catch (error) {
-          console.error("stock graph live data error", error)
+          console.error('stock graph live data error', error);
         }
       }
     };
@@ -625,7 +622,7 @@ const StockDetailGraph = (props: any) => {
                 <Text style={styles.stockPriceText}>
                   $
                   {
-                    currentPrice//pointData[pointData.length - 1].value
+                    currentPrice //pointData[pointData.length - 1].value
                       .toFixed(2)
                       .split('.')[0]
                   }

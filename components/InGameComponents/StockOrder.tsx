@@ -27,9 +27,9 @@ import Sound from 'react-native-sound';
 import {Image} from 'react-native';
 
 // imports to access userID
-import { RootState } from '../../GlobalDataManagment/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateYourTickerPrices } from '../../GlobalDataManagment/matchesSlice';
+import {RootState} from '../../GlobalDataManagment/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateYourTickerPrices} from '../../GlobalDataManagment/matchesSlice';
 
 interface stockOrderParams {
   ticker: string;
@@ -48,7 +48,7 @@ const StockOrder = (props: any) => {
   const route = useRoute();
 
   const params = route.params as stockOrderParams | undefined;
-  const { ticker } = params!;
+  const {ticker} = params!;
 
   const {theme} = useTheme();
   const {width, height} = useDimensions();
@@ -57,10 +57,12 @@ const StockOrder = (props: any) => {
 
   const userID = useSelector((state: RootState) => state.user.userID);
 
+  const [toggleState, setToggleState] = useState('stock');
+
   const [shareQuantity, setShareQuantity] = useState('0');
   const [inReview, setInReview] = useState(false);
 
-  const stockPrice = useSelector((state:RootState) => state.stock);
+  const stockPrice = useSelector((state: RootState) => state.stock);
 
   const goBack = () => {
     navigation.goBack();
@@ -74,14 +76,13 @@ const StockOrder = (props: any) => {
     );
   }
 
-  const ws = useSelector((state: RootState) => state.websockets[params?.ticker]);
+  const ws = useSelector(
+    (state: RootState) => state.websockets[params?.ticker],
+  );
 
   useEffect(() => {
-    console.log(ws)
-  }, [ws])
-
-
-
+    console.log(ws);
+  }, [ws]);
 
   const purchaseStock = async () => {
     try {
@@ -172,6 +173,7 @@ const StockOrder = (props: any) => {
   const screenWidth = Dimensions.get('window').width;
 
   const handleToggle = (option: any) => {
+    console.log('toggled');
     const toValue = option === 'shares' ? 0 : -screenWidth;
     Animated.timing(animation, {
       toValue,
@@ -190,12 +192,13 @@ const StockOrder = (props: any) => {
 
   const formattedShareQuantity = formatShareQuantity(shareQuantity);
 
-  const estimatedCost = (
-    stockPrice * parseFloat(shareQuantity)
-  ).toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  const estimatedCost = (stockPrice * parseFloat(shareQuantity)).toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    },
+  );
 
   const keypadAnimation = useRef(new Animated.Value(0)).current;
 
@@ -292,7 +295,10 @@ const StockOrder = (props: any) => {
           </Text>
         )}
       </View>
-      <StockOrderToggleButton onToggle={handleToggle} />
+      <StockOrderToggleButton
+        toggle={{toggleState: setToggleState}}
+        onToggle={handleToggle}
+      />
       <View style={{marginHorizontal: 20}}>
         <View style={{flexDirection: 'row', marginVertical: 20}}>
           <Text style={styles.orderFieldText}>Quantity</Text>
