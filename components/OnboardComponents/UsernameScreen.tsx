@@ -70,14 +70,14 @@ const UsernameScreen = (props: any) => {
 
       if (credentials.user) {
         // Array of profile images
-        const profileImages = ['profile1', 'profile2', 'profile3'];
+        const profileImages = [1, 2, 3];
 
         // Select a random profile image
         const randomImage =
           profileImages[Math.floor(Math.random() * profileImages.length)];
 
         // Set the profile image string
-        await AsyncStorage.setItem('defaultProfileImage', randomImage);
+        await AsyncStorage.setItem('defaultProfileImage', String(randomImage));
 
         console.log('User profile image initialized in AsyncStorage');
 
@@ -103,7 +103,6 @@ const UsernameScreen = (props: any) => {
             dispatch(setUsername(usernameInput));
           });
           try {
-            await AsyncStorage.setItem('defaultProfileImage', randomImage);
             await AsyncStorage.setItem('hasDefaultProfileImage', 'true');
           } catch (error) {
             console.error(

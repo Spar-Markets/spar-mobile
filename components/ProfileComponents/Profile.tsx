@@ -50,6 +50,13 @@ import {SegmentedButtons} from 'react-native-paper';
 import PageHeader from '../GlobalComponents/PageHeader';
 import {RootState} from '../../GlobalDataManagment/store';
 
+const imageMap = [
+  '',
+  require('../../assets/images/profile1.png'),
+  require('../../assets/images/profile2.png'),
+  require('../../assets/images/profile3.png'),
+];
+
 const Profile = ({navigation}: any) => {
   const {theme} = useTheme();
   const {width, height} = useDimensions();
@@ -78,10 +85,13 @@ const Profile = ({navigation}: any) => {
         const defaultProfileImage = await AsyncStorage.getItem(
           'defaultProfileImage',
         );
+        const newDefault = Number(defaultProfileImage);
 
         const profileImagePath = await AsyncStorage.getItem('profileImgPath');
+
         if (defaultImage == 'true') {
-          setImage(`../../assets/images/${defaultProfileImage}.png`);
+          const tempURI = imageMap[newDefault];
+          setImage(tempURI);
         } else if (profileImagePath) {
           console.log(
             'Profile image path from AsyncStorage:',
@@ -220,7 +230,7 @@ const Profile = ({navigation}: any) => {
                     styles.profilePic,
                     {borderWidth: 2, borderColor: theme.colors.text},
                   ]}
-                  source={{uri: image}}
+                  source={image as any}
                 />
               ) : (
                 <View style={styles.profilePic}>
