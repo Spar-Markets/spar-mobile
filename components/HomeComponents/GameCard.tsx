@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, act} from 'react';
 import { ScrollView, Text, TouchableOpacity, View, useColorScheme} from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -32,20 +32,19 @@ import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../firebase/firebase';
 import { Skeleton } from '@rneui/base';
 import { runOnJS, SharedValue, useAnimatedReaction, useDerivedValue, useSharedValue } from 'react-native-reanimated';
+import { removeMatch } from '../../GlobalDataManagment/activeMatchesSlice';
 
 
 interface GameCardProps {
   userID: string;
   matchID: string;
-  setActiveMatches: React.Dispatch<React.SetStateAction<any[]>>; // Adjust the type as per your needs
   expandMatchSummarySheet: any
   setActiveMatchSummaryMatchID: any
   profileImageUri: string
-  activeMatches: string[]
 }
 
 
-const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri, activeMatches }) => {
+const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri }) => {
   const colorScheme = useColorScheme();
   const navigation = useNavigation<any>();
 
@@ -55,6 +54,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   const { width, height } = useDimensions();
   const styles = createHomeStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
+
+  const activeMatches = useSelector((state:RootState) => state.activeMatches.activeMatches)
 
 
   interface PortfolioSnapshot {
@@ -222,6 +223,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       date: new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // Format time as HH:MM
     }));
     setYourFormattedData(data)
+    setYourFormattedDataLength(data.length)
 
     const sourceData2 = opponentPointData.filter((item:any, index:any) => index % 2 === 0)
     const data2 = sourceData2 // Select every 10th item
@@ -436,6 +438,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       if (timeUntilEnd <= 0) {
         // If the match end time has already passed, set the matchIsOver state variable
         setMatchIsOver(true);
+        console.log("SETTING MATCH OVER TO TRUE")
         console.log("CURRENT CLOSING THE GAMECARD WEBSOCKET SINCE MATCH ENDED")
         if (ws.current!) {
           ws.current!.close()
@@ -729,6 +732,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
           normalizedValue: yourTotalPriceRef.current - prevPointData[0].value,
           date: new Date(Date.now()).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
         });
+        setYourFormattedDataLength(newPointData.length)
         console.log("adding point", newPointData[newPointData.length-1])
       
         return newPointData
@@ -737,7 +741,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     return () => clearInterval(interval);
   }, [])
 
-
+  const [yourFormattedDataLength, setYourFormattedDataLength] = useState(0)
   //sets total live prices for each user
   useEffect(() => {
     //console.log("Ticker Prices: ", tickerPrices)
@@ -860,13 +864,16 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   }
 
   const handleDismiss = () => {
-    setActiveMatches((prevMatches) => {
+    /*setActiveMatches((prevMatches) => {
       console.log('Active Matches', activeMatches)
       console.log('Previous Matches:', prevMatches); // Log previous matches
       console.log('Dismissed matchid:', matchID)
       console.log('Matches after Dismiss', prevMatches.filter((match) => match !== matchID))
       return prevMatches.filter((match) => match != matchID);
-    });
+    });*/
+    console.log("Predismiss", activeMatches)
+    console.log("Dismissed ID:", matchID)
+    dispatch(removeMatch(matchID))
   };
 
   const spacing = useSharedValue(0);
@@ -907,16 +914,16 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   const {state, isActive} = useChartPressState({ x: 0, y: { normalizedValue: 0 } })
 
   const currentIndex = useDerivedValue(() => {
-    if (yourFormattedData && match) {
+    if (yourFormattedDataLength != 0 && match) {
       const startTime = (new Date(match.endAt).getTime() - (match.timeframe * 1000))
       const fraction = (Date.now() - startTime) / (match.timeframe * 1000)
       const positionValue = state.x.position.value;
-      console.log((positionValue / (width - 60)) * (yourFormattedData.length) / fraction)
-      const index = Math.round((positionValue / (width - 60)) * (yourFormattedData.length) / fraction);
+      console.log((positionValue / (width - 60)) * (yourFormattedDataLength) / fraction)
+      const index = Math.round((positionValue / (width - 60)) * (yourFormattedDataLength) / fraction);
       return index;
     }
     return 0
-  }, [state, match, yourFormattedData]);
+  }, [state, match, yourFormattedDataLength]);
 
   useAnimatedReaction(
     () => currentIndex.value,
@@ -928,7 +935,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   return (
     <View style={{flex: 1}}>
       {matchIsOver && 
-      <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10}} blurType="dark" blurAmount={2} reducedTransparencyFallbackColor="black">
+      <View style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10}} /*blurType="dark" blurAmount={0} reducedTransparencyFallbackColor="black"*/>
         <Icon name="checkmark-circle" color={theme.colors.accent} size={40}/>
         <Text style={{fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Match Completed!</Text>
         <View style={{flexDirection: 'row', gap: 5}}>
@@ -939,7 +946,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
             <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>Dismiss</Text>
           </TouchableOpacity>
         </View> 
-      </BlurView>}
+      </View>}
     {!loading && match && yourFormattedData ?
     <>
       <View style={styles.gameCardContainer}/*style={styles.gameCardContainer}*/ /*onPress={() => {
@@ -957,6 +964,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       }
       
       }*/>
+        <Text style={{color: theme.colors.text}}>{matchID}</Text>
         <View style={{flexDirection: 'row', marginTop: 10, marginHorizontal: 10, marginBottom: 5, gap: 5}}>
           <View style={{flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
             <Timer endDate={match.endAt} timeFrame={match.timeframe} />
@@ -984,7 +992,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               </View>
               </> :
               <>
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(animatedIndex)}</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${animatedIndex}</Text>
               <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(yourColor, 0.3)}]}>
                 <Text style={[styles.percentText, {color: yourColor}]}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
               </View>

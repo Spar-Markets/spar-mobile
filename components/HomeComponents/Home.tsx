@@ -68,6 +68,8 @@ import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/botto
 import { Svg, Circle as SvgCircle } from 'react-native-svg';
 import AnimatedRing from '../GlobalComponents/AnimatedRing';
 import { setGlobalTickers } from '../../GlobalDataManagment/stockDataSlice';
+import { RootState } from '../../GlobalDataManagment/store';
+import { addMatch, setActiveMatches } from '../../GlobalDataManagment/activeMatchesSlice';
 const {width} = Dimensions.get('window');
 
 Icon.loadFont()
@@ -106,7 +108,7 @@ const Home: React.FC = () => {
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
   const [balance, setBalance] = useState('0.00');
   const [searchingForMatch, setSearchingForMatch] = useState(false);
-  const [activeMatches, setActiveMatches] = useState<any>(null);
+  //const [activeMatches, setActiveMatches] = useState<any>(null);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
   //const [username, setUsername] = useState('');
@@ -118,6 +120,8 @@ const Home: React.FC = () => {
 
   const dispatch = useDispatch();
   const {userData} = useUserDetails();
+
+  const activeMatches = useSelector((state: RootState) => state.activeMatches.activeMatches)
   
 
   const [noMatches, setNoMatches] = useState(false)
@@ -231,7 +235,8 @@ const Home: React.FC = () => {
         userID,
       });
       console.log('Matches1: ', response.data);
-      setActiveMatches(response.data);
+      //setActiveMatches(response.data);
+      dispatch(setActiveMatches(response.data))
     } catch (error) {
       console.error('Error fetching matches:', error);
     }
@@ -375,6 +380,7 @@ const Home: React.FC = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const infoSheetRef = useRef<BottomSheet>(null)
   const matchSummaryRef = useRef<BottomSheet>(null);
+  const matchmakingSheetRef = useRef<BottomSheet>(null);
 
   const expandBottomSheet = async () => {
     try {
@@ -424,6 +430,22 @@ const Home: React.FC = () => {
     }
   };
 
+  const expandMatchmakingSheet = async () => {
+    try {
+      matchmakingSheetRef.current?.expand(); // Expand the Bottom Sheet when star is clicked
+    } catch {
+      console.log('error watching stock');
+    }
+  };
+
+  const closeMatchmakingSheet = async () => {
+    try {
+      matchmakingSheetRef.current?.close(); // Expand the Bottom Sheet when star is clicked
+    } catch {
+      console.log('error watching stock');
+    }
+  };
+
 	const renderBackdrop = useCallback(
 		(props:any) => (
 			<BottomSheetBackdrop
@@ -445,6 +467,10 @@ const Home: React.FC = () => {
   }, []);
 
   const handleMatchSummaryChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  const handleMatchmakingChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
 
@@ -499,6 +525,37 @@ const Home: React.FC = () => {
 
   const MAX_RETRIES = 5;  // Maximum number of retry attempts
   const RETRY_DELAY = 2000; // Delay between retries in milliseconds
+
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const sendHeartbeat = () => {
+    if (ws.current) {
+      //console.log("SENDING WS HEARTBEAT FROM GAMECARD")
+      //console.log("FROM GAME CARD", ws.current)
+      const heartbeat = {type: "heartbeat"}
+      ws.current.send(JSON.stringify(heartbeat))
+    }
+  }
+
+  useEffect(() => {
+    heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000); // 30 seconds interval
+
+    // Clear the interval when the component unmounts
+    return () => {
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+      }
+    };
+  }, [])
+
+  const [responsiveActiveMatches, setResponsiveActiveMatches] = useState<any>()
+
+  useEffect(() => {
+    if (activeMatches) {
+      console.log("Setting active matches")
+      setResponsiveActiveMatches(activeMatches)
+    }
+  }, [activeMatches])
   
   //searchingForMatch || isInMatchmaking -----> these conditions == true, open websocket to look for match being created
   const setupSocket = async () => {    
@@ -535,7 +592,7 @@ const Home: React.FC = () => {
           if (JSONMessage.type == "matchCreated") {
             const newMatch = JSONMessage.newMatch;
             // do logic to display new match
-            activeMatches.push(newMatch.matchID)
+            dispatch(addMatch(newMatch.matchID))
             setNoMatches(false)
             dispatch(setIsInMatchmaking(false));
             setSearchingForMatch(false)
@@ -740,19 +797,15 @@ const Home: React.FC = () => {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 data={
-                  searchingForMatch || isInMatchmaking
-                    ? [...activeMatches, null]
-                    : activeMatches
+                    responsiveActiveMatches
                 }
                 renderItem={({item, index}) => {
                   return (
-                  item ? (
+                  item && responsiveActiveMatches.includes(item) &&  (
                     <View style={{ width, height: '100%'}}>
-                      <GameCard userID={userID} matchID={item} setActiveMatches={setActiveMatches} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri} activeMatches={activeMatches}/>
+                      <GameCard userID={userID} matchID={item} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri}/>
                     </View>
-                  ) : (       
-                      <GameCardSkeleton/>
-                  ))
+                  ) )
                   }
                 }
                 keyExtractor={(item, index) => index.toString()}
@@ -803,12 +856,12 @@ const Home: React.FC = () => {
               </Animated.View>}
             <View>
               {(searchingForMatch || isInMatchmaking) ? 
-              <View style={[styles.addButton, {backgroundColor: theme.colors.primary}]}>
+              <View style={{backgroundColor: theme.colors.secondary, width: width, flexDirection: 'row', alignItems: 'center', paddingVertical: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20}}>
                 <SmallActivityIndicator color={theme.colors.text}/>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 15}}>Searching for Match</Text>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 15, marginLeft: 10}}>Searching for Match</Text>
                 <View style={{flex: 1}}/>
-                <TouchableOpacity onPress={cancelAlert} style={{backgroundColor: theme.colors.stockDownAccent, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 5}}>
-                  <Text style={{fontFamily: 'InterTight-Bold'}}>Cancel</Text>
+                <TouchableOpacity onPress={cancelAlert} style={{backgroundColor: theme.colors.stockDownAccent, borderRadius: 5, padding: 10}}>
+                  <MaterialIcons name="close" size={24} color={theme.colors.secondary}/>
                 </TouchableOpacity>
               </View>: 
              <View>
@@ -835,7 +888,7 @@ const Home: React.FC = () => {
                 </TouchableOpacity>*/}
                 <TouchableOpacity
                   style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.accent2, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
-                  onPress={() => {toggleAdditionalButtons()}}
+                  onPress={expandMatchmakingSheet/*() => {toggleAdditionalButtons()}*/}
                 >
                   {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: "#fff", fontFamily: 'InterTight-Black', fontSize: 18 }}>Start a Match</Text>}
                 </TouchableOpacity>
@@ -852,7 +905,7 @@ const Home: React.FC = () => {
               index={-1}
               enablePanDownToClose
               onChange={handleSheetChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.background}}
+              backgroundStyle={{backgroundColor: theme.colors.secondary}}
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
             >
@@ -883,6 +936,7 @@ const Home: React.FC = () => {
                         key={wager.amount}
                         style={[
                           styles.matchmakingWagerBtn,
+                          {backgroundColor: theme.colors.secondary, borderColor: theme.colors.secondary},
                           wagerSelected == wager.amount && {borderColor: theme.colors.text, borderWidth: 2},
                           index === 5 && {marginRight: 40}
                         ]}
@@ -909,6 +963,7 @@ const Home: React.FC = () => {
                         key={timeframe.amount}
                         style={[
                           styles.matchmakingWagerBtn,
+                          {backgroundColor: theme.colors.secondary, borderColor: theme.colors.secondary},
                           timeframeSelected == timeframe.amount && {borderColor: theme.colors.text, borderWidth: 2},
                           index === 5 && {marginRight: 40}
                         ]}
@@ -919,7 +974,7 @@ const Home: React.FC = () => {
                     ))}
                   </View>
                 </View>
-                <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 20}}/>
+                <View style={{height: 1, backgroundColor: theme.colors.tertiary, marginHorizontal: 20, marginTop: 20}}/>
                 <View style={{marginTop: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}>
                   <View style={{alignItems: 'center'}}>
                     <TouchableOpacity onPress={expandInfoSheet} style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
@@ -938,9 +993,9 @@ const Home: React.FC = () => {
                     <Text style={{color: theme.colors.accent, fontFamily: 'InterTight-Black', fontSize: 28}}>  ${ (2 * (wagerSelected!)).toFixed(2) }</Text>
                   </View>
                 </View>
-                <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 20}}/>
+                <View style={{height: 1, backgroundColor: theme.colors.tertiary, marginHorizontal: 20, marginTop: 20}}/>
                 </View>
-                <View style={{width: width,backgroundColor: theme.colors.background, justifyContent: 'center', marginVertical: 20}}>
+                <View style={{width: width,backgroundColor: theme.colors.secondary, justifyContent: 'center', marginVertical: 20}}>
                     {(wagerSelected != null && timeframeSelected != 0 && modeSelected != "") ? 
                     <>
                     <TouchableOpacity onPress={() => handleEnterMatchmaking(wagerSelected, timeframeSelected, modeSelected)} style={{marginHorizontal: 20, height: 50, backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
@@ -959,7 +1014,7 @@ const Home: React.FC = () => {
               index={-1}
               enablePanDownToClose
               onChange={handleInfoChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.background}}
+              backgroundStyle={{backgroundColor: theme.colors.secondary}}
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
             >
@@ -970,7 +1025,7 @@ const Home: React.FC = () => {
                     {ruleMessage("Entry Fee", "The prize pool is twice the wager collected. We charge a 10% entry fee on the wager selected.")}
                     {ruleMessage("Matchmaking", `If you aren’t matched up or you cancel matchmaking before a match begins, your $${wagerSelected} will be credited back to your account.`)}
                 </View>
-                <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 20}}/>
+                <View style={{height: 1, backgroundColor: theme.colors.tertiary, marginHorizontal: 20, marginTop: 20}}/>
                 <View style={{flexDirection: 'row', alignItems: 'center', gap: 5, marginHorizontal: 20, marginTop: 20}}>
                   <Icon name="dollar" size={15} color={theme.colors.text}/>
                   <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 15}}>Payout if Win</Text>
@@ -995,6 +1050,50 @@ const Home: React.FC = () => {
                     <Text style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 20}}>Match Summary</Text>
                     <Text style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 12}}>{activeMatchSummaryMatchID}</Text>
                 </View>
+              </BottomSheetView>
+            </BottomSheet>
+
+            <BottomSheet
+              ref={matchmakingSheetRef}
+              snapPoints={[300]}
+              index={-1}
+              enablePanDownToClose
+              onChange={handleMatchmakingChanges}  
+              backgroundStyle={{backgroundColor: theme.colors.secondary}}
+              handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
+              backdropComponent={renderBackdrop}
+            >
+              <BottomSheetView style={{flex: 1}}>
+                {!(isInMatchmaking || searchingForMatch) ? 
+                <View style={{gap: 10, flex: 1}}>
+                    <Text style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 20, paddingHorizontal: 20}}>Select a Mode</Text>
+                    <TouchableOpacity onPress={() => {expandBottomSheet(); closeMatchmakingSheet()}} style={{backgroundColor: theme.colors.secondary, alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+   
+                      <View>
+                        <Text style={{ color: theme.colors.stockUpAccent, fontFamily: 'InterTight-Black', fontSize: 20 }}>Stock</Text>
+                        <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade stocks only</Text>
+                      </View>
+                    </TouchableOpacity>
+                    <View style={{height: 1, backgroundColor: theme.colors.tertiary, width: width-40, marginHorizontal: 20}}></View>
+                    <View style={{backgroundColor: theme.colors.secondary, alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+                    <MaterialIcons name="construction" size={40} color={theme.colors.tertiary}/>
+                      <View>
+                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 20 }}>Crypto</Text>
+                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade cryptocurrencies only</Text>
+                      </View>
+                    </View>
+                    <View style={{height: 1, backgroundColor: theme.colors.tertiary, width: width-40, marginHorizontal: 20}}></View>
+                    <View style={{backgroundColor: theme.colors.secondary, alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+                    <MaterialIcons name="construction" size={40} color={theme.colors.tertiary}/>
+                      <View>
+                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 20 }}>Options</Text>
+                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade option contracts only</Text>
+                      </View>
+                    </View>
+                </View> : 
+                <View>
+                
+                </View>}
               </BottomSheetView>
             </BottomSheet>
           </View>
