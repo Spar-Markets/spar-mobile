@@ -58,10 +58,13 @@ const StockOrder = (props: any) => {
   const userID = useSelector((state: RootState) => state.user.userID);
 
   const [shareQuantity, setShareQuantity] = useState('0');
+  const [dollarAmount, setDollarAmount] = useState('0');
   const [inReview, setInReview] = useState(false);
-
+  
   const stockPrice = useSelector((state:RootState) => state.stock);
-
+  const formattedShareQuantity = (shareQuantity);
+  const formattedDollarAmount = (dollarAmount);
+  
   const goBack = () => {
     navigation.goBack();
   };
@@ -79,8 +82,6 @@ const StockOrder = (props: any) => {
   useEffect(() => {
     console.log(ws)
   }, [ws])
-
-
 
 
   const purchaseStock = async () => {
@@ -130,19 +131,37 @@ const StockOrder = (props: any) => {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false,
     });
-    if (
-      shareQuantity.includes('.') &&
-      shareQuantity.split('.')[1].length >= 6
-    ) {
-      return;
+    if (selectedMode == "shares") {
+      if (
+        shareQuantity.includes('.') &&
+        shareQuantity.split('.')[1].length >= 6
+      ) {
+        return;
+      }
+      if (shareQuantity.length === 6 && !shareQuantity.includes('.')) {
+        return;
+      }
+      if (shareQuantity !== '0') {
+        setShareQuantity(prevInput => prevInput + value);
+      } else {
+        setShareQuantity(value);
+      }
     }
-    if (shareQuantity.length === 5 && !shareQuantity.includes('.')) {
-      return;
-    }
-    if (shareQuantity !== '0') {
-      setShareQuantity(prevInput => prevInput + value);
-    } else {
-      setShareQuantity(value);
+    if (selectedMode == "dollars") {
+      if (
+        dollarAmount.includes('.') &&
+        dollarAmount.split('.')[1].length >= 2
+      ) {
+        return;
+      }
+      if (dollarAmount.length === 6 && !dollarAmount.includes('.')) {
+        return;
+      }
+      if (dollarAmount !== '0') {
+        setDollarAmount(prevInput => prevInput + value);
+      } else {
+        setDollarAmount(value);
+      }
     }
   };
 
@@ -151,10 +170,18 @@ const StockOrder = (props: any) => {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false,
     });
-    if (shareQuantity.length > 1) {
-      setShareQuantity(prevInput => prevInput.slice(0, -1));
+    if (selectedMode == "shares") {
+      if (shareQuantity.length > 1) {
+        setShareQuantity(prevInput => prevInput.slice(0, -1));
+      } else {
+        setShareQuantity('0');
+      }
     } else {
-      setShareQuantity('0');
+      if (dollarAmount.length > 1) {
+        setDollarAmount(prevInput => prevInput.slice(0, -1));
+      } else {
+        setDollarAmount('0');
+      }
     }
   };
 
@@ -166,13 +193,33 @@ const StockOrder = (props: any) => {
     if (!shareQuantity.includes('.')) {
       setShareQuantity(prevInput => prevInput + '.');
     }
+    if (!dollarAmount.includes('.')) {
+      setDollarAmount(prevInput => prevInput + '.');
+    }
   };
 
   const animation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
 
+  const [selectedMode, setSelectedMode] = useState('shares')
+
   const handleToggle = (option: any) => {
     const toValue = option === 'shares' ? 0 : -screenWidth;
+    if (option) {
+      setSelectedMode(option)
+      console.log(option)
+      setShareQuantity("0")
+      setDollarAmount("0")
+      if (inReview) {
+        setInReview(false)
+        Animated.timing(keypadAnimation, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: false,
+        }).start();
+      }
+    }
     Animated.timing(animation, {
       toValue,
       duration: 300,
@@ -188,11 +235,10 @@ const StockOrder = (props: any) => {
       : formattedIntegerPart;
   };
 
-  const formattedShareQuantity = formatShareQuantity(shareQuantity);
+  
 
-  const estimatedCost = (
-    stockPrice * parseFloat(shareQuantity)
-  ).toLocaleString(undefined, {
+  const estimatedCost = stockPrice * parseFloat(shareQuantity);
+  const estimatedCostString = estimatedCost.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -272,27 +318,9 @@ const StockOrder = (props: any) => {
           endAt={params?.endAt}
         />
       )}
-      <View style={{alignItems: 'center'}}>
-        {params?.isBuying && (
-          <Text
-            style={{
-              color: theme.colors.secondaryText,
-              fontFamily: 'InterTight-Bold',
-            }}>
-            ${params?.buyingPower.toFixed(2)} Available
-          </Text>
-        )}
-        {params?.isSelling && (
-          <Text
-            style={{
-              color: theme.colors.secondaryText,
-              fontFamily: 'InterTight-Bold',
-            }}>
-            {params?.qty} Shares Available
-          </Text>
-        )}
-      </View>
       <StockOrderToggleButton onToggle={handleToggle} />
+      {selectedMode == "shares" ?
+      <View>
       <View style={{marginHorizontal: 20}}>
         <View style={{flexDirection: 'row', marginVertical: 20}}>
           <Text style={styles.orderFieldText}>Quantity</Text>
@@ -318,11 +346,24 @@ const StockOrder = (props: any) => {
             <Text style={styles.orderFieldText}>Est. Credit</Text>
           )}
           <View style={{flex: 1}}></View>
-          <Text style={styles.orderFieldText}>${estimatedCost}</Text>
+          <Text style={styles.orderFieldText}>${estimatedCostString}</Text>
         </View>
         <View style={{height: 1, backgroundColor: theme.colors.primary}}></View>
       </View>
-      {inReview && (
+      </View>
+      :
+      <>
+        <View style={{flex: 1}}></View>
+        <View style={{justifyContent: 'center', alignItems: 'center', gap: 10}}>
+            <Text style={[styles.orderTextInput, selectedMode == "dollars" && {fontSize: 40}]}>${formattedDollarAmount}</Text>
+            <Text style={[styles.orderTextInput, selectedMode == "dollars" && {fontSize: 20, color: theme.colors.tertiary}]}>{(parseFloat(formattedDollarAmount)/stockPrice).toFixed(4)} Shares</Text>
+        </View>
+      </>
+      }
+      <View style={{flex: 1}}></View>
+      
+
+      {inReview ? (
         <TouchableOpacity
           onPress={handleEditOrder}
           style={{
@@ -335,130 +376,154 @@ const StockOrder = (props: any) => {
             Edit Order
           </Text>
         </TouchableOpacity>
-      )}
-      <View style={{flex: 1}}></View>
-      <View style={{marginBottom: 50}}>
-        <Animated.View style={{transform: [{translateY: keypadAnimation}]}}>
-          {shareQuantity != '0' ? (
-            <TouchableOpacity
-              onPressIn={handlePressIn}
-              onPress={() => {
-                if (inReview) {
-                  handleSubmitPress();
-                } else {
-                  handleReview();
-                }
-              }}
-              style={[globalStyles.primaryBtn, {marginBottom: 50}]}>
-              <Text style={globalStyles.primaryBtnText}>
-                {inReview ? 'Submit' : 'Review'}
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <View
-              style={[
-                globalStyles.primaryBtn,
-                {marginBottom: 50, backgroundColor: theme.colors.primary},
-              ]}>
-              <Text style={globalStyles.primaryBtnText}>Review</Text>
-            </View>
-          )}
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.expandingCircle,
-            {
-              transform: [{scale: radius}],
-              top: circlePosition.y - 500,
-              left: circlePosition.x,
-            },
-          ]}
-        />
-        <Animated.View style={{transform: [{translateY: keypadAnimation}]}}>
-          <View>
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('1')}>
-                <Text style={[styles.buttonText, {textAlign: 'left'}]}>1</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('2')}>
-                <Text style={[styles.buttonText, {textAlign: 'center'}]}>
-                  2
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('3')}>
-                <Text style={[styles.buttonText, {textAlign: 'right'}]}>3</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('4')}>
-                <Text style={[styles.buttonText, {textAlign: 'left'}]}>4</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('5')}>
-                <Text style={[styles.buttonText, {textAlign: 'center'}]}>
-                  5
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('6')}>
-                <Text style={[styles.buttonText, {textAlign: 'right'}]}>6</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('7')}>
-                <Text style={[styles.buttonText, {textAlign: 'left'}]}>7</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('8')}>
-                <Text style={[styles.buttonText, {textAlign: 'center'}]}>
-                  8
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('9')}>
-                <Text style={[styles.buttonText, {textAlign: 'right'}]}>9</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handlePress('0')}>
-                <Text style={[styles.buttonText, {textAlign: 'left'}]}>0</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress={handleDecimal}>
-                <Text style={[styles.buttonText, {textAlign: 'center'}]}>
-                  .
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+      ) :       
+      <View style={{alignItems: 'center', paddingVertical: 15}}>
+        {params?.isBuying && (
+          <Text
+            style={{
+              color: theme.colors.secondaryText,
+              fontFamily: 'InterTight-Bold',
+            }}>
+            ${params?.buyingPower.toFixed(2)} Available
+          </Text>
+        )}
+        {params?.isSelling && (
+          <Text
+            style={{
+              color: theme.colors.secondaryText,
+              fontFamily: 'InterTight-Bold',
+            }}>
+            {params?.qty} Shares Available
+          </Text>
+        )}
+      </View>}
+      <View>
+        <View style={{marginBottom: 50}}>
+          <Animated.View style={{transform: [{translateY: keypadAnimation}]}}>
+            {(selectedMode == "shares" && (shareQuantity != '0' && estimatedCost <= params?.buyingPower)) || (selectedMode == "dollars" && (dollarAmount != '0' && parseFloat(dollarAmount) <= params?.buyingPower)) ? (
+              <>
+                <TouchableOpacity
+                  onPressIn={handlePressIn}
+                  onPress={() => {
+                    if (inReview) {
+                      handleSubmitPress();
+                    } else {
+                      handleReview();
+                    }
+                  }}
+                  style={[globalStyles.primaryBtn, {marginBottom: 50}]}>
+                  <Text style={globalStyles.primaryBtnText}>
+                    {inReview ? 'Submit' : 'Review'}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <View
                 style={[
-                  styles.button,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}
-                onPress={handleDelete}>
-                <Icon
-                  name="long-arrow-left"
-                  size={24}
-                  color={theme.colors.text}
-                  style={{}}></Icon>
-              </TouchableOpacity>
-            </View>
+                  globalStyles.primaryBtn,
+                  {marginBottom: 50, backgroundColor: theme.colors.primary},
+                ]}>
+                <Text style={globalStyles.primaryBtnText}>Review</Text>
+              </View>
+            )}
+          </Animated.View>
+          <Animated.View
+            style={[
+              styles.expandingCircle,
+              {
+                transform: [{scale: radius}],
+                top: circlePosition.y - 500,
+                left: circlePosition.x,
+              },
+            ]}
+          />
+          <Animated.View style={{transform: [{translateY: keypadAnimation}]}}>
+            <View>
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('1')}>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>1</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('2')}>
+                  <Text style={[styles.buttonText, {textAlign: 'center'}]}>
+                    2
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('3')}>
+                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>3</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('4')}>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>4</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('5')}>
+                  <Text style={[styles.buttonText, {textAlign: 'center'}]}>
+                    5
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('6')}>
+                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>6</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('7')}>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>7</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('8')}>
+                  <Text style={[styles.buttonText, {textAlign: 'center'}]}>
+                    8
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('9')}>
+                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>9</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handlePress('0')}>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>0</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleDecimal}>
+                  <Text style={[styles.buttonText, {textAlign: 'center'}]}>
+                    .
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    {justifyContent: 'center', alignItems: 'center'},
+                  ]}
+                  onPress={handleDelete}>
+                  <Icon
+                    name="long-arrow-left"
+                    size={24}
+                    color={theme.colors.text}
+                    style={{}}></Icon>
+                </TouchableOpacity>
+              </View>
           </View>
+
         </Animated.View>
+        </View>
       </View>
     </View>
   );

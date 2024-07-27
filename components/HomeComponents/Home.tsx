@@ -651,9 +651,9 @@ const Home: React.FC = () => {
 
   const GameModeButton = (props:any) => {
     return (
-      <TouchableOpacity onPress={() => setGameModeSelected(props.text)} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.accent2}, {paddingHorizontal: 20, borderRadius: 5, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
-        <MaterialCommunityIcons name={props.icon} color={gameModeSelected == props.text ? theme.colors.background: theme.colors.text} size={20}/>
-        <Text style={{color: gameModeSelected == props.text ? theme.colors.background : theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
+      <TouchableOpacity onPress={() => {setGameModeSelected(props.text);}} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.accent2}, {paddingHorizontal: 20, borderRadius: 5, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
+        <MaterialCommunityIcons name={props.icon} color={gameModeSelected == props.text ? '#fff': theme.colors.text} size={20}/>
+        <Text style={{color: gameModeSelected == props.text ? '#fff' : theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
       </TouchableOpacity>
     )
   }  
@@ -701,7 +701,7 @@ const Home: React.FC = () => {
                 <View style={{backgroundColor: theme.colors.primary, height: 35, borderWidth: 1, borderColor: theme.colors.secondary, borderRadius: 5, flexDirection: 'row', alignItems: 'center'}}>
                   <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingHorizontal: 10}}>${userData?.balance.toFixed(2)}</Text>
                   <TouchableOpacity style={{backgroundColor: theme.colors.accent2, borderRadius: 5, borderWidth: 1, borderColor: theme.colors.accent2, height: 35, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Deposit</Text>
+                    <Text style={{color: '#fff', fontFamily: 'InterTight-Black'}}>Deposit</Text>
                     {/*<MaterialCommunityIcons name="wallet" color={theme.colors.background} size={20}/>*/}
                   </TouchableOpacity>
                 </View>
@@ -724,7 +724,8 @@ const Home: React.FC = () => {
               </View>
             </ScrollView>
           </View>
-          {gameModeSelected === 'Head-to-Head' && <View style={{flex: 1}}>
+          {gameModeSelected === 'Head-to-Head' && 
+          <View style={{flex: 1}}>
           <View style={{flex: 1}}>
             <View style={{flex: 1}}>
               {noMatches && !searchingForMatch && !isInMatchmaking &&
@@ -747,7 +748,7 @@ const Home: React.FC = () => {
                   return (
                   item ? (
                     <View style={{ width, height: '100%'}}>
-                      <GameCard userID={userID} matchID={item} setActiveMatches={setActiveMatches} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri}/>
+                      <GameCard userID={userID} matchID={item} setActiveMatches={setActiveMatches} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri} activeMatches={activeMatches}/>
                     </View>
                   ) : (       
                       <GameCardSkeleton/>
@@ -783,6 +784,7 @@ const Home: React.FC = () => {
 
               
           </View>
+              
             {
             <>
             {showAdditionalButtons &&         
@@ -811,9 +813,9 @@ const Home: React.FC = () => {
               </View>: 
              <View>
               {showAdditionalButtons && (
-                <Animated.View style={[{position: 'absolute', right: 0, bottom: 50, zIndex: 0}, { transform: [{ translateY }], opacity }]}>
+                <Animated.View style={[{position: 'absolute', right: 0, bottom: 60, zIndex: 0}, { transform: [{ translateY }], opacity }]}>
                   {/* Add your additional buttons here */}
-                  <TouchableOpacity onPress={() => {expandBottomSheet(); toggleAdditionalButtons()}} style={[styles.addButton, { backgroundColor: theme.colors.accent, flexDirection: 'row' }]}>
+                  <TouchableOpacity onPress={() => {expandBottomSheet(); toggleAdditionalButtons()}} style={[styles.addButton, { backgroundColor: theme.colors.stockUpAccent, flexDirection: 'row' }]}>
                     <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black' }}>Stock</Text>
                   </TouchableOpacity>
                   <View style={[styles.addButton, { gap: 2, backgroundColor: theme.colors.primary, flexDirection: 'row' }]}>
@@ -827,7 +829,7 @@ const Home: React.FC = () => {
                   {/* Add more buttons as needed */}
                 </Animated.View>
               )}
-              <View style={{flexDirection: 'row', backgroundColor: theme.colors.background, marginTop: 15}}>
+              {<View style={{flexDirection: 'row', backgroundColor: theme.colors.background}}>
                 {/*<TouchableOpacity onPress={() => navigation.navigate("PastMatches")} style={{height: 40, borderRadius: 5, backgroundColor: theme.colors.opposite, width: (width-45)*0.12, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
                     <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
                 </TouchableOpacity>*/}
@@ -835,15 +837,14 @@ const Home: React.FC = () => {
                   style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.accent2, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
                   onPress={() => {toggleAdditionalButtons()}}
                 >
-                  {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 15 }}>Start a Match</Text>}
+                  {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: "#fff", fontFamily: 'InterTight-Black', fontSize: 18 }}>Start a Match</Text>}
                 </TouchableOpacity>
-              </View>
+              </View>}
             </View>}
             </View>
             </>
             }
             </View>}
-
 
             <BottomSheet
               ref={bottomSheetRef}

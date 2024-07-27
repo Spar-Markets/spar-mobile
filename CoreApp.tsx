@@ -17,11 +17,14 @@ import { useTheme } from './components/ContextComponents/ThemeContext';
 import { useStatusBarHeight } from './components/ContextComponents/StatusBarHeightContext';
 import { useDimensions } from './components/ContextComponents/DimensionsContext';
 import { Text } from 'react-native';
+import useUserDetails from './hooks/useUserDetails';
 
 const Tab = createBottomTabNavigator()
 
 const CoreApp = (): React.ReactElement => {
   Icon.loadFont();
+
+  const {userData} = useUserDetails();
 
   const { theme } = useTheme();
   const statusBarHeight = useStatusBarHeight();
@@ -38,7 +41,7 @@ const CoreApp = (): React.ReactElement => {
             tabBarIcon: ({ focused, color, size }) => {
               let iconName = "";
   
-              if (route.name === 'Home') {
+              if (route.name === 'Portfolio') {
                 iconName = 'home';
               } else if (route.name === 'Discover') {
                 iconName = 'search';
@@ -49,13 +52,13 @@ const CoreApp = (): React.ReactElement => {
               } else if (route.name === 'Feed') {
                 iconName = 'th-large';
               }
-  
+              
               // You can return any component that you like here!
               return ( 
               <>
-              <View style={{height: 1, width: width/5, backgroundColor: theme.colors.primary, marginBottom: 10}}></View>
+              {/*<View style={{height: 1, width: width/5, backgroundColor: theme.colors.primary, marginBottom: 10}}></View>*/}
               <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', gap: 3}}>
-                <Icon name={iconName} size={size} color={color} />
+                {route.name != "Portfolio" ? <Icon name={iconName} size={size} color={color} /> : <Text style={[focused ? {color: theme.colors.text} : {color: theme.colors.tertiary}, {fontFamily: 'InterTight-Bold', fontSize: 20}]}>${userData?.balance.toFixed(0)}</Text>}
                 <Text style={{color: theme.colors.text, fontSize: 11, fontFamily: 'InterTight-Black'}}>{route.name}</Text>
                 <View style={[focused && {backgroundColor: theme.colors.accent2}, {height: 2, width: width/15, marginTop: 5}]}></View>
               </View>
@@ -64,15 +67,15 @@ const CoreApp = (): React.ReactElement => {
             },
             tabBarActiveTintColor: theme.colors.accent2, // Mint green color for active tab
             tabBarInactiveTintColor: theme.colors.tertiary,
-            tabBarStyle: { backgroundColor: theme.colors.background, 
+            tabBarStyle: { backgroundColor: theme.colors.secondary, 
               height: 110, borderTopWidth: 0}, // Black background for the tab bar
             tabBarShowLabel: false
             })}>
-            <Tab.Screen name="Home" component={Home} options={{headerShown: false, title: 'Home'}}/>
-            <Tab.Screen name="Discover" component={StockSearch} options={{headerShown: false}}/>
+            <Tab.Screen name="Discover" component={StockSearch} options={{headerShown: false, lazy:false}}/>
             <Tab.Screen name="Feed" component={Feed} options={{headerShown:false}}/>
+            <Tab.Screen name="Portfolio" component={Home} options={{headerShown: false, lazy:false}}/>
             <Tab.Screen name="Bank" component={Bank} options={{headerShown: false}}/>
-            <Tab.Screen name="Profile" component={Profile} options={{headerShown: false}}/>
+            <Tab.Screen name="Profile" component={Profile} options={{headerShown: false, lazy:false}}/>
         </Tab.Navigator>
   );
 };

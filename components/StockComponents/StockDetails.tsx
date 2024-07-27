@@ -41,6 +41,7 @@ import Animated, {
 import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
 import WatchlistButton from '../HomeComponents/WatchlistButton';
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
+import { RootState } from '../../GlobalDataManagment/store';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
 // when you navigate to this page. (just an object with a ticker)
@@ -122,6 +123,8 @@ const StockDetails = () => {
   const [owns, setOwns] = useState(false);
 
   const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const stockPrice = useSelector((state:RootState) => state.stock);
 
   useEffect(() => {
     if (params?.assets) {
@@ -304,11 +307,11 @@ const StockDetails = () => {
                       <View style={{gap: 10}}>
                         <View>
                           <Text style={styles.statType}>Mkt Value</Text>
-                          <Text style={styles.statData}>$4054.65</Text>
+                          <Text style={styles.statData}>${(asset.totalShares * stockPrice).toFixed(2)}</Text>
                         </View>
                         <View>
                           <Text style={styles.statType}>Match Return</Text>
-                          <Text style={styles.statData}></Text>
+                          <Text style={styles.statData}>{((asset.totalShares * stockPrice) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>
                         </View>
                       </View>
                     </View>

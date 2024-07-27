@@ -49,13 +49,6 @@ const matchesSlice = createSlice({
         state[matchID].opponentAssets = opponentAssets;
         state[matchID].yourBuyingPower = yourBuyingPower;
         state[matchID].oppBuyingPower = oppBuyingPower;
-
-        if (yourTickerPrices) {
-          state[matchID].yourTickerPrices = { ...state[matchID].yourTickerPrices, ...yourTickerPrices };
-        }
-        if (oppTickerPrices) {
-          state[matchID].oppTickerPrices = { ...state[matchID].oppTickerPrices, ...oppTickerPrices };
-        }
       }
     },
     updateYourTickerPrices: (state, action: PayloadAction<{ matchID: string; yourTickerPrices: TickerPrices }>) => {
@@ -70,9 +63,15 @@ const matchesSlice = createSlice({
         state[matchID].oppTickerPrices = { ...state[matchID].oppTickerPrices, ...oppTickerPrices };
       }
     },
+    deleteMatch: (state, action: PayloadAction<{ matchID: string }>) => {
+      const { matchID } = action.payload;
+      if (state[matchID]) {
+        delete state[matchID];
+      }
+    },
   },
 });
 
-export const { initializeMatch, addOrUpdateMatch, updateYourTickerPrices, updateOppTickerPrices } = matchesSlice.actions;
+export const { initializeMatch, addOrUpdateMatch, updateYourTickerPrices, updateOppTickerPrices, deleteMatch } = matchesSlice.actions;
 
 export default matchesSlice.reducer;
