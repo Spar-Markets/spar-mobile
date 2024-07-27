@@ -11,7 +11,7 @@ import { polygonKey, serverUrl } from '../../constants/global';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import fuzzysort from 'fuzzysort';
-import { Group, RoundedRect } from '@shopify/react-native-skia';
+import { Group, loadData, RoundedRect } from '@shopify/react-native-skia';
 import { Rect } from 'react-native-svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { Skeleton } from '@rneui/base';
@@ -27,6 +27,10 @@ const PositionCard = (props:any) => {
     const [isLoading, setIsLoading] = useState(true)
 
     const [name, setName] = useState("")
+
+    const [yourLivePrice, setYourLivePrice] = useState()
+
+    const [initialLoad, setInitialLoad] = useState(false)
 
 
     const matches = useSelector((state: RootState) => state.matches);
@@ -74,16 +78,24 @@ const PositionCard = (props:any) => {
                 setIsLoading(false)
               }
         }
-        getPricesForSelectedTime()
+        if (!initialLoad) {
+          console.log("getting initial prices")
+          getPricesForSelectedTime() 
+        }
     }, [props.ticker]);
+  
 
     useEffect(() => {
         if (pointData.length > 0 && tickerData) {
-          setIsLoading(false);
+          if (yourTickerPrices[props.ticker]) {
+            setIsLoading(false)
+            setInitialLoad(true)
+          }
         } else {
           setIsLoading(true);
         }
-    }, [pointData, tickerData]);
+    }, [pointData, tickerData, yourTickerPrices]);
+
 
     const [percentDiff, setPercentDiff] = useState("")
     const [valueDiff, setValueDiff] = useState("")
@@ -91,16 +103,16 @@ const PositionCard = (props:any) => {
 
 
     //FIX CALCULATE PERCENT DIFFERENCE MAYBE MAKE PERCENRT DIFF A UTILITY SINCE ELSEWHERE
-    const calculatePercentAndValueDiffAndColor = useCallback(() => {
+    const calculatePercentAndValueDiffAndColor = () => {
         if (pointData.length > 0) {
           const percentDiff =
-            ((pointData[pointData.length - 1]?.value || 0) - pointData[0].value) /
+            ((yourTickerPrices[props.ticker]) - pointData[0].value) /
             Math.abs(pointData[0].value);
           const percentDiffValue = (100 * percentDiff).toFixed(2);
           setPercentDiff(percentDiffValue);
       
           const valueDiff =
-            (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
+            (yourTickerPrices[props.ticker]) - pointData[0].value;
       
           if (valueDiff < 0) {
             setValueDiff("$" + Math.abs(valueDiff).toFixed(2));
@@ -113,28 +125,12 @@ const PositionCard = (props:any) => {
           setPercentDiff("0.00");
           setValueDiff("0.00");
         }
-      }, [pointData]);
+      };
     
       useEffect(() => {
         calculatePercentAndValueDiffAndColor();
-      }, [pointData]);
+      }, [pointData, yourTickerPrices[props.ticker]]);
 
-      const hexToRGBA = (hex:any, alpha = 1) => {
-        let r = 0, g = 0, b = 0;
-      
-        // Check if hex is in shorthand format (e.g., #fff)
-        if (hex.length === 4) {
-          r = parseInt(hex[1] + hex[1], 16);
-          g = parseInt(hex[2] + hex[2], 16);
-          b = parseInt(hex[3] + hex[3], 16);
-        } else if (hex.length === 7) {
-          r = parseInt(hex[1] + hex[2], 16);
-          g = parseInt(hex[3] + hex[4], 16);
-          b = parseInt(hex[5] + hex[6], 16);
-        }
-        
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    };
 
     if (isLoading) {
       return <Skeleton animation={"pulse"} height={132} width={width-40} style={{ backgroundColor: '#050505', borderRadius: 5, marginBottom: 10}} skeletonStyle={{backgroundColor: theme.colors.primary}}></Skeleton>

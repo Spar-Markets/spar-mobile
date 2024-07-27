@@ -289,6 +289,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
       fontSize: 16,
       fontFamily: 'InterTight-Bold',
   },
+  
 
   positionCardContainer: {
     backgroundColor: theme.colors.background,

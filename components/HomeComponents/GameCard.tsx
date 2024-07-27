@@ -13,8 +13,8 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import Timer from './Timer';
 import GameCardSkeleton from './GameCardSkeleton';
-import { Area, CartesianChart, Line, PointsArray, useLinePath } from 'victory-native';
-import { Group, Path, useFont, Circle } from '@shopify/react-native-skia';
+import { Area, CartesianChart, Line, PointsArray, useChartPressState, useLinePath } from 'victory-native';
+import { Group, Path, useFont, Circle, useImage, Rect } from '@shopify/react-native-skia';
 import HapticFeedback from "react-native-haptic-feedback";
 import getCurrentPrice from '../../utility/getCurrentPrice';
 //import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
@@ -31,6 +31,7 @@ import { Image } from 'react-native';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../firebase/firebase';
 import { Skeleton } from '@rneui/base';
+import { runOnJS, SharedValue, useAnimatedReaction, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 
 
 interface GameCardProps {
@@ -40,10 +41,11 @@ interface GameCardProps {
   expandMatchSummarySheet: any
   setActiveMatchSummaryMatchID: any
   profileImageUri: string
+  activeMatches: string[]
 }
 
 
-const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri }) => {
+const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri, activeMatches }) => {
   const colorScheme = useColorScheme();
   const navigation = useNavigation<any>();
 
@@ -79,8 +81,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   
   //const [oppTickerPrices, setOppTickerPrices] = useState<{ [ticker: string]: number }>({});
   const [match, setMatch] = useState<any | null>(null)
-  const [yourTotalPrice, setYourTotalPrice] = useState(0)
-  const [oppTotalPrice, setOppTotalPrice] = useState(0)
+  const [yourTotalPrice, setYourTotalPrice] = useState(100000)
+  const [oppTotalPrice, setOppTotalPrice] = useState(100000)
   const [gotInitialPrices, setGotInitialPrices] = useState(false)
   const [initialDataLoad, setInitialDataLoad] = useState(false)
   
@@ -108,7 +110,6 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   //const newOppTickerPrices = {...oppTickerPrices};
 
   const [matchIsOver, setMatchIsOver] = useState(false)
-
   const ws = useRef<WebSocket | null>(null);
 
   Icon.loadFont()
@@ -264,11 +265,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     React.useCallback(() => {
       //console.log("INITIAL DATA LOADED", initialDataLoad)
       if (initialDataLoad) {
-        setLoading(false)
+        //setLoading(false)
       }
       return () => {
         console.log("INITIAL DATA LOADED", initialDataLoad)
-        setLoading(true);
+        //setLoading(true);
       }
     }, [initialDataLoad])
   )
@@ -276,10 +277,12 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
 
   // grab updated match data every time gamecard comes into focus
   useEffect(() => {
-    console.log("------------------------------------------------------------------")
-    console.log("STEP 1: GETTING MATCH DATA FROM MONGO")
-    getMatchData()
-    console.log("POST STEP 1: Just got match data");
+    if (!initialDataLoad) {
+      console.log("------------------------------------------------------------------")
+      console.log("STEP 1: GETTING MATCH DATA FROM MONGO")
+      getMatchData()
+      console.log("POST STEP 1: Just got match data");
+    }
   }, [])
 
   useEffect(() => {
@@ -292,7 +295,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   // Log the state to check if data is populated
   useEffect(() => {
     console.log("Just ran useEffect triggered by change in yourPointData");
-    if (yourPointData && yourAssets && opponentPointData && opponentAssets) { //setData() was good
+    if (yourPointData && yourAssets && opponentPointData && opponentAssets && !initialDataLoad) { //setData() was good
       console.log("STEP 3: SETTING FORMATTED DATA")
       formatData()
     }
@@ -345,11 +348,12 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   };
 }
 
-  useEffect(() => {
+ /* useEffect(() => {
     if (yourFormattedData != null && oppFormattedData != null) {
       //check if the formatteddatas have any value //TODO when there is no formatted data so jackson make snapshot always be added at match creation
       if (yourFormattedData[yourFormattedData.length-1]?.value != undefined && oppFormattedData[oppFormattedData.length-1]?.value != undefined) {
         //INTIALIZATION OF COLOR AND PRICES
+   
         setYourTotalPrice(yourFormattedData[yourFormattedData.length-1].value)
         //console.log("Opp formatted data", oppFormattedData);
 
@@ -366,16 +370,27 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     } else {
       setLoading(true)
     }
-  }, [yourFormattedData, oppFormattedData])
+  }, [yourFormattedData, oppFormattedData])*/
 
   useEffect(() => {
-    if (gotInitialPrices == true) {
+    if (yourTickerPrices & oppTickerPrices) {
+      console.log("HELP MEEE", yourTickerPrices)
+    }
+  }, [yourTickerPrices])
+
+
+  useEffect(() => {
+    if (gotInitialPrices == true && !initialDataLoad) {
       console.log("STEP 5: INITIAL PRICES WERE SET")
       //console.log(yourTickerPrices
       setInitialDataLoad(true)
       console.log("SET INITIAL DATA LOAD TO TRUE")
       setLoading(false)
     }
+    //FOR DEVELOPMENT SO WEIRD PRICE STUFF DOESNT HAPPEN ON HOT SAVE
+    /*if (gotInitialPrices && initialDataLoad) {
+      setLoading(false)
+    }*/
   }, [gotInitialPrices])
 
   useEffect(() => {
@@ -402,6 +417,10 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     return null;
   }
 
+  useEffect(() => {
+    console.log("match is over", matchIsOver)
+  }, [matchIsOver])
+
   /**
    * Use effect for setting game over
    */
@@ -411,6 +430,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       const end = new Date(match.endAt);
       const now = new Date();
       const timeUntilEnd = end.getTime() - now.getTime();
+
+      console.log(matchID, timeUntilEnd)
 
       if (timeUntilEnd <= 0) {
         // If the match end time has already passed, set the matchIsOver state variable
@@ -436,7 +457,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
         return () => clearTimeout(timeoutId);
       }
     }
-  }, [match, navigation]);
+  }, [match]);
 
 
   const [retries, setRetries] = useState(0);
@@ -551,6 +572,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
             yourTickerPrices: newYourTickerPrices // Add new ticker prices here
           }));
 
+          console.log("AHH", newYourTickerPrices)
+          
+
           //NEED TO REINTIALIZE TICKER PRICES IF NEW TICKER WAS BOUGHT
 
 
@@ -562,8 +586,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               console.log("SUBSCRIBING TO YOUR NEW ASSET:", yourNewAsset.ticker)
               ws.current.send(JSON.stringify({ ticker: yourNewAsset.ticker }));
             }
-            setYourAssets(yourUpdatedAssets)
           }
+
+          setYourAssets(yourUpdatedAssets)
 
           if (oppNewAsset) {
             console.log("OPP NEW ASSET JUST BOUGHT:", oppNewAsset)
@@ -571,8 +596,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               console.log("SUBSCRIBING TO OPP NEW ASSET:", oppNewAsset.ticker)
               ws.current.send(JSON.stringify({ ticker: oppNewAsset.ticker }));
             }
-            setOpponentAssets(oppUpdatedAssets)
           }
+          setOpponentAssets(oppUpdatedAssets)
    
           //console.log("Updated your assets state:", yourUpdatedAssets);
 
@@ -676,71 +701,108 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     };
   };
 
+  const yourTotalPriceRef = useRef(yourTotalPrice);
+  const oppTotalPriceRef = useRef(oppTotalPrice);
+
+  //const {state, isActive} = useChartPressState({x: 0, y: {normalizedValue: 0}});
+
+  useEffect(() => {
+    yourTotalPriceRef.current = yourTotalPrice;
+  }, [yourTotalPrice]);
+
+  useEffect(() => {
+    oppTotalPriceRef.current = oppTotalPrice;
+  }, [oppTotalPrice]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setYourFormattedData((prevPointData:any) => {
+        const newPointData = [...prevPointData];
+        newPointData[newPointData.length - 1] = {
+          ...newPointData[newPointData.length - 1],
+          normalizedValue: yourTotalPriceRef.current - prevPointData[0].value,
+          value: yourTotalPriceRef.current,
+          date: new Date(Date.now()).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
+        };
+        newPointData.push({
+          value: yourTotalPriceRef.current,
+          normalizedValue: yourTotalPriceRef.current - prevPointData[0].value,
+          date: new Date(Date.now()).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
+        });
+        console.log("adding point", newPointData[newPointData.length-1])
+      
+        return newPointData
+      })
+    }, 10000)
+    return () => clearInterval(interval);
+  }, [])
+
 
   //sets total live prices for each user
   useEffect(() => {
     //console.log("Ticker Prices: ", tickerPrices)
-    if (!loading && yourAssets && opponentAssets && gotInitialPrices) {
-    let yourTotalLivePrice = 0;
-    yourAssets.forEach(asset => {
-      if (yourTickerPrices[asset.ticker]) {
-        const livePrice = yourTickerPrices[asset.ticker] * asset.totalShares;
-        yourTotalLivePrice += livePrice;
-      } else {
-        //console.log(`Ticker price for ${asset.ticker} not found`);
+    if (yourAssets && opponentAssets && gotInitialPrices && yourTickerPrices && oppTickerPrices) {
+      let yourTotalLivePrice = 0;
+      yourAssets.forEach(asset => {
+        if (yourTickerPrices[asset.ticker]) {
+          const livePrice = yourTickerPrices[asset.ticker] * asset.totalShares;
+          yourTotalLivePrice += livePrice;
+        } else {
+          //console.log(`Ticker price for ${asset.ticker} not found`);
+        }
+      });
+      setYourTotalPrice(yourTotalLivePrice + yourBuyingPower)
+      if (yourFormattedData && yourFormattedData.length >= 1) {
+        yourFormattedData[yourFormattedData.length-1].normalizedValue = yourTotalLivePrice + yourBuyingPower - 100000;
       }
-    });
-    setYourTotalPrice(yourTotalLivePrice + yourBuyingPower)
-    if (yourFormattedData && yourFormattedData.length >= 1) {
-      yourFormattedData[yourFormattedData.length-1].normalizedValue = yourTotalLivePrice + yourBuyingPower - 100000
+
+      let oppTotalLivePrice = 0;
+      opponentAssets.forEach(asset => {
+        if (oppTickerPrices[asset.ticker]) {
+          const livePrice = oppTickerPrices[asset.ticker] * asset.totalShares;
+          oppTotalLivePrice += livePrice;
+        } else {
+          //console.log(`Ticker price for ${asset.ticker} not found`);
+        }
+      });
+      setOppTotalPrice(oppTotalLivePrice + oppBuyingPower)
+      if (oppFormattedData && oppFormattedData.length >= 1) {
+        oppFormattedData[oppFormattedData.length-1].normalizedValue = oppTotalLivePrice + oppBuyingPower - 100000
+        
+      }
+      /**/
+      if (yourFormattedData && oppFormattedData) {
+        //console.log(yourTotalLivePrice, oppTotalLivePrice)
+        if (yourTotalLivePrice + yourBuyingPower >= oppTotalLivePrice + oppBuyingPower) {
+          setYourColor(theme.colors.stockUpAccent)
+          setOppColor(theme.colors.tertiary)
+
+        } else {
+          setYourColor(theme.colors.stockDownAccent)
+          setOppColor(theme.colors.tertiary)
+        }
+        const yourMax = Math.max(...yourFormattedData.map((item:any) => item.normalizedValue))
+        const oppMax = Math.max(...oppFormattedData.map((item:any) => item.normalizedValue))
+        const yourMin = Math.min(...yourFormattedData.map((item:any) => item.normalizedValue))
+        const oppMin = Math.min(...oppFormattedData.map((item:any) => item.normalizedValue))
+        
+
+        if (oppMax > yourMax) {
+          setMaxY(oppMax)
+          //console.log("Data: " + data2Max, dataMax)
+        } else {
+          setMaxY(yourMax)
+          //console.log("Data: " + data2Max, dataMax)
+        }
+
+        if (oppMin > yourMin) {
+          setMinY(yourMin)
+        } else {
+          setMinY(oppMin)
+        }
+      }
     }
-
-    let oppTotalLivePrice = 0;
-    opponentAssets.forEach(asset => {
-      if (oppTickerPrices[asset.ticker]) {
-        const livePrice = oppTickerPrices[asset.ticker] * asset.totalShares;
-        oppTotalLivePrice += livePrice;
-      } else {
-        //console.log(`Ticker price for ${asset.ticker} not found`);
-      }
-    });
-    setOppTotalPrice(oppTotalLivePrice + oppBuyingPower)
-    if (oppFormattedData && oppFormattedData.length >= 1) {
-      oppFormattedData[oppFormattedData.length-1].normalizedValue = oppTotalLivePrice + oppBuyingPower - 100000
-    }
-    /**/
-    if (yourFormattedData && oppFormattedData) {
-      //console.log(yourTotalLivePrice, oppTotalLivePrice)
-      if (yourTotalLivePrice + yourBuyingPower >= oppTotalLivePrice + oppBuyingPower) {
-        setYourColor(theme.colors.stockUpAccent)
-        setOppColor(theme.colors.tertiary)
-
-      } else {
-        setYourColor(theme.colors.stockDownAccent)
-        setOppColor(theme.colors.tertiary)
-      }
-      const yourMax = Math.max(...yourFormattedData.map((item:any) => item.normalizedValue))
-      const oppMax = Math.max(...oppFormattedData.map((item:any) => item.normalizedValue))
-      const yourMin = Math.min(...yourFormattedData.map((item:any) => item.normalizedValue))
-      const oppMin = Math.min(...oppFormattedData.map((item:any) => item.normalizedValue))
-      
-
-      if (oppMax > yourMax) {
-        setMaxY(oppMax)
-        //console.log("Data: " + data2Max, dataMax)
-      } else {
-        setMaxY(yourMax)
-        //console.log("Data: " + data2Max, dataMax)
-      }
-
-      if (oppMin > yourMin) {
-        setMinY(yourMin)
-      } else {
-        setMinY(oppMin)
-      }
-    }
-  }
-}, [yourTickerPrices, oppTickerPrices, yourAssets, opponentAssets])
+}, [yourTickerPrices, oppTickerPrices, yourAssets, opponentAssets, gotInitialPrices])
   //END OF SOCKET STUFF--------------------------------------------------------
 
   const hexToRGBA = (hex:any, alpha = 1) => {
@@ -786,7 +848,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
   }
 
   useEffect(() => {
-    if (initialDataLoad == true) {
+    if (!ws.current && initialDataLoad == true) {
       setupSocket();
     }
   }, [initialDataLoad])
@@ -797,23 +859,88 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
     )
   }
 
+  const handleDismiss = () => {
+    setActiveMatches((prevMatches) => {
+      console.log('Active Matches', activeMatches)
+      console.log('Previous Matches:', prevMatches); // Log previous matches
+      console.log('Dismissed matchid:', matchID)
+      console.log('Matches after Dismiss', prevMatches.filter((match) => match !== matchID))
+      return prevMatches.filter((match) => match != matchID);
+    });
+  };
+
+  const spacing = useSharedValue(0);
+
+  function ToolTip({
+    x,
+    y,
+    color,
+  }: {
+    x: SharedValue<number>;
+    y: SharedValue<number>;
+    color: any;
+  }) {
+    const adjustedX = useDerivedValue(() => {
+      return x.value - spacing.value;
+    });
+
+    return (
+      <Group>
+        <Rect
+          x={adjustedX}
+          y={0}
+          width={1}
+          height={400}
+          color={theme.colors.opposite}
+        />
+      </Group>
+    );
+  }
+
+  /*Math.round(
+    ((state.x.position.value / width) * (pointData.length - 1)) /
+      marketFraction,
+  );*/
+
+  const [animatedIndex, setAnimatedIndex] = useState(0)
+  
+  const {state, isActive} = useChartPressState({ x: 0, y: { normalizedValue: 0 } })
+
+  const currentIndex = useDerivedValue(() => {
+    if (yourFormattedData && match) {
+      const startTime = (new Date(match.endAt).getTime() - (match.timeframe * 1000))
+      const fraction = (Date.now() - startTime) / (match.timeframe * 1000)
+      const positionValue = state.x.position.value;
+      console.log((positionValue / (width - 60)) * (yourFormattedData.length) / fraction)
+      const index = Math.round((positionValue / (width - 60)) * (yourFormattedData.length) / fraction);
+      return index;
+    }
+    return 0
+  }, [state, match, yourFormattedData]);
+
+  useAnimatedReaction(
+    () => currentIndex.value,
+    () => {runOnJS(setAnimatedIndex)(currentIndex.value); console.log(currentIndex.value)}
+  )
+
+
 
   return (
     <View style={{flex: 1}}>
       {matchIsOver && 
-      <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0}} blurType="dark" blurAmount={2} reducedTransparencyFallbackColor="black">
+      <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10}} blurType="dark" blurAmount={2} reducedTransparencyFallbackColor="black">
         <Icon name="checkmark-circle" color={theme.colors.accent} size={40}/>
         <Text style={{fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Match Completed!</Text>
         <View style={{flexDirection: 'row', gap: 5}}>
           <TouchableOpacity onPress={() => {setActiveMatchSummaryMatchID(matchID); expandMatchSummarySheet()}} style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
             <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>View Results</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveMatches(prevMatches => prevMatches.filter(match => match !== matchID))} style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
+          <TouchableOpacity onPress={handleDismiss} style={{backgroundColor: theme.colors.background, borderWidth: 1, borderRadius: 5, borderColor: theme.colors.tertiary}}>
             <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>Dismiss</Text>
           </TouchableOpacity>
         </View> 
       </BlurView>}
-    {!loading && match ?
+    {!loading && match && yourFormattedData ?
     <>
       <View style={styles.gameCardContainer}/*style={styles.gameCardContainer}*/ /*onPress={() => {
       navigation.navigate("GameScreen", {
@@ -832,8 +959,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
       }*/>
         <View style={{flexDirection: 'row', marginTop: 10, marginHorizontal: 10, marginBottom: 5, gap: 5}}>
           <View style={{flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
-            <FeatherIcon name="clock" color={theme.colors.stockDownAccent} size={20}/>
-            <Timer endDate={match.endAt} timeFrame={match.timeFrame} />
+            <Timer endDate={match.endAt} timeFrame={match.timeframe} />
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
             <FontAwesomeIcon name="gamepad" color={theme.colors.text} style={{marginBottom: 3}} size={20}/>
@@ -850,10 +976,21 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
             <View style={{marginRight: 10, backgroundColor: 'transparent', flex:1,  borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5}}>
               <Image source={{uri: profileImageUri}} width={60} height={60} style={{borderRadius: 100}}></Image>
               <Text style={styles.userText}>You</Text>
+              {!isActive ?
+              <>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(yourTotalPrice).toFixed(2)}</Text>
               <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(yourColor, 0.3)}]}>
                 <Text style={[styles.percentText, {color: yourColor}]}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
               </View>
+              </> :
+              <>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(animatedIndex)}</Text>
+              <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(yourColor, 0.3)}]}>
+                <Text style={[styles.percentText, {color: yourColor}]}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
+              </View>
+              </>
+              }
+            
             </View>
             <View style={{backgroundColor: 'transparent', borderRadius: 8, flex:1, justifyContent: 'center', alignItems: 'center', gap: 5}}>
             <Image source={{uri: otherProfileUri}} width={60} height={60} style={{borderRadius: 100}}></Image>
@@ -879,59 +1016,13 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
                 marginHorizontal: 10
               }}>
               <FontAwesomeIcon name="bank" color={theme.colors.text} size={20}/>
-              <Text style={{color: theme.colors.text}}>Buying Power</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-bold'}}>Buying Power</Text>
               <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text}}>${(yourBuyingPower.toLocaleString())}</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-bold'}}>${(yourBuyingPower.toLocaleString())}</Text>
           
             </View>
-          {/*<View style={{ flexDirection: 'row' }}>
-            <View style={styles.gameCardModeContainer}>
-              <Text style={styles.gameCardModeText}>{match.matchType}</Text>
-            </View>
-            <View style={styles.gameCardAmountWageredContainer}>
-              <Text style={[styles.gameCardAmountWageredText, {color: theme.colors.text}]}>${match.wagerAmt}</Text>
-            </View>
-            <View style={{ flex: 1 }}></View>
-            <Timer endDate={match.endAt} timeFrame={match.timeFrame} />
-          </View>
-          <View style={{ gap: 10, marginHorizontal: 20, paddingTop: 10,flexDirection: 'row'}}>
-            <View>
-              <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center'}}>
-                <View style={[styles.gameCardIndicator, { backgroundColor: yourColor }]}></View>
-                <View style={{ justifyContent: 'center' }}>
-                  <Text style={styles.gameCardPlayerText}>You</Text>
-                </View>
-              </View>
-              <View style={styles.gameCardPercentageContainer}>
-                  <Text style={[styles.gameCardPercentageText, { color: yourColor }]}>${(yourTotalPrice).toFixed(2)}</Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <View style={{backgroundColor: hexToRGBA(yourColor, 0.2), alignItems: 'center', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 5}}>
-                    <Text style={{color: yourColor, fontFamily: 'InterTight-Bold', fontSize: 13}}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
-                </View>
-              </View>
-            </View>
-            <View style={{flex: 1}}></View>
-            <View>
-              <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center'}}>
-                <View style={{flex: 1}}></View>
-                <View style={{ justifyContent: 'center' }}>
-                  <Text style={styles.gameCardPlayerText}>{opponentUsername}</Text>
-                </View>
-                <View style={[styles.gameCardIndicator, { backgroundColor: theme.colors.opposite }]}></View>
-              </View>
-              <View style={styles.gameCardPercentageContainer}>
-                  <Text style={[styles.gameCardPercentageText, { color: theme.colors.opposite, textAlign: 'right' }]}>${(oppTotalPrice).toFixed(2)}</Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <View style={{flex: 1}}/>
-                <View style={{backgroundColor: hexToRGBA(theme.colors.text, 0.2), alignItems: 'center', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 5}}>
-                    <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 13}}>{((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
-                </View>
-              </View>
-            </View>
-          </View>*/}
-          <View style={{marginTop: 5, height: 135}}>
+      
+          <View style={{marginTop: 5, height: 135, backgroundColor: theme.colors.background, marginHorizontal: 10, borderRadius: 5}}>
           <View style={{
                 position: 'absolute',
                 top: 10,
@@ -987,7 +1078,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
                 right: 0,
                 bottom: 10,
               }}>
-            <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} 
+            <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} chartPressState={state} 
               domain={{y: [minY, maxY],
                 x: [0, yourFormattedData!.length/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000))]
               }}>  
@@ -1002,6 +1093,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
                 y={points.normalizedValue[points.normalizedValue.length-1].y!}
                 color={yourColor}
                 />
+                {isActive && 
+                  <ToolTip x={state.x.position}
+                  y={state.y.normalizedValue.position}
+                  color={yourColor}/>
+                }
                 </>)
               }}
             </CartesianChart>
@@ -1026,18 +1122,30 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, setActiveMatches, 
               </View>}
           </View>
         </ScrollView>
+        <View style={{marginHorizontal: 10, gap: 5, flexDirection: 'row'}}>
+          <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
+              matchID: matchID, 
+              userNumber: you, 
+              buyingPower: yourBuyingPower, 
+              assets: yourAssets,
+              endAt: match.endAt   
+              })}} style={[{marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
+              <FeatherIcon name="message-circle" size={24} style={{paddingHorizontal: 10}} color={yourColor}/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
+              matchID: matchID, 
+              userNumber: you, 
+              buyingPower: yourBuyingPower, 
+              assets: yourAssets,
+              endAt: match.endAt   
+              })}} style={[{flex: 1,marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
+              <Text style={{color: yourColor, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
+          </TouchableOpacity>
+
+          
+        </View>
       </View>
-      <View>
-        <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
-            matchID: matchID, 
-            userNumber: you, 
-            buyingPower: yourBuyingPower, 
-            assets: yourAssets,
-            endAt: match.endAt   
-            })}} style={[globalStyles.primaryBtn, { marginBottom: 0, backgroundColor: theme.colors.accent, justifyContent: 'center', borderRadius: 5 }]}>
-            <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
-        </TouchableOpacity>
-      </View>
+
     </>
     : 
     <View style={{width: width-40, flex: 1, marginHorizontal: 20, marginTop: 10}}>

@@ -50,15 +50,18 @@ import {Skeleton} from '@rneui/base';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import getMarketFraction from '../../utility/getMarketFraction';
 import axios from 'axios';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {updateStockPrice} from '../../GlobalDataManagment/stockSlice';
 import getCurrentPrice from '../../utility/getCurrentPrice';
+import {RootState} from '../../GlobalDataManagment/store';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
   const colorScheme = useColorScheme();
+
+  const [closePriceLineObject, setClosePriceLineObject] = useState<any>({});
 
   const dispatch = useDispatch();
 
@@ -73,6 +76,8 @@ const StockDetailGraph = (props: any) => {
   const [currentPrice, setCurrentPrice] = useState<number>(0);
 
   const {currentAccentColorValue, setCurrentAccentColorValue} = props;
+
+  const stockPrice = useSelector((state: RootState) => state.stock);
 
   const TimeButton = ({timeFrame}: any) => (
     <View>
@@ -92,6 +97,7 @@ const StockDetailGraph = (props: any) => {
             if (allPointData) {
               setTimeFrameSelected(timeFrame);
               setPointData(allPointData[timeFrame]);
+              //console.log(allPointData[timeFrame]);
               HapticFeedback.trigger('impactMedium', {
                 enableVibrateFallback: true,
                 ignoreAndroidSystemSettings: false,
@@ -128,9 +134,20 @@ const StockDetailGraph = (props: any) => {
         };
         fetchCloseComparison();
         const allPoints = await getPrices(props.ticker, false);
-
         if (allPoints) {
           //console.log("ALL POINT DATA:", allPoints["3M"])
+          console.log('One day close', oneDayClose);
+          console.log('first point on graph', allPoints['1D'][1].value);
+          console.log(
+            'normalized price bar:',
+            oneDayClose - allPoints['1D'][0].value,
+          );
+          setClosePriceLineObject({
+            normalizedValue: oneDayClose - allPoints['1D'][0].value,
+          });
+          console.log({
+            normalizedValue: oneDayClose - allPoints['1D'][0].value,
+          });
           setPointData(allPoints['1D']);
           setAllPointData(allPoints);
           //console.log("abcd",allPoints["3M"])
@@ -179,6 +196,7 @@ const StockDetailGraph = (props: any) => {
             ((state.x.position.value / width) * (pointData.length - 1)) /
               marketFraction,
           );
+    console.log(index);
     return Math.min(Math.max(index, 0), pointData.length - 1);
   }, [pointData, state]);
 
@@ -212,6 +230,7 @@ const StockDetailGraph = (props: any) => {
     return (
       <Group>
         <Circle cx={x} cy={y} r={6} color={theme.colors.opposite} />
+
         <Rect
           x={adjustedX}
           y={0}
@@ -233,10 +252,6 @@ const StockDetailGraph = (props: any) => {
   }
 
   //graph and data aninmation funtions
-
-  const normalizedPriceValue = useDerivedValue(() => {
-    return state.y.normalizedValue.value;
-  }, [state]);
 
   //gets percent difference based on array data
   const animatedPercentDiff = useDerivedValue(() => {
@@ -565,6 +580,11 @@ const StockDetailGraph = (props: any) => {
     }
   }, [livePrice]);
 
+  const referenceLineObject = [
+    {index: 0, normalizedValue: closePriceLineObject.normalizedValue},
+    {index: 1, normalizedValue: closePriceLineObject.normalizedValue},
+  ];
+
   return (
     <View>
       {!dataLoading && pointData ? (
@@ -622,14 +642,14 @@ const StockDetailGraph = (props: any) => {
                 <Text style={styles.stockPriceText}>
                   $
                   {
-                    currentPrice //pointData[pointData.length - 1].value
+                    stockPrice //pointData[pointData.length - 1].value
                       .toFixed(2)
                       .split('.')[0]
                   }
                   <Text style={{fontSize: 15}}>
                     .
                     {
-                      currentPrice //pointData[pointData.length - 1].value
+                      stockPrice //pointData[pointData.length - 1].value
                         .toFixed(2)
                         .split('.')[1]
                     }
@@ -652,55 +672,57 @@ const StockDetailGraph = (props: any) => {
           <View style={{height: 400, marginVertical: 20}}>
             {allPointData && (
               <>
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                  }}>
-                  <CartesianChart
-                    data={pointData}
-                    xKey="index"
-                    yKeys={['normalizedValue']}
-                    domain={{
-                      y: [
-                        Math.min(
-                          ...pointData.map(item => item.normalizedValue),
-                        ),
-                        Math.max(
-                          ...pointData.map(item => item.normalizedValue),
-                        ),
-                      ],
-                    }}
-                    chartPressState={state}>
-                    {({points}) => {
-                      // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
-                      const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
-                      const repeatedPoints = points.normalizedValue.map(
-                        point => ({
-                          x: point.x, // Keep x as it is
-                          y: 400, // Set y to the first normalized point's y value
-                          xValue: 0,
-                          yValue: 0,
-                        }),
-                      );
-                      return (
-                        <>
-                          <Group>
-                            <Line
-                              points={repeatedPoints}
-                              color={theme.colors.tertiary}
-                              strokeWidth={1}
-                              animate={{type: 'timing', duration: 300}}
-                              curveType="linear"></Line>
-                          </Group>
-                        </>
-                      );
-                    }}
-                  </CartesianChart>
-                </View>
+                {timeFrameSelected == '1D' && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                    }}>
+                    <CartesianChart
+                      data={referenceLineObject}
+                      xKey="index"
+                      yKeys={['normalizedValue']}
+                      domain={{
+                        y: [
+                          Math.min(
+                            ...pointData.map(item => item.normalizedValue),
+                          ),
+                          Math.max(
+                            ...pointData.map(item => item.normalizedValue),
+                          ),
+                        ],
+                      }}
+                      chartPressState={state}>
+                      {({points}) => {
+                        // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
+                        const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
+                        const repeatedPoints = points.normalizedValue.map(
+                          point => ({
+                            x: point.x, // Keep x as it is
+                            y: point.y, // Set y to the first normalized point's y value
+                            xValue: 0,
+                            yValue: 0,
+                          }),
+                        );
+                        return (
+                          <>
+                            <Group>
+                              <Line
+                                points={repeatedPoints}
+                                color={theme.colors.tertiary}
+                                strokeWidth={1}
+                                animate={{type: 'timing', duration: 300}}
+                                curveType="linear"></Line>
+                            </Group>
+                          </>
+                        );
+                      }}
+                    </CartesianChart>
+                  </View>
+                )}
                 <View
                   style={{
                     position: 'absolute',

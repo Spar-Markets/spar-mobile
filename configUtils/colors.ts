@@ -6,14 +6,15 @@
 export const darkColors = {
     dark: true,
     colors: {
-        primary: '#22364a',//'#1a3040', //main boxes
-        secondary: '#313b75',
+        primary: '#161712',//'#1a3040', //main boxes
+        secondary: '#222',
         tertiary: '#666',
-        background: '#021220',//'#020a20',
+        background: '#0C090D',
         border: '#000',
-        accent: '#13e8c5', //most buttons
-        darkAccent: '#32CD32',
-        accent2: '#13e8c5', //border, some buttons
+        accent: '#60FFCF', //most buttons
+        darkAccent: '#095c35',
+        accent2: '#345fe5', //border, some buttons
+        darkAccent2: '#0c1738',
         accent3: '#6a5fdf',
         text: '#ffffff', 
         secondaryText: '#909090',
@@ -45,13 +46,14 @@ export const lightColors = {
     dark: false,
     colors: {
         primary: '#ececec', //main boxes
-        secondary: '#b8b8b8',
+        secondary: '#eee',
         tertiary: '#939393',
         background: '#ffffff',
         border: '#fff',
         accent: '#08a677', //most buttons
-        accent2: '#d3d3d3', //border, some buttons
+        accent2: '#345fe5', //border, some buttons
         accent3: '#6a5fdf',
+        darkAccent2: '#07546b',
         text: '#000000', 
         secondaryText: '#909090',
         card: '#ececec',

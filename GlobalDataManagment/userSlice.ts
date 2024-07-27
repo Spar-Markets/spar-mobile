@@ -16,7 +16,7 @@ const initialState = {
   username: null,
   userBio: null,
   balance: null,
-
+  
 }
 
 const userSlice = createSlice({

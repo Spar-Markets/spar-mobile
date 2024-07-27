@@ -130,7 +130,7 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="InGameStockSearch"
             component={InGameStockSearch}
-            options={{headerShown: false}}
+            options={{headerShown: false, animation: 'slide_from_bottom',}}
           />
           <Stack.Screen
             name="StockOrder"

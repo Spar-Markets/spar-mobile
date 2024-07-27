@@ -120,13 +120,12 @@ const createHomeStyles = (theme: any, width: number) => {
 
     // GameCard
     gameCardContainer: {
-      //borderColor: theme.colors.primary,
       width: (Dimensions.get('window').width-40),
       backgroundColor: theme.colors.primary,
       marginHorizontal: 20,
       flex: 1,
       borderRadius: 10,
-      marginVertical: 10,
+      marginTop: 10,
       
     },
 
@@ -217,7 +216,7 @@ const createHomeStyles = (theme: any, width: number) => {
       paddingVertical: 5
     },
     timeText: {
-      fontSize: 15,
+      fontSize: 12,
       color: theme.colors.stockDownAccent,
       fontWeight: 'bold',
       fontFamily: 'InterTight-Bold',
@@ -379,9 +378,9 @@ const createHomeStyles = (theme: any, width: number) => {
       fontSize: 24,
     },
     addButton: {
-      height: 40,
+      height: 50,
       width: width-40,
-      borderRadius: 5,
+      borderRadius: 10,
       paddingHorizontal: 15,
       backgroundColor: theme.colors.accent,
       justifyContent: 'center',
@@ -389,9 +388,8 @@ const createHomeStyles = (theme: any, width: number) => {
       elevation: 1000,
       zIndex: 1000,
       marginHorizontal: 20,
-      marginBottom: 10,
+      marginVertical: 10,
       flexDirection: 'row',
-      gap: 10,
   },
   matchmakingCategory: {
     marginHorizontal: 10, 
