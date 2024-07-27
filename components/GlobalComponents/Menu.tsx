@@ -7,8 +7,8 @@ import {useNavigation} from '@react-navigation/native';
 import {signOut} from 'firebase/auth';
 import {auth} from '../../firebase/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from 'react-redux';
-import { setUserIsMade } from '../../GlobalDataManagment/userSlice';
+import {useDispatch} from 'react-redux';
+import {setUserIsMade} from '../../GlobalDataManagment/userSlice';
 
 const Menu = () => {
   const {theme} = useTheme();
@@ -19,9 +19,12 @@ const Menu = () => {
 
   const handleLogout = async () => {
     await signOut(auth);
-    await AsyncStorage.removeItem('profileImgPath');
+    await AsyncStorage.removeItem('customProfileImgPath');
     await AsyncStorage.removeItem('userID');
-    dispatch(setUserIsMade(false))
+    await AsyncStorage.removeItem('hasDefaultProfileImage');
+    await AsyncStorage.removeItem('defaultProfileImage');
+
+    dispatch(setUserIsMade(false));
   };
 
   const navigation = useNavigation<any>();

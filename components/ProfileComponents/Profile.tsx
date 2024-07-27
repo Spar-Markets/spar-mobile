@@ -49,6 +49,7 @@ import WatchlistButton from '../HomeComponents/WatchlistButton';
 import {SegmentedButtons} from 'react-native-paper';
 import PageHeader from '../GlobalComponents/PageHeader';
 import {RootState} from '../../GlobalDataManagment/store';
+import {setHasDefaultProfileImage} from '../../GlobalDataManagment/userSlice';
 
 const imageMap = [
   '',
@@ -64,6 +65,12 @@ const Profile = ({navigation}: any) => {
   const globalStyles = createGlobalStyles(theme, width);
   const [image, setImage] = useState<string | null>(null);
   const [watchLists, setWatchLists] = useState<Object[]>([]);
+  const profileImageUri = useSelector(
+    (state: any) => state.image.profileImageUri,
+  );
+  const hasDefaultProfileImage = useSelector(
+    (state: any) => state.user.hasDefaultProfileImage,
+  );
 
   MaterialCommunityIcons.loadFont();
   MaterialIcons.loadFont();
@@ -82,22 +89,30 @@ const Profile = ({navigation}: any) => {
         const defaultImage = await AsyncStorage.getItem(
           'hasDefaultProfileImage',
         );
+
+        defaultImage == 'true'
+          ? dispatch(setHasDefaultProfileImage(true))
+          : dispatch(setHasDefaultProfileImage(false));
+
         const defaultProfileImage = await AsyncStorage.getItem(
           'defaultProfileImage',
         );
-        const newDefault = Number(defaultProfileImage);
+        const defaultAsNumber = Number(defaultProfileImage);
 
-        const profileImagePath = await AsyncStorage.getItem('profileImgPath');
-
+        const customProfileImagePath = await AsyncStorage.getItem(
+          'customProfileImgPath',
+        );
+        console.log('true or false', defaultImage);
         if (defaultImage == 'true') {
-          const tempURI = imageMap[newDefault];
+          const tempURI = imageMap[defaultAsNumber];
           setImage(tempURI);
-        } else if (profileImagePath) {
+          dispatch(setProfileImageUri(tempURI));
+        } else {
           console.log(
             'Profile image path from AsyncStorage:',
-            profileImagePath,
+            customProfileImagePath,
           );
-          setImage(profileImagePath);
+          setImage(customProfileImagePath);
         }
       } catch (error) {
         console.error('Failed to load profile image path:', error);
@@ -115,9 +130,6 @@ const Profile = ({navigation}: any) => {
   }, [userData]);
 
   const dispatch = useDispatch();
-  const profileImageUri = useSelector(
-    (state: any) => state.image.profileImageUri,
-  );
 
   const choosePhotoFromLibrary = () => {
     ImagePicker.openPicker({
@@ -131,13 +143,27 @@ const Profile = ({navigation}: any) => {
     })
       .then(async (image: any) => {
         const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-        setImage(imageUri);
-        console.log(imageUri);
         uploadProfileImageToFirebase(imageUri);
-        await AsyncStorage.setItem('hasDefaultProfileImage', 'false');
-        await AsyncStorage.setItem('profileImgPath', imageUri);
+        setImage(imageUri);
+        console.log('custom image', imageUri);
 
+        const userID = await AsyncStorage.getItem('userID');
+
+        if (hasDefaultProfileImage == false) {
+          console.log(
+            'no need to change the mongo to false becasue this is another cutom image',
+          );
+        } else {
+          const update = await axios.post(`${serverUrl}/updateImageStatus`, {
+            userID: userID,
+            status: 'false',
+          });
+        }
+
+        await AsyncStorage.setItem('hasDefaultProfileImage', 'false');
+        await AsyncStorage.setItem('customProfileImgPath', imageUri);
         dispatch(setProfileImageUri(imageUri));
+        dispatch(setHasDefaultProfileImage(false));
       })
       .catch((error: any) => {
         console.log('Image picker error:', error);
@@ -224,7 +250,7 @@ const Profile = ({navigation}: any) => {
 
           <View style={{marginHorizontal: 20, marginTop: 105}}>
             <TouchableOpacity onPress={choosePhotoFromLibrary}>
-              {image ? (
+              {hasDefaultProfileImage && Image && (
                 <Image
                   style={[
                     styles.profilePic,
@@ -232,17 +258,15 @@ const Profile = ({navigation}: any) => {
                   ]}
                   source={image as any}
                 />
-              ) : (
-                <View style={styles.profilePic}>
-                  <Text
-                    style={{
-                      fontFamily: 'InterTight-Black',
-                      color: theme.colors.text,
-                      fontSize: 15,
-                    }}>
-                    {'💸' /*userData?.username.slice(0,1).toUpperCase()*/}
-                  </Text>
-                </View>
+              )}
+              {!hasDefaultProfileImage && Image && (
+                <Image
+                  style={[
+                    styles.profilePic,
+                    {borderWidth: 2, borderColor: theme.colors.text},
+                  ]}
+                  source={{uri: image} as any}
+                />
               )}
             </TouchableOpacity>
 

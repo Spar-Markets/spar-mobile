@@ -97,19 +97,13 @@ const UsernameScreen = (props: any) => {
           await AsyncStorage.setItem(
             'userID',
             (credentials.user as any).uid,
-          ).then(() => {
+          ).then(async () => {
+            await AsyncStorage.setItem('hasDefaultProfileImage', 'true');
+
             dispatch(setUserIsMade(true));
             dispatch(setUserID((credentials.user as any).uid));
             dispatch(setUsername(usernameInput));
           });
-          try {
-            await AsyncStorage.setItem('hasDefaultProfileImage', 'true');
-          } catch (error) {
-            console.error(
-              'Error initializing user profile image in AsyncStorage',
-              error,
-            );
-          }
         }
       }
 
