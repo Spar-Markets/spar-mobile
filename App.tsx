@@ -68,6 +68,8 @@ const AppContent = (): React.ReactElement => {
 
   const {userData} = useUserDetails();
 
+  
+
   useEffect(() => {
     console.log("userIsMade has changed", userIsMade);
   },[userIsMade])
