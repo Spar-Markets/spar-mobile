@@ -37,7 +37,6 @@ import {store} from './GlobalDataManagment/store';
 import CreatePost from './components/FeedComponents/CreatePost';
 
 import useAuth from './hooks/useAuth';
-import LoginScreen from './components/OnboardComponents/LoginScreen';
 import Menu from './components/GlobalComponents/Menu';
 import SplashScreen from './components/OnboardComponents/SplashScreen';
 import WebViewScreen from './components/GlobalComponents/WebViewScreen';
@@ -86,7 +85,6 @@ const AppContent = (): React.ReactElement => {
           backgroundColor={theme.colors.background}
           barStyle={theme.dark ? 'light-content' : 'dark-content'}
         />
-        {userData && 
         <Stack.Navigator
           initialRouteName="CoreApp"
           screenOptions={{
@@ -266,7 +264,7 @@ const AppContent = (): React.ReactElement => {
               gestureDirection: 'horizontal',
             }}
           />
-        </Stack.Navigator>}
+        </Stack.Navigator>
       </NavigationContainer>
     );
   } else {
