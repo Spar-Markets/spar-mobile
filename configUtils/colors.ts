@@ -35,10 +35,6 @@ export const darkColors = {
         question: '#00dddd',
         purpleAccent: '#F5BD02',
         redAccent: '#FF006B'
-
-
-
-        
     }
 }
 
