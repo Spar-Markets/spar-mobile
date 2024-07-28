@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Animated, StatusBar, View} from 'react-native';
@@ -37,7 +37,7 @@ import {store} from './GlobalDataManagment/store';
 import CreatePost from './components/FeedComponents/CreatePost';
 
 import useAuth from './hooks/useAuth';
-import LoginScreen from './components/OnboardComponents/LoginScreen';
+
 import Menu from './components/GlobalComponents/Menu';
 import SplashScreen from './components/OnboardComponents/SplashScreen';
 import WebViewScreen from './components/GlobalComponents/WebViewScreen';
@@ -56,7 +56,8 @@ import {useSelector} from 'react-redux';
 import {RootState} from './GlobalDataManagment/store';
 import FollowersFollowing from './components/ProfileComponents/FollowersFollowing';
 import PastMatches from './components/HeadToHeadComponents/PastMatches';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import Settings from './components/ProfileComponents/Settings';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -66,15 +67,13 @@ const AppContent = (): React.ReactElement => {
   const {user, loading} = useAuth();
   const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
 
-
   useEffect(() => {
-    console.log("userIsMade has changed", userIsMade);
-  },[userIsMade])
+    console.log('userIsMade has changed', userIsMade);
+  }, [userIsMade]);
 
   if (loading) {
     return <SplashScreen />;
   }
-
 
   //onboard or main stack depending on user status
   if (user && userIsMade == true) {
@@ -113,6 +112,11 @@ const AppContent = (): React.ReactElement => {
             options={{headerShown: false}}
           />
           <Stack.Screen
+            name="Settings"
+            component={Settings}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
             name="Withdraw"
             component={Withdraw}
             options={{headerShown: false}}
@@ -130,7 +134,7 @@ const AppContent = (): React.ReactElement => {
           <Stack.Screen
             name="InGameStockSearch"
             component={InGameStockSearch}
-            options={{headerShown: false, animation: 'slide_from_bottom',}}
+            options={{headerShown: false, animation: 'slide_from_bottom'}}
           />
           <Stack.Screen
             name="StockOrder"
