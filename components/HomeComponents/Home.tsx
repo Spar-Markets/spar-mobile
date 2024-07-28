@@ -482,7 +482,12 @@ const Home: React.FC = () => {
     //retrieve user's skill rating
     if (!ws.current) {
       console.log("SETTING UP THE SERVER FOR MATCHMAKING")
-      setupSocket()
+      await setupSocket()
+      console.log("AFTER SOCKET SETUP", ws.current!.readyState)
+    }
+
+    if (!ws.current || ws.current.readyState == 0) {
+      console.error("ERROR ON HOME: Websocket not open.");
     }
     
     console.log(wager);
@@ -562,69 +567,75 @@ const Home: React.FC = () => {
   }, [activeMatches])
   
   //searchingForMatch || isInMatchmaking -----> these conditions == true, open websocket to look for match being created
-  const setupSocket = async () => {    
-    console.log("Opening socket with url:", websocketUrl);  
-    const socket = new WebSocket(websocketUrl);
+  const setupSocket = async () => {  
+    return new Promise((resolve, reject) => {
+      console.log("Opening socket with url:", websocketUrl);  
+      const socket = new WebSocket(websocketUrl);
 
-    ws.current = socket;
-    
-    ws.current.onopen = () => {
-        console.log(`Connected to Matchmaking Websocket, but not ready for messages...`);
-        if (ws.current!) {
-          console.log(`Connection for Matchmaking Websocket is open and ready for messages`);
-          // first send match ID
-          ws.current!.send(JSON.stringify({ type: "matchmaking", userID: userID }));
-        } else {
-          console.log('WebSocket is not open');
-        }
-    };
-
-
-      // WebSocket message handling
-      ws.current.onmessage = (event) => {
-        if (event.data == "Websocket connected successfully") {
-          return;
-        }
-
-        const message = event.data;
-
-        console.log("Home websocket message received:", message);
-
-        try {
-          const JSONMessage = JSON.parse(message);
-          // Change stream handling for new matches
-          if (JSONMessage.type == "matchCreated") {
-            const newMatch = JSONMessage.newMatch;
-            // do logic to display new match
-            dispatch(addMatch(newMatch.matchID))
-            setNoMatches(false)
-            dispatch(setIsInMatchmaking(false));
-            setSearchingForMatch(false)
-            ws.current!.close()
-            ws.current = null
-            console.log("MATCH ADDED:", newMatch.matchID)
+      ws.current = socket;
+      
+      ws.current.onopen = () => {
+          console.log(`Connected to Matchmaking Websocket, but not ready for messages...`);
+          if (ws.current!) {
+            console.log(`Connection for Matchmaking Websocket is open and ready for messages`);
+            // first send match ID
+            ws.current!.send(JSON.stringify({ type: "matchmaking", userID: userID }));
+          } else {
+            console.log('WebSocket is not open');
           }
-        } catch (error) {
-          console.error("Error processing WebSocket message:", error);
-        }
+          resolve(ws.current);
       };
 
-    ws.current.onerror = (error) => {
-        console.log('WebSocket error:', error || JSON.stringify(error));
-        if (retries < MAX_RETRIES) {
-          console.log(`Retrying connection (${retries + 1}/${MAX_RETRIES})...`);
-          setRetries(retries + 1);
-          setTimeout(() => {
-              setupSocket();
-          }, RETRY_DELAY);
-        } else {
-          console.error('Maximum retry attempts reached. Unable to connect to WebSocket.');
-        }
-    };
 
-    ws.current.onclose = () => {
-        console.log(`Connection to GameCard Asset Websocket closed`);
-    };
+        // WebSocket message handling
+        ws.current.onmessage = (event) => {
+          if (event.data == "Websocket connected successfully") {
+            return;
+          }
+
+          const message = event.data;
+
+          console.log("Home websocket message received:", message);
+
+          try {
+            const JSONMessage = JSON.parse(message);
+            // Change stream handling for new matches
+            if (JSONMessage.type == "matchCreated") {
+              console.log("JACKSON MATCH WS MESSAGE RECEIVED");
+              const newMatch = JSONMessage.newMatch;
+              // do logic to display new match
+              dispatch(addMatch(newMatch.matchID))
+              setNoMatches(false)
+              dispatch(setIsInMatchmaking(false));
+              setSearchingForMatch(false)
+              ws.current!.close()
+              ws.current = null
+              console.log("MATCH ADDED:", newMatch.matchID)
+            }
+          } catch (error) {
+            console.error("Error processing WebSocket message:", error);
+          }
+        };
+
+      ws.current.onerror = (error) => {
+          console.log('WebSocket error:', error || JSON.stringify(error));
+          if (retries < MAX_RETRIES) {
+            console.log(`Retrying connection (${retries + 1}/${MAX_RETRIES})...`);
+            setRetries(retries + 1);
+            setTimeout(() => {
+                setupSocket();
+            }, RETRY_DELAY);
+          } else {
+            console.error('Maximum retry attempts reached. Unable to connect to WebSocket.');
+            reject(new Error('Websocket error. Maximum retry attempts reached.'));
+          }
+      };
+
+      ws.current.onclose = () => {
+          console.log(`Connection to GameCard Asset Websocket closed`);
+          reject(new Error('Websocket closed before being opened.'));
+      };
+    })  
   };
 
   const hexToRGBA = (hex:any, alpha = 1) => {
