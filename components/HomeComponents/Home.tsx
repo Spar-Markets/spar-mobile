@@ -132,6 +132,8 @@ const Home: React.FC = () => {
 
   const [activeMatchSummaryMatchID, setActiveMatchSummaryMatchID] = useState("")
 
+  const [enteredMatchmakingCheck, setEnteredMatchmakingCheck] = useState(false)
+
   const isInMatchmaking = useSelector(
     (state: any) => state.user.isInMatchmaking,
   );
@@ -437,6 +439,7 @@ const Home: React.FC = () => {
   const expandMatchmakingSheet = async () => {
     try {
       matchmakingSheetRef.current?.expand(); // Expand the Bottom Sheet when star is clicked
+      setEnteredMatchmakingCheck(false)
     } catch {
       console.log('error watching stock');
     }
@@ -480,6 +483,7 @@ const Home: React.FC = () => {
 
   const handleEnterMatchmaking = async (wager: number, matchLength: number, matchType: String) => {
     //retrieve user's skill rating
+    setEnteredMatchmakingCheck(true)
     if (!ws.current) {
       console.log("SETTING UP THE SERVER FOR MATCHMAKING")
       await setupSocket()
@@ -1030,7 +1034,7 @@ const Home: React.FC = () => {
                 <View style={{height: 1, backgroundColor: theme.colors.tertiary, marginHorizontal: 20, marginTop: 20}}/>
                 </View>
                 <View style={{width: width,backgroundColor: theme.colors.secondary, justifyContent: 'center', marginVertical: 20}}>
-                    {(wagerSelected != null && timeframeSelected != 0 && modeSelected != "") ? 
+                    {(wagerSelected != null && timeframeSelected != 0 && modeSelected != "" && !enteredMatchmakingCheck) ? 
                     <>
                     <TouchableOpacity onPress={() => handleEnterMatchmaking(wagerSelected, timeframeSelected, modeSelected)} style={{marginHorizontal: 20, height: 50, backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
                       <Text style={{color: theme.colors.background, fontFamily: "InterTight-Bold", fontSize: 18}}>Enter Matchmaking</Text>
