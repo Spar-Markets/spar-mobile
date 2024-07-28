@@ -57,6 +57,7 @@ import {RootState} from './GlobalDataManagment/store';
 import FollowersFollowing from './components/ProfileComponents/FollowersFollowing';
 import PastMatches from './components/HeadToHeadComponents/PastMatches';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import useUserDetails from './hooks/useUserDetails';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -66,6 +67,7 @@ const AppContent = (): React.ReactElement => {
   const {user, loading} = useAuth();
   const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
 
+  const {userData} = useUserDetails();
 
   useEffect(() => {
     console.log("userIsMade has changed", userIsMade);
@@ -84,6 +86,7 @@ const AppContent = (): React.ReactElement => {
           backgroundColor={theme.colors.background}
           barStyle={theme.dark ? 'light-content' : 'dark-content'}
         />
+        {userData && 
         <Stack.Navigator
           initialRouteName="CoreApp"
           screenOptions={{
@@ -263,7 +266,7 @@ const AppContent = (): React.ReactElement => {
               gestureDirection: 'horizontal',
             }}
           />
-        </Stack.Navigator>
+        </Stack.Navigator>}
       </NavigationContainer>
     );
   } else {
