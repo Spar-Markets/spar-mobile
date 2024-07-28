@@ -520,7 +520,6 @@ const StockDetails = () => {
                 </View>
                 <ScrollView style={{width: width}}>
                   <CreateWatchlistButton />
-
                   <View style={{marginHorizontal: 20}}>
                     {watchLists.map((watchList: any, index) => {
                       return (

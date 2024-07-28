@@ -27,9 +27,9 @@ import Sound from 'react-native-sound';
 import {Image} from 'react-native';
 
 // imports to access userID
-import { RootState } from '../../GlobalDataManagment/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateYourTickerPrices } from '../../GlobalDataManagment/matchesSlice';
+import {RootState} from '../../GlobalDataManagment/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateYourTickerPrices} from '../../GlobalDataManagment/matchesSlice';
 
 interface stockOrderParams {
   ticker: string;
@@ -48,7 +48,7 @@ const StockOrder = (props: any) => {
   const route = useRoute();
 
   const params = route.params as stockOrderParams | undefined;
-  const { ticker } = params!;
+  const {ticker} = params!;
 
   const {theme} = useTheme();
   const {width, height} = useDimensions();
@@ -57,14 +57,16 @@ const StockOrder = (props: any) => {
 
   const userID = useSelector((state: RootState) => state.user.userID);
 
+  const [toggleState, setToggleState] = useState('stock');
+
   const [shareQuantity, setShareQuantity] = useState('0');
   const [dollarAmount, setDollarAmount] = useState('0');
   const [inReview, setInReview] = useState(false);
-  
-  const stockPrice = useSelector((state:RootState) => state.stock);
-  const formattedShareQuantity = (shareQuantity);
-  const formattedDollarAmount = (dollarAmount);
-  
+
+  const stockPrice = useSelector((state: RootState) => state.stock);
+  const formattedShareQuantity = shareQuantity;
+  const formattedDollarAmount = dollarAmount;
+
   const goBack = () => {
     navigation.goBack();
   };
@@ -77,12 +79,13 @@ const StockOrder = (props: any) => {
     );
   }
 
-  const ws = useSelector((state: RootState) => state.websockets[params?.ticker]);
+  const ws = useSelector(
+    (state: RootState) => state.websockets[params?.ticker],
+  );
 
   useEffect(() => {
-    console.log(ws)
-  }, [ws])
-
+    console.log(ws);
+  }, [ws]);
 
   const purchaseStock = async () => {
     try {
@@ -131,7 +134,7 @@ const StockOrder = (props: any) => {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false,
     });
-    if (selectedMode == "shares") {
+    if (selectedMode == 'shares') {
       if (
         shareQuantity.includes('.') &&
         shareQuantity.split('.')[1].length >= 6
@@ -147,7 +150,7 @@ const StockOrder = (props: any) => {
         setShareQuantity(value);
       }
     }
-    if (selectedMode == "dollars") {
+    if (selectedMode == 'dollars') {
       if (
         dollarAmount.includes('.') &&
         dollarAmount.split('.')[1].length >= 2
@@ -170,7 +173,7 @@ const StockOrder = (props: any) => {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false,
     });
-    if (selectedMode == "shares") {
+    if (selectedMode == 'shares') {
       if (shareQuantity.length > 1) {
         setShareQuantity(prevInput => prevInput.slice(0, -1));
       } else {
@@ -201,17 +204,18 @@ const StockOrder = (props: any) => {
   const animation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
 
-  const [selectedMode, setSelectedMode] = useState('shares')
+  const [selectedMode, setSelectedMode] = useState('shares');
 
   const handleToggle = (option: any) => {
+    console.log('toggled');
     const toValue = option === 'shares' ? 0 : -screenWidth;
     if (option) {
-      setSelectedMode(option)
-      console.log(option)
-      setShareQuantity("0")
-      setDollarAmount("0")
+      setSelectedMode(option);
+      console.log(option);
+      setShareQuantity('0');
+      setDollarAmount('0');
       if (inReview) {
-        setInReview(false)
+        setInReview(false);
         Animated.timing(keypadAnimation, {
           toValue: 0,
           duration: 300,
@@ -234,8 +238,6 @@ const StockOrder = (props: any) => {
       ? `${formattedIntegerPart}.${decimalPart}`
       : formattedIntegerPart;
   };
-
-  
 
   const estimatedCost = stockPrice * parseFloat(shareQuantity);
   const estimatedCostString = estimatedCost.toLocaleString(undefined, {
@@ -318,66 +320,7 @@ const StockOrder = (props: any) => {
           endAt={params?.endAt}
         />
       )}
-      <StockOrderToggleButton onToggle={handleToggle} />
-      {selectedMode == "shares" ?
-      <View>
-      <View style={{marginHorizontal: 20}}>
-        <View style={{flexDirection: 'row', marginVertical: 20}}>
-          <Text style={styles.orderFieldText}>Quantity</Text>
-          <View style={{flex: 1}}></View>
-          <Text style={styles.orderTextInput}>{formattedShareQuantity}</Text>
-        </View>
-        <View style={{height: 1, backgroundColor: theme.colors.primary}}></View>
-      </View>
-      <View style={{marginHorizontal: 20}}>
-        <View style={{flexDirection: 'row', marginVertical: 20}}>
-          <Text style={styles.orderFieldText}>Market Price</Text>
-          <View style={{flex: 1}}></View>
-          <Text style={styles.orderFieldText}>${stockPrice}</Text>
-        </View>
-        <View style={{height: 1, backgroundColor: theme.colors.primary}}></View>
-      </View>
-      <View style={{marginHorizontal: 20}}>
-        <View style={{flexDirection: 'row', marginVertical: 20}}>
-          {params?.isBuying && (
-            <Text style={styles.orderFieldText}>Est. Cost</Text>
-          )}
-          {params?.isSelling && (
-            <Text style={styles.orderFieldText}>Est. Credit</Text>
-          )}
-          <View style={{flex: 1}}></View>
-          <Text style={styles.orderFieldText}>${estimatedCostString}</Text>
-        </View>
-        <View style={{height: 1, backgroundColor: theme.colors.primary}}></View>
-      </View>
-      </View>
-      :
-      <>
-        <View style={{flex: 1}}></View>
-        <View style={{justifyContent: 'center', alignItems: 'center', gap: 10}}>
-            <Text style={[styles.orderTextInput, selectedMode == "dollars" && {fontSize: 40}]}>${formattedDollarAmount}</Text>
-            <Text style={[styles.orderTextInput, selectedMode == "dollars" && {fontSize: 20, color: theme.colors.tertiary}]}>{(parseFloat(formattedDollarAmount)/stockPrice).toFixed(4)} Shares</Text>
-        </View>
-      </>
-      }
-      <View style={{flex: 1}}></View>
-      
-
-      {inReview ? (
-        <TouchableOpacity
-          onPress={handleEditOrder}
-          style={{
-            paddingVertical: 15,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text
-            style={{color: theme.colors.accent, fontFamily: 'InterTight-Bold'}}>
-            Edit Order
-          </Text>
-        </TouchableOpacity>
-      ) :       
-      <View style={{alignItems: 'center', paddingVertical: 15}}>
+      <View style={{alignItems: 'center'}}>
         {params?.isBuying && (
           <Text
             style={{
@@ -396,11 +339,117 @@ const StockOrder = (props: any) => {
             {params?.qty} Shares Available
           </Text>
         )}
-      </View>}
+      </View>
+      <StockOrderToggleButton onToggle={handleToggle} />
+      {selectedMode == 'shares' ? (
+        <View>
+          <View style={{marginHorizontal: 20}}>
+            <View style={{flexDirection: 'row', marginVertical: 20}}>
+              <Text style={styles.orderFieldText}>Quantity</Text>
+              <View style={{flex: 1}}></View>
+              <Text style={styles.orderTextInput}>
+                {formattedShareQuantity}
+              </Text>
+            </View>
+            <View
+              style={{height: 1, backgroundColor: theme.colors.primary}}></View>
+          </View>
+          <View style={{marginHorizontal: 20}}>
+            <View style={{flexDirection: 'row', marginVertical: 20}}>
+              <Text style={styles.orderFieldText}>Market Price</Text>
+              <View style={{flex: 1}}></View>
+              <Text style={styles.orderFieldText}>${stockPrice}</Text>
+            </View>
+            <View
+              style={{height: 1, backgroundColor: theme.colors.primary}}></View>
+          </View>
+          <View style={{marginHorizontal: 20}}>
+            <View style={{flexDirection: 'row', marginVertical: 20}}>
+              {params?.isBuying && (
+                <Text style={styles.orderFieldText}>Est. Cost</Text>
+              )}
+              {params?.isSelling && (
+                <Text style={styles.orderFieldText}>Est. Credit</Text>
+              )}
+              <View style={{flex: 1}}></View>
+              <Text style={styles.orderFieldText}>${estimatedCostString}</Text>
+            </View>
+            <View
+              style={{height: 1, backgroundColor: theme.colors.primary}}></View>
+          </View>
+        </View>
+      ) : (
+        <>
+          <View style={{flex: 1}}></View>
+          <View
+            style={{justifyContent: 'center', alignItems: 'center', gap: 10}}>
+            <Text
+              style={[
+                styles.orderTextInput,
+                selectedMode == 'dollars' && {fontSize: 40},
+              ]}>
+              ${formattedDollarAmount}
+            </Text>
+            <Text
+              style={[
+                styles.orderTextInput,
+                selectedMode == 'dollars' && {
+                  fontSize: 20,
+                  color: theme.colors.tertiary,
+                },
+              ]}>
+              {(parseFloat(formattedDollarAmount) / stockPrice).toFixed(4)}{' '}
+              Shares
+            </Text>
+          </View>
+        </>
+      )}
+      <View style={{flex: 1}}></View>
+
+      {inReview ? (
+        <TouchableOpacity
+          onPress={handleEditOrder}
+          style={{
+            paddingVertical: 15,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Text
+            style={{color: theme.colors.accent, fontFamily: 'InterTight-Bold'}}>
+            Edit Order
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={{alignItems: 'center', paddingVertical: 15}}>
+          {params?.isBuying && (
+            <Text
+              style={{
+                color: theme.colors.secondaryText,
+                fontFamily: 'InterTight-Bold',
+              }}>
+              ${params?.buyingPower.toFixed(2)} Available
+            </Text>
+          )}
+          {params?.isSelling && (
+            <Text
+              style={{
+                color: theme.colors.secondaryText,
+                fontFamily: 'InterTight-Bold',
+              }}>
+              {params?.qty} Shares Available
+            </Text>
+          )}
+        </View>
+      )}
       <View>
         <View style={{marginBottom: 50}}>
           <Animated.View style={{transform: [{translateY: keypadAnimation}]}}>
-            {(selectedMode == "shares" && (shareQuantity != '0' && estimatedCost <= params?.buyingPower)) || (selectedMode == "dollars" && (dollarAmount != '0' && parseFloat(dollarAmount) <= params?.buyingPower)) ? (
+            {(selectedMode == 'shares' &&
+              shareQuantity != '0' &&
+              estimatedCost <= params?.buyingPower) ||
+            (selectedMode == 'dollars' &&
+              dollarAmount != '0' &&
+              parseFloat(dollarAmount) <= params?.buyingPower) ? (
               <>
                 <TouchableOpacity
                   onPressIn={handlePressIn}
@@ -443,7 +492,9 @@ const StockOrder = (props: any) => {
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => handlePress('1')}>
-                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>1</Text>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>
+                    1
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
@@ -455,14 +506,18 @@ const StockOrder = (props: any) => {
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => handlePress('3')}>
-                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>3</Text>
+                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>
+                    3
+                  </Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => handlePress('4')}>
-                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>4</Text>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>
+                    4
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
@@ -474,14 +529,18 @@ const StockOrder = (props: any) => {
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => handlePress('6')}>
-                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>6</Text>
+                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>
+                    6
+                  </Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => handlePress('7')}>
-                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>7</Text>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>
+                    7
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
@@ -493,14 +552,18 @@ const StockOrder = (props: any) => {
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => handlePress('9')}>
-                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>9</Text>
+                  <Text style={[styles.buttonText, {textAlign: 'right'}]}>
+                    9
+                  </Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.row}>
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => handlePress('0')}>
-                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>0</Text>
+                  <Text style={[styles.buttonText, {textAlign: 'left'}]}>
+                    0
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={handleDecimal}>
                   <Text style={[styles.buttonText, {textAlign: 'center'}]}>
@@ -520,9 +583,8 @@ const StockOrder = (props: any) => {
                     style={{}}></Icon>
                 </TouchableOpacity>
               </View>
-          </View>
-
-        </Animated.View>
+            </View>
+          </Animated.View>
         </View>
       </View>
     </View>

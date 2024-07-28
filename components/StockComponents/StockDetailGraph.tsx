@@ -50,10 +50,10 @@ import {Skeleton} from '@rneui/base';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import getMarketFraction from '../../utility/getMarketFraction';
 import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateStockPrice } from '../../GlobalDataManagment/stockSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateStockPrice} from '../../GlobalDataManagment/stockSlice';
 import getCurrentPrice from '../../utility/getCurrentPrice';
-import { RootState } from '../../GlobalDataManagment/store';
+import {RootState} from '../../GlobalDataManagment/store';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
@@ -61,9 +61,9 @@ const StockDetailGraph = (props: any) => {
 
   const colorScheme = useColorScheme();
 
-  const [closePriceLineObject, setClosePriceLineObject] = useState<any>({})
+  const [closePriceLineObject, setClosePriceLineObject] = useState<any>({});
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const {theme} = useTheme();
   const {width, height} = useDimensions();
@@ -77,7 +77,7 @@ const StockDetailGraph = (props: any) => {
 
   const {currentAccentColorValue, setCurrentAccentColorValue} = props;
 
-  const stockPrice = useSelector((state:RootState) => state.stock);
+  const stockPrice = useSelector((state: RootState) => state.stock);
 
   const TimeButton = ({timeFrame}: any) => (
     <View>
@@ -127,7 +127,7 @@ const StockDetailGraph = (props: any) => {
               ticker: props.ticker,
             });
             console.log('fetchCloseComparison', response.data);
-            setOneDayClose(response.data.lastPrice)
+            setOneDayClose(response.data.lastPrice);
           } catch (error) {
             console.error('Error fetching close:', error);
           }
@@ -136,11 +136,18 @@ const StockDetailGraph = (props: any) => {
         const allPoints = await getPrices(props.ticker, false);
         if (allPoints) {
           //console.log("ALL POINT DATA:", allPoints["3M"])
-          console.log("One day close", oneDayClose)
-          console.log("first point on graph", allPoints['1D'][1].value)
-          console.log("normalized price bar:", oneDayClose - allPoints['1D'][0].value)
-          setClosePriceLineObject({normalizedValue: oneDayClose - allPoints['1D'][0].value})
-          console.log({normalizedValue: oneDayClose - allPoints['1D'][0].value})
+          console.log('One day close', oneDayClose);
+          console.log('first point on graph', allPoints['1D'][1].value);
+          console.log(
+            'normalized price bar:',
+            oneDayClose - allPoints['1D'][0].value,
+          );
+          setClosePriceLineObject({
+            normalizedValue: oneDayClose - allPoints['1D'][0].value,
+          });
+          console.log({
+            normalizedValue: oneDayClose - allPoints['1D'][0].value,
+          });
           setPointData(allPoints['1D']);
           setAllPointData(allPoints);
           //console.log("abcd",allPoints["3M"])
@@ -152,17 +159,17 @@ const StockDetailGraph = (props: any) => {
     getPricesForSelectedTime();
   }, [props.ticker]);
 
-  const grabCurrentPrice = async (ticker:string) => {
+  const grabCurrentPrice = async (ticker: string) => {
     try {
       const price = await getCurrentPrice(ticker);
       if (price) {
         setCurrentPrice(price);
-        dispatch(updateStockPrice(price))
+        dispatch(updateStockPrice(price));
       }
     } catch (error) {
-      console.error("stockdetailgraph: setting redux price error", error)
+      console.error('stockdetailgraph: setting redux price error', error);
     }
-  }
+  };
 
   useEffect(() => {
     if (allPointData) {
@@ -189,7 +196,7 @@ const StockDetailGraph = (props: any) => {
             ((state.x.position.value / width) * (pointData.length - 1)) /
               marketFraction,
           );
-    console.log(index)
+    console.log(index);
     return Math.min(Math.max(index, 0), pointData.length - 1);
   }, [pointData, state]);
 
@@ -223,7 +230,7 @@ const StockDetailGraph = (props: any) => {
     return (
       <Group>
         <Circle cx={x} cy={y} r={6} color={theme.colors.opposite} />
-        
+
         <Rect
           x={adjustedX}
           y={0}
@@ -246,19 +253,18 @@ const StockDetailGraph = (props: any) => {
 
   //graph and data aninmation funtions
 
-
   //gets percent difference based on array data
   const animatedPercentDiff = useDerivedValue(() => {
-    let percentDiff
+    let percentDiff;
     if (pointData.length > 0) {
-      if (timeFrameSelected != "1D") {
+      if (timeFrameSelected != '1D') {
         percentDiff =
           (pointData[currentIndex.value]?.value - pointData[0].value) /
           Math.abs(pointData[0].value);
       } else {
         percentDiff =
-        (pointData[currentIndex.value]?.value - oneDayClose) /
-        Math.abs(oneDayClose);
+          (pointData[currentIndex.value]?.value - oneDayClose) /
+          Math.abs(oneDayClose);
       }
 
       return (100 * percentDiff).toFixed(2);
@@ -267,13 +273,12 @@ const StockDetailGraph = (props: any) => {
   }, [pointData]);
 
   const animatedValueDiff = useDerivedValue(() => {
-    let valueDiff
+    let valueDiff;
     if (pointData.length > 0) {
-      if (timeFrameSelected != "1D") {
-        valueDiff =
-          pointData[currentIndex.value]?.value - pointData[0].value;
+      if (timeFrameSelected != '1D') {
+        valueDiff = pointData[currentIndex.value]?.value - pointData[0].value;
       } else {
-          valueDiff = pointData[currentIndex.value]?.value - oneDayClose;
+        valueDiff = pointData[currentIndex.value]?.value - oneDayClose;
       }
       if (valueDiff < 0) {
         return '-$' + Math.abs(valueDiff).toFixed(2); //formatting negative differences
@@ -325,9 +330,9 @@ const StockDetailGraph = (props: any) => {
   const [currentGradientAccent, setCurrentGradientAccent] = useState('');
 
   const calculatePercentAndValueDiffAndColor = useCallback(() => {
-    let percentDiff
+    let percentDiff;
     if (pointData.length > 0) {
-      if (timeFrameSelected != "1D") {
+      if (timeFrameSelected != '1D') {
         percentDiff =
           ((pointData[pointData.length - 1]?.value || 0) - pointData[0].value) /
           Math.abs(pointData[0].value);
@@ -338,14 +343,13 @@ const StockDetailGraph = (props: any) => {
       }
       const percentDiffValue = (100 * percentDiff).toFixed(2);
       setOnLoadPercentDiff(percentDiffValue);
-      let valueDiff
-      
-      if (timeFrameSelected != "1D") {
+      let valueDiff;
+
+      if (timeFrameSelected != '1D') {
         valueDiff =
           (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
       } else {
-        valueDiff =
-        (pointData[pointData.length - 1]?.value || 0) - oneDayClose;
+        valueDiff = (pointData[pointData.length - 1]?.value || 0) - oneDayClose;
       }
       if (pointData) {
         if (valueDiff < 0) {
@@ -385,15 +389,15 @@ const StockDetailGraph = (props: any) => {
   const RETRY_DELAY = 2000; // Delay between retries in milliseconds
 
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const sendHeartbeat = () => {
     if (ws.current) {
-      console.log("SENDING WS HEARTBEAT ON STOCK DETAILS")
-      console.log("FROM STOCK DETAILS", ws.current)
-      const heartbeat = {type: "heartbeat"}
-      ws.current.send(JSON.stringify(heartbeat))
+      console.log('SENDING WS HEARTBEAT ON STOCK DETAILS');
+      console.log('FROM STOCK DETAILS', ws.current);
+      const heartbeat = {type: 'heartbeat'};
+      ws.current.send(JSON.stringify(heartbeat));
     }
-  }
+  };
 
   useEffect(() => {
     heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000); // 30 seconds interval
@@ -404,7 +408,7 @@ const StockDetailGraph = (props: any) => {
         clearInterval(heartbeatIntervalRef.current);
       }
     };
-  }, [])
+  }, []);
 
   const setupSocket = async (ticker: any) => {
     /*if (ws.current && (ws.current.readyState === WebSocket.OPEN || 
@@ -433,13 +437,13 @@ const StockDetailGraph = (props: any) => {
       const message = uint8ArrayToString(buffer);
 
       //console.log(`Websocket Received message: ${message}`);
-      if (message != "") {
+      if (message != '') {
         try {
           const jsonMessage = JSON.parse(message);
           setPassingLivePrice(jsonMessage);
-          dispatch(updateStockPrice(jsonMessage[0]?.c)) //close live price for aggregate
+          dispatch(updateStockPrice(jsonMessage[0]?.c)); //close live price for aggregate
         } catch (error) {
-          console.error("stock graph live data error", error)
+          console.error('stock graph live data error', error);
         }
       }
     };
@@ -575,9 +579,12 @@ const StockDetailGraph = (props: any) => {
       }
     }
   }, [livePrice]);
-  
-  const referenceLineObject = [{index: 0, normalizedValue: closePriceLineObject.normalizedValue }, {index: 1, normalizedValue: closePriceLineObject.normalizedValue }];
-  
+
+  const referenceLineObject = [
+    {index: 0, normalizedValue: closePriceLineObject.normalizedValue},
+    {index: 1, normalizedValue: closePriceLineObject.normalizedValue},
+  ];
+
   return (
     <View>
       {!dataLoading && pointData ? (
@@ -635,7 +642,7 @@ const StockDetailGraph = (props: any) => {
                 <Text style={styles.stockPriceText}>
                   $
                   {
-                    stockPrice//pointData[pointData.length - 1].value
+                    stockPrice //pointData[pointData.length - 1].value
                       .toFixed(2)
                       .split('.')[0]
                   }
@@ -665,55 +672,57 @@ const StockDetailGraph = (props: any) => {
           <View style={{height: 400, marginVertical: 20}}>
             {allPointData && (
               <>
-                {timeFrameSelected == "1D" && <View
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                  }}>
-                  <CartesianChart
-                    data={referenceLineObject}
-                    xKey="index"
-                    yKeys={['normalizedValue']}
-                    domain={{
-                      y: [
-                        Math.min(
-                          ...pointData.map(item => item.normalizedValue),
-                        ),
-                        Math.max(
-                          ...pointData.map(item => item.normalizedValue),
-                        ),
-                      ],
-                    }}
-                    chartPressState={state}>
-                    {({points}) => {
-                      // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
-                      const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
-                      const repeatedPoints = points.normalizedValue.map(
-                        point => ({
-                          x: point.x, // Keep x as it is
-                          y: point.y, // Set y to the first normalized point's y value
-                          xValue: 0,
-                          yValue: 0,
-                        }),
-                      );
-                      return (
-                        <>
-                          <Group>
-                            <Line
-                              points={repeatedPoints}
-                              color={theme.colors.tertiary}
-                              strokeWidth={1}
-                              animate={{type: 'timing', duration: 300}}
-                              curveType="linear"></Line>
-                          </Group>
-                        </>
-                      );
-                    }}
-                  </CartesianChart>
-                </View>}
+                {timeFrameSelected == '1D' && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                    }}>
+                    <CartesianChart
+                      data={referenceLineObject}
+                      xKey="index"
+                      yKeys={['normalizedValue']}
+                      domain={{
+                        y: [
+                          Math.min(
+                            ...pointData.map(item => item.normalizedValue),
+                          ),
+                          Math.max(
+                            ...pointData.map(item => item.normalizedValue),
+                          ),
+                        ],
+                      }}
+                      chartPressState={state}>
+                      {({points}) => {
+                        // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
+                        const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
+                        const repeatedPoints = points.normalizedValue.map(
+                          point => ({
+                            x: point.x, // Keep x as it is
+                            y: point.y, // Set y to the first normalized point's y value
+                            xValue: 0,
+                            yValue: 0,
+                          }),
+                        );
+                        return (
+                          <>
+                            <Group>
+                              <Line
+                                points={repeatedPoints}
+                                color={theme.colors.tertiary}
+                                strokeWidth={1}
+                                animate={{type: 'timing', duration: 300}}
+                                curveType="linear"></Line>
+                            </Group>
+                          </>
+                        );
+                      }}
+                    </CartesianChart>
+                  </View>
+                )}
                 <View
                   style={{
                     position: 'absolute',
