@@ -553,11 +553,10 @@ const Home: React.FC = () => {
   }, [])
 
   const [responsiveActiveMatches, setResponsiveActiveMatches] = useState<any>()
-
+  
   useEffect(() => {
     if (activeMatches) {
-      console.log("Setting active matches")
-      setResponsiveActiveMatches(activeMatches)
+      console.log("ACTIVE MATCHES INITIAL OR CHANGE:" , activeMatches)
     }
   }, [activeMatches])
   
@@ -713,7 +712,6 @@ const Home: React.FC = () => {
   const GameModeButton = (props:any) => {
     return (
       <TouchableOpacity onPress={() => {setGameModeSelected(props.text);}} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.accent2}, {paddingHorizontal: 20, borderRadius: 5, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
-        <MaterialCommunityIcons name={props.icon} color={gameModeSelected == props.text ? '#fff': theme.colors.text} size={20}/>
         <Text style={{color: gameModeSelected == props.text ? '#fff' : theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
       </TouchableOpacity>
     )
@@ -822,18 +820,18 @@ const Home: React.FC = () => {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 data={
-                    responsiveActiveMatches
+                    activeMatches
                 }
                 renderItem={({item, index}) => {
                   return (
-                  item && responsiveActiveMatches.includes(item) &&  (
+                  item &&  (
                     <View style={{ width, height: '100%'}}>
                       <GameCard userID={userID} matchID={item} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri}/>
                     </View>
                   ) )
                   }
                 }
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.toString()}
                 initialNumToRender={5}
                 pagingEnabled
                 snapToInterval={width}
@@ -1066,7 +1064,7 @@ const Home: React.FC = () => {
               index={-1}
               enablePanDownToClose
               onChange={handleMatchSummaryChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.background}}
+              backgroundStyle={{backgroundColor: theme.colors.secondary}}
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
             >

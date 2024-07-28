@@ -19,7 +19,7 @@ import HapticFeedback from "react-native-haptic-feedback";
 import getCurrentPrice from '../../utility/getCurrentPrice';
 //import { addWebSocket, removeWebSocket } from '../../GlobalDataManagment/websocketSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { addOrUpdateMatch, initializeMatch, updateOppTickerPrices, updateYourTickerPrices } from '../../GlobalDataManagment/matchesSlice';
+import { addOrUpdateMatch, deleteMatch, initializeMatch, updateOppTickerPrices, updateYourTickerPrices } from '../../GlobalDataManagment/matchesSlice';
 import { RootState } from '../../GlobalDataManagment/store';
 import { BlurView } from '@react-native-community/blur';
 import { Animated } from 'react-native';
@@ -42,6 +42,14 @@ interface GameCardProps {
   setActiveMatchSummaryMatchID: any
   profileImageUri: string
 }
+
+const imageMap = [
+  '',
+  require('../../assets/images/profile1.png'),
+  require('../../assets/images/profile2.png'),
+  require('../../assets/images/profile3.png'),
+];
+
 
 
 const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri }) => {
@@ -123,6 +131,10 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     }
   }, [matchID]);
 
+  const hasDefaultProfileImage = useSelector(
+    (state: RootState) => state.user.hasDefaultProfileImage,
+  );
+
 
   const getMatchData = async () => {
     try {
@@ -130,6 +142,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
       const matchDataResponse = await axios.post(serverUrl + '/getMatchData', { matchID: matchID });
       if (matchDataResponse) {
         console.log("About to set match, STEP 2 should run in a sec");
+        console.log("SETTING MATCH DATA GAMECARD", matchDataResponse.data)
         setMatch(matchDataResponse.data)
       }
     } catch (error) {
@@ -841,13 +854,29 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
 
   const [otherProfileUri, setOtherProfileUri] = useState<any>(null)
 
+  const [otherHasDefaultProfileImage, setOtherHasDefaultProfileImage] = useState(false)
+  
   const getOtherProfileImage = async (user:string) => {
     try {
       const imageRef = ref(storage, `profileImages/${match[user].userID}`);
       const url = await getDownloadURL(imageRef);
       setOtherProfileUri(url)
     } catch (error) {
-      console.log("No image in firebase for other user")
+      try {
+        const userInMongoResponse = await axios.post(`${serverUrl}/getUser`, {
+          userID: match[user].userID,
+        });
+        if (userInMongoResponse.status === 200) {
+          console.log("SUCCESS GETTING OTHER PROFILE")
+          setOtherHasDefaultProfileImage(userInMongoResponse.data.hasDefaultProfileImage)
+          const defaultProfileIndex = Number(userInMongoResponse.data.defaultProfileImage)
+          if (userInMongoResponse.data.hasDefaultProfileImage) {
+            setOtherProfileUri(imageMap[defaultProfileIndex])
+          }
+        }
+      } catch (err) {
+        console.error(err)
+      }
     }
   }
 
@@ -873,8 +902,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     });*/
     console.log("Predismiss", activeMatches)
     console.log("Dismissed ID:", matchID)
+    console.log("Dismissed Match:", match)
+    dispatch(deleteMatch({matchID}))
     dispatch(removeMatch(matchID))
   };
+
 
   const spacing = useSharedValue(0);
 
@@ -935,7 +967,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   return (
     <View style={{flex: 1}}>
       {matchIsOver && 
-      <View style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10}} /*blurType="dark" blurAmount={0} reducedTransparencyFallbackColor="black"*/>
+      <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10}} blurType="dark" blurAmount={4} reducedTransparencyFallbackColor="black">
         <Icon name="checkmark-circle" color={theme.colors.accent} size={40}/>
         <Text style={{fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Match Completed!</Text>
         <View style={{flexDirection: 'row', gap: 5}}>
@@ -946,7 +978,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
             <Text style={{paddingHorizontal: 20, paddingVertical: 5, fontFamily: 'InterTight-Bold', color: theme.colors.text}}>Dismiss</Text>
           </TouchableOpacity>
         </View> 
-      </View>}
+      </BlurView>}
     {!loading && match && yourFormattedData ?
     <>
       <View style={styles.gameCardContainer}/*style={styles.gameCardContainer}*/ /*onPress={() => {
@@ -964,7 +996,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
       }
       
       }*/>
-        <Text style={{color: theme.colors.text}}>{matchID}</Text>
+
         <View style={{flexDirection: 'row', marginTop: 10, marginHorizontal: 10, marginBottom: 5, gap: 5}}>
           <View style={{flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
             <Timer endDate={match.endAt} timeFrame={match.timeframe} />
@@ -981,8 +1013,23 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
 
         <ScrollView showsVerticalScrollIndicator={false} style={{paddingTop: 0}}>
           <View style={{backgroundColor: theme.colors.background, flexDirection: 'row', marginTop: 0, height: 180, gap: 10, justifyContent: 'center', marginHorizontal: 10, borderRadius: 5}}>
-            <View style={{marginRight: 10, backgroundColor: 'transparent', flex:1,  borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5}}>
-              <Image source={{uri: profileImageUri}} width={60} height={60} style={{borderRadius: 100}}></Image>
+            <View style={{marginRight: 10, backgroundColor: 'transparent', flex: 1,  borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5}}>
+                {hasDefaultProfileImage && Image && (
+                  <Image
+                    style={[
+                      {width: 55, height: 55, borderRadius: 100},
+                    ]}
+                    source={profileImageUri as any}
+                  />
+                )}
+                {!hasDefaultProfileImage && Image && (
+                  <Image
+                    style={[
+                      {width: 55, height: 55, borderRadius: 100},
+                    ]}
+                    source={{uri: profileImageUri} as any}
+                  />
+                )}
               <Text style={styles.userText}>You</Text>
               {!isActive ?
               <>
@@ -1001,7 +1048,22 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
             
             </View>
             <View style={{backgroundColor: 'transparent', borderRadius: 8, flex:1, justifyContent: 'center', alignItems: 'center', gap: 5}}>
-            <Image source={{uri: otherProfileUri}} width={60} height={60} style={{borderRadius: 100}}></Image>
+                {otherHasDefaultProfileImage && otherProfileUri && (
+                  <Image
+                    style={[
+                      {width: 55, height: 55, borderRadius: 100},
+                    ]}
+                    source={otherProfileUri as any}
+                  />
+                )}
+                {!otherHasDefaultProfileImage && Image && (
+                  <Image
+                    style={[
+                      {width: 55, height: 55, borderRadius: 100},
+                    ]}
+                    source={{uri: otherProfileUri} as any}
+                  />
+                )}
               <Text style={styles.userText}>{opponentUsername}</Text>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(oppTotalPrice).toFixed(2)}</Text>
               <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(oppColor, 0.3)}]}>
