@@ -144,7 +144,6 @@ const Profile = ({navigation}: any) => {
       .then(async (image: any) => {
         const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
         uploadProfileImageToFirebase(imageUri);
-        setImage(imageUri);
         console.log('custom image', imageUri);
 
         const userID = await AsyncStorage.getItem('userID');

@@ -116,7 +116,6 @@ const Home: React.FC = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
-  const [balance, setBalance] = useState('0.00');
   const [searchingForMatch, setSearchingForMatch] = useState(false);
   //const [activeMatches, setActiveMatches] = useState<any>(null);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
@@ -144,6 +143,8 @@ const Home: React.FC = () => {
   const [activeMatchSummaryMatchID, setActiveMatchSummaryMatchID] =
     useState('');
 
+  const [enteredMatchmakingCheck, setEnteredMatchmakingCheck] = useState(false)
+
   const isInMatchmaking = useSelector(
     (state: any) => state.user.isInMatchmaking,
   );
@@ -151,6 +152,8 @@ const Home: React.FC = () => {
   const hasDefaultProfileImage = useSelector(
     (state: RootState) => state.user.hasDefaultProfileImage,
   );
+
+  const balance = useSelector((state: RootState) => state.user.balance);
 
   useEffect(() => {
     const getGlobalTickers = async () => {
@@ -448,6 +451,7 @@ const Home: React.FC = () => {
   const expandMatchmakingSheet = async () => {
     try {
       matchmakingSheetRef.current?.expand(); // Expand the Bottom Sheet when star is clicked
+      setEnteredMatchmakingCheck(false)
     } catch {
       console.log('error watching stock');
     }
@@ -489,12 +493,19 @@ const Home: React.FC = () => {
     console.log('handleSheetChanges', index);
   }, []);
 
-  const handleEnterMatchmaking = async (
-    wager: number,
-    matchLength: number,
-    matchType: String,
-  ) => {
+  const handleEnterMatchmaking = async (wager: number, matchLength: number, matchType: String) => {
+    console.log("HIT ENTER MATCHMAKING");
+    console.log("Balance:", balance);
+    console.log("Wager:", wager);
+
+    // balance check
+    if (balance == null || (wager * 1.1) > balance) {
+      Alert.alert("You are broke. Insufficient funds.")
+      return;
+    }
+
     //retrieve user's skill rating
+    setEnteredMatchmakingCheck(true)
     if (!ws.current) {
       console.log('SETTING UP THE SERVER FOR MATCHMAKING');
       await setupSocket();
@@ -1301,36 +1312,11 @@ const Home: React.FC = () => {
                     Select Timeframe
                   </Text>
                 </View>
-                <View
-                  style={{
-                    paddingHorizontal: 10,
-                    marginBottom: 10,
-                    flexDirection: 'row',
-                    gap: 5,
-                  }}>
-                  {[
-                    {amount: 900, label: '15m'},
-                    {amount: 86400, label: '1d'},
-                    {amount: 604800, label: '1w'},
-                  ].map((timeframe, index) => (
-                    <TouchableOpacity
-                      key={timeframe.amount}
-                      style={[
-                        styles.matchmakingWagerBtn,
-                        {
-                          backgroundColor: theme.colors.secondary,
-                          borderColor: theme.colors.secondary,
-                        },
-                        timeframeSelected == timeframe.amount && {
-                          borderColor: theme.colors.text,
-                          borderWidth: 2,
-                        },
-                        index === 5 && {marginRight: 40},
-                      ]}
-                      onPress={() => setTimeFrameSelected(timeframe.amount)}>
-                      <Text style={styles.matchmakingWagerTxt}>
-                        {timeframe.label}
-                      </Text>
+                <View style={{width: width,backgroundColor: theme.colors.secondary, justifyContent: 'center', marginVertical: 20}}>
+                    {(wagerSelected != null && timeframeSelected != 0 && modeSelected != "" && !enteredMatchmakingCheck) ? 
+                    <>
+                    <TouchableOpacity onPress={() => handleEnterMatchmaking(wagerSelected, timeframeSelected, modeSelected)} style={{marginHorizontal: 20, height: 50, backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
+                      <Text style={{color: theme.colors.background, fontFamily: "InterTight-Bold", fontSize: 18}}>Enter Matchmaking</Text>
                     </TouchableOpacity>
                   ))}
                 </View>

@@ -1,8 +1,9 @@
 import {useState, useEffect} from 'react';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch} from 'react-redux';
 import { RootState } from '../GlobalDataManagment/store';
+import { setBalance } from '../GlobalDataManagment/userSlice'
 
 interface UserData {
   __v: number;
@@ -34,6 +35,8 @@ const useUserData = (userID?: string) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (userID && userIsMade) {

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Animated, StatusBar, View} from 'react-native';
@@ -32,7 +32,7 @@ import EnterMatch from './components/HeadToHeadComponents/EnterMatch';
 import CommentPage from './components/FeedComponents/CommentPage';
 import Feed from './components/FeedComponents/Feed';
 
-import {Provider} from 'react-redux';
+import {Provider, useDispatch} from 'react-redux';
 import {store} from './GlobalDataManagment/store';
 import CreatePost from './components/FeedComponents/CreatePost';
 
@@ -59,20 +59,30 @@ import PastMatches from './components/HeadToHeadComponents/PastMatches';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import Settings from './components/ProfileComponents/Settings';
 import useUserDetails from './hooks/useUserDetails';
+import { setBalance } from './GlobalDataManagment/userSlice';
 
 const Stack = createNativeStackNavigator();
-const Drawer = createDrawerNavigator();
 
 const AppContent = (): React.ReactElement => {
-  const {theme, toggleTheme} = useTheme();
+  const {theme} = useTheme();
   const {user, loading} = useAuth();
   const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
 
+  const balance = useSelector((state: RootState) => state.user.balance)
+
   const {userData} = useUserDetails();
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     console.log('userIsMade has changed', userIsMade);
   }, [userIsMade]);
+
+  useEffect(() => {
+    if (userData) {
+      dispatch(setBalance(userData.balance))
+    }
+  }, [userData])
 
   if (loading) {
     return <SplashScreen />;
