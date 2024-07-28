@@ -58,6 +58,7 @@ import FollowersFollowing from './components/ProfileComponents/FollowersFollowin
 import PastMatches from './components/HeadToHeadComponents/PastMatches';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import Settings from './components/ProfileComponents/Settings';
+import useUserDetails from './hooks/useUserDetails';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -66,6 +67,8 @@ const AppContent = (): React.ReactElement => {
   const {theme, toggleTheme} = useTheme();
   const {user, loading} = useAuth();
   const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
+
+  const {userData} = useUserDetails();
 
   useEffect(() => {
     console.log('userIsMade has changed', userIsMade);

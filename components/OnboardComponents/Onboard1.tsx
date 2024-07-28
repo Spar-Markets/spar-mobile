@@ -291,7 +291,7 @@ const Onboard1 = () => {
                   index * (width),
                   (index + 1) * (width),
                 ],
-                outputRange: ['white', 'white', 'white'],
+                outputRange: [theme.colors.opposite, theme.colors.opposite, theme.colors.opposite],
                 extrapolate: 'clamp',
               });
               return (
@@ -308,7 +308,7 @@ const Onboard1 = () => {
               onPress={handleGetStartedPress}
               onPressIn={handlePressIn}
             >
-              <Text style={styles.buttonText}>Get Started</Text>
+              <Text style={[styles.buttonText, {color: theme.colors.background}]}>Get Started</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, {backgroundColor: 'transparent'}]}
             onPress={handleSignInPress} onPressIn={handlePressIn}>
