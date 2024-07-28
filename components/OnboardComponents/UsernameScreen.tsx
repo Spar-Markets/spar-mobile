@@ -146,7 +146,7 @@ const UsernameScreen = (props: any) => {
               value={usernameInput}
               style={styles.inputText}
               selectionColor={theme.colors.accent}
-              maxLength={100}
+              maxLength={20}
               autoFocus={true} // Auto focus the email input field
               autoCapitalize="none"
               onFocus={() => setIsFocused(true)} // Set focus state

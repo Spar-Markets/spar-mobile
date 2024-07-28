@@ -43,6 +43,7 @@
     "react-native-confetti-cannon": "^1.5.2",
     "react-native-config": "^1.5.2",
     "react-native-countdown-circle-timer": "^3.2.1",
+    "react-native-dialog": "^9.3.0",
     "react-native-element-dropdown": "^2.10.2",
     "react-native-elements": "^3.4.3",
     "react-native-fs": "^2.20.0",
