@@ -592,7 +592,8 @@ const Profile = ({navigation}: any) => {
               gap: 20,
               paddingVertical: 15,
               paddingHorizontal: 15,
-            }}>
+            }}
+            onPress={() => navigation.navigate('Settings')}>
             <Icon
               name="gear"
               size={24}

@@ -14,7 +14,7 @@ import axios from 'axios';
 import {serverUrl, websocketUrl} from '../../constants/global';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {LineChart} from 'react-native-gifted-charts';
-import PositionCard from '../HeadToHeadComponents/PositionCard';
+import PositionCard from './PositionCard';
 import LinearGradient from 'react-native-linear-gradient';
 import {act} from 'react-test-renderer';
 import { useTheme } from '../ContextComponents/ThemeContext';
