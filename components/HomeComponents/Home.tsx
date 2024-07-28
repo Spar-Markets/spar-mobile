@@ -106,7 +106,6 @@ const Home: React.FC = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigation = useNavigation<any>(); // Define navigation prop with 'any' type
-  const [balance, setBalance] = useState('0.00');
   const [searchingForMatch, setSearchingForMatch] = useState(false);
   //const [activeMatches, setActiveMatches] = useState<any>(null);
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
@@ -141,6 +140,8 @@ const Home: React.FC = () => {
   const hasDefaultProfileImage = useSelector(
     (state: RootState) => state.user.hasDefaultProfileImage,
   );
+
+  const balance = useSelector((state: RootState) => state.user.balance);
 
   useEffect(() => {
     const getGlobalTickers = async () => {
@@ -482,6 +483,16 @@ const Home: React.FC = () => {
   }, []);
 
   const handleEnterMatchmaking = async (wager: number, matchLength: number, matchType: String) => {
+    console.log("HIT ENTER MATCHMAKING");
+    console.log("Balance:", balance);
+    console.log("Wager:", wager);
+
+    // balance check
+    if (balance == null || (wager * 1.1) > balance) {
+      Alert.alert("You are broke. Insufficient funds.")
+      return;
+    }
+
     //retrieve user's skill rating
     setEnteredMatchmakingCheck(true)
     if (!ws.current) {

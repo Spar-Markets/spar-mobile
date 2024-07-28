@@ -48,5 +48,5 @@ const userSlice = createSlice({
   }
 });
 
-export const { setIsInMatchmaking, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage } = userSlice.actions;
+export const { setIsInMatchmaking, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance } = userSlice.actions;
 export default userSlice.reducer;
