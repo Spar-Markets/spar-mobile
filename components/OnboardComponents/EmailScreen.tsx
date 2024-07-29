@@ -28,16 +28,24 @@ const EmailScreen = (props: any) => {
 
   const emailInputRef = useRef<TextInput>(null);
 
-  const validateEmail = (email: string) => {
+  const validateEmailFormat = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  const continueToPassword = () => {
-    if (validateEmail(emailInput)) {
-      navigation.navigate("PasswordScreen", {email: emailInput});
-    } else {
+  const isEmailTaken = async (email: string) => {
+    const encodedEmail = encodeURIComponent(email);
+    const response = await axios.get(serverUrl + `/checkEmail/${encodedEmail}`);
+    return response.data.taken;
+  }
+
+  const continueToPassword = async () => {
+    if (!validateEmailFormat(emailInput)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
+    } else if (await isEmailTaken(emailInput)) {
+      Alert.alert('Email Taken', 'Please enter another email address')
+    } else {
+      navigation.navigate("PasswordScreen", {email: emailInput});
     }
   }
   
