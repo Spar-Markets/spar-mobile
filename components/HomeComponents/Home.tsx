@@ -737,7 +737,7 @@ const Home: React.FC = () => {
 
   const GameModeButton = (props:any) => {
     return (
-      <TouchableOpacity onPress={() => {setGameModeSelected(props.text);}} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.accent2}, {paddingHorizontal: 20, borderRadius: 5, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
+      <TouchableOpacity onPress={() => {setGameModeSelected(props.text);}} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.accent2}, {paddingHorizontal: 15, borderRadius: 50, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
         <Text style={{color: gameModeSelected == props.text ? '#fff' : theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
       </TouchableOpacity>
     )
@@ -767,25 +767,26 @@ const Home: React.FC = () => {
   }
 
   return (
-    <View
+    <LinearGradient colors={[theme.colors.accent2, theme.colors.background]} start={{x:0.5, y: -3}}
       style={{backgroundColor: theme.colors.background, flex: 1}}>
       <View style={styles.container}>
           <View style={styles.header}>
 
           <TouchableOpacity onPress={() => navigation.navigate("Menu")} style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <Image
+                  {/*<Image
                     style={{width: 16, height: 30}}
                     source={require('../../assets/images/logo.png')}
-                  />
+                  />*/}
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 25}}>Portfolio</Text>
 
               </TouchableOpacity>
 
             <View style={{flex: 1}}></View>
             
               <View style={{justifyContent: 'center', flexDirection: 'row'}}>
-                <View style={{backgroundColor: theme.colors.primary, height: 35, borderWidth: 1, borderColor: theme.colors.secondary, borderRadius: 5, flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{backgroundColor: theme.colors.primary, height: 35, borderRadius: 50, flexDirection: 'row', alignItems: 'center'}}>
                   <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingHorizontal: 10}}>${userData?.balance.toFixed(2)}</Text>
-                  <TouchableOpacity style={{backgroundColor: theme.colors.accent2, borderRadius: 5, borderWidth: 1, borderColor: theme.colors.accent2, height: 35, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                  <TouchableOpacity style={{backgroundColor: theme.colors.accent2, borderRadius: 50, height: 35, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={{color: '#fff', fontFamily: 'InterTight-Black'}}>Deposit</Text>
                     {/*<MaterialCommunityIcons name="wallet" color={theme.colors.background} size={20}/>*/}
                   </TouchableOpacity>
@@ -793,7 +794,7 @@ const Home: React.FC = () => {
               </View>
            
                
-              <View
+              {/*<View
                 style={{
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -816,12 +817,10 @@ const Home: React.FC = () => {
                     source={{uri: profileImageUri} as any}
                   />
                 )}
-              </View>
+              </View>*/}
           </View>
-          <View style={{height: 1, backgroundColor: theme.colors.primary, marginHorizontal: 20, marginVertical: 10}}></View>
           
-          
-          <View style={{height: 40}}>
+          <View style={{height: 35, marginTop: 10}}>
             <ScrollView horizontal style={{width: width}} showsHorizontalScrollIndicator={false}>
               <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
                 <GameModeButton text={'Head-to-Head'} icon={"sword-cross"}/>
@@ -837,7 +836,9 @@ const Home: React.FC = () => {
               {noMatches && !searchingForMatch && !isInMatchmaking &&
                 <View style={{width: width, flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10}}>
                   {/*<Image source={require("../../assets/images/empty.png")} style={{width: 200, height: 200}}></Image>*/}
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>It looks empty in here, Start a Match!</Text>
+                  <MaterialCommunityIcons name="square-off-outline" color={theme.colors.text} size={40}/>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>NO MATCHES</Text>
+                  <Text style={{color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 13, textAlign: 'center', marginHorizontal: 50}}>There are no active matches, start a match or view your match history.</Text>
                 </View>}
 
               {!noMatches && 
@@ -931,7 +932,7 @@ const Home: React.FC = () => {
                   {/* Add more buttons as needed */}
                 </Animated.View>
               )}
-              {<View style={{flexDirection: 'row', backgroundColor: theme.colors.background}}>
+              {<View style={{flexDirection: 'row', backgroundColor: 'transparent'}}>
                 {/*<TouchableOpacity onPress={() => navigation.navigate("PastMatches")} style={{height: 40, borderRadius: 5, backgroundColor: theme.colors.opposite, width: (width-45)*0.12, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
                     <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
                 </TouchableOpacity>*/}
@@ -1145,8 +1146,8 @@ const Home: React.FC = () => {
                 </View>}
               </BottomSheetView>
             </BottomSheet>
-          </View>
-    </View>
+      </View>
+    </LinearGradient>
   );
 };
 

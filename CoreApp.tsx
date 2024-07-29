@@ -36,7 +36,7 @@ const CoreApp = (): React.ReactElement => {
   clientId={Auth0Config.clientId}
   >
 </Auth0Provider>*/} //commented out because big issues with it
-  if (balance) {
+ // if (balance) {
     return (
           
           <Tab.Navigator
@@ -70,8 +70,8 @@ const CoreApp = (): React.ReactElement => {
               },
               tabBarActiveTintColor: theme.colors.accent2, // Mint green color for active tab
               tabBarInactiveTintColor: theme.colors.tertiary,
-              tabBarStyle: { backgroundColor: theme.colors.secondary, 
-                height: 110, borderTopWidth: 0}, // Black background for the tab bar
+              tabBarStyle: { backgroundColor: theme.colors.background, 
+                height: 100, borderTopWidth: 0}, // Black background for the tab bar
               tabBarShowLabel: false
               })}>
               <Tab.Screen name="Discover" component={StockSearch} options={{headerShown: false, lazy:false}}/>
@@ -81,9 +81,9 @@ const CoreApp = (): React.ReactElement => {
               <Tab.Screen name="Profile" component={Profile} options={{headerShown: false, lazy:false}}/>
           </Tab.Navigator>
     );
-  } else {
-    return <View/>
-  }
+
+    
+  
 };
 
 
