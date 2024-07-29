@@ -43,7 +43,7 @@ const EmailScreen = (props: any) => {
     if (!validateEmailFormat(emailInput)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
     } else if (await isEmailTaken(emailInput)) {
-      Alert.alert('Email Taken', 'Please enter another email address')
+      Alert.alert('Email is Taken', 'Please enter another email address')
     } else {
       navigation.navigate("PasswordScreen", {email: emailInput});
     }
