@@ -15,7 +15,7 @@ export const darkColors = {
         darkAccent: '#095c35',
         accent2: '#345fe5', //border, some buttons
         darkAccent2: '#0c1738',
-        accent3: '#6a5fdf',
+        accent3: '#ffa060',
         text: '#ffffff', 
         secondaryText: '#909090',
         card: '#1b1b1b',
@@ -48,7 +48,7 @@ export const lightColors = {
         border: '#fff',
         accent: '#08a677', //most buttons
         accent2: '#345fe5', //border, some buttons
-        accent3: '#6a5fdf',
+        accent3: '#ffa060',
         darkAccent2: '#07546b',
         text: '#000000', 
         secondaryText: '#909090',

@@ -735,9 +735,22 @@ const Home: React.FC = () => {
     outputRange: [0, 0.8],
   });
 
+  const [activeGameModeColor, setActiveGameModeColor] = useState(theme.colors.accent2)
+
   const GameModeButton = (props:any) => {
+
+    const handlePress = () => {
+      if (props.text == "Head-to-Head") {
+        setActiveGameModeColor(theme.colors.accent2)
+      } else if (props.text == 'Tournaments') {
+        setActiveGameModeColor(theme.colors.accent3)
+      }
+      setGameModeSelected(props.text)
+
+    }
+
     return (
-      <TouchableOpacity onPress={() => {setGameModeSelected(props.text);}} style={[gameModeSelected == props.text && {backgroundColor: theme.colors.accent2}, {paddingHorizontal: 15, borderRadius: 50, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
+      <TouchableOpacity onPress={handlePress} style={[gameModeSelected == props.text && {backgroundColor: activeGameModeColor}, {paddingHorizontal: 15, borderRadius: 50, alignItems: 'center', flexDirection: 'row', gap: 5}]}>
         <Text style={{color: gameModeSelected == props.text ? '#fff' : theme.colors.text, fontFamily: 'InterTight-Black'}}>{props.text}</Text>
       </TouchableOpacity>
     )
@@ -767,7 +780,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <LinearGradient colors={[theme.colors.accent2, theme.colors.background]} start={{x:0.5, y: -3}}
+    <LinearGradient colors={[activeGameModeColor, theme.colors.background]} start={{x:0.5, y: -3}}
       style={{backgroundColor: theme.colors.background, flex: 1}}>
       <View style={styles.container}>
           <View style={styles.header}>
@@ -784,11 +797,10 @@ const Home: React.FC = () => {
             <View style={{flex: 1}}></View>
             
               <View style={{justifyContent: 'center', flexDirection: 'row'}}>
-                <View style={{backgroundColor: theme.colors.primary, height: 35, borderRadius: 50, flexDirection: 'row', alignItems: 'center'}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingHorizontal: 10}}>${userData?.balance.toFixed(2)}</Text>
-                  <TouchableOpacity style={{backgroundColor: theme.colors.accent2, borderRadius: 50, height: 35, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={{color: '#fff', fontFamily: 'InterTight-Black'}}>Deposit</Text>
-                    {/*<MaterialCommunityIcons name="wallet" color={theme.colors.background} size={20}/>*/}
+                <View style={{backgroundColor: hexToRGBA(theme.colors.secondary, 0.3), height: 35, borderRadius: 50, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: theme.colors.secondary}}>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingRight: 10, paddingLeft: 15}}>${userData?.balance.toFixed(2)}</Text>
+                  <TouchableOpacity style={{backgroundColor: activeGameModeColor, borderRadius: 50, padding: 4, justifyContent: 'center', alignItems: 'center', marginRight: 3}}>
+                    <MaterialIcons name="add" color={theme.colors.text} size={20}/>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -825,7 +837,6 @@ const Home: React.FC = () => {
               <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
                 <GameModeButton text={'Head-to-Head'} icon={"sword-cross"}/>
                 <GameModeButton text={'Tournaments'} icon={"tournament"}/>
-                <GameModeButton text={'Predictions'} icon={"brain"}/>
               </View>
             </ScrollView>
           </View>
@@ -837,7 +848,7 @@ const Home: React.FC = () => {
                 <View style={{width: width, flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10}}>
                   {/*<Image source={require("../../assets/images/empty.png")} style={{width: 200, height: 200}}></Image>*/}
                   <MaterialCommunityIcons name="square-off-outline" color={theme.colors.text} size={40}/>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>NO MATCHES</Text>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>NO ACTIVE MATCHES</Text>
                   <Text style={{color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 13, textAlign: 'center', marginHorizontal: 50}}>There are no active matches, start a match or view your match history.</Text>
                 </View>}
 
@@ -947,7 +958,18 @@ const Home: React.FC = () => {
             </View>
             </>
             }
-            </View>}
+          </View>}
+
+          {gameModeSelected === 'Tournaments' && 
+          <View style={{flex: 1}}>
+              <View style={{width: width, flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10}}>
+                {/*<Image source={require("../../assets/images/empty.png")} style={{width: 200, height: 200}}></Image>*/}
+                <MaterialIcons name="construction" color={theme.colors.text} size={40}/>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 16}}>WE ARE CURRENTLY BUILDING</Text>
+                <Text style={{color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 13, textAlign: 'center', marginHorizontal: 50}}>Tournaments aren't ready yet, but we'll let you know when they are.</Text>
+              </View>
+          </View>
+          }
 
             <BottomSheet
               ref={bottomSheetRef}
