@@ -89,6 +89,12 @@ const UsernameScreen = (props: any) => {
           hasDefaultProfileImage: 'true',
         });
 
+        // handle conflict error
+        if (response.status == 409) {
+          Alert.alert(response.data.error);
+          return;
+        }
+
         // Sets userID globally in async
         if (response) {
           console.log('About to set userID');
