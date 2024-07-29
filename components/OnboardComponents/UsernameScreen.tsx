@@ -59,9 +59,20 @@ const UsernameScreen = (props: any) => {
     console.log('Password:', password);
   }, []);
 
+  const isUsernameTaken = async (username: string) => {
+    const encodedUsername = encodeURIComponent(username);
+    const response = await axios.get(serverUrl + `/checkUsername/${encodedUsername}`);
+    return response.data.taken;
+  }
+
   const handleSubmit = async () => {
     try {
-      // Check for username uniqueness needs to be here before auth flow
+      // Check for username uniqueness
+      if (await isUsernameTaken(usernameInput)) {
+        Alert.alert('Username is Taken', 'Please enter another username');
+        return;
+      }
+
       const credentials = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -88,6 +99,12 @@ const UsernameScreen = (props: any) => {
           defaultProfileImage: randomImage,
           hasDefaultProfileImage: 'true',
         });
+
+        // handle conflict error
+        if (response.status == 409) {
+          Alert.alert(response.data.error);
+          return;
+        }
 
         // Sets userID globally in async
         if (response) {
