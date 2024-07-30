@@ -12,8 +12,9 @@ import { serverUrl } from '../../constants/global';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import useUserDetails from '../../hooks/useUserDetails';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setIsInMatchmaking } from '../../GlobalDataManagment/userSlice';
+import { RootState } from '../../GlobalDataManagment/store';
 
 const EnterMatch = () => {
     const { theme } = useTheme();
@@ -30,7 +31,7 @@ const EnterMatch = () => {
     const [typeValue, setTypeValue] = useState('Stock');
     const [activeAccent, setActiveAccent] = useState(theme.colors.stockUpAccent);
 
-    const { userData } = useUserDetails();
+    const user = useSelector((state: RootState) => state.user);
 
     const prizePool = parseFloat(entryFeeValue.replace('$', '')) * 2;
     const prize = prizePool - prizePool / 11;
@@ -63,9 +64,9 @@ const EnterMatch = () => {
     
         //Asign current user's values to a player object
         const player = {
-          username: userData?.username,
+          username: user.username,
           userID: userID,
-          skillRating: userData?.skillRating,
+          skillRating: user.skillRating,
           entryFee: entryFee,
           matchLength: matchLength,
           matchType: matchType

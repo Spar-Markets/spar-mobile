@@ -126,7 +126,7 @@ const StockDetailGraph = (props: any) => {
             const response = await axios.post(`${serverUrl}/closeEndpoint`, {
               ticker: props.ticker,
             });
-            console.log('fetchCloseComparison', response.data);
+            //console.log('fetchCloseComparison', response.data);
             setOneDayClose(response.data.lastPrice);
           } catch (error) {
             console.error('Error fetching close:', error);
@@ -136,18 +136,18 @@ const StockDetailGraph = (props: any) => {
         const allPoints = await getPrices(props.ticker, false);
         if (allPoints) {
           //console.log("ALL POINT DATA:", allPoints["3M"])
-          console.log('One day close', oneDayClose);
-          console.log('first point on graph', allPoints['1D'][1].value);
-          console.log(
-            'normalized price bar:',
-            oneDayClose - allPoints['1D'][0].value,
-          );
+          //console.log('One day close', oneDayClose);
+          //console.log('first point on graph', allPoints['1D'][1].value);
+          // console.log(
+          //     'normalized price bar:',
+          //     oneDayClose - allPoints['1D'][0].value,
+          //   );
           setClosePriceLineObject({
             normalizedValue: oneDayClose - allPoints['1D'][0].value,
           });
-          console.log({
-            normalizedValue: oneDayClose - allPoints['1D'][0].value,
-          });
+          // console.log({
+          //   normalizedValue: oneDayClose - allPoints['1D'][0].value,
+          // });
           setPointData(allPoints['1D']);
           setAllPointData(allPoints);
           //console.log("abcd",allPoints["3M"])
@@ -196,7 +196,7 @@ const StockDetailGraph = (props: any) => {
             ((state.x.position.value / width) * (pointData.length - 1)) /
               marketFraction,
           );
-    console.log(index);
+    //console.log(index);
     return Math.min(Math.max(index, 0), pointData.length - 1);
   }, [pointData, state]);
 
@@ -392,8 +392,8 @@ const StockDetailGraph = (props: any) => {
 
   const sendHeartbeat = () => {
     if (ws.current) {
-      console.log('SENDING WS HEARTBEAT ON STOCK DETAILS');
-      console.log('FROM STOCK DETAILS', ws.current);
+      // console.log('SENDING WS HEARTBEAT ON STOCK DETAILS');
+      // console.log('FROM STOCK DETAILS', ws.current);
       const heartbeat = {type: 'heartbeat'};
       ws.current.send(JSON.stringify(heartbeat));
     }
@@ -440,7 +440,7 @@ const StockDetailGraph = (props: any) => {
       if (message != '') {
         try {
           const jsonMessage = JSON.parse(message);
-          setPassingLivePrice(jsonMessage);
+          runOnJS(setPassingLivePrice)(jsonMessage);
           dispatch(updateStockPrice(jsonMessage[0]?.c)); //close live price for aggregate
         } catch (error) {
           console.error('stock graph live data error', error);
@@ -526,7 +526,7 @@ const StockDetailGraph = (props: any) => {
           currentInterval !== lastInterval
         ) {
           //console.log("ADDING DATA POINT");
-          setPointData(prevPointData => {
+          runOnJS(setPointData)(prevPointData => {
             const newPointData = [...prevPointData];
             // Update the last point with the current live price
             newPointData[newPointData.length - 1] = {
@@ -548,7 +548,7 @@ const StockDetailGraph = (props: any) => {
         } else {
           //console.log("animated point");
           if (isFirstAnimation == true) {
-            setPointData(prevPointData => {
+            runOnJS(setPointData)(prevPointData => {
               const newPointData = [...prevPointData, {}];
               // Update only the last point with the current live price and date
               newPointData[newPointData.length - 1] = {
@@ -562,7 +562,7 @@ const StockDetailGraph = (props: any) => {
             });
             setIsFirstAnimation(false);
           } else {
-            setPointData(prevPointData => {
+            runOnJS(setPointData)(prevPointData => {
               const newPointData = [...prevPointData];
               // Update only the last point with the current live price and date
               newPointData[newPointData.length - 1] = {

@@ -118,9 +118,10 @@ const Home: React.FC = () => {
   const [gameModeSelected, setGameModeSelected] = useState("Head-to-Head")
 
   const dispatch = useDispatch();
-  const {userData} = useUserDetails();
-
+ 
   const activeMatches = useSelector((state: RootState) => state.activeMatches.activeMatches)
+
+  const user = useSelector((state: any) => state.user)
   
 
   const [noMatches, setNoMatches] = useState(false)
@@ -152,12 +153,11 @@ const Home: React.FC = () => {
         console.error("global tickers error", error)
       }
     }
-    if (userData) {
-      dispatch(setUsername(userData.username))
-      dispatch(setUserBio(userData.bio))
+    if (user) {
+      console.log("Hello", user)
       getGlobalTickers();
     }
-  }, [userData])
+  }, [user])
 
   const requestPermissions = async () => {
     if (Platform.OS === 'ios') {
@@ -194,9 +194,9 @@ const Home: React.FC = () => {
   };
 
   const fetchProfileImageFromFirebase = async () => {
-    if (userData?.userID) {
+    if (user.userID) {
       try {
-        const imageRef = ref(storage, `profileImages/${userData?.userID}`);
+        const imageRef = ref(storage, `profileImages/${user.userID}`);
         const url = await getDownloadURL(imageRef);
         if (url) {
           console.log('Fetched URL from Firebase:', url);
@@ -213,7 +213,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const getProfilePicture = async () => {
       await requestPermissions();
-      if (userData?.userID) {
+      if (user.userID) {
         try {
           const profileImagePath = await AsyncStorage.getItem('profileImgPath');
           if (profileImagePath) {
@@ -233,7 +233,7 @@ const Home: React.FC = () => {
       }
     };
     getProfilePicture();
-  }, [userData?.userID]);
+  }, [user.userID]);
 
   const fetchMatchIDs = async () => {
     try {
@@ -514,9 +514,9 @@ const Home: React.FC = () => {
 
     //Asign current user's values to a player object
     const player = {
-      username: userData?.username,
+      username: user.username,
       userID: userID,
-      skillRating: userData?.skillRating,
+      skillRating: user.skillRating,
       entryFee: wager,
       matchLength: matchLength,
       matchType: matchType
@@ -780,7 +780,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <LinearGradient colors={[activeGameModeColor, theme.colors.background]} start={{x:0.5, y: -3}}
+    <LinearGradient colors={[activeGameModeColor, theme.colors.background]} start={{x:0.5, y: -14}}
       style={{backgroundColor: theme.colors.background, flex: 1}}>
       <View style={styles.container}>
           <View style={styles.header}>
@@ -798,7 +798,7 @@ const Home: React.FC = () => {
             
               <View style={{justifyContent: 'center', flexDirection: 'row'}}>
                 <View style={{backgroundColor: hexToRGBA(theme.colors.secondary, 0.3), height: 35, borderRadius: 50, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: theme.colors.secondary}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingRight: 10, paddingLeft: 15}}>${userData?.balance.toFixed(2)}</Text>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', paddingRight: 10, paddingLeft: 15}}>${user.balance.toFixed(2)}</Text>
                   <TouchableOpacity style={{backgroundColor: activeGameModeColor, borderRadius: 50, padding: 4, justifyContent: 'center', alignItems: 'center', marginRight: 3}}>
                     <MaterialIcons name="add" color={theme.colors.text} size={20}/>
                   </TouchableOpacity>
@@ -977,7 +977,7 @@ const Home: React.FC = () => {
               index={-1}
               enablePanDownToClose
               onChange={handleSheetChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.secondary}}
+              backgroundStyle={{backgroundColor: theme.colors.background}}
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
             >
@@ -1067,7 +1067,7 @@ const Home: React.FC = () => {
                 </View>
                 <View style={{height: 1, backgroundColor: theme.colors.tertiary, marginHorizontal: 20, marginTop: 20}}/>
                 </View>
-                <View style={{width: width,backgroundColor: theme.colors.secondary, justifyContent: 'center', marginVertical: 20}}>
+                <View style={{width: width, justifyContent: 'center', marginVertical: 20}}>
                     {(wagerSelected != null && timeframeSelected != 0 && modeSelected != "" && !enteredMatchmakingCheck) ? 
                     <>
                     <TouchableOpacity onPress={() => handleEnterMatchmaking(wagerSelected, timeframeSelected, modeSelected)} style={{marginHorizontal: 20, height: 50, backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
@@ -1086,7 +1086,7 @@ const Home: React.FC = () => {
               index={-1}
               enablePanDownToClose
               onChange={handleInfoChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.secondary}}
+              backgroundStyle={{backgroundColor: theme.colors.background}}
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
             >
@@ -1113,7 +1113,7 @@ const Home: React.FC = () => {
               index={-1}
               enablePanDownToClose
               onChange={handleMatchSummaryChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.secondary}}
+              backgroundStyle={{backgroundColor: theme.colors.background}}
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
             >
@@ -1131,7 +1131,7 @@ const Home: React.FC = () => {
               index={-1}
               enablePanDownToClose
               onChange={handleMatchmakingChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.secondary}}
+              backgroundStyle={{backgroundColor: theme.colors.background}}
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
             >
@@ -1139,23 +1139,23 @@ const Home: React.FC = () => {
                 {!(isInMatchmaking || searchingForMatch) ? 
                 <View style={{gap: 10, flex: 1}}>
                     <Text style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 20, paddingHorizontal: 20}}>Select a Mode</Text>
-                    <TouchableOpacity onPress={() => {expandBottomSheet(); closeMatchmakingSheet()}} style={{backgroundColor: theme.colors.secondary, alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+                    <TouchableOpacity onPress={() => {expandBottomSheet(); closeMatchmakingSheet()}} style={{alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
    
                       <View>
                         <Text style={{ color: theme.colors.stockUpAccent, fontFamily: 'InterTight-Black', fontSize: 20 }}>Stock</Text>
                         <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade stocks only</Text>
                       </View>
                     </TouchableOpacity>
-                    <View style={{height: 1, backgroundColor: theme.colors.tertiary, width: width-40, marginHorizontal: 20}}></View>
-                    <View style={{backgroundColor: theme.colors.secondary, alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+                    <View style={{height: 1, backgroundColor: theme.colors.primary, width: width-40, marginHorizontal: 20}}></View>
+                    <View style={{alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
                     <MaterialIcons name="construction" size={40} color={theme.colors.tertiary}/>
                       <View>
                         <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 20 }}>Crypto</Text>
                         <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade cryptocurrencies only</Text>
                       </View>
                     </View>
-                    <View style={{height: 1, backgroundColor: theme.colors.tertiary, width: width-40, marginHorizontal: 20}}></View>
-                    <View style={{backgroundColor: theme.colors.secondary, alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+                    <View style={{height: 1, backgroundColor: theme.colors.primary, width: width-40, marginHorizontal: 20}}></View>
+                    <View style={{alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
                     <MaterialIcons name="construction" size={40} color={theme.colors.tertiary}/>
                       <View>
                         <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 20 }}>Options</Text>

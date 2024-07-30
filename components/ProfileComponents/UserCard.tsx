@@ -25,8 +25,6 @@ const UserCard = (props:any) => {
     const [noPic, setNoPic] = useState(false)
     const [status, setStatus] = useState<string | null>(null)
 
-    const {userData}=useUserDetails()
-
     const navigation = useNavigation<any>();
 
     const [following, setFollowing] = useState(props.following)

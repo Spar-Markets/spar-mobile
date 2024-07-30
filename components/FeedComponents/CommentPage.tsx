@@ -43,7 +43,8 @@ const CommentPage = () => {
   const styles = createFeedStyles(theme, width);
   const route = useRoute();
   const params = route.params as RouteParams | undefined;
-  const { userData } = useUserDetails();
+
+  const user = useSelector((state: RootState) => state.user)
 
   const post = useSelector((state: RootState) =>
     state.posts.find((p) => p.postId === params?.postId)
@@ -55,13 +56,14 @@ const CommentPage = () => {
   const animatedMargin = useRef(new Animated.Value(70)).current;
 
   const confirmComment = async () => {
+
     try {
       const commentId = generateRandomString(40);
       const localCommentData: CommentType = {
         commentId: commentId,
         postId: params!.postId,
-        username: userData!.username,
-        userID: userData!.userID,
+        username: user.username!,
+        userID: user.userID!,
         postedTime: new Date(Date.now()),
         body: commentInput,
         votes: 0,
@@ -74,8 +76,8 @@ const CommentPage = () => {
       const mongoCommentData = {
         postId: params!.postId,
         commentId: commentId,
-        username: userData!.username,
-        userID: userData!.userID,
+        username: user.username!,
+        userID: user.userID!,
         postedTime: Date.now(),
         body: commentInput,
       };

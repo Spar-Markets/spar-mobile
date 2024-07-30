@@ -72,7 +72,7 @@ const StockDetails = () => {
   const globalStyles = createGlobalStyles(theme, width);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const {userData} = useUserDetails();
+  const user = useSelector((state: any) => state.user)
 
   const [loading, setLoading] = useState(true);
   const [isWatchingStock, setIsWatchingStock] = useState<any>(null);
@@ -103,7 +103,7 @@ const StockDetails = () => {
   const checkIfStockIsWatched = async () => {
     try {
       const response = await axios.post(serverUrl + '/isWatchedStock', {
-        userID: userData?.userID,
+        userID: user.userID,
         ticker: params?.ticker,
       });
       //console.log("STOCK CONSOLE LOG:", response.data)
@@ -128,7 +128,7 @@ const StockDetails = () => {
 
   useEffect(() => {
     if (params?.assets) {
-      console.log(params?.assets);
+      //console.log(params?.assets);
       setAsset(params?.assets.find((asset: any) => asset.ticker === ticker));
       setOwns(asset != undefined);
     }
@@ -136,7 +136,7 @@ const StockDetails = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log('Params', params);
+      //console.log('Params', params);
       setLoading(true);
       try {
         await checkIfStockIsWatched();
@@ -147,7 +147,7 @@ const StockDetails = () => {
           },
         );
         if (tickerResponse) {
-          console.log(tickerResponse.data.priceDetails);
+          //console.log(tickerResponse.data.priceDetails);
           setTickerData(tickerResponse.data);
         }
       } catch {
@@ -156,17 +156,17 @@ const StockDetails = () => {
       setLoading(false);
     };
 
-    if (userData?.userID) {
+    if (user.userID) {
       setTicker(params?.ticker || '');
       fetchData();
     }
-  }, [userData, params]);
+  }, [user, params]);
 
-  useEffect(() => {
-    if (userData) {
+  /*useEffect(() => {
+    if (user) {
       setWatchLists(userData.watchLists);
     }
-  }, [userData]);
+  }, [userData]);*/
 
   const handleQueueChange = (watchListName: string) => {
     setQueueToAdd(prevQueue => {
@@ -181,14 +181,14 @@ const StockDetails = () => {
   };
 
   const addToWatchlist = async () => {
-    if (userData?.userID) {
+    if (user.userID) {
       try {
         console.log('Send waitlist straight to the moon');
-        console.log('UserID:', userData?.userID);
+        console.log('UserID:', user.userID);
         console.log('watchListNames', queueToAdd);
         console.log('stockTicker:', ticker);
         const response = await axios.post(serverUrl + '/addToWatchList', {
-          userID: userData?.userID,
+          userID: user.userID,
           watchListNames: queueToAdd,
           stockTicker: ticker,
         });
@@ -218,17 +218,40 @@ const StockDetails = () => {
   };
 
   const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
+    //console.log('handleSheetChanges', index);
   }, []);
 
   if (loading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <CustomActivityIndicator size={60} color={theme.colors.text} />
+      <View style={{flex: 1, backgroundColor: theme.colors.background}}>
+        <View style={styles.stockDetailsContainer}>
+            {params?.inGame ? (
+              <HTHPageHeader endAt={params?.endAt} />
+            ) : (
+              <PageHeader />
+            )}
+            <ScrollView
+                style={{paddingBottom: 60}}
+                showsVerticalScrollIndicator={false}
+            >
+              <View>
+                <StockDetailGraph
+                  setCurrPrice={setCurrentStockPrice}
+                  ticker={ticker}
+                  livePrice={livePrice}
+                  timeframe={timeFrameSelected}
+                  name={tickerData.detailsResponse.results.name}
+                  logoUrl={
+                    'error'}
+                  currentAccentColorValue={currentAccentColorValue}
+                  setCurrentAccentColorValue={setCurrentAccentColorValue}
+                />
+              </View>
+            </ScrollView>
+        </View>
       </View>
     );
   }
-
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
       {!loading && (
@@ -239,7 +262,7 @@ const StockDetails = () => {
             ) : (
               <PageHeader />
             )}
-            {params?.inGame != true && (
+            {/*params?.inGame != true && (
               <View style={{}}>
                 {isWatchingStock ? (
                   <TouchableOpacity
@@ -259,7 +282,7 @@ const StockDetails = () => {
                   </TouchableOpacity>
                 )}
               </View>
-            )}
+            )*/}
             {tickerData != null && params != undefined ? (
               <ScrollView
                 style={{paddingBottom: 60}}

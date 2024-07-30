@@ -21,6 +21,7 @@ import UserCard from '../ProfileComponents/UserCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DiscoverNewsCard from './DiscoverNewsCard';
 import timeAgo from '../../utility/timeAgo';
+import { useSelector } from 'react-redux';
 
 interface StockObject {
   ticker: string;
@@ -55,6 +56,7 @@ const StockSearch: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false);
 
   const {userData} = useUserDetails();
+  const user = useSelector((state: any) => state.user)
 
   const [following, setFollowing] = useState<String[]>([])
   const [followers, setFollowers] = useState<String[]>([])
@@ -123,7 +125,7 @@ const StockSearch: React.FC = () => {
 
   const renderItem = ({ item }: { item: CombinedObject }) => {
     if (item.type === 'profile') {
-      return <UserCard username={item.username} otherUserID={item.userID} yourUserID={userData?.userID} following={following} followers={followers}/>;
+      return <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>;
     }
     return <SearchCard ticker={item.ticker} name={item.companyName} />;
   };

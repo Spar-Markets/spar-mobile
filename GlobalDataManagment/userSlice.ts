@@ -6,8 +6,9 @@ interface UserState {
     userID: string | null;
     username: string;
     userBio: string;
-    balance:number
-    hasDefaultProfileImage: boolean
+    balance:number;
+    hasDefaultProfileImage: boolean;
+    skillrating: number;
 }
 
 const initialState = {
@@ -18,6 +19,7 @@ const initialState = {
   userBio: null,
   balance: null,
   hasDefaultProfileImage: true,
+  skillRating: null
 }
 
 const userSlice = createSlice({
@@ -44,9 +46,12 @@ const userSlice = createSlice({
     },
     setHasDefaultProfileImage: (state, action) => {
       state.hasDefaultProfileImage = action.payload
+    },
+    setSkillRating: (state, action) => {
+      state.hasDefaultProfileImage = action.payload
     }
   }
 });
 
-export const { setIsInMatchmaking, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance } = userSlice.actions;
+export const { setIsInMatchmaking, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating } = userSlice.actions;
 export default userSlice.reducer;

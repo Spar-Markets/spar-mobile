@@ -21,7 +21,6 @@ function getMarketFraction(currentDate:Date) {
 
         // Calculate the fraction of the market day completed
         const fractionCompleted = elapsedTime / marketDuration;
-        console.log("MARKET FRACTION:", Math.min(Math.max(fractionCompleted, 0), 1))
         // Ensure the fraction is between 0 and 1
         //console.log(fractionCompleted)
         return Math.min(Math.max(fractionCompleted, 0), 1);

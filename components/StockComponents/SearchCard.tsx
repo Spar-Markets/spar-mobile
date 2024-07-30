@@ -24,6 +24,7 @@ const SearchCard = (props:any) => {
             assets: props.assets,
             inGame: props.inGame,
             endAt: props.endAt,
+            name: props.name
           })
         }
         style={styles.searchCard}
