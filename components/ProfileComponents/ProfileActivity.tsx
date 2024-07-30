@@ -10,6 +10,7 @@ import PageHeader from '../GlobalComponents/PageHeader';
 import { serverUrl } from '../../constants/global';
 import timeAgo from '../../utility/timeAgo';
 import FriendRequestCard from './FriendRequestCard';
+import { useSelector } from 'react-redux';
 
 interface FriendRequest {
   createdAt: Date,
@@ -24,13 +25,14 @@ const ProfileActivity = ({ navigation }: any) => {
   const globalStyles = createGlobalStyles(theme, width);
 
   const { userData } = useUserDetails();
+  const user = useSelector((state: any) => state.user)
 
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   const getFriendRequests = async () => {
     try {
-      const response = await axios.post(serverUrl + "/checkIncomingFriendRequests", { userID: userData?.userID });
+      const response = await axios.post(serverUrl + "/checkIncomingFriendRequests", { userID: user.userID });
       if (response.status === 200) {
         setFriendRequests(response.data.incomingRequests);
         console.log(response.data.incomingRequests);
@@ -43,10 +45,10 @@ const ProfileActivity = ({ navigation }: any) => {
   }
 
   useEffect(() => {
-    if (userData?.userID) {
+    if (user.userID) {
       getFriendRequests();
     }
-  }, [userData?.userID]);
+  }, [user.userID]);
 
   return (
     <View style={styles.container}>
@@ -61,7 +63,7 @@ const ProfileActivity = ({ navigation }: any) => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
  
-              <FriendRequestCard otherUserID={item.from} userID={userData?.userID}/>
+              <FriendRequestCard otherUserID={item.from} userID={user.userID}/>
               
             )}
           />

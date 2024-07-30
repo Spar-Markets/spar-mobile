@@ -29,7 +29,7 @@ const Feed: React.FC = () => {
   const posts = useSelector((state: RootState) => state.posts || []);
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();  
-  const userData = useSelector((state: any) => state.user.userData);
+  const user = useSelector((state: any) => state.user);
   const [loading, setLoading] = useState(false); // Single loading state for fetches
   const [skip, setSkip] = useState(0); 
   const [hasMorePosts, setHasMorePosts] = useState(true); 

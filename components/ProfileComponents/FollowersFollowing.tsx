@@ -17,6 +17,7 @@ import createProfileStyles from '../../styles/createProfileStyles';
 import PageHeader from '../GlobalComponents/PageHeader';
 import UserCard from './UserCard';
 import useUserDetails from '../../hooks/useUserDetails';
+import { useSelector } from 'react-redux';
 
 interface SearchProfile {
   userID: string;
@@ -32,6 +33,8 @@ const FollowersFollowing = (props:any) => {
   const navigation = useNavigation<any>();
 
   const {userData} = useUserDetails()
+  const user = useSelector((state: any) => state.user)
+  
 
   const [userProfiles, setUserProfiles] = useState([]);
   const [profileSearch, setProfileSearch] = useState("");
@@ -107,7 +110,7 @@ const FollowersFollowing = (props:any) => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={userData?.userID} following={userData?.following}/>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={userData?.following}/>
               </View>
             )}
           />

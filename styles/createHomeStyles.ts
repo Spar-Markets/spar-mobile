@@ -121,12 +121,14 @@ const createHomeStyles = (theme: any, width: number) => {
     // GameCard
     gameCardContainer: {
       width: (Dimensions.get('window').width-40),
-      backgroundColor: theme.colors.primary,
+      //backgroundColor: "rgba(0,0,0,0.5)",
       marginHorizontal: 20,
       flex: 1,
       borderRadius: 10,
       marginTop: 10,
-      
+      borderWidth: 1,
+      borderColor: theme.colors.secondary
+
     },
 
     indicatorContainer: {

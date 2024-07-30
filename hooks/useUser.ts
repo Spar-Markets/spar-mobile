@@ -3,7 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import { useSelector, useDispatch} from 'react-redux';
 import { RootState } from '../GlobalDataManagment/store';
-import { setBalance } from '../GlobalDataManagment/userSlice'
+import { setBalance, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
 
 interface UserData {
   __v: number;
@@ -48,7 +48,12 @@ const useUserData = (userID?: string) => {
           console.log("PASSING USER ID IN TO GET USER ENDPOINT:", userID)
           console.log("SERVER URL", serverUrl)
           const response = await axios.post(`${serverUrl}/getUser`, { userID });
+          console.log("HELLO", response.data)
           //console.log('Fetched User Data:', response.data);
+          dispatch(setUsername(response.data.username))
+          dispatch(setUserBio(response.data.bio))
+          dispatch(setSkillRating(response.data.skillRating))
+          dispatch(setBalance(response.data.balance))
           setUserData(response.data);
         } catch (error) {
           console.error('Error fetching user data:', error);

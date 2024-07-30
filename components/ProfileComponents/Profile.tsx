@@ -80,6 +80,7 @@ const Profile = ({navigation}: any) => {
   const userBio = useSelector((state: RootState) => state.user.userBio);
 
   const {userData} = useUserDetails();
+  const user = useSelector((state: any) => state.user)
 
   const [loading, setLoading] = useState(true);
 
@@ -123,11 +124,11 @@ const Profile = ({navigation}: any) => {
     getProfileImage();
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (userData) {
       setWatchLists(userData.watchLists);
     }
-  }, [userData]);
+  }, [userData]);*/
 
   const dispatch = useDispatch();
 
@@ -179,7 +180,7 @@ const Profile = ({navigation}: any) => {
         async response => {
           const imageRes = await fetch(response.uri);
           const blob = await imageRes.blob();
-          const imgRef = ref(storage, `profileImages/${userData?.userID}`);
+          const imgRef = ref(storage, `profileImages/${user.userID}`);
           await uploadBytes(imgRef, blob);
           console.log('Image uploaded successfully');
         },
@@ -195,7 +196,7 @@ const Profile = ({navigation}: any) => {
 
   const [value, setValue] = useState('');
 
-  if (loading || !userData) {
+  if (loading || !user) {
     return <View></View>;
   }
 
@@ -286,7 +287,7 @@ const Profile = ({navigation}: any) => {
                 }}
                 onPress={() =>
                   navigation.navigate('editProfilePage', {
-                    userID: userData?.userID,
+                    userID: user.userID,
                     username: username,
                     bio: userBio,
                   })
@@ -305,7 +306,7 @@ const Profile = ({navigation}: any) => {
                 onPress={() =>
                   navigation.navigate('FollowersFollowing', {
                     type: 'followers',
-                    username: userData?.username,
+                    username: user.username,
                   })
                 }>
                 <Text style={styles.mainContainerType}>
@@ -320,7 +321,7 @@ const Profile = ({navigation}: any) => {
                 onPress={() =>
                   navigation.navigate('FollowersFollowing', {
                     type: 'following',
-                    username: userData?.username,
+                    username: user.username,
                   })
                 }>
                 <Text style={styles.mainContainerType}>

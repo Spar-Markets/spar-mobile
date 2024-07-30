@@ -89,7 +89,7 @@ const AppContent = (): React.ReactElement => {
   }
 
   //onboard or main stack depending on user status
-  if (user && userIsMade == true) {
+  if (user && userIsMade == true && userData) {
     return (
       <NavigationContainer theme={theme}>
         <StatusBar
@@ -283,7 +283,8 @@ const AppContent = (): React.ReactElement => {
         </Stack.Navigator>
       </NavigationContainer>
     );
-  } else {
+  } 
+  if (!user) {
     return (
       <NavigationContainer theme={theme}>
         <Stack.Navigator
@@ -328,6 +329,8 @@ const AppContent = (): React.ReactElement => {
       </NavigationContainer>
     );
   }
+
+  return <View style={{backgroundColor: 'red', flex: 1}}></View>
 };
 
 const App = (): React.ReactElement => {

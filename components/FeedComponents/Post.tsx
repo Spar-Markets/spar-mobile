@@ -38,7 +38,7 @@ const Post = (props:any) => {
     const { width, height } = useDimensions();
     const styles = createFeedStyles(theme, width)
 
-    const { userData } = useUserDetails();
+    const user = useSelector((state: any) => state.user);
     const dispatch = useDispatch();
 
     const navigation = useNavigation<any>();
@@ -73,8 +73,8 @@ const Post = (props:any) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                if (userData) {
-                    const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: userData.userID, postId: props.postId });
+                if (user) {
+                    const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: user.userID, postId: props.postId });
                     if (newVoteStatus.data.voteType === 'up') {
                         dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
                         dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
@@ -116,7 +116,7 @@ const Post = (props:any) => {
         };
 
         fetchData();
-    }, [dispatch, props.postId, props.hasImage, props.posterId, userData]);
+    }, [dispatch, props.postId, props.hasImage, props.posterId, user]);
 
     const categoryButton = (category: string) => {
 
@@ -233,7 +233,7 @@ const Post = (props:any) => {
                     )}
                     <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
                     <View style={{flex: 1}}></View>
-                    {((props.posterId == userData?.userID) || props.hasTempImage || props.profileImage) && 
+                    {((props.posterId == user.userID) || props.hasTempImage || props.profileImage) && 
                     <TouchableOpacity style={{paddingHorizontal: 20}} onPress={() => handleDelete(props.postId)}>
                         <Icon name="trash" size={20} color={theme.colors.text}></Icon>
                     </TouchableOpacity>
@@ -262,7 +262,7 @@ const Post = (props:any) => {
                         <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
                         <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
                         <View style={{flex: 1}}></View>
-                        {props.posterId == userData?.userID && 
+                        {props.posterId == user.userID && 
                         <TouchableOpacity style={{paddingHorizontal: 20}} onPress={() => {
                             handleDelete(props.postId)
                             }}>

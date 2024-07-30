@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, act} from 'react';
+import React, {useState, useEffect, useRef, act, useCallback} from 'react';
 import { ScrollView, Text, TouchableOpacity, View, useColorScheme} from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -33,6 +33,7 @@ import { storage } from '../../firebase/firebase';
 import { Skeleton } from '@rneui/base';
 import { runOnJS, SharedValue, useAnimatedReaction, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 import { removeMatch } from '../../GlobalDataManagment/activeMatchesSlice';
+import { debounce } from 'lodash';
 
 
 interface GameCardProps {
@@ -730,6 +731,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     oppTotalPriceRef.current = oppTotalPrice;
   }, [oppTotalPrice]);
 
+  const [yourFormattedDataLength, setYourFormattedDataLength] = useState(0)
+
   useEffect(() => {
     const interval = setInterval(() => {
       setYourFormattedData((prevPointData:any) => {
@@ -750,11 +753,29 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
       
         return newPointData
       })
+
+      setOppFormattedData((prevPointData:any) => {
+        const newPointData = [...prevPointData];
+        newPointData[newPointData.length - 1] = {
+          ...newPointData[newPointData.length - 1],
+          normalizedValue: oppTotalPriceRef.current - prevPointData[0].value,
+          value: oppTotalPriceRef.current,
+          date: new Date(Date.now()).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
+        };
+        newPointData.push({
+          value: oppTotalPriceRef.current,
+          normalizedValue: oppTotalPriceRef.current - prevPointData[0].value,
+          date: new Date(Date.now()).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
+        });
+        //setYourFormattedDataLength(newPointData.length)      
+        return newPointData
+      })
     }, 10000)
+ 
     return () => clearInterval(interval);
   }, [])
 
-  const [yourFormattedDataLength, setYourFormattedDataLength] = useState(0)
+
   //sets total live prices for each user
   useEffect(() => {
     //console.log("Ticker Prices: ", tickerPrices)
@@ -945,29 +966,34 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   
   const {state, isActive} = useChartPressState({ x: 0, y: { normalizedValue: 0 } })
 
-  const currentIndex = useDerivedValue(() => {
-    if (yourFormattedDataLength != 0 && match) {
-      const startTime = (new Date(match.endAt).getTime() - (match.timeframe * 1000))
-      const fraction = (Date.now() - startTime) / (match.timeframe * 1000)
+  const sharedIndex = useSharedValue(0);
+
+  useDerivedValue(() => {
+    'worklet';
+    if (yourFormattedDataLength !== 0 && match) {
+      const startTime = new Date(match.endAt).getTime() - match.timeframe * 1000;
+      const fraction = (Date.now() - startTime) / (match.timeframe * 1000);
       const positionValue = state.x.position.value;
-      console.log((positionValue / (width - 60)) * (yourFormattedDataLength) / fraction)
-      const index = Math.round((positionValue / (width - 60)) * (yourFormattedDataLength) / fraction);
-      return index;
+      const index = Math.round((positionValue / (width - 40)) * (yourFormattedDataLength / fraction));
+      sharedIndex.value = index;
     }
-    return 0
   }, [state, match, yourFormattedDataLength]);
 
-  useAnimatedReaction(
-    () => currentIndex.value,
-    () => {runOnJS(setAnimatedIndex)(currentIndex.value); console.log(currentIndex.value)}
-  )
+  const updateIndex = useCallback(() => {
+    setAnimatedIndex(sharedIndex.value);
+  }, [sharedIndex]);
+
+  useEffect(() => {
+    const id = setInterval(updateIndex, 20);
+    return () => clearInterval(id);
+  }, [updateIndex]);
 
 
 
   return (
     <View style={{flex: 1}}>
       {matchIsOver && 
-      <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10}} blurType="dark" blurAmount={4} reducedTransparencyFallbackColor="black">
+      <BlurView style={{position: 'absolute', gap: 20, justifyContent: 'center', alignItems:'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10, borderWidth: 1, borderColor: theme.colors.secondary}} blurType="dark" blurAmount={4} reducedTransparencyFallbackColor="black">
         <Icon name="checkmark-circle" color={theme.colors.accent} size={40}/>
         <Text style={{fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black'}}>Match Completed!</Text>
         <View style={{flexDirection: 'row', gap: 5}}>
@@ -979,40 +1005,25 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           </TouchableOpacity>
         </View> 
       </BlurView>}
-    {!loading && match && yourFormattedData ?
-    <>
-      <View style={styles.gameCardContainer}/*style={styles.gameCardContainer}*/ /*onPress={() => {
-      navigation.navigate("GameScreen", {
-        matchID: match.matchID, 
-        userID: userID, 
-        endAt: match.endAt,
-        opponentUsername: opponentUsername,
-      })
+    {!loading && match && yourFormattedData && oppFormattedData ?
       
-        HapticFeedback.trigger("impactMedium", {
-          enableVibrateFallback: true,
-          ignoreAndroidSystemSettings: false
-        });
-      }
-      
-      }*/>
+      <LinearGradient colors={[theme.colors.primary, theme.colors.primary]} start={{x: 1, y: 0}} end={{x:0, y:1}} style={styles.gameCardContainer}>
 
         <View style={{flexDirection: 'row', marginTop: 10, marginHorizontal: 10, marginBottom: 5, gap: 5}}>
-          <View style={{flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.background, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 5, gap: 10}}>
             <Timer endDate={match.endAt} timeFrame={match.timeframe} />
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
-            <FontAwesomeIcon name="gamepad" color={theme.colors.text} style={{marginBottom: 3}} size={20}/>
+          <View style={{flex: 1}}></View>
+          <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 5, gap: 10}}>
             <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>{match.matchType}</Text>
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 5, gap: 10}}>
-            <FontAwesomeIcon name="money" color={theme.colors.text} size={20}/>
+          <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 5, gap: 10}}>
             <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${match.wagerAmt}</Text>
           </View>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} style={{paddingTop: 0}}>
-          <View style={{backgroundColor: theme.colors.background, flexDirection: 'row', marginTop: 0, height: 180, gap: 10, justifyContent: 'center', marginHorizontal: 10, borderRadius: 5}}>
+          <View style={{/*backgroundColor: theme.colors.background*/ flexDirection: 'row', marginTop: 0, height: 180, gap: 10, justifyContent: 'center', marginHorizontal: 10, borderRadius: 5}}>
             <View style={{marginRight: 10, backgroundColor: 'transparent', flex: 1,  borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5}}>
                 {hasDefaultProfileImage && Image && (
                   <Image
@@ -1033,13 +1044,17 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
               <Text style={styles.userText}>You</Text>
               {!isActive ?
               <>
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(yourTotalPrice).toFixed(2)}</Text>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
+                ${yourTotalPrice.toFixed(2)}
+              </Text>
               <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(yourColor, 0.3)}]}>
                 <Text style={[styles.percentText, {color: yourColor}]}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
               </View>
               </> :
               <>
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${animatedIndex}</Text>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
+                ${yourFormattedData[animatedIndex] ? yourFormattedData[animatedIndex].value.toFixed(2) : yourTotalPrice.toFixed(2)}
+              </Text>
               <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(yourColor, 0.3)}]}>
                 <Text style={[styles.percentText, {color: yourColor}]}>{((yourTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
               </View>
@@ -1065,12 +1080,22 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   />
                 )}
               <Text style={styles.userText}>{opponentUsername}</Text>
+                            {!isActive ?
+              <>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${(oppTotalPrice).toFixed(2)}</Text>
               <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(oppColor, 0.3)}]}>
                 <Text style={[styles.percentText, {color: oppColor}]}>{((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
               </View>
+              </> :
+              <>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>${oppFormattedData[animatedIndex] ? (oppFormattedData[animatedIndex].value).toFixed(2) : oppTotalPrice.toFixed(2)}</Text>
+              <View style={[styles.percentIndicator, {backgroundColor: hexToRGBA(oppColor, 0.3)}]}>
+                <Text style={[styles.percentText, {color: oppColor}]}>{((oppTotalPrice-100000)/(0.01*100000)).toFixed(2)}%</Text>
+              </View>
+              </>
+              }
             </View>
-            <View style={{backgroundColor: theme.colors.primary, borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{backgroundColor: 'transparent', borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>VS</Text>
             </View>
  
@@ -1078,7 +1103,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           <View style={{
                 flexDirection: 'row', 
                 marginTop: 5,
-                backgroundColor: theme.colors.background,
+                /*backgroundColor: theme.colors.background*/
                 padding: 20,
                 borderRadius: 5,
                 alignItems: 'center',
@@ -1092,7 +1117,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           
             </View>
       
-          <View style={{marginTop: 5, height: 135, backgroundColor: theme.colors.background, marginHorizontal: 10, borderRadius: 5}}>
+          <View style={{marginTop: 5, height: 135, /*backgroundColor: theme.colors.background*/ }}>
           <View style={{
                 position: 'absolute',
                 top: 10,
@@ -1214,9 +1239,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
 
           
         </View>
-      </View>
+      </LinearGradient>
 
-    </>
+    
     : 
     <View style={{width: width-40, flex: 1, marginHorizontal: 20, marginTop: 10}}>
       <Skeleton animation={"pulse"} style={{flex: 1, borderRadius: 10, backgroundColor: theme.colors.secondary}} skeletonStyle={{backgroundColor: theme.colors.primary}}/>

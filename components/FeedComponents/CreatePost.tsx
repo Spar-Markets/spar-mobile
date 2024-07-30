@@ -17,6 +17,7 @@ import { Image } from 'react-native';
 import { storage } from '../../firebase/firebase';
 import { ref, uploadBytes } from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer'
+import { RootState } from '../../GlobalDataManagment/store';
 
 const CreatePost = (props: any) => {
 
@@ -24,8 +25,6 @@ const CreatePost = (props: any) => {
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createFeedStyles(theme, width)
-
-    const { user, userData, loading, error } = useUserDetails();
 
     const navigation = useNavigation<any>();
     const dispatch = useDispatch();
@@ -36,6 +35,8 @@ const CreatePost = (props: any) => {
     const animatedMargin = useRef(new Animated.Value(70)).current;
 
     const [image, setImage] = useState<string | null>(null)
+
+    const user = useSelector((state:RootState) => state.user)
 
     const choosePhotoFromLibrary = () => {
         ImagePicker.openPicker({
@@ -128,7 +129,7 @@ const CreatePost = (props: any) => {
 
             const localPostData = {
                 postId: postId,
-                username: userData!.username, //fix to be current logged in user through AUTH
+                username: user.username!, //fix to be current logged in user through AUTH
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,
@@ -150,8 +151,8 @@ const CreatePost = (props: any) => {
 
             const mongoPostData = {
                 postId: postId,
-                posterId: userData!.userID,
-                username: userData!.username,
+                posterId: user.userID!,
+                username: user.username!,
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,

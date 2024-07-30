@@ -34,7 +34,7 @@ const Onboard1 = () => {
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createOnboardStyles(theme, width)
-    const { userData } = useUserDetails();
+
 
     const navigation = useNavigation<any>();
 
