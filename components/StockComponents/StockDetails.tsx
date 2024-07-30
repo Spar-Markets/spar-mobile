@@ -54,6 +54,7 @@ interface RouteParams {
   owns: boolean;
   qty: number;
   endAt: Date;
+  name: string;
 }
 
 // apply stockdetails props interface so it knows its formatted correctly
@@ -221,40 +222,17 @@ const StockDetails = () => {
     //console.log('handleSheetChanges', index);
   }, []);
 
-  if (loading) {
-    return (
-      <View style={{flex: 1, backgroundColor: theme.colors.background}}>
-        <View style={styles.stockDetailsContainer}>
-            {params?.inGame ? (
-              <HTHPageHeader endAt={params?.endAt} />
-            ) : (
-              <PageHeader />
-            )}
-            <ScrollView
-                style={{paddingBottom: 60}}
-                showsVerticalScrollIndicator={false}
-            >
-              <View>
-                <StockDetailGraph
-                  setCurrPrice={setCurrentStockPrice}
-                  ticker={ticker}
-                  livePrice={livePrice}
-                  timeframe={timeFrameSelected}
-                  name={tickerData.detailsResponse.results.name}
-                  logoUrl={
-                    'error'}
-                  currentAccentColorValue={currentAccentColorValue}
-                  setCurrentAccentColorValue={setCurrentAccentColorValue}
-                />
-              </View>
-            </ScrollView>
-        </View>
-      </View>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
+
+  //     </View>
+  //   );
+  // }
+  
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
-      {!loading && (
+      {ticker != '' &&
         <View style={{flex: 1}}>
           <View style={styles.stockDetailsContainer}>
             {params?.inGame ? (
@@ -262,28 +240,6 @@ const StockDetails = () => {
             ) : (
               <PageHeader />
             )}
-            {/*params?.inGame != true && (
-              <View style={{}}>
-                {isWatchingStock ? (
-                  <TouchableOpacity
-                    style={styles.headerRightBtn}
-                    onPress={expandListMenu}>
-                    <Icon name="star" style={{color: '#fac61e'}} size={28} />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={styles.headerRightBtn}
-                    onPress={expandListMenu}>
-                    <Icon
-                      name="star-o"
-                      style={{color: theme.colors.opposite}}
-                      size={28}
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
-            )*/}
-            {tickerData != null && params != undefined ? (
               <ScrollView
                 style={{paddingBottom: 60}}
                 showsVerticalScrollIndicator={false}>
@@ -291,191 +247,192 @@ const StockDetails = () => {
                   <StockDetailGraph
                     setCurrPrice={setCurrentStockPrice}
                     ticker={ticker}
-                    livePrice={livePrice}
                     timeframe={timeFrameSelected}
-                    name={tickerData.detailsResponse.results.name}
+                    name={params?.name}
                     logoUrl={
-                      tickerData.detailsResponse.results.branding != undefined
+                      tickerData ? tickerData.detailsResponse.results.branding != undefined
                         ? tickerData.detailsResponse.results.branding.icon_url +
                           '?apiKey=' +
                           polygonKey
-                        : 'logoUrlError'
+                        : 'logoUrlError' : 'logoUrlError'
                     }
                     currentAccentColorValue={currentAccentColorValue}
                     setCurrentAccentColorValue={setCurrentAccentColorValue}
                   />
                 </View>
-                {(owns == true || params?.owns == true) && (
+                {!loading && tickerData != null &&
+                <>
+                  {(owns == true || params?.owns == true) && (
+                    <View style={{marginHorizontal: 25, marginTop: 10}}>
+                      <Text style={styles.subjectLabel}>Position</Text>
+                      <View style={{flexDirection: 'row', marginTop: 5}}>
+                        <View style={{flex: 0.7, gap: 10}}>
+                          <View>
+                            <Text style={styles.statType}>Shares</Text>
+                            {asset && (
+                              <Text style={styles.statData}>
+                                {asset.totalShares}
+                              </Text>
+                            )}
+                          </View>
+                          <View>
+                            <Text style={styles.statType}>Avg. Cost</Text>
+                            {asset && (
+                              <Text style={styles.statData}>
+                                ${asset.avgCostBasis.toFixed(2)}
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+                        <View style={{gap: 10}}>
+                          <View>
+                            <Text style={styles.statType}>Mkt Value</Text>
+                            <Text style={styles.statData}>${(asset.totalShares * stockPrice).toFixed(2)}</Text>
+                          </View>
+                          <View>
+                            <Text style={styles.statType}>Match Return</Text>
+                            <Text style={styles.statData}>{((asset.totalShares * stockPrice) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  )}
                   <View style={{marginHorizontal: 25, marginTop: 10}}>
-                    <Text style={styles.subjectLabel}>Position</Text>
+                    <Text style={styles.subjectLabel}>Overview</Text>
+                    <Text style={styles.overviewText}>
+                      {isExpanded
+                        ? tickerData?.detailsResponse?.results?.description
+                        : `${
+                            tickerData?.detailsResponse?.results?.description?.substring(
+                              0,
+                              200,
+                            ) || 'No description available.'
+                          }...`}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => setIsExpanded(!isExpanded)}
+                      style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <Text style={styles.showMoreButtonText}>
+                        {isExpanded ? 'Show Less' : 'Show More'}
+                      </Text>
+                      {isExpanded ? (
+                        <Icon
+                          name="caret-up"
+                          style={[styles.icon, {marginLeft: 5}]}
+                          size={18}
+                        />
+                      ) : (
+                        <Icon
+                          name="caret-down"
+                          style={[styles.icon, {marginLeft: 5}]}
+                          size={18}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{marginTop: 15, marginHorizontal: 25}}>
+                    <Text style={styles.subjectLabel}>Statistics</Text>
                     <View style={{flexDirection: 'row', marginTop: 5}}>
                       <View style={{flex: 0.7, gap: 10}}>
                         <View>
-                          <Text style={styles.statType}>Shares</Text>
-                          {asset && (
-                            <Text style={styles.statData}>
-                              {asset.totalShares}
-                            </Text>
-                          )}
+                          <Text style={styles.statType}>Open</Text>
+                          <Text style={styles.statData}>
+                            ${tickerData.priceDetails.open}
+                          </Text>
                         </View>
                         <View>
-                          <Text style={styles.statType}>Avg. Cost</Text>
-                          {asset && (
+                          <Text style={styles.statType}>Today's High</Text>
+                          <Text style={styles.statData}>
+                            ${tickerData.priceDetails.high}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text style={styles.statType}>Today's Low</Text>
+                          <Text style={styles.statData}>
+                            ${tickerData.priceDetails.low}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text style={styles.statType}>Today's Volume</Text>
+                          {tickerData.priceDetails && (
                             <Text style={styles.statData}>
-                              ${asset.avgCostBasis.toFixed(2)}
+                              {formatLargeNumber(tickerData.priceDetails.volume)}
                             </Text>
                           )}
                         </View>
                       </View>
                       <View style={{gap: 10}}>
                         <View>
-                          <Text style={styles.statType}>Mkt Value</Text>
-                          <Text style={styles.statData}>${(asset.totalShares * stockPrice).toFixed(2)}</Text>
+                          <Text style={styles.statType}>Market Cap</Text>
+                          {tickerData.detailsResponse.results.market_cap && (
+                            <Text style={styles.statData}>
+                              $
+                              {formatLargeNumber(
+                                tickerData.detailsResponse.results.market_cap,
+                              )}
+                            </Text>
+                          )}
                         </View>
                         <View>
-                          <Text style={styles.statType}>Match Return</Text>
-                          <Text style={styles.statData}>{((asset.totalShares * stockPrice) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>
+                          <Text style={styles.statType}>52 Wk High</Text>
+                          <Text style={styles.statData}></Text>
+                        </View>
+                        <View>
+                          <Text style={styles.statType}>52 Wk Low</Text>
+                          <Text style={styles.statData}></Text>
+                        </View>
+                        <View>
+                          <Text style={styles.statType}>Avg. Volume</Text>
+                          <Text style={styles.statData}></Text>
                         </View>
                       </View>
                     </View>
                   </View>
-                )}
-                <View style={{marginHorizontal: 25, marginTop: 10}}>
-                  <Text style={styles.subjectLabel}>Overview</Text>
-                  <Text style={styles.overviewText}>
-                    {isExpanded
-                      ? tickerData?.detailsResponse?.results?.description
-                      : `${
-                          tickerData?.detailsResponse?.results?.description?.substring(
-                            0,
-                            200,
-                          ) || 'No description available.'
-                        }...`}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => setIsExpanded(!isExpanded)}
-                    style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text style={styles.showMoreButtonText}>
-                      {isExpanded ? 'Show Less' : 'Show More'}
-                    </Text>
-                    {isExpanded ? (
-                      <Icon
-                        name="caret-up"
-                        style={[styles.icon, {marginLeft: 5}]}
-                        size={18}
-                      />
-                    ) : (
-                      <Icon
-                        name="caret-down"
-                        style={[styles.icon, {marginLeft: 5}]}
-                        size={18}
-                      />
-                    )}
-                  </TouchableOpacity>
-                </View>
-                <View style={{marginTop: 15, marginHorizontal: 25}}>
-                  <Text style={styles.subjectLabel}>Statistics</Text>
-                  <View style={{flexDirection: 'row', marginTop: 5}}>
-                    <View style={{flex: 0.7, gap: 10}}>
-                      <View>
-                        <Text style={styles.statType}>Open</Text>
-                        <Text style={styles.statData}>
-                          ${tickerData.priceDetails.open}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.statType}>Today's High</Text>
-                        <Text style={styles.statData}>
-                          ${tickerData.priceDetails.high}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.statType}>Today's Low</Text>
-                        <Text style={styles.statData}>
-                          ${tickerData.priceDetails.low}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.statType}>Today's Volume</Text>
-                        {tickerData.priceDetails && (
-                          <Text style={styles.statData}>
-                            {formatLargeNumber(tickerData.priceDetails.volume)}
-                          </Text>
-                        )}
-                      </View>
+                  <View style={{marginTop: 20, paddingBottom: 130}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginRight: 20,
+                      }}>
+                      <Text style={[styles.subjectLabel, {marginLeft: 25}]}>
+                        News
+                      </Text>
+                      <View style={{flex: 1}}></View>
+                      <TouchableOpacity
+                        style={{paddingVertical: 5, paddingLeft: 10}}>
+                        <Text style={styles.showMoreButtonText}>View More</Text>
+                      </TouchableOpacity>
                     </View>
-                    <View style={{gap: 10}}>
-                      <View>
-                        <Text style={styles.statType}>Market Cap</Text>
-                        {tickerData.detailsResponse.results.market_cap && (
-                          <Text style={styles.statData}>
-                            $
-                            {formatLargeNumber(
-                              tickerData.detailsResponse.results.market_cap,
-                            )}
-                          </Text>
-                        )}
+                    <ScrollView
+                      horizontal={true}
+                      showsHorizontalScrollIndicator={false}>
+                      <View style={{flexDirection: 'row', paddingLeft: 20}}>
+                        {tickerData.news.results
+                          .slice(0, 3)
+                          .map((item: any, index: any) => (
+                            <View
+                              key={index}
+                              style={{marginTop: 10, marginRight: 10}}>
+                              {item && 'title' in item && 'publisher' in item && (
+                                <NewsCard
+                                  publisherName={item.publisher.name}
+                                  title={item.title}
+                                  article_url={item.article_url}
+                                  image_url={item.image_url}
+                                  timeAgo={timeAgo(new Date(item.published_utc))}
+                                />
+                              )}
+                            </View>
+                          ))}
                       </View>
-                      <View>
-                        <Text style={styles.statType}>52 Wk High</Text>
-                        <Text style={styles.statData}></Text>
-                      </View>
-                      <View>
-                        <Text style={styles.statType}>52 Wk Low</Text>
-                        <Text style={styles.statData}></Text>
-                      </View>
-                      <View>
-                        <Text style={styles.statType}>Avg. Volume</Text>
-                        <Text style={styles.statData}></Text>
-                      </View>
-                    </View>
+                    </ScrollView>
                   </View>
-                </View>
-                <View style={{marginTop: 20, paddingBottom: 130}}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginRight: 20,
-                    }}>
-                    <Text style={[styles.subjectLabel, {marginLeft: 25}]}>
-                      News
-                    </Text>
-                    <View style={{flex: 1}}></View>
-                    <TouchableOpacity
-                      style={{paddingVertical: 5, paddingLeft: 10}}>
-                      <Text style={styles.showMoreButtonText}>View More</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <ScrollView
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}>
-                    <View style={{flexDirection: 'row', paddingLeft: 20}}>
-                      {tickerData.news.results
-                        .slice(0, 3)
-                        .map((item: any, index: any) => (
-                          <View
-                            key={index}
-                            style={{marginTop: 10, marginRight: 10}}>
-                            {item && 'title' in item && 'publisher' in item && (
-                              <NewsCard
-                                publisherName={item.publisher.name}
-                                title={item.title}
-                                article_url={item.article_url}
-                                image_url={item.image_url}
-                                timeAgo={timeAgo(new Date(item.published_utc))}
-                              />
-                            )}
-                          </View>
-                        ))}
-                    </View>
-                  </ScrollView>
-                </View>
+                </>}
               </ScrollView>
-            ) : (
-              <View></View>
-            )}
           </View>
+          
+          
           {params?.inGame == true && (
             <View style={styles.TradeButtonContainer}>
               <TouchableOpacity
@@ -585,7 +542,7 @@ const StockDetails = () => {
             </BottomSheetView>
           </BottomSheet>
         </View>
-      )}
+      }
     </View>
   );
 };
