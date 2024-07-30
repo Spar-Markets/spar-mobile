@@ -780,8 +780,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <LinearGradient colors={[activeGameModeColor, theme.colors.background]} start={{x:0.5, y: -14}}
-      style={{backgroundColor: theme.colors.background, flex: 1}}>
+    <View style={{backgroundColor: theme.colors.background, flex: 1}}>
       <View style={styles.container}>
           <View style={styles.header}>
 
@@ -1169,7 +1168,7 @@ const Home: React.FC = () => {
               </BottomSheetView>
             </BottomSheet>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
