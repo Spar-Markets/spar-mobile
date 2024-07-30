@@ -587,7 +587,6 @@ const StockDetailGraph = (props: any) => {
 
   return (
     <View>
-      {!dataLoading && pointData ? (
         <View>
           <View
             style={{marginHorizontal: 20, marginTop: 10, flexDirection: 'row'}}>
@@ -611,6 +610,8 @@ const StockDetailGraph = (props: any) => {
               </View>
             </View>
             <View style={{flex: 1}} />
+            {pointData && !dataLoading && 
+            <>
             {isActive ? (
               <View>
                 <Text style={styles.stockPriceText}>
@@ -668,6 +669,7 @@ const StockDetailGraph = (props: any) => {
                 </Text>
               </View>
             )}
+            </>}
           </View>
           <View style={{height: 400, marginVertical: 20}}>
             {allPointData && (
@@ -811,48 +813,6 @@ const StockDetailGraph = (props: any) => {
             )}
           </View>
         </View>
-      ) : (
-        <View>
-          <View style={{height: 445}}>
-            <Skeleton
-              animation={'wave'}
-              width={100}
-              height={30}
-              style={{
-                marginLeft: 20,
-                marginTop: 10,
-                backgroundColor: theme.colors.primary,
-                borderRadius: 10,
-              }}
-              skeletonStyle={{backgroundColor: theme.colors.tertiary}}
-            />
-            <Skeleton
-              animation={'wave'}
-              width={200}
-              height={15}
-              style={{
-                marginLeft: 20,
-                marginTop: 5,
-                backgroundColor: theme.colors.primary,
-                borderRadius: 10,
-              }}
-              skeletonStyle={{backgroundColor: theme.colors.tertiary}}
-            />
-            <Skeleton
-              animation={'wave'}
-              width={width - 40}
-              height={370}
-              style={{
-                marginLeft: 20,
-                marginTop: 10,
-                backgroundColor: theme.colors.primary,
-                borderRadius: 10,
-              }}
-              skeletonStyle={{backgroundColor: theme.colors.tertiary}}
-            />
-          </View>
-        </View>
-      )}
 
       <View style={styles.timeCardContainer}>
         <FlatList
