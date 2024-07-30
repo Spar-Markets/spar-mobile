@@ -177,7 +177,7 @@ const OtherProfile = ({navigation}: any) => {
         </TouchableOpacity>
       </View>
       <ScrollView>
-        <View style={styles.profileContainer}>
+        <View>
           {profileImage ? (
             <Image style={styles.profilePic} source={{uri: profileImage}} />
           ) : (
