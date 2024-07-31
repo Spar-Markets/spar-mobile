@@ -80,6 +80,7 @@ import {
   addMatch,
   setActiveMatches,
 } from '../../GlobalDataManagment/activeMatchesSlice';
+import { setBalance } from '../../GlobalDataManagment/userSlice';
 const {width} = Dimensions.get('window');
 
 Icon.loadFont();
@@ -645,6 +646,8 @@ const Home: React.FC = () => {
             ws.current!.close();
             ws.current = null;
             console.log('MATCH ADDED:', newMatch.matchID);
+          } else if (JSONMessage.type == 'updateWinnings' && JSONMessage[userID]) {
+            dispatch(setBalance(balance + JSONMessage[userID]));
           }
         } catch (error) {
           console.error('Error processing WebSocket message:', error);
