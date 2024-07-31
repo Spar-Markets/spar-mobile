@@ -8,6 +8,7 @@ import {
   View,
   useColorScheme,
   FlatList,
+  Animated,
 } from 'react-native';
 import {
   CartesianChart,
@@ -44,6 +45,7 @@ import {
   vec,
   BlurMask,
   point,
+  useImage,
 } from '@shopify/react-native-skia';
 import {GraphPoint} from 'react-native-graph';
 import {Skeleton} from '@rneui/base';
@@ -54,10 +56,13 @@ import {useDispatch, useSelector} from 'react-redux';
 import {updateStockPrice} from '../../GlobalDataManagment/stockSlice';
 import getCurrentPrice from '../../utility/getCurrentPrice';
 import {RootState} from '../../GlobalDataManagment/store';
+import { Image as SkiaImage } from '@shopify/react-native-skia';
+import { useFocusEffect } from '@react-navigation/native';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [stockLogoLoaded, setStockLogoLoaded] = useState(false)
 
   const colorScheme = useColorScheme();
 
@@ -212,7 +217,9 @@ const StockDetailGraph = (props: any) => {
       }
     },
   );
-  const spacing = useSharedValue(1);
+
+
+
 
   function ToolTip({
     x,
@@ -223,21 +230,22 @@ const StockDetailGraph = (props: any) => {
     y: SharedValue<number>;
     color: any;
   }) {
-    const adjustedX = useDerivedValue(() => {
-      return x.value - spacing.value;
-    });
+
 
     return (
       <Group>
-        <Circle cx={x} cy={y} r={6} color={theme.colors.opposite} />
-
         <Rect
-          x={adjustedX}
+          x={x}
           y={0}
           width={1}
           height={400}
           color={theme.colors.opposite}
         />
+        <Circle cx={x} cy={y} r={8} color={theme.colors.background} />
+        <Circle cx={x} cy={y} r={6} color={theme.colors.opposite}>
+          
+        </Circle>
+        
       </Group>
     );
   }
@@ -369,6 +377,7 @@ const StockDetailGraph = (props: any) => {
   }, [pointData, colorScheme]);
 
   const [livePrice, setPassingLivePrice] = useState<any>(null);
+  
 
   useEffect(() => {
     calculatePercentAndValueDiffAndColor();
@@ -441,7 +450,10 @@ const StockDetailGraph = (props: any) => {
         try {
           const jsonMessage = JSON.parse(message);
           runOnJS(setPassingLivePrice)(jsonMessage);
-          dispatch(updateStockPrice(jsonMessage[0]?.c)); //close live price for aggregate
+          console.log(marketFraction)
+          if (!isActive) {
+            runOnJS(dispatch)(updateStockPrice(jsonMessage[0]?.c)); //close live price for aggregate
+          }
         } catch (error) {
           console.error('stock graph live data error', error);
         }
@@ -470,6 +482,7 @@ const StockDetailGraph = (props: any) => {
 
   useEffect(() => {
     //console.log("SETTING UP SOCKET WITH:", props.ticker);
+    if (allPointData) {
     setupSocket(props.ticker);
 
     return () => {
@@ -485,7 +498,8 @@ const StockDetailGraph = (props: any) => {
         ws.current = null; // Ensure the reference is cleared
       }
     };
-  }, [props.ticker]);
+  }
+  }, [allPointData]);
 
   /*useEffect(() => {
     if (livePrice) {
@@ -585,18 +599,60 @@ const StockDetailGraph = (props: any) => {
     {index: 1, normalizedValue: closePriceLineObject.normalizedValue},
   ];
 
+  const graphOpacity = useRef(new Animated.Value(0)).current;
+  const skeletonOpacity = useRef(new Animated.Value(1)).current;
+
+  const [graphFocused, setGraphFocused] = useState(true)
+
+  useFocusEffect(
+    useCallback(() => {
+      // Component is focused
+      setGraphFocused(true)
+      return () => {
+        // Component lost focus
+        // Set your variable here
+        setGraphFocused(false)
+        console.log('Screen lost focus');
+      };
+    }, [])
+  );
+
+
+  useEffect(() => {
+    if (allPointData) {
+      Animated.parallel([
+        Animated.timing(skeletonOpacity, {
+          toValue: 0,
+          duration: 500, // Adjust the duration as needed
+          useNativeDriver: true,
+        }),
+        Animated.timing(graphOpacity, {
+          toValue: 1,
+          duration: 500, // Adjust the duration as needed
+          useNativeDriver: true,
+        })
+      ]).start();
+    }
+  }, [allPointData]);
+
   return (
     <View>
         <View>
           <View
-            style={{marginHorizontal: 20, marginTop: 10, flexDirection: 'row'}}>
-            <View style={{flexDirection: 'row', gap: 10}}>
-              {props.logoUrl != 'logoUrlError' && (
-                <Image
-                  source={{uri: props.logoUrl}}
-                  style={{aspectRatio: 1, borderRadius: 50}}
-                />
-              )}
+            style={{marginHorizontal: 20, marginTop: 10, flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+              
+              {props.logoUrl && props.logoUrl != 'logoUrlError' ? (
+                <>
+                  <Image
+                    source={{uri: props.logoUrl}}
+                    style={{aspectRatio: 1, borderRadius: 50, height: 50, width: 50}}
+                    onLoadStart={() => setStockLogoLoaded(false)}
+                    onLoad={() => setStockLogoLoaded(true)}
+                  />
+                </>
+              ): <Skeleton animation={"pulse"} height={50} width={50} style={{backgroundColor: theme.colors.primary, borderRadius: 50}} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>}
+              
               <View style={{marginVertical: 1}}>
                 <Text style={styles.stockDetailsTickerText}>
                   {props.ticker}
@@ -610,7 +666,7 @@ const StockDetailGraph = (props: any) => {
               </View>
             </View>
             <View style={{flex: 1}} />
-            {pointData && !dataLoading && 
+            {pointData && !dataLoading ? 
             <>
             {isActive ? (
               <View>
@@ -669,12 +725,73 @@ const StockDetailGraph = (props: any) => {
                 </Text>
               </View>
             )}
-            </>}
+            </> :
+            <View style={{alignItems:'flex-end'}}>
+              <Skeleton animation={"pulse"} height={25} width={70} style={{backgroundColor: theme.colors.primary, borderRadius: 50,}} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>
+              <Skeleton animation={"pulse"} height={17} width={140} style={{backgroundColor: theme.colors.primary, borderRadius: 50, marginTop: 5}} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>
+            </View>}
           </View>
+          
           <View style={{height: 400, marginVertical: 20}}>
-            {allPointData && (
-              <>
-                {timeFrameSelected == '1D' && (
+       
+            <Animated.View style={{ opacity: skeletonOpacity, height: 400, position: 'absolute', top: 0, left: 0, right: 0 }}>
+              <Skeleton animation={"pulse"} height={400} width={width-40} style={{backgroundColor: theme.colors.primary, borderRadius: 5, marginHorizontal: 20, marginVertical: 20}} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>
+            </Animated.View>
+            
+            <Animated.View style={{height: 400, marginVertical: 20, opacity: graphOpacity}}>
+              {allPointData && graphFocused && (
+                <>
+                  {timeFrameSelected == '1D' && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                      }}>
+                      <CartesianChart
+                        data={referenceLineObject}
+                        xKey="index"
+                        yKeys={['normalizedValue']}
+                        domain={{
+                          y: [
+                            Math.min(
+                              ...pointData.map(item => item.normalizedValue),
+                            ),
+                            Math.max(
+                              ...pointData.map(item => item.normalizedValue),
+                            ),
+                          ],
+                        }}
+                        chartPressState={state}>
+                        {({points}) => {
+                          // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
+                          const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
+                          const repeatedPoints = points.normalizedValue.map(
+                            point => ({
+                              x: point.x, // Keep x as it is
+                              y: point.y, // Set y to the first normalized point's y value
+                              xValue: 0,
+                              yValue: 0,
+                            }),
+                          );
+                          return (
+                            <>
+                              <Group>
+                                <Line
+                                  points={repeatedPoints}
+                                  color={theme.colors.tertiary}
+                                  strokeWidth={1}
+                                  animate={{type: 'timing', duration: 300}}
+                                  curveType="linear"></Line>
+                              </Group>
+                            </>
+                          );
+                        }}
+                      </CartesianChart>
+                    </View>
+                  )}
                   <View
                     style={{
                       position: 'absolute',
@@ -684,7 +801,7 @@ const StockDetailGraph = (props: any) => {
                       bottom: 0,
                     }}>
                     <CartesianChart
-                      data={referenceLineObject}
+                      data={pointData}
                       xKey="index"
                       yKeys={['normalizedValue']}
                       domain={{
@@ -696,6 +813,13 @@ const StockDetailGraph = (props: any) => {
                             ...pointData.map(item => item.normalizedValue),
                           ),
                         ],
+                        x: [
+                          0,
+                          timeFrameSelected == '1D'
+                            ? (pointData.length - 1) /
+                              getMarketFraction(new Date(Date.now() - 90000))
+                            : pointData.length - 1,
+                        ],
                       }}
                       chartPressState={state}>
                       {({points}) => {
@@ -704,113 +828,57 @@ const StockDetailGraph = (props: any) => {
                         const repeatedPoints = points.normalizedValue.map(
                           point => ({
                             x: point.x, // Keep x as it is
-                            y: point.y, // Set y to the first normalized point's y value
+                            y: firstNormalizedPoint.y, // Set y to the first normalized point's y value
                             xValue: 0,
                             yValue: 0,
                           }),
                         );
+
+                        const circlePositions = [];
+                        for (let i = 0; i <= 1; i += 0.0125) {
+                          circlePositions.push(parseFloat(i.toFixed(3)));
+                        }
+
                         return (
                           <>
                             <Group>
                               <Line
-                                points={repeatedPoints}
-                                color={theme.colors.tertiary}
-                                strokeWidth={1}
-                                animate={{type: 'timing', duration: 300}}
+                                points={points.normalizedValue}
+                                color={currentAccentColorValue}
+                                strokeWidth={2}
+                                animate={{type: 'timing', duration: 0}}
                                 curveType="linear"></Line>
+                              {isActive && (
+                                <ToolTip
+                                  x={state.x.position}
+                                  y={state.y.normalizedValue.position}
+                                  color={currentAccentColorValue}
+                                />
+                              )}
+                              {timeFrameSelected == '1D' && (
+                                <LiveIndicator
+                                  x={
+                                    points.normalizedValue[
+                                      points.normalizedValue.length - 1
+                                    ].x
+                                  }
+                                  y={
+                                    points.normalizedValue[
+                                      points.normalizedValue.length - 1
+                                    ].y!
+                                  }
+                                  color={currentAccentColorValue}
+                                />
+                              )}
                             </Group>
                           </>
                         );
                       }}
                     </CartesianChart>
                   </View>
-                )}
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                  }}>
-                  <CartesianChart
-                    data={pointData}
-                    xKey="index"
-                    yKeys={['normalizedValue']}
-                    domain={{
-                      y: [
-                        Math.min(
-                          ...pointData.map(item => item.normalizedValue),
-                        ),
-                        Math.max(
-                          ...pointData.map(item => item.normalizedValue),
-                        ),
-                      ],
-                      x: [
-                        0,
-                        timeFrameSelected == '1D'
-                          ? (pointData.length - 1) /
-                            getMarketFraction(new Date(Date.now() - 90000))
-                          : pointData.length - 1,
-                      ],
-                    }}
-                    chartPressState={state}>
-                    {({points}) => {
-                      // lowkey a little ragtag to make reference line, but had to decompose type formate of pointArray and makeshift it
-                      const firstNormalizedPoint = points.normalizedValue[0]; // Extract the first normalized point
-                      const repeatedPoints = points.normalizedValue.map(
-                        point => ({
-                          x: point.x, // Keep x as it is
-                          y: firstNormalizedPoint.y, // Set y to the first normalized point's y value
-                          xValue: 0,
-                          yValue: 0,
-                        }),
-                      );
-
-                      const circlePositions = [];
-                      for (let i = 0; i <= 1; i += 0.0125) {
-                        circlePositions.push(parseFloat(i.toFixed(3)));
-                      }
-
-                      return (
-                        <>
-                          <Group>
-                            <Line
-                              points={points.normalizedValue}
-                              color={currentAccentColorValue}
-                              strokeWidth={2}
-                              animate={{type: 'timing', duration: 0}}
-                              curveType="linear"></Line>
-                            {isActive && (
-                              <ToolTip
-                                x={state.x.position}
-                                y={state.y.normalizedValue.position}
-                                color={currentAccentColorValue}
-                              />
-                            )}
-                            {timeFrameSelected == '1D' && (
-                              <LiveIndicator
-                                x={
-                                  points.normalizedValue[
-                                    points.normalizedValue.length - 1
-                                  ].x
-                                }
-                                y={
-                                  points.normalizedValue[
-                                    points.normalizedValue.length - 1
-                                  ].y!
-                                }
-                                color={currentAccentColorValue}
-                              />
-                            )}
-                          </Group>
-                        </>
-                      );
-                    }}
-                  </CartesianChart>
-                </View>
-              </>
-            )}
+                </>
+              )}
+            </Animated.View>
           </View>
         </View>
 

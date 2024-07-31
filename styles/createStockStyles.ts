@@ -20,11 +20,14 @@ const createStockSearchStyles = (theme: any, width: number) => {
         marginHorizontal: 20,
         marginTop:5,
         marginBottom: 10,
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.tertiary,
+        backgroundColor: theme.colors.secondary,
+        borderColor: theme.colors.secondary,
         borderWidth: 2,
         borderRadius: 5,
         paddingLeft: 10,
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center'
     },
     categoryButton: {
         color: theme.colors.text,

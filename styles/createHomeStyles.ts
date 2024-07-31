@@ -382,7 +382,7 @@ const createHomeStyles = (theme: any, width: number) => {
     addButton: {
       height: 50,
       width: width-40,
-      borderRadius: 10,
+      borderRadius: 50,
       paddingHorizontal: 15,
       backgroundColor: theme.colors.accent,
       justifyContent: 'center',

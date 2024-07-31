@@ -34,7 +34,7 @@ const PageHeader = (props: any) => {
           <FeatherIcons
             name="arrow-left"
             style={{color: theme.colors.opposite}}
-            size={20}
+            size={24}
           />
 
           <Text style={styles.headerText}>{props.text}</Text>

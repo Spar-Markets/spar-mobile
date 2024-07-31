@@ -460,8 +460,9 @@ const Home: React.FC = () => {
 				{...props}
 				disappearsOnIndex={-1}
 				appearsOnIndex={0}
-        opacity={0.8}        
-			/>
+        opacity={0.4}>
+          <View style={{backgroundColor: theme.colors.opposite, flex: 1}}></View>
+        </BottomSheetBackdrop>
 		),
 		[]
 	);
@@ -916,7 +917,7 @@ const Home: React.FC = () => {
               </Animated.View>}
             <View>
               {(searchingForMatch || isInMatchmaking) ? 
-              <View style={{backgroundColor: theme.colors.secondary, width: width, flexDirection: 'row', alignItems: 'center', paddingVertical: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20}}>
+              <View style={{backgroundColor: theme.colors.secondary, width: width, flexDirection: 'row', alignItems: 'center', paddingVertical: 20, borderRadius: 20, marginHorizontal: 20, paddingHorizontal: 20}}>
                 <SmallActivityIndicator color={theme.colors.text}/>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 15, marginLeft: 10}}>Searching for Match</Text>
                 <View style={{flex: 1}}/>
@@ -950,7 +951,7 @@ const Home: React.FC = () => {
                   style={[styles.addButton, { backgroundColor: showAdditionalButtons ? theme.colors.background : theme.colors.accent2, zIndex: 1 , borderColor: showAdditionalButtons ? theme.colors.opposite : 'transparent', borderWidth: 2}]}
                   onPress={expandMatchmakingSheet/*() => {toggleAdditionalButtons()}*/}
                 >
-                  {showAdditionalButtons ? <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Black' }}>X</Text> : <Text style={{ color: "#fff", fontFamily: 'InterTight-Black', fontSize: 18 }}>Start a Match</Text>}
+                  <Text style={{ color: "#fff", fontFamily: 'InterTight-Black', fontSize: 18 }}>Start a Match</Text>
                 </TouchableOpacity>
               </View>}
             </View>}

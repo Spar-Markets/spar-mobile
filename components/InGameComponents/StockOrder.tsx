@@ -39,6 +39,7 @@ interface stockOrderParams {
   isSelling: boolean;
   qty: number;
   endAt: Date;
+  logoUrl: string;
 }
 
 const StockOrder = (props: any) => {
@@ -100,6 +101,11 @@ const StockOrder = (props: any) => {
         navigation.replace('OrderSummary', {
           ticker: params?.ticker,
           shares: shareQuantity,
+          isBuying: params?.isBuying,
+          isSelling: params?.isSelling,
+          matchID: params?.matchID,
+          buyData: buyResponse.data,
+          logoUrl: params?.logoUrl
         });
       }
     } catch (error) {
@@ -231,13 +237,7 @@ const StockOrder = (props: any) => {
     }).start();
   };
 
-  const formatShareQuantity = (quantity: string) => {
-    const [integerPart, decimalPart] = quantity.split('.');
-    const formattedIntegerPart = Number(integerPart).toLocaleString();
-    return decimalPart !== undefined
-      ? `${formattedIntegerPart}.${decimalPart}`
-      : formattedIntegerPart;
-  };
+  
 
   const estimatedCost = stockPrice * parseFloat(shareQuantity);
   const estimatedCostString = estimatedCost.toLocaleString(undefined, {

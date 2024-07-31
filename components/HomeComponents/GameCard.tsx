@@ -33,7 +33,7 @@ import { storage } from '../../firebase/firebase';
 import { Skeleton } from '@rneui/base';
 import { runOnJS, SharedValue, useAnimatedReaction, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 import { removeMatch } from '../../GlobalDataManagment/activeMatchesSlice';
-import { debounce } from 'lodash';
+import { debounce, min } from 'lodash';
 
 
 interface GameCardProps {
@@ -266,8 +266,10 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
 
     if (data2Min > dataMin) {
       setMinY(dataMin)
+      console.log("rahh", dataMin)
     } else {
       setMinY(data2Min)
+      console.log("Rahh", data2Min)
     }
 
     console.log("About to run STEP 4");
@@ -734,6 +736,14 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   const [yourFormattedDataLength, setYourFormattedDataLength] = useState(0)
 
   useEffect(() => {
+
+    if (matchIsOver) {
+      if (ws.current) {
+        ws.current.close()
+      }
+      return
+    }
+
     const interval = setInterval(() => {
       setYourFormattedData((prevPointData:any) => {
         const newPointData = [...prevPointData];
@@ -773,7 +783,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     }, 10000)
  
     return () => clearInterval(interval);
-  }, [])
+  }, [matchIsOver])
 
 
   //sets total live prices for each user
@@ -1025,7 +1035,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
         <ScrollView showsVerticalScrollIndicator={false} style={{paddingTop: 0}}>
           <View style={{/*backgroundColor: theme.colors.background*/ flexDirection: 'row', marginTop: 0, height: 180, gap: 10, justifyContent: 'center', marginHorizontal: 10, borderRadius: 5}}>
             <View style={{marginRight: 10, backgroundColor: 'transparent', flex: 1,  borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5}}>
-                {hasDefaultProfileImage && Image && (
+                {hasDefaultProfileImage && (
                   <Image
                     style={[
                       {width: 55, height: 55, borderRadius: 100},
@@ -1033,7 +1043,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                     source={profileImageUri as any}
                   />
                 )}
-                {!hasDefaultProfileImage && Image && (
+                {!hasDefaultProfileImage && (
                   <Image
                     style={[
                       {width: 55, height: 55, borderRadius: 100},
@@ -1100,33 +1110,18 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
             </View>
  
           </View>
-          <View style={{
-                flexDirection: 'row', 
-                marginTop: 5,
-                /*backgroundColor: theme.colors.background*/
-                padding: 20,
-                borderRadius: 5,
-                alignItems: 'center',
-                gap: 10,
-                marginHorizontal: 10
-              }}>
-              <FontAwesomeIcon name="bank" color={theme.colors.text} size={20}/>
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-bold'}}>Buying Power</Text>
-              <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-bold'}}>${(yourBuyingPower.toLocaleString())}</Text>
-          
-            </View>
+
       
-          <View style={{marginTop: 5, height: 135, /*backgroundColor: theme.colors.background*/ }}>
+          <View style={{marginTop: 5, height: 150, backgroundColor: theme.colors.background, marginHorizontal: 10, borderRadius: 5 }}>
           <View style={{
                 position: 'absolute',
-                top: 10,
+                top: 0,
                 left: 0,
                 right: 0,
-                bottom: 10,
+                bottom: 0,
               }}>
                 {/*reference line*/}
-                <CartesianChart data={arrayWithZeroValues} xKey="index" yKeys={["value"]} domain={{y: [minY, maxY]}}>
+                <CartesianChart data={arrayWithZeroValues} xKey="index" yKeys={["value"]} domain={{y: [minY < 0 ? 1.1*minY : 0.9*minY, maxY]}}>
                     {({ points }) => {
                     return (
                     <>
@@ -1140,17 +1135,18 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   }}
                 </CartesianChart>
               </View>
-            {oppFormattedData && oppFormattedData?.length >= 1 && 
+            {oppFormattedData && 
             <View style={{
                 position: 'absolute',
-                top: 10,
+                top: 0,
                 left: 0,
                 right: 0,
-                bottom: 10,
+                bottom: 0,
+
               }}>
             <CartesianChart data={oppFormattedData!} xKey="index" yKeys={["normalizedValue"]}
-              domain={{y: [minY, maxY],
-                x: [0, oppFormattedData!.length/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000))]
+              domain={{y: [minY < 0 ? 1.1*minY : 0.9*minY, maxY],
+                x: [0, oppFormattedData.length != 0 ? (oppFormattedData!.length-1)/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000)) : 1]
               }}>
               {({ points }) => (
               // 👇 and we'll use the Line component to render a line path.
@@ -1165,17 +1161,18 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
               )}
             </CartesianChart>
             </View>}
-            {yourFormattedData && yourFormattedData.length >= 1 && 
+            {yourFormattedData && 
             <View style={{
                 position: 'absolute',
-                top: 10,
+                top: 0,
                 left: 0,
                 right: 0,
-                bottom: 10,
+                bottom: 0,
+
               }}>
             <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} chartPressState={state} 
-              domain={{y: [minY, maxY],
-                x: [0, yourFormattedData!.length/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000))]
+              domain={{y: [minY < 0 ? 1.1*minY : 0.9*minY, maxY],
+                x: [0, yourFormattedData.length != 0 ? (yourFormattedData!.length-1)/(((match.timeframe*1000) - ((new Date(match.endAt)).getTime() - Date.now()))/(match.timeframe*1000)) : 1]
               }}>  
               {({ points }) => {
                 //console.log(yourFormattedData)
@@ -1198,11 +1195,32 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
             </CartesianChart>
             </View>}
           </View>
-          <View style={{marginHorizontal: 0}}>
+          <View style={{
+                flexDirection: 'row', 
+                backgroundColor: theme.colors.background,
+                padding: 20,
+                borderRadius: 5,
+                alignItems: 'center',
+                gap: 10,
+                marginHorizontal: 10,
+                marginTop: 20
+              }}>
+              <View style={{backgroundColor: theme.colors.opposite, height: 32, width: 32, justifyContent: 'center', alignItems: 'center', borderRadius: 100}}> 
+                <FontAwesomeIcon name="bank" color={theme.colors.background} style={{marginLeft: 2, marginBottom: 2}} size={16}/>
+              </View>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-bold'}}>Buying Power</Text>
+              <View style={{flex: 1}}></View>
+              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-bold'}}>${(yourBuyingPower.toLocaleString())}</Text>
+          
+            </View>
+         
+         <View style={{marginHorizontal: 0}}>
 
-            {yourAssets && yourAssets.length >= 1 && 
+
               <View style={{marginTop: 20}}>
                 <Text style={{fontSize: 18, marginHorizontal: 10, color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 10}}>My Positions</Text>
+                {yourAssets && yourAssets.length >= 1 && 
+                <>
                 {yourAssets.map((asset, index) => (
                   <PositionCard
                     key={index}
@@ -1213,8 +1231,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                     assets={yourAssets} // Adjust according to your data structure
                     endAt={match.endAt}
                   />
-                ))}
-              </View>}
+                ))}</>
+                }
+              </View>
           </View>
         </ScrollView>
         <View style={{marginHorizontal: 10, gap: 5, flexDirection: 'row'}}>

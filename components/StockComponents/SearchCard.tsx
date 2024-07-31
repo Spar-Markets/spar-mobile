@@ -16,7 +16,7 @@ const SearchCard = (props:any) => {
 
     return (
       <TouchableOpacity
-        onPress={() =>
+        onPress={() => {
           navigation.navigate('StockDetails', {
             matchID: props.matchID,
             buyingPower: props.buyingPower,
@@ -25,7 +25,7 @@ const SearchCard = (props:any) => {
             inGame: props.inGame,
             endAt: props.endAt,
             name: props.name
-          })
+          });}
         }
         style={styles.searchCard}
       >
