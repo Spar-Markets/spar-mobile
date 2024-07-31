@@ -255,7 +255,6 @@ const Home: React.FC = () => {
       });
       console.log('Matches1: ', response.data);
       //setActiveMatches(response.data);
-
       dispatch(setActiveMatches(response.data));
     } catch (error) {
       console.error('Error fetching matches:', error);
@@ -356,8 +355,8 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (Object.values(activeMatches)) {
-      if (Object.values(activeMatches).length !== 0) {
+    if (activeMatches) {
+      if (activeMatches.length !== 0) {
         console.log('GETTING MATCH DATA!!!!!');
         setNoMatches(false);
         setLoading(false);
@@ -366,7 +365,7 @@ const Home: React.FC = () => {
         setLoading(false);
       }
     }
-  }, [Object.values(activeMatches)]);
+  }, [activeMatches]);
 
   const animation = useRef(new Animated.Value(0)).current;
   const barAnimation = useRef(new Animated.Value(0)).current;
@@ -639,7 +638,7 @@ const Home: React.FC = () => {
             console.log('JACKSON MATCH WS MESSAGE RECEIVED');
             const newMatch = JSONMessage.newMatch;
             // do logic to display new match
-            dispatch(addMatch({id: newMatch.matchID, endAt: newMatch.endAt}));
+            dispatch(addMatch(newMatch.matchID));
             setNoMatches(false);
             dispatch(setIsInMatchmaking(false));
             setSearchingForMatch(false);
@@ -975,14 +974,14 @@ const Home: React.FC = () => {
                   <FlatList
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    data={Object.values(activeMatches)}
+                    data={activeMatches}
                     renderItem={({item, index}) => {
                       return (
                         item && (
                           <View style={{width, height: '100%'}}>
                             <GameCard
                               userID={userID}
-                              matchID={item.id}
+                              matchID={item}
                               expandMatchSummarySheet={expandMatchSummarySheet}
                               setActiveMatchSummaryMatchID={
                                 setActiveMatchSummaryMatchID
@@ -993,7 +992,7 @@ const Home: React.FC = () => {
                         )
                       );
                     }}
-                    keyExtractor={item => item.id.toString()}
+                    keyExtractor={item => item.toString()}
                     initialNumToRender={5}
                     pagingEnabled
                     snapToInterval={width}
@@ -1005,9 +1004,9 @@ const Home: React.FC = () => {
                   />
                 )}
               </View>
-              {Object.values(activeMatches).length > 1 && (
+              {activeMatches.length > 1 && (
                 <View style={styles.indicatorContainer}>
-                  {Object.values(activeMatches).map((_: any, index: number) => {
+                  {activeMatches.map((_: any, index: number) => {
                     return (
                       <View
                         key={index}
