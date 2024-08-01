@@ -917,7 +917,7 @@ const GameCard: React.FC<GameCardProps> = ({
         //setYourFormattedDataLength(newPointData.length)      
         return newPointData
       })
-    }, match.timeframe == 900 ? 10000 : 600000)
+    }, 10000)
  
     return () => clearInterval(interval);
   }, [matchIsOver])
