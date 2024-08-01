@@ -251,9 +251,11 @@ const Home: React.FC = () => {
   const fetchMatchIDs = async () => {
     try {
       const userID = await AsyncStorage.getItem('userID');
+      console.log('grant', userID);
       const response = await axios.post(serverUrl + '/getUserMatches', {
         userID,
       });
+
       console.log('Matches1: ', response.data);
       //setActiveMatches(response.data);
       dispatch(setActiveMatches(response.data));
@@ -357,7 +359,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (activeMatches) {
-      if (activeMatches.length !== 0) {
+      if (Object.keys(activeMatches).length !== 0) {
         console.log('GETTING MATCH DATA!!!!!');
         setNoMatches(false);
         setLoading(false);
@@ -639,7 +641,7 @@ const Home: React.FC = () => {
             console.log('JACKSON MATCH WS MESSAGE RECEIVED');
             const newMatch = JSONMessage.newMatch;
             // do logic to display new match
-            dispatch(addMatch(newMatch.matchID));
+            dispatch(addMatch({id: newMatch.matchID, endAt: newMatch.endAt}));
             setNoMatches(false);
             dispatch(setIsInMatchmaking(false));
             setSearchingForMatch(false);
@@ -977,14 +979,17 @@ const Home: React.FC = () => {
                   <FlatList
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    data={activeMatches}
+                    data={Object.entries(activeMatches).map(([id, endAt]) => ({
+                      id,
+                      endAt,
+                    }))}
                     renderItem={({item, index}) => {
                       return (
                         item && (
                           <View style={{width, height: '100%'}}>
                             <GameCard
                               userID={userID}
-                              matchID={item}
+                              matchID={item.id}
                               expandMatchSummarySheet={expandMatchSummarySheet}
                               setActiveMatchSummaryMatchID={
                                 setActiveMatchSummaryMatchID
@@ -995,7 +1000,7 @@ const Home: React.FC = () => {
                         )
                       );
                     }}
-                    keyExtractor={item => item.toString()}
+                    keyExtractor={item => item.id}
                     initialNumToRender={5}
                     pagingEnabled
                     snapToInterval={width}
@@ -1007,12 +1012,12 @@ const Home: React.FC = () => {
                   />
                 )}
               </View>
-              {activeMatches.length > 1 && (
+              {Object.keys(activeMatches).length > 1 && (
                 <View style={styles.indicatorContainer}>
-                  {activeMatches.map((_: any, index: number) => {
+                  {Object.entries(activeMatches).map(([id, endAt], index) => {
                     return (
                       <View
-                        key={index}
+                        key={id} // Use id as the key
                         style={[
                           styles.indicator,
                           currentIndex === index
