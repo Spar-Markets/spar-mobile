@@ -60,6 +60,7 @@ const createOnboardStyles = (theme: any, width: number) => {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: theme.colors.accent2,
     },
     spalshText: {
         fontSize: 24,

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
     isInMatchmaking: boolean
@@ -9,6 +9,8 @@ interface UserState {
     balance:number;
     hasDefaultProfileImage: boolean;
     skillrating: number;
+    following: Follower[];
+    followers: Follower[]
 }
 
 const initialState = {
@@ -19,7 +21,15 @@ const initialState = {
   userBio: null,
   balance: null,
   hasDefaultProfileImage: true,
-  skillRating: null
+  skillRating: null,
+  following: [] as Follower[],
+  followers: [] as Follower[]
+
+}
+
+interface Follower {
+  userID: string;
+  username: string;
 }
 
 const userSlice = createSlice({
@@ -49,9 +59,21 @@ const userSlice = createSlice({
     },
     setSkillRating: (state, action) => {
       state.hasDefaultProfileImage = action.payload
+    },
+    setFollowers: (state, action) => {
+      state.followers = action.payload
+    },
+    setFollowing: (state, action) => {
+      state.following = action.payload
+    },
+    addFollower: (state, action: PayloadAction<Follower>) => {
+      state.followers.push(action.payload);
+    },
+    addFollowing: (state, action: PayloadAction<Follower>) => {
+      state.following.push(action.payload);
     }
   }
 });
 
-export const { setIsInMatchmaking, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating } = userSlice.actions;
+export const { setIsInMatchmaking, addFollower, addFollowing, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, setFollowers, setFollowing } = userSlice.actions;
 export default userSlice.reducer;

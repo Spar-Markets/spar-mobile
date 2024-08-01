@@ -3,7 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import { useSelector, useDispatch} from 'react-redux';
 import { RootState } from '../GlobalDataManagment/store';
-import { setBalance, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
+import { setBalance, setFollowers, setFollowing, setHasDefaultProfileImage, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
 
 interface UserData {
   __v: number;
@@ -54,6 +54,9 @@ const useUserData = (userID?: string) => {
           dispatch(setUserBio(response.data.bio))
           dispatch(setSkillRating(response.data.skillRating))
           dispatch(setBalance(response.data.balance))
+          dispatch(setFollowers(response.data.followers))
+          dispatch(setFollowing(response.data.following))
+  
           setUserData(response.data);
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -65,7 +68,7 @@ const useUserData = (userID?: string) => {
     } else {
       setLoading(false);
     }
-  }, [userID]);
+  }, [userID && userIsMade]);
 
   return { userData, loading };
 };

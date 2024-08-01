@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Animated, StatusBar, View} from 'react-native';
+import {Animated, Easing, StatusBar, View} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {
   createStackNavigator,
@@ -60,6 +60,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import Settings from './components/ProfileComponents/Settings';
 import useUserDetails from './hooks/useUserDetails';
 import { setBalance } from './GlobalDataManagment/userSlice';
+import { Text } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -84,13 +85,48 @@ const AppContent = (): React.ReactElement => {
     }
   }, [userData])
 
-  if (loading) {
-    return <SplashScreen />;
-  }
+  const [showSplash, setShowSplash] = useState(true);
+
+  const [fadeOut, setFadeOut] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
+  const fadeOutAnim = useRef(new Animated.Value(1)).current;
+  const fadeInAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (fadeOut) {
+        Animated.timing(fadeOutAnim, {
+          toValue: 0,
+          duration: 2000, // duration of the fade
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }).start(() => {
+        setShowSplash(false); setFadeIn(true)
+        });
+    }
+  }, [fadeOut]);
+
+  useEffect(() => {
+    if (fadeIn) {
+        Animated.timing(fadeInAnim, {
+          toValue: 1,
+          duration: 300, // duration of the fade
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }).start();
+    }
+  }, [fadeIn]);
+
+  useEffect(() => {
+    if (user && userIsMade && userData) {
+      setFadeIn(true)
+    }
+  }, [user, userIsMade, userData])
+
 
   //onboard or main stack depending on user status
   if (user && userIsMade == true && userData) {
     return (
+      <Animated.View style={{flex: 1}}>
       <NavigationContainer theme={theme}>
         <StatusBar
           backgroundColor={theme.colors.background}
@@ -282,6 +318,7 @@ const AppContent = (): React.ReactElement => {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      </Animated.View>
     );
   } 
   if (!user) {
@@ -330,7 +367,8 @@ const AppContent = (): React.ReactElement => {
     );
   }
 
-  return <View style={{backgroundColor: 'red', flex: 1}}></View>
+  return <SplashScreen/>
+  
 };
 
 const App = (): React.ReactElement => {

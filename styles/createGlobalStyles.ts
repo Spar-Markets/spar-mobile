@@ -21,7 +21,8 @@ const createGlobalStyles = (theme: any, width: number) => {
         marginLeft: 20,
         flexDirection: 'row',
         gap: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        paddingRight: 100
     },
     headerRightBtn: {
         

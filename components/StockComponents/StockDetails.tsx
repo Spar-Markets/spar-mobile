@@ -250,17 +250,17 @@ const StockDetails = () => {
                     timeframe={timeFrameSelected}
                     name={params?.name}
                     logoUrl={
-                      tickerData ? tickerData.detailsResponse.results.branding != undefined
+                      tickerData && tickerData.detailsResponse.results.branding != undefined
                         ? tickerData.detailsResponse.results.branding.icon_url +
                           '?apiKey=' +
                           polygonKey
-                        : 'logoUrlError' : 'logoUrlError'
+                        : 'logoUrlError'
                     }
                     currentAccentColorValue={currentAccentColorValue}
                     setCurrentAccentColorValue={setCurrentAccentColorValue}
                   />
                 </View>
-                {!loading && tickerData != null &&
+                
                 <>
                   {(owns == true || params?.owns == true) && (
                     <View style={{marginHorizontal: 25, marginTop: 10}}>
@@ -299,6 +299,8 @@ const StockDetails = () => {
                   )}
                   <View style={{marginHorizontal: 25, marginTop: 10}}>
                     <Text style={styles.subjectLabel}>Overview</Text>
+                    {tickerData != null ?
+                    <>
                     <Text style={styles.overviewText}>
                       {isExpanded
                         ? tickerData?.detailsResponse?.results?.description
@@ -329,9 +331,11 @@ const StockDetails = () => {
                         />
                       )}
                     </TouchableOpacity>
+                    </> : <Skeleton animation={"pulse"} height={120} width={width-40} style={{backgroundColor: theme.colors.primary, borderRadius: 5, marginTop:5 }} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>}
                   </View>
                   <View style={{marginTop: 15, marginHorizontal: 25}}>
                     <Text style={styles.subjectLabel}>Statistics</Text>
+                    {tickerData != null ?
                     <View style={{flexDirection: 'row', marginTop: 5}}>
                       <View style={{flex: 0.7, gap: 10}}>
                         <View>
@@ -375,18 +379,18 @@ const StockDetails = () => {
                         </View>
                         <View>
                           <Text style={styles.statType}>52 Wk High</Text>
-                          <Text style={styles.statData}></Text>
+                          <Text style={styles.statData}>-</Text>
                         </View>
                         <View>
                           <Text style={styles.statType}>52 Wk Low</Text>
-                          <Text style={styles.statData}></Text>
+                          <Text style={styles.statData}>-</Text>
                         </View>
                         <View>
                           <Text style={styles.statType}>Avg. Volume</Text>
-                          <Text style={styles.statData}></Text>
+                          <Text style={styles.statData}>-</Text>
                         </View>
                       </View>
-                    </View>
+                    </View> : <Skeleton animation={"pulse"} height={200} width={width-40} style={{backgroundColor: theme.colors.primary, borderRadius: 5, marginTop:5 }} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>}
                   </View>
                   <View style={{marginTop: 20, paddingBottom: 130}}>
                     <View
@@ -407,6 +411,7 @@ const StockDetails = () => {
                     <ScrollView
                       horizontal={true}
                       showsHorizontalScrollIndicator={false}>
+                      {tickerData != null ?
                       <View style={{flexDirection: 'row', paddingLeft: 20}}>
                         {tickerData.news.results
                           .slice(0, 3)
@@ -425,10 +430,10 @@ const StockDetails = () => {
                               )}
                             </View>
                           ))}
-                      </View>
+                      </View> : <View></View>}
                     </ScrollView>
                   </View>
-                </>}
+                </>
               </ScrollView>
           </View>
           
@@ -448,6 +453,11 @@ const StockDetails = () => {
                     matchID: params?.matchID,
                     buyingPower: params?.buyingPower,
                     endAt: params?.endAt,
+                    logoUrl: tickerData && tickerData.detailsResponse.results.branding != undefined
+                    ? tickerData.detailsResponse.results.branding.icon_url +
+                      '?apiKey=' +
+                      polygonKey
+                    : 'logoUrlError'
                   })
                 }>
                 <Text style={styles.tradeButtonText}>Buy</Text>

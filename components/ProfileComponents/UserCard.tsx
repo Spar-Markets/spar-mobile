@@ -14,6 +14,9 @@ import { serverUrl } from '../../constants/global';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useUserDetails from '../../hooks/useUserDetails';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
+import { addFollowing } from '../../GlobalDataManagment/userSlice';
 
 const UserCard = (props:any) => {
 
@@ -27,8 +30,8 @@ const UserCard = (props:any) => {
 
     const navigation = useNavigation<any>();
 
-    const [following, setFollowing] = useState(props.following)
-    const [followers, setFollowers] = useState(props.followers)
+    const following = props.following
+    const followers = props.followers
 
     const checkFollowStatus = async () => {
       try {
@@ -53,6 +56,7 @@ const UserCard = (props:any) => {
               setNoPic(false);
             } else {
               setNoPic(true)
+              setImageLoading(false)
             }
           } catch (error) {
             setNoPic(true);
@@ -71,18 +75,31 @@ const UserCard = (props:any) => {
 
     const [imageLoading, setImageLoading] = useState(true)
 
+    const user = useSelector((state: RootState) => state.user)
+
+    const dispatch = useDispatch()
+
     const requestFollow = async () => {
       try {
-          const response = await axios.post(serverUrl + '/addFollowRequest', {userID: props.yourUserID, otherUserID: props.otherUserID})
+          console.log({userID: user.userID, otherUserID: props.otherUserID, yourUsername: user.username, otherUsername: props.username})
+          const response = await axios.post(serverUrl + '/addFollowRequest', {userID: user.userID, otherUserID: props.otherUserID, yourUsername: user.username, otherUsername: props.username})
           if (response.status === 200) {
               console.log("Followed", props.username)
-              setFollowing((prevFollowing:any) => [...prevFollowing, props.otherUserID]);
+              dispatch(addFollowing({userID: props.otherUserID, username: props.username}))
               setStatus("pending")
           }
-      } catch {
-          Alert.alert("Error Following")
+      } catch (error) {
+          Alert.alert(`Error Following ${error}`)
       }
     }
+
+    const findFollowerByID = (userID:string) => {
+      return followers.find((user:any) => user.userID === userID);
+    };
+
+    const findFollowingByID = (userID:string) => {
+      return following.find((user:any) => user.userID === userID);
+    };
 
 
     //the button that shows up on right side of usercard
@@ -95,7 +112,7 @@ const UserCard = (props:any) => {
               <Icon name="spinner" size={14} color={theme.colors.tertiary}/>
             </View>
         </View>)
-      } else if (following.includes(props.otherUserID) == false) {
+      } else if (findFollowingByID(props.otherUserID) == null) {
         return (
         <TouchableOpacity onPress={requestFollow} style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.secondary, borderRadius: 5}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
@@ -103,9 +120,9 @@ const UserCard = (props:any) => {
               <Icon name="plus-circle" size={14} color={theme.colors.text}/>
             </View>
         </TouchableOpacity>)
-      } else if (followers.includes(props.otherUserID) == true) {
+      } else if (findFollowingByID(props.otherUserID) != null) {
         return (
-          <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.purpleAccent, borderRadius: 5}}>
+          <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.accent2, borderRadius: 5}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Followed</Text>
               <Icon name="check-circle" size={14} color={theme.colors.text}/>
@@ -121,7 +138,7 @@ const UserCard = (props:any) => {
     
     if (loading || !status) {
         return (
-          <View>
+          <View style={{width: width-40, marginHorizontal: 20, height: 50}}>
             
           </View>
         );

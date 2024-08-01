@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -7,10 +7,11 @@ import {
   SectionList,
   useColorScheme,
   FlatList,
+  Keyboard,
 } from 'react-native';
 import axios from 'axios';
 import fuzzysort from 'fuzzysort';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockSearchStyles from '../../styles/createStockStyles';
@@ -22,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DiscoverNewsCard from './DiscoverNewsCard';
 import timeAgo from '../../utility/timeAgo';
 import { useSelector } from 'react-redux';
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 interface StockObject {
   ticker: string;
@@ -123,11 +125,12 @@ const StockSearch: React.FC = () => {
     }
   };
 
+
   const renderItem = ({ item }: { item: CombinedObject }) => {
     if (item.type === 'profile') {
       return <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>;
     }
-    return <SearchCard ticker={item.ticker} name={item.companyName} />;
+    return <SearchCard ticker={item.ticker} name={item.companyName}/>;
   };
 
   const renderSectionHeader = ({ section: { title } }: { section: { title: string } }) => (
@@ -148,20 +151,24 @@ const StockSearch: React.FC = () => {
     )
   }
 
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Discover</Text>
       </View>
-      <View>
+      <View style={[styles.searchBox, isFocused && { borderWidth: 2, borderColor: theme.colors.text }]}>
+      <Icon name="search" size={20} color={isFocused ? theme.colors.text : theme.colors.tertiary}/>
       <TextInput
-        style={[styles.searchBox, isFocused && { borderWidth: 2, borderColor: theme.colors.text }]}
+        style={{flex: 1, color: theme.colors.text, height: 35, borderRadius: 5}}
         onChangeText={handleSearch}
         value={stockSearch}
         placeholder="Search Assets & People..."
         placeholderTextColor={theme.colors.tertiary}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+
       />
       </View>
       <View style={{flex: 1}}>
@@ -173,6 +180,8 @@ const StockSearch: React.FC = () => {
             ItemSeparatorComponent={() => {
               return (<View style={{width: width-40, height: 2, backgroundColor: theme.colors.primary, marginHorizontal: 20}}/>)
             }}
+            keyboardDismissMode='on-drag'
+            keyboardShouldPersistTaps="always"
           />
         ) : (
           <SectionList
@@ -180,6 +189,7 @@ const StockSearch: React.FC = () => {
             keyExtractor={item => item.type === 'profile' ? item.username! : item.ticker!}
             renderItem={renderItem}
             renderSectionHeader={renderSectionHeader}
+            keyboardShouldPersistTaps="always"
             keyboardDismissMode='on-drag'
             />
         )}

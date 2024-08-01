@@ -11,6 +11,8 @@ import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {serverUrl} from '../../constants/global';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
 
 const FriendRequestCard = (props: any) => {
   const {theme} = useTheme();
@@ -65,11 +67,15 @@ const FriendRequestCard = (props: any) => {
     }
   }, []);
 
+  const user = useSelector((state:RootState) => state.user)
+
   const acceptFollowRequest = async () => {
     try {
       const response = await axios.post(serverUrl + '/acceptFollowRequest', {
-        userID: props.userID,
+        userID: user.userID,
         otherUserID: props.otherUserID,
+        otherUsername: props.username,
+        yourUsername: user.username
       });
       if (response.status === 200) {
         setAcceptRequestStatus('Accepted');

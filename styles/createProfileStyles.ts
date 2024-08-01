@@ -21,9 +21,9 @@ const createProfileStyles = (theme: any, width: number) => {
         paddingHorizontal: 10,
     },
     profilePic: {
-        borderRadius: 50,
-        width: 80,
-        height: 80,
+        borderRadius: 500,
+        width: 110,
+        height: 110,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: theme.colors.primary
@@ -47,10 +47,14 @@ const createProfileStyles = (theme: any, width: number) => {
         fontFamily: 'InterTight-Medium',
         color: theme.colors.text,
         fontSize: 15,
+        marginHorizontal: 20,
+        textAlign: 'center'
     },
     mainContainer: {
         borderRadius: 10,
-        flexDirection: 'row'
+        padding: 10,
+        backgroundColor: theme.colors.primary,
+        marginTop: 10
     },
     mainContainerType: {
         color: theme.colors.text,
@@ -123,9 +127,7 @@ const createProfileStyles = (theme: any, width: number) => {
         fontSize: 14,
         fontFamily: 'InterTight-regular',
         backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.tertiary,
-        borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 10,
         paddingLeft: 10,
     },
     userCardPic: {

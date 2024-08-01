@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -18,6 +18,11 @@ import PageHeader from '../GlobalComponents/PageHeader';
 import UserCard from './UserCard';
 import useUserDetails from '../../hooks/useUserDetails';
 import { useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
+import debounce from 'lodash/debounce';
+import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
+import SmallActivityIndicator from '../GlobalComponents/SmallActivityIndicator';
+
 
 interface SearchProfile {
   userID: string;
@@ -33,12 +38,15 @@ const ProfileSearch = () => {
   const navigation = useNavigation<any>();
 
   const {userData} = useUserDetails()
-  const user = useSelector((state: any) => state.user)
+  const user = useSelector((state: RootState) => state.user)
 
   const [userProfiles, setUserProfiles] = useState([]);
   const [profileSearch, setProfileSearch] = useState("");
   const [searchResults, setSearchResults] = useState<SearchProfile[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [following, setFollowing] = useState<any>([])
+  const [followers, setFollowers] = useState<any>([])
 
   const updateUserProfiles = async () => {
     try {
@@ -53,8 +61,30 @@ const ProfileSearch = () => {
   };
 
   useEffect(() => {
-    updateUserProfiles();
+  
+      console.log("Followers:", user.followers)
+      setFollowers(user.followers)
+      setFollowing(user.following)
+    
+  }, [])
+
+  const [showResults, setShowResults] = useState(false);
+
+
+
+  useEffect(() => {
+
+      updateUserProfiles();
+
   }, []);
+
+  const debouncedSetSearchResults = useCallback(
+    debounce((results) => {
+      setSearchResults(results);
+      setLoading(false); // Stop loading after setting results
+    }, 300), // 300ms debounce delay
+    []
+  );
 
   const handleSearch = async (text: string) => {
     setProfileSearch(text);
@@ -69,12 +99,22 @@ const ProfileSearch = () => {
       for (let result of results) {
         formattedResults.push(result.obj);
       }
-      setSearchResults(formattedResults);
+      debouncedSetSearchResults(formattedResults);
     } else {
-      setSearchResults([]);
+      debouncedSetSearchResults([]);
     }
-    setLoading(false); // Stop loading after processing results
   };
+
+  useEffect(() => {
+    if (searchResults.length > 0) {
+      const timer = setTimeout(() => {
+        setShowResults(true);
+      }, 10000); // 300ms delay
+      return () => clearTimeout(timer); // Cleanup the timeout if searchResults changes again before 300ms
+    } else {
+      setShowResults(false);
+    }
+  }, [searchResults]);
 
   return (
     <View style={styles.container}>
@@ -86,6 +126,7 @@ const ProfileSearch = () => {
           justifyContent: 'center',
           marginHorizontal: 20,
           gap: 5,
+          marginTop: 10
         }}
       >
         <TextInput
@@ -99,15 +140,16 @@ const ProfileSearch = () => {
         {profileSearch === '' ? (
           <View></View>
         ) : loading ? (
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator color={theme.colors.text} />
         ) : (
+      
           <FlatList
             data={searchResults}
-            keyExtractor={(item) => item.username}
+            keyExtractor={(item) => item.userID}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={userData?.following}/>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>
               </View>
             )}
           />

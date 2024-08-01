@@ -1181,7 +1181,7 @@ PODS:
     - RNSound/Core (= 0.11.2)
   - RNSound/Core (0.11.2):
     - React-Core
-  - RNSVG (15.3.0):
+  - RNSVG (15.4.0):
     - React-Core
   - RNVectorIcons (10.1.0):
     - glog
@@ -1527,7 +1527,7 @@ SPEC CHECKSUMS:
   RNReanimated: 6aeb85e1e17364c8069f9ee5661615b4a281bd5c
   RNScreens: e842cdccb23c0a084bd6307f6fa83fd1c1738029
   RNSound: 6c156f925295bdc83e8e422e7d8b38d33bc71852
-  RNSVG: a48668fd382115bc89761ce291a81c4ca5f2fd2e
+  RNSVG: cb24fb322de8c1ebf59904e7aca0447bb8dbed5a
   RNVectorIcons: 96e8c5c45609932bb2f8347e1c709bcca0e95654
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
