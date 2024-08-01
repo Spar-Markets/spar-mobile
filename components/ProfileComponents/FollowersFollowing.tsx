@@ -18,6 +18,7 @@ import PageHeader from '../GlobalComponents/PageHeader';
 import UserCard from './UserCard';
 import useUserDetails from '../../hooks/useUserDetails';
 import { useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
 
 interface SearchProfile {
   userID: string;
@@ -32,11 +33,12 @@ const FollowersFollowing = (props:any) => {
 
   const navigation = useNavigation<any>();
 
-  const {userData} = useUserDetails()
   const user = useSelector((state: any) => state.user)
+  const followers = useSelector((state: RootState) => state.user.followers)
+  const following = useSelector((state: RootState) => state.user.following)
   
 
-  const [userProfiles, setUserProfiles] = useState([]);
+  const [userProfiles, setUserProfiles] = useState<string[]>([]);
   const [profileSearch, setProfileSearch] = useState("");
   const [searchResults, setSearchResults] = useState<SearchProfile[]>([]);
   const [loading, setLoading] = useState(false);
@@ -53,17 +55,18 @@ const FollowersFollowing = (props:any) => {
     } catch (error) {
       console.log("Error", error);
     }
-  };
+  };*/
 
   useEffect(() => {
-    updateUserProfiles();
-  }, []);*/
+    
+  }, []);
+
 
   const handleSearch = async (text: string) => {
     setProfileSearch(text);
     setLoading(true); // Start loading
     if (text) {
-      const results = fuzzysort.go(text, userProfiles, {
+      const results = fuzzysort.go(text, followers, {
         keys: ['username'],
         limit: 7,
       });
@@ -81,7 +84,7 @@ const FollowersFollowing = (props:any) => {
 
   return (
     <View style={styles.container}>
-      <PageHeader text={params?.username} />
+      <PageHeader text={"Challenge a Friend"} />
       <View
         style={{ 
           flexDirection: 'row',
@@ -110,7 +113,7 @@ const FollowersFollowing = (props:any) => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={userData?.following}/>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>
               </View>
             )}
           />

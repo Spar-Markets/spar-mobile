@@ -744,6 +744,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
       return
     }
 
+    
+
     const interval = setInterval(() => {
       setYourFormattedData((prevPointData:any) => {
         const newPointData = [...prevPointData];
@@ -760,7 +762,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
         });
         setYourFormattedDataLength(newPointData.length)
         console.log("adding point", newPointData[newPointData.length-1])
-      
+        
         return newPointData
       })
 
@@ -780,7 +782,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
         //setYourFormattedDataLength(newPointData.length)      
         return newPointData
       })
-    }, 10000)
+    }, match.timeframe == 900 ? 10000 : 600000)
  
     return () => clearInterval(interval);
   }, [matchIsOver])

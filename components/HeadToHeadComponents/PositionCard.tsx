@@ -65,12 +65,13 @@ const PositionCard = (props:any) => {
                 //console.log("ALL POINT DATA:", allPoints["3M"])
                 setPointData(allPoints["1D"])
                 }
-            try {
+              try {
                 const tickerResponse = await axios.post(serverUrl + '/getTickerDetails', {
                   ticker: props.ticker,
                 });
                 if (tickerResponse) {
                   setName(tickerResponse.data.detailsResponse.results.name);
+                  console.log(tickerResponse.data.detailsResponse.results.name)
                 }
               } catch {
                 console.error('Error getting details in StockDetails.tsx');
@@ -86,7 +87,8 @@ const PositionCard = (props:any) => {
   
 
     useEffect(() => {
-        if (pointData.length > 0 && tickerData) {
+        if (pointData.length >= 0 && tickerData) {
+          //console.log(yourTickerPrices)
           if (yourTickerPrices[props.ticker]) {
             setIsLoading(false)
             setInitialLoad(true)
@@ -99,7 +101,7 @@ const PositionCard = (props:any) => {
 
     const [percentDiff, setPercentDiff] = useState("")
     const [valueDiff, setValueDiff] = useState("")
-    const [currentAccentColor, setCurrentAccentColor] = useState("")
+    const [currentAccentColor, setCurrentAccentColor] = useState(theme.colors.tertiary)
 
 
     //FIX CALCULATE PERCENT DIFFERENCE MAYBE MAKE PERCENRT DIFF A UTILITY SINCE ELSEWHERE
@@ -133,7 +135,7 @@ const PositionCard = (props:any) => {
 
 
     if (isLoading) {
-      return <Skeleton animation={"pulse"} height={132} width={width-40} style={{ backgroundColor: '#050505', borderRadius: 5, marginBottom: 10}} skeletonStyle={{backgroundColor: theme.colors.primary}}></Skeleton>
+      return <View style={{flex: 1, marginHorizontal: 10, width: width-40, marginBottom: 10}}><Skeleton animation={"pulse"} height={132} width={width-60} style={{ backgroundColor: '#050505', borderRadius: 10}} skeletonStyle={{backgroundColor: theme.colors.primary}}></Skeleton></View>
     }
 
     return (

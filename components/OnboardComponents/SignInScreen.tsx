@@ -27,7 +27,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {getDownloadURL, ref} from 'firebase/storage';
 import {useDispatch} from 'react-redux';
-import {setUserIsMade} from '../../GlobalDataManagment/userSlice';
+import {setHasDefaultProfileImage, setUserIsMade} from '../../GlobalDataManagment/userSlice';
 
 const SignInScreen = (props: any) => {
   const {user} = useAuth();
@@ -69,30 +69,33 @@ const SignInScreen = (props: any) => {
           await AsyncStorage.setItem(
             'userID',
             (credentials.user as any).uid,
-          ).then(() => {
+          ).then(async () => {
             dispatch(setUserIsMade(true));
+            const userInMongo = await axios.post(`${serverUrl}/getUser`, {
+              userID: (credentials.user as any).uid,
+            });
+  
+            console.log(
+              'userinmongo',
+              userInMongo,
+              'userhasdefaultimage',
+              userInMongo.data.hasDefaultProfileImage,
+              'mongoooo',
+              userInMongo.data.defaultProfileImage,
+            );
+            await AsyncStorage.setItem(
+              'hasDefaultProfileImage',
+              userInMongo.data.hasDefaultProfileImage,
+            );
+            await AsyncStorage.setItem(
+              'defaultProfileImage',
+              userInMongo.data.defaultProfileImage,
+            );
+            
+            //dispatch(setHasDefaultProfileImage(userInMongo.data.hasDefaultProfileImage))
           });
 
-          const userInMongo = await axios.post(`${serverUrl}/getUser`, {
-            userID: (credentials.user as any).uid,
-          });
 
-          console.log(
-            'userinmongo',
-            userInMongo,
-            'hello',
-            userInMongo.data.hasDefaultProfileImage,
-            'mongoooo',
-            userInMongo.data.defaultProfileImage,
-          );
-          await AsyncStorage.setItem(
-            'hasDefaultProfileImage',
-            userInMongo.data.hasDefaultProfileImage,
-          );
-          await AsyncStorage.setItem(
-            'defaultProfileImage',
-            userInMongo.data.defaultProfileImage,
-          );
         }
       } catch (error) {
         console.log(error);

@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {useDispatch} from 'react-redux';
 import {
+  setHasDefaultProfileImage,
   setUserID,
   setUserIsMade,
   setUsername,
@@ -116,7 +117,7 @@ const UsernameScreen = (props: any) => {
             (credentials.user as any).uid,
           ).then(async () => {
             await AsyncStorage.setItem('hasDefaultProfileImage', 'true');
-
+            dispatch(setHasDefaultProfileImage(true))
             dispatch(setUserIsMade(true));
             dispatch(setUserID((credentials.user as any).uid));
             dispatch(setUsername(usernameInput));

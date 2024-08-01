@@ -242,7 +242,7 @@ const Home: React.FC = () => {
         userID,
       });
       console.log('Matches1: ', response.data);
-      //setActiveMatches(response.data);
+      
       dispatch(setActiveMatches(response.data))
     } catch (error) {
       console.error('Error fetching matches:', error);
@@ -349,6 +349,7 @@ const Home: React.FC = () => {
         console.log("GETTING MATCH DATA!!!!!")
         setNoMatches(false)
         setLoading(false)
+        console.log(activeMatches)
       } else {
         setNoMatches(true)
         setLoading(false)
@@ -757,6 +758,9 @@ const Home: React.FC = () => {
     )
   }  
 
+  const [selectedStart, setSelectedStart] = useState("")
+  const [selectedFriendID, setSelectedFriendID] = useState<any>(null)
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -864,7 +868,7 @@ const Home: React.FC = () => {
                   return (
                   item &&  (
                     <View style={{ width, height: '100%'}}>
-                      <GameCard userID={userID} matchID={item} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri}/>
+                      <GameCard userID={user.userID} matchID={item} expandMatchSummarySheet={expandMatchSummarySheet} setActiveMatchSummaryMatchID={setActiveMatchSummaryMatchID} profileImageUri={profileImageUri}/>
                     </View>
                   ) )
                   }
@@ -917,7 +921,7 @@ const Home: React.FC = () => {
               </Animated.View>}
             <View>
               {(searchingForMatch || isInMatchmaking) ? 
-              <View style={{backgroundColor: theme.colors.secondary, width: width, flexDirection: 'row', alignItems: 'center', paddingVertical: 20, borderRadius: 20, marginHorizontal: 20, paddingHorizontal: 20}}>
+              <View style={{backgroundColor: theme.colors.secondary, width: width-40, flexDirection: 'row', alignItems: 'center', paddingVertical: 20, borderRadius: 20, marginHorizontal: 20, paddingHorizontal: 20}}>
                 <SmallActivityIndicator color={theme.colors.text}/>
                 <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 15, marginLeft: 10}}>Searching for Match</Text>
                 <View style={{flex: 1}}/>
@@ -973,7 +977,7 @@ const Home: React.FC = () => {
 
             <BottomSheet
               ref={bottomSheetRef}
-              snapPoints={[470]}
+              snapPoints={selectedStart == "Stock" ? [470] : [540]}
               index={-1}
               enablePanDownToClose
               onChange={handleSheetChanges}  
@@ -983,14 +987,26 @@ const Home: React.FC = () => {
             >
               <BottomSheetView style={{flex: 1}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', marginHorizontal: 20}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>Stock PVP</Text>
+                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>
+                    {selectedStart == "Stock" && "Stock"}
+                    {selectedStart == "Friend" && "Challenge Friend"}
+                  </Text>
                   <View style={{flex: 1}}></View>
                   <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5}}>
-                    <View style={{width: 7, height: 7, borderRadius: 50, backgroundColor: theme.colors.accent}}/>
-                    <Text style={{fontFamily: 'InterTight-Regular', color: theme.colors.accent}}>156 Playing</Text>
+                    {/*<View style={{width: 7, height: 7, borderRadius: 50, backgroundColor: theme.colors.accent}}/>*/}
+                    {/*<Text style={{fontFamily: 'InterTight-Regular', color: theme.colors.accent}}>156 Playing</Text>*/}
                   </View>
                 </View>
                 <View>
+                {selectedStart == "Friend" && <View style={{backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 10, paddingVertical: 10, borderRadius: 10, flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={styles.matchmakingCategoryText}>Selet a Friend</Text>
+                  <View style={{flex: 1}}/>
+                  {!selectedFriendID ? 
+                    <TouchableOpacity onPress={() => navigation.navigate('FollowersFollowing', {userID: user.userID, username: user.username})} style={{height: 50, width: 50, borderRadius: 50, backgroundColor: theme.colors.accent, marginRight: 10, justifyContent: 'center', alignItems: 'center'}}>
+                      <MaterialIcons name="add" color={theme.colors.background} size={24}/>
+                    </TouchableOpacity>
+                    : <View/>}
+                </View>}
                 <View style={{backgroundColor: theme.colors.primary, marginHorizontal: 20, marginTop: 10, borderRadius: 10}}>
                   <View style={{flexDirection: 'row', marginVertical: 10, marginTop: 10}}>
                     
@@ -1127,7 +1143,7 @@ const Home: React.FC = () => {
 
             <BottomSheet
               ref={matchmakingSheetRef}
-              snapPoints={[300]}
+              snapPoints={[360]}
               index={-1}
               enablePanDownToClose
               onChange={handleMatchmakingChanges}  
@@ -1139,11 +1155,23 @@ const Home: React.FC = () => {
                 {!(isInMatchmaking || searchingForMatch) ? 
                 <View style={{gap: 10, flex: 1}}>
                     <Text style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 20, paddingHorizontal: 20}}>Select a Mode</Text>
-                    <TouchableOpacity onPress={() => {expandBottomSheet(); closeMatchmakingSheet()}} style={{alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
-   
+                    <TouchableOpacity onPress={() => {expandBottomSheet(); closeMatchmakingSheet(); setSelectedStart("Stock")}} style={{alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+                      <View style={{backgroundColor: theme.colors.primary, height: '100%', aspectRatio: 1, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.colors.tertiary}}>
+                        <EntypoIcons name="line-graph" size={24} color={theme.colors.text}/>
+                      </View>
                       <View>
                         <Text style={{ color: theme.colors.stockUpAccent, fontFamily: 'InterTight-Black', fontSize: 20 }}>Stock</Text>
-                        <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade stocks only</Text>
+                        <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 11 }}>Skill-based matchmaking. Trade stocks only</Text>
+                      </View>
+                    </TouchableOpacity>
+                    <View style={{height: 1, backgroundColor: theme.colors.primary, width: width-40, marginHorizontal: 20}}></View>
+                    <TouchableOpacity onPress={() => {expandBottomSheet(); closeMatchmakingSheet(); setSelectedStart("Friend")}} style={{alignItems: 'center', gap: 10, width: width, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', height: 60}}>
+                      <View style={{backgroundColor: theme.colors.primary, height: '100%', aspectRatio: 1, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.colors.tertiary}}>
+                        <FeatherIcon name="user" size={24} color={theme.colors.text}/>
+                      </View>
+                      <View>
+                        <Text style={{ color: theme.colors.stockUpAccent, fontFamily: 'InterTight-Black', fontSize: 20 }}>Challenge a Friend</Text>
+                        <Text style={{ color: theme.colors.secondaryText, fontFamily: 'InterTight-Black', fontSize: 11 }}>Play with a Friend. Trade stocks only</Text>
                       </View>
                     </TouchableOpacity>
                     <View style={{height: 1, backgroundColor: theme.colors.primary, width: width-40, marginHorizontal: 20}}></View>
@@ -1151,7 +1179,7 @@ const Home: React.FC = () => {
                     <MaterialIcons name="construction" size={40} color={theme.colors.tertiary}/>
                       <View>
                         <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 20 }}>Crypto</Text>
-                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade cryptocurrencies only</Text>
+                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 11 }}>Trade cryptocurrencies only</Text>
                       </View>
                     </View>
                     <View style={{height: 1, backgroundColor: theme.colors.primary, width: width-40, marginHorizontal: 20}}></View>
@@ -1159,7 +1187,7 @@ const Home: React.FC = () => {
                     <MaterialIcons name="construction" size={40} color={theme.colors.tertiary}/>
                       <View>
                         <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 20 }}>Options</Text>
-                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 14 }}>Trade option contracts only</Text>
+                        <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Black', fontSize: 11 }}>Trade option contracts only</Text>
                       </View>
                     </View>
                 </View> : 

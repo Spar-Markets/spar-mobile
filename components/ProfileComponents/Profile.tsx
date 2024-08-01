@@ -103,9 +103,11 @@ const Profile = ({navigation}: any) => {
         const customProfileImagePath = await AsyncStorage.getItem(
           'customProfileImgPath',
         );
-        console.log('true or false', defaultImage);
+        console.log("has default", defaultImage)
+        console.log('true or false', customProfileImagePath);
         if (defaultImage == 'true') {
           const tempURI = imageMap[defaultAsNumber];
+          console.log("Temp", tempURI)
           setImage(tempURI);
           dispatch(setProfileImageUri(tempURI));
         } else {
@@ -114,6 +116,7 @@ const Profile = ({navigation}: any) => {
             customProfileImagePath,
           );
           setImage(customProfileImagePath);
+          dispatch(setProfileImageUri(customProfileImagePath));
         }
       } catch (error) {
         console.error('Failed to load profile image path:', error);
@@ -162,6 +165,7 @@ const Profile = ({navigation}: any) => {
 
         await AsyncStorage.setItem('hasDefaultProfileImage', 'false');
         await AsyncStorage.setItem('customProfileImgPath', imageUri);
+        console.log('customProfileImage', imageUri)
         dispatch(setProfileImageUri(imageUri));
         dispatch(setHasDefaultProfileImage(false));
       })
@@ -188,12 +192,6 @@ const Profile = ({navigation}: any) => {
     }
   };
 
-  useEffect(() => {
-    if (image) {
-      setLoading(false);
-    }
-  }, [image]);
-
   const [value, setValue] = useState('');
 
   if (loading || !user) {
@@ -212,16 +210,15 @@ const Profile = ({navigation}: any) => {
             <View style={{position: 'absolute', right:5, top:-2, height: 12, width: 12, backgroundColor: 'red', borderRadius: 100, borderWidth: 2, borderColor: theme.colors.background}}></View>
           </TouchableOpacity>
         </View>*/}
-      <PageHeader text="Profile" onProfile={true} />
+      <PageHeader canGoBack={false} onProfile={true} />
       <ScrollView style={{marginTop: 10}}>
         <View
           style={{
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.background,
             paddingBottom: 20,
-            borderBottomLeftRadius: 10,
-            borderBottomRightRadius: 10,
+             alignItems: 'center'
           }}>
-          <TouchableOpacity
+          {/*<TouchableOpacity
             style={{
               position: 'absolute',
               top: 20,
@@ -246,15 +243,15 @@ const Profile = ({navigation}: any) => {
               top: 0,
               left: 0,
               right: 0,
-            }}></Image>
+            }}></Image>*/}
 
-          <View style={{marginHorizontal: 20, marginTop: 105}}>
+          <View style={{marginHorizontal: 20, marginTop: 20, flexDirection: 'row', alignItems: 'center', gap: 20}}>
             <TouchableOpacity onPress={choosePhotoFromLibrary}>
               {hasDefaultProfileImage && Image && (
                 <Image
                   style={[
                     styles.profilePic,
-                    {borderWidth: 2, borderColor: theme.colors.text},
+                    {borderWidth: 1, borderColor: theme.colors.secondaryText},
                   ]}
                   source={image as any}
                 />
@@ -269,78 +266,84 @@ const Profile = ({navigation}: any) => {
                 />
               )}
             </TouchableOpacity>
+            
 
-            <View
-              style={{
-                marginTop: 15,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Text style={styles.usernameText}>{username}</Text>
-              <View style={{flex: 1}}></View>
-              <TouchableOpacity
+            
+          </View>
+          <View>
+            <View style={{marginHorizontal: 20, marginTop: 20}}>
+              <View
                 style={{
-                  height: 40,
-                  width: 40,
+                  flexDirection: 'row',
                   justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                onPress={() =>
-                  navigation.navigate('editProfilePage', {
-                    userID: user.userID,
-                    username: username,
-                    bio: userBio,
-                  })
-                }>
-                <FeatherIcons
-                  name="edit-2"
-                  color={theme.colors.text}
-                  size={18}
-                />
-              </TouchableOpacity>
-            </View>
+                }}>
+                <Text style={[styles.usernameText]}>@{username}</Text>
+                
+              </View>
 
-            <View style={{flexDirection: 'row', gap: 10, marginBottom: 10}}>
-              <TouchableOpacity
-                style={styles.mainContainer}
-                onPress={() =>
-                  navigation.navigate('FollowersFollowing', {
-                    type: 'followers',
-                    username: user.username,
-                  })
-                }>
-                <Text style={styles.mainContainerType}>
-                  {userData?.followers ? userData?.followers.length : 0 ?? 0}{' '}
-                  <Text style={{color: theme.colors.secondaryText}}>
-                    Followers
+              <View style={{flexDirection: 'row', justifyContent: 'center', gap: 5, marginBottom: 10}}>
+                <TouchableOpacity
+                  style={styles.mainContainer}
+                  onPress={() =>
+                    navigation.navigate('FollowersFollowing', {
+                      type: 'followers',
+                      username: user.username,
+                    })
+                  }>
+                  <Text style={styles.mainContainerType}>
+                    {user.followers ? user.followers.length : 0 ?? 0}{' '}
+                    <Text style={{color: theme.colors.secondaryText}}>
+                      Followers
+                    </Text>
                   </Text>
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.mainContainer}
-                onPress={() =>
-                  navigation.navigate('FollowersFollowing', {
-                    type: 'following',
-                    username: user.username,
-                  })
-                }>
-                <Text style={styles.mainContainerType}>
-                  {userData?.following ? userData?.following.length : 0 ?? 0}{' '}
-                  <Text style={{color: theme.colors.secondaryText}}>
-                    Following
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.mainContainer}
+                  onPress={() =>
+                    navigation.navigate('FollowersFollowing', {
+                      type: 'following',
+                      username: user.username,
+                    })
+                  }>
+                  <Text style={styles.mainContainerType}>
+                    {user.following ? user.following.length : 0 ?? 0}{' '}
+                    <Text style={{color: theme.colors.secondaryText}}>
+                      Following
+                    </Text>
                   </Text>
-                </Text>
-              </TouchableOpacity>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    aspectRatio: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: theme.colors.primary,
+                    marginTop: 10,
+                    borderRadius: 10
+                  }}
+                  onPress={() =>
+                    navigation.navigate('editProfilePage', {
+                      userID: user.userID,
+                      username: username,
+                      bio: userBio,
+                    })
+                  }>
+                  <FeatherIcons
+                    name="edit-2"
+                    color={theme.colors.text}
+                    size={18}
+                  />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.bioText}>{userBio}</Text>
             </View>
-
-            <Text style={styles.bioText}>{userBio}</Text>
           </View>
         </View>
+
 
         <Text
           style={{
             color: theme.colors.text,
-            marginTop: 20,
             marginLeft: 15,
             fontFamily: 'InterTight-Bold',
             fontSize: 18,
@@ -365,7 +368,7 @@ const Profile = ({navigation}: any) => {
             <Text
               style={{
                 fontFamily: 'InterTight-Bold',
-                color: theme.colors.accent,
+                color: theme.colors.accent2,
               }}>
               Balance
             </Text>
@@ -375,7 +378,7 @@ const Profile = ({navigation}: any) => {
                 fontSize: 20,
                 color: theme.colors.text,
               }}>
-              $100,000.00
+              ${user.balance.toFixed(2)}
             </Text>
           </View>
         </View>
@@ -398,7 +401,7 @@ const Profile = ({navigation}: any) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={{
-              backgroundColor: theme.colors.accent,
+              backgroundColor: theme.colors.accent2,
               justifyContent: 'center',
               alignItems: 'center',
               borderRadius: 10,
@@ -407,7 +410,7 @@ const Profile = ({navigation}: any) => {
             }}>
             <Text
               style={{
-                color: theme.colors.background,
+                color: theme.colors.text,
                 fontFamily: 'InterTight-Bold',
               }}>
               Deposit
