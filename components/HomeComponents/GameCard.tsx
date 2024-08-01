@@ -1490,9 +1490,6 @@ const GameCard: React.FC<GameCardProps> = ({
             </View>
 
  
-          
-
-      
           <View style={{marginTop: 5, height: 150, backgroundColor: theme.colors.background, marginHorizontal: 10, borderRadius: 5 }}>
           <View style={{
                 position: 'absolute',
@@ -1583,6 +1580,7 @@ const GameCard: React.FC<GameCardProps> = ({
             </CartesianChart>
             </View>}
           </View>
+          </View>
             <View style={{
                 flexDirection: 'row', 
                 backgroundColor: theme.colors.background,
@@ -1623,7 +1621,7 @@ const GameCard: React.FC<GameCardProps> = ({
                 }
               </View>
             </View>
-          </View>
+          
           </ScrollView>
         </LinearGradient>
       ) : (
