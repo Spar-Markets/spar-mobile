@@ -922,10 +922,6 @@ const GameCard: React.FC<GameCardProps> = ({
     return () => clearInterval(interval);
   }, [matchIsOver])
 
-
-    return () => clearInterval(interval);
-  }, []);
-
   //sets total live prices for each user
   useEffect(() => {
     //console.log("Ticker Prices: ", tickerPrices)
@@ -1494,7 +1490,7 @@ const GameCard: React.FC<GameCardProps> = ({
             </View>
 
  
-          </View>
+          
 
       
           <View style={{marginTop: 5, height: 150, backgroundColor: theme.colors.background, marginHorizontal: 10, borderRadius: 5 }}>
@@ -1581,23 +1577,13 @@ const GameCard: React.FC<GameCardProps> = ({
                 <LiveIndicator x={points.normalizedValue[points.normalizedValue.length-1].x}
                 y={points.normalizedValue[points.normalizedValue.length-1].y!}
                 color={yourColor}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate('InGameStockSearch', {
-                  matchID: matchID,
-                  userNumber: you,
-                  buyingPower: yourBuyingPower,
-                  assets: yourAssets,
-                  endAt: match.endAt,
-                });
-              }}
-
+                />
+                </>)}}
+            
             </CartesianChart>
             </View>}
           </View>
-          <View style={{
+            <View style={{
                 flexDirection: 'row', 
                 backgroundColor: theme.colors.background,
                 padding: 20,
@@ -1616,7 +1602,7 @@ const GameCard: React.FC<GameCardProps> = ({
           
             </View>
          
-         <View style={{marginHorizontal: 0}}>
+            <View style={{marginHorizontal: 0}}>
 
 
               <View style={{marginTop: 20}}>
@@ -1636,7 +1622,9 @@ const GameCard: React.FC<GameCardProps> = ({
                 ))}</>
                 }
               </View>
+            </View>
           </View>
+          </ScrollView>
         </LinearGradient>
       ) : (
         <View

@@ -1057,7 +1057,7 @@ const Home: React.FC = () => {
                     }}
                   >
                 <TouchableOpacity onPress={() => toggleAdditionalButtons()} style={{ flex: 1 }} />
-              </Animated.View>}
+              </Animated.View>)}
             <View>
               {(searchingForMatch || isInMatchmaking) ? 
               <View style={{backgroundColor: theme.colors.secondary, width: width-40, flexDirection: 'row', alignItems: 'center', paddingVertical: 20, borderRadius: 20, marginHorizontal: 20, paddingHorizontal: 20}}>
@@ -1143,7 +1143,7 @@ const Home: React.FC = () => {
             </View>
           </View>
 
-          }
+          )}
 
             <BottomSheet
               ref={bottomSheetRef}
@@ -1346,7 +1346,7 @@ const Home: React.FC = () => {
                   marginTop: 20,
                 }}
               />
-            </View>
+            
             <View
               style={{
                 width: width,
@@ -1524,7 +1524,6 @@ const Home: React.FC = () => {
           handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
           backdropComponent={renderBackdrop}>
           <BottomSheetView style={{flex: 1}}>
-            {!(isInMatchmaking || searchingForMatch) ? (
               <View style={{gap: 10, flex: 1}}>
                 <Text
                   style={{
@@ -1650,9 +1649,10 @@ const Home: React.FC = () => {
                     </Text>
                   </View>
                 </View>
-
-              </BottomSheetView>
-            </BottomSheet>
+            </View> 
+              
+            </BottomSheetView>
+          </BottomSheet>
 
             <BottomSheet
               ref={matchmakingSheetRef}
