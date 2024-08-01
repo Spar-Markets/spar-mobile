@@ -653,6 +653,9 @@ const Home: React.FC = () => {
             ws.current!.close();
             ws.current = null;
             console.log('MATCH ADDED:', newMatch.matchID);
+            if (balance) {
+              dispatch(setBalance(balance - newMatch.wagerAmt))
+            }
           } else if (JSONMessage.type == 'updateWinnings' && JSONMessage[userID]) {
             dispatch(setBalance(balance + JSONMessage[userID]));
           }
