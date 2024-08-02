@@ -8,6 +8,7 @@ interface UserState {
     userBio: string;
     balance:number;
     hasDefaultProfileImage: boolean;
+    defaultProfileImage: string;
     skillrating: number;
     following: Follower[];
     followers: Follower[]
@@ -20,7 +21,8 @@ const initialState = {
   username: null,
   userBio: null,
   balance: null,
-  hasDefaultProfileImage: true,
+  hasDefaultProfileImage: null,
+  defaultProfileImage: null,
   skillRating: null,
   following: [] as Follower[],
   followers: [] as Follower[]
@@ -57,6 +59,9 @@ const userSlice = createSlice({
     setHasDefaultProfileImage: (state, action) => {
       state.hasDefaultProfileImage = action.payload
     },
+    setDefaultProfileImage: (state, action) => {
+      state.defaultProfileImage = action.payload
+    },
     setSkillRating: (state, action) => {
       state.hasDefaultProfileImage = action.payload
     },
@@ -75,5 +80,5 @@ const userSlice = createSlice({
   }
 });
 
-export const { setIsInMatchmaking, addFollower, addFollowing, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, setFollowers, setFollowing } = userSlice.actions;
+export const { setIsInMatchmaking, setDefaultProfileImage, addFollower, addFollowing, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, setFollowers, setFollowing } = userSlice.actions;
 export default userSlice.reducer;

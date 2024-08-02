@@ -25,7 +25,7 @@ interface SearchProfile {
   username: string;
 }
 
-const FollowersFollowing = (props:any) => {
+const FollowersFollowing = () => {
   const { theme } = useTheme();
   const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
@@ -37,13 +37,9 @@ const FollowersFollowing = (props:any) => {
   const followers = useSelector((state: RootState) => state.user.followers)
   const following = useSelector((state: RootState) => state.user.following)
   
-
-  const [userProfiles, setUserProfiles] = useState<string[]>([]);
   const [profileSearch, setProfileSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchProfile[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchProfile[]>();
   const [loading, setLoading] = useState(false);
-
-  const params = route.params as any
 
   /*const updateUserProfiles = async () => {
     try {
@@ -57,12 +53,8 @@ const FollowersFollowing = (props:any) => {
     }
   };*/
 
-  useEffect(() => {
-    
-  }, []);
-
-
   const handleSearch = async (text: string) => {
+    
     setProfileSearch(text);
     setLoading(true); // Start loading
     if (text) {
@@ -103,7 +95,16 @@ const FollowersFollowing = (props:any) => {
       </View>
       <View style={{ flex: 1, marginTop: 10}}>
         {profileSearch === '' ? (
-          <View></View>
+          <FlatList
+            data={followers}
+            keyExtractor={(item) => item.username}
+            keyboardDismissMode="on-drag"
+            renderItem={({ item }) => (
+              <View>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers} isChallengeCard={true}/>
+              </View>
+            )}
+          />
         ) : loading ? (
           <ActivityIndicator size="large" color={theme.colors.primary} />
         ) : (
@@ -113,7 +114,7 @@ const FollowersFollowing = (props:any) => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers} isChallengeCard={true}/>
               </View>
             )}
           />
