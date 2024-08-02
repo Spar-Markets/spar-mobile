@@ -1,49 +1,48 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface ActiveMatch {
+  matchID: string;
+  endAt: Date;
+}
+
 interface activeMatchesState {
-  activeMatches: Record<string, Date>;
+  activeMatches: ActiveMatch[];
 }
 
 const initialState: activeMatchesState = {
-  activeMatches: {}
+  activeMatches: []
 }
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setActiveMatches: (state, action: PayloadAction<Record<string, Date>>) => {
+    setActiveMatches: (state, action: PayloadAction<ActiveMatch[]>) => {
+      
       console.log("SETACTIVEMATCHES payload:", action.payload);
       state.activeMatches = action.payload;
     },
     removeMatch: (state, action: PayloadAction<string>) => {
-      delete state.activeMatches[action.payload];
+      state.activeMatches = state.activeMatches.filter(match => match.matchID !== action.payload);
     },
-    addMatch: (state, action: PayloadAction<{ id: string; endAt: string }>) => {
-      const { id, endAt } = action.payload;
-      if (!state.activeMatches[id]) {
+    addMatch: (state, action: PayloadAction<{ matchID: string; endAt: string }>) => {
+      const { matchID, endAt } = action.payload;
+      console.log("granty", action.payload)
+      console.log("heres the state", state.activeMatches)
+      if (!state.activeMatches.find(match => match.matchID === matchID)) {
         console.log("addMatch - before:", state.activeMatches);
         console.log("addMatch payload:", action.payload);
 
-        // Convert activeMatches to an array of entries
-        const entries = Object.entries(state.activeMatches).map(([id, endAt]) => ({ id, endAt }));
-
         // Create a new match entry
-        const newMatch = { id, endAt: new Date(endAt) };
+        const newMatch = { matchID, endAt: new Date(endAt) };
 
-        // Find the correct position to insert the new match
-        const index = entries.findIndex(entry => new Date(entry.endAt) > newMatch.endAt);
+        // Find the correct position to insert the new match based on endAt
+        const index = state.activeMatches.findIndex(entry => new Date(entry.endAt) > newMatch.endAt);
         if (index === -1) {
-          entries.push(newMatch);
+          state.activeMatches.push(newMatch);
         } else {
-          entries.splice(index, 0, newMatch);
+          state.activeMatches.splice(index, 0, newMatch);
         }
-
-        // Convert the array back to an object
-        state.activeMatches = entries.reduce((acc, { id, endAt }) => {
-          acc[id] = endAt;
-          return acc;
-        }, {} as Record<string, Date>);
 
         console.log("addMatch - after:", state.activeMatches);
       }

@@ -27,21 +27,21 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import PositionCard from '../HeadToHeadComponents/PositionCard';
 import createGlobalStyles from '../../styles/createGlobalStyles';
 import TrapezoidView from '../GlobalComponents/TrapazoidView';
-import { Image } from 'react-native';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../firebase/firebase';
-import { Skeleton } from '@rneui/base';
-import { runOnJS, SharedValue, useAnimatedReaction, useDerivedValue, useSharedValue } from 'react-native-reanimated';
-import { removeMatch } from '../../GlobalDataManagment/activeMatchesSlice';
-import { debounce, min } from 'lodash';
+
+
+import {Image} from 'react-native';
+import {getDownloadURL, ref} from 'firebase/storage';
+import {storage} from '../../firebase/firebase';
+import {Skeleton} from '@rneui/base';
 import {
-  ClientRoleType,
-  createAgoraRtcEngine,
-  IRtcEngine,
-  ChannelProfileType,
-} from 'react-native-agora';
-
-
+  runOnJS,
+  SharedValue,
+  useAnimatedReaction,
+  useDerivedValue,
+  useSharedValue,
+} from 'react-native-reanimated';
+import {removeMatch} from '../../GlobalDataManagment/activeMatchesSlice';
+import {debounce, min} from 'lodash';
 
 
 interface GameCardProps {
@@ -151,8 +151,13 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
 
   const getMatchData = async () => {
     try {
-      console.log("MATCH ID FROM HOME.TSX", matchID)
-      const matchDataResponse = await axios.post(serverUrl + '/getMatchData', { matchID: matchID });
+
+      console.log('MATCH ID FROM HOME.TSX', matchID);
+      const matchDataResponse = await axios.post(serverUrl + '/getMatchData', {
+        matchID: matchID,
+      });
+      console.log('grant rahhhhh', matchDataResponse.data);
+
       if (matchDataResponse) {
         console.log("About to set match, STEP 2 should run in a sec");
         console.log("SETTING MATCH DATA GAMECARD", matchDataResponse.data)
@@ -285,11 +290,13 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     }
 
     if (data2Min > dataMin) {
-      setMinY(dataMin)
-      console.log("rahh", dataMin)
+
+      setMinY(dataMin);
+      console.log('rahh', dataMin);
     } else {
-      setMinY(data2Min)
-      console.log("Rahh", data2Min)
+      setMinY(data2Min);
+      console.log('Rahh', data2Min);
+
     }
 
     console.log("About to run STEP 4");
@@ -756,15 +763,15 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   const [yourFormattedDataLength, setYourFormattedDataLength] = useState(0)
 
   useEffect(() => {
+
     if (addPointInterval) {
     if (matchIsOver) {
       if (ws.current) {
-        ws.current.close()
+        ws.current.close();
       }
-      return
+      return;
     }
 
-  
 
     const interval = setInterval(() => {
       setYourFormattedData((prevPointData:any) => {
@@ -799,6 +806,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           normalizedValue: oppTotalPriceRef.current - prevPointData[0].value,
           date: new Date(Date.now()).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
         });
+
         //setYourFormattedDataLength(newPointData.length)      
         return newPointData
       })
@@ -808,6 +816,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     return () => clearInterval(interval);
   }
   }, [matchIsOver])
+
 
 
   //sets total live prices for each user
@@ -1132,6 +1141,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
             <View style={{backgroundColor: 'transparent', borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>VS</Text>
             </View>
+
  
           </View>
 
@@ -1255,8 +1265,52 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                     assets={yourAssets} // Adjust according to your data structure
                     endAt={match.endAt}
                   />
-                ))}</>
-                }
+                </View>
+                <Text
+                  style={{
+                    color: theme.colors.text,
+                    fontFamily: 'InterTight-bold',
+                  }}>
+                  Buying Power
+                </Text>
+                <View style={{flex: 1}}></View>
+                <Text
+                  style={{
+                    color: theme.colors.text,
+                    fontFamily: 'InterTight-bold',
+                  }}>
+                  ${yourBuyingPower.toLocaleString()}
+                </Text>
+              </View>
+
+              <View style={{marginHorizontal: 0}}>
+                <View style={{marginTop: 20}}>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      marginHorizontal: 10,
+                      color: theme.colors.text,
+                      fontFamily: 'InterTight-Bold',
+                      marginBottom: 10,
+                    }}>
+                    My Positions
+                  </Text>
+                  {yourAssets && yourAssets.length >= 1 && (
+                    <>
+                      {yourAssets.map((asset, index) => (
+                        <PositionCard
+                          key={index}
+                          ticker={asset.ticker}
+                          qty={asset.totalShares}
+                          matchID={matchID}
+                          buyingPower={yourBuyingPower} // Adjust according to your data structure
+                          assets={yourAssets} // Adjust according to your data structure
+                          endAt={match.endAt}
+                        />
+                      ))}
+                    </>
+                  )}
+                </View>
               </View>
           </View>
         </ScrollView>
