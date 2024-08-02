@@ -38,7 +38,7 @@ const useUserData = (userID?: string) => {
 
   const dispatch = useDispatch()
 
-  const [gotData, setGotData] = useState(false)
+  const [gotData, setGotData] = useState<boolean>(false)
 
   useEffect(() => {
     if (!gotData) {

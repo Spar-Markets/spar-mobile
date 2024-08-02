@@ -1248,103 +1248,59 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           
             </View>
          
-         <View style={{marginHorizontal: 0}}>
+            <View style={{marginHorizontal: 0}}>
 
 
-              <View style={{marginTop: 20}}>
-                <Text style={{fontSize: 18, marginHorizontal: 10, color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 10}}>My Positions</Text>
-                {yourAssets && yourAssets.length >= 1 && 
-                <>
-                {yourAssets.map((asset, index) => (
-                  <PositionCard
-                    key={index}
-                    ticker={asset.ticker}
-                    qty={asset.totalShares}
-                    matchID={matchID}
-                    buyingPower={yourBuyingPower} // Adjust according to your data structure
-                    assets={yourAssets} // Adjust according to your data structure
-                    endAt={match.endAt}
-                  />
-                </View>
-                <Text
-                  style={{
-                    color: theme.colors.text,
-                    fontFamily: 'InterTight-bold',
-                  }}>
-                  Buying Power
-                </Text>
-                <View style={{flex: 1}}></View>
-                <Text
-                  style={{
-                    color: theme.colors.text,
-                    fontFamily: 'InterTight-bold',
-                  }}>
-                  ${yourBuyingPower.toLocaleString()}
-                </Text>
-              </View>
+            <View style={{marginTop: 20}}>
+              <Text style={{fontSize: 18, marginHorizontal: 10, color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 10}}>My Positions</Text>
+              {yourAssets && yourAssets.length >= 1 && 
+              <>
+              {yourAssets.map((asset, index) => (
+                <PositionCard
+                  key={index}
+                  ticker={asset.ticker}
+                  qty={asset.totalShares}
+                  matchID={matchID}
+                  buyingPower={yourBuyingPower} // Adjust according to your data structure
+                  assets={yourAssets} // Adjust according to your data structure
+                  endAt={match.endAt}
+                />
+              ))}</>
+              }
+            </View>
+            </View>
+            </ScrollView>
+            <View style={{marginHorizontal: 10, gap: 5, flexDirection: 'row'}}>
+            <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
+            matchID: matchID, 
+            userNumber: you, 
+            buyingPower: yourBuyingPower, 
+            assets: yourAssets,
+            endAt: match.endAt   
+            })}} style={[{marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
+            <FeatherIcon name="message-circle" size={24} style={{paddingHorizontal: 10}} color={yourColor}/>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
+            matchID: matchID, 
+            userNumber: you, 
+            buyingPower: yourBuyingPower, 
+            assets: yourAssets,
+            endAt: match.endAt   
+            })}} style={[{flex: 1,marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
+            <Text style={{color: yourColor, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
+            </TouchableOpacity>
 
-              <View style={{marginHorizontal: 0}}>
-                <View style={{marginTop: 20}}>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      marginHorizontal: 10,
-                      color: theme.colors.text,
-                      fontFamily: 'InterTight-Bold',
-                      marginBottom: 10,
-                    }}>
-                    My Positions
-                  </Text>
-                  {yourAssets && yourAssets.length >= 1 && (
-                    <>
-                      {yourAssets.map((asset, index) => (
-                        <PositionCard
-                          key={index}
-                          ticker={asset.ticker}
-                          qty={asset.totalShares}
-                          matchID={matchID}
-                          buyingPower={yourBuyingPower} // Adjust according to your data structure
-                          assets={yourAssets} // Adjust according to your data structure
-                          endAt={match.endAt}
-                        />
-                      ))}
-                    </>
-                  )}
-                </View>
-              </View>
-          </View>
-        </ScrollView>
-        <View style={{marginHorizontal: 10, gap: 5, flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
-              matchID: matchID, 
-              userNumber: you, 
-              buyingPower: yourBuyingPower, 
-              assets: yourAssets,
-              endAt: match.endAt   
-              })}} style={[{marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
-              <FeatherIcon name="message-circle" size={24} style={{paddingHorizontal: 10}} color={yourColor}/>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() =>{navigation.navigate("InGameStockSearch", {
-              matchID: matchID, 
-              userNumber: you, 
-              buyingPower: yourBuyingPower, 
-              assets: yourAssets,
-              endAt: match.endAt   
-              })}} style={[{flex: 1,marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
-              <Text style={{color: yourColor, fontFamily: 'InterTight-Black', fontSize: 18}}>Trade</Text>
-          </TouchableOpacity>
 
-          
-        </View>
-      </LinearGradient>
+            </View>
+            </LinearGradient>
 
-    
-    : 
-    <View style={{width: width-40, flex: 1, marginHorizontal: 20, marginTop: 10}}>
-      <Skeleton animation={"pulse"} style={{flex: 1, borderRadius: 10, backgroundColor: theme.colors.secondary}} skeletonStyle={{backgroundColor: theme.colors.primary}}/>
-    </View>}
-    </View>
-  );
+
+            : 
+            <View style={{width: width-40, flex: 1, marginHorizontal: 20, marginTop: 10}}>
+            <Skeleton animation={"pulse"} style={{flex: 1, borderRadius: 10, backgroundColor: theme.colors.secondary}} skeletonStyle={{backgroundColor: theme.colors.primary}}/>
+            </View>}
+            </View>
+            );
 };
 
 export default GameCard;

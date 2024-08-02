@@ -140,35 +140,28 @@ const Profile = ({navigation}: any) => {
         const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
         dispatch(setHasDefaultProfileImage(false));
         dispatch(setProfileImageUri(imageUri));
-        setTempLibraryPick(true)
+        const uploadImage = async (image:any) => {
+          uploadProfileImageToFirebase(image);
+          console.log('custom image', image);
+      
+          if (hasDefaultProfileImage == false) {
+            console.log(
+              'no need to change the mongo to false becasue this is another cutom image',
+            );
+          } else {
+            await axios.post(`${serverUrl}/updateImageStatus`, {
+              userID: user.userID,
+              status: false,
+            });
+          }
+        }
+        uploadImage(imageUri)
       })
       .catch((error: any) => {
         console.log('Image picker error:', error);
       });
   };
 
-  useEffect(() => {
-    const uploadImage = async (image:any) => {
-      uploadProfileImageToFirebase(image);
-      console.log('custom image', image);
-  
-      if (hasDefaultProfileImage == false) {
-        console.log(
-          'no need to change the mongo to false becasue this is another cutom image',
-        );
-      } else {
-        await axios.post(`${serverUrl}/updateImageStatus`, {
-          userID: user.userID,
-          status: false,
-        });
-      }
-    }
-    if (tempLibraryPick == true) {
-      uploadImage(profileImageUri)
-      console.log("SUCCESS UPLOADING IMAGE")
-      setTempLibraryPick(false)
-    } 
-  }, [tempLibraryPick])
 
   const uploadProfileImageToFirebase = async (imageUri: string) => {
     if (imageUri) {

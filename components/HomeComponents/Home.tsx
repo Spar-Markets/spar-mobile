@@ -1300,7 +1300,7 @@ const Home: React.FC = () => {
         )}
 
 
-          )}
+          
 
             <BottomSheet
               ref={bottomSheetRef}
@@ -1342,36 +1342,8 @@ const Home: React.FC = () => {
                   }
                   </>
                   }
-                <View style={{backgroundColor: theme.colors.background, marginHorizontal: 10, marginTop: 10, borderRadius: 10}}>
-                  <View style={{flexDirection: 'row', marginVertical: 10, marginTop: 10}}>
-                    
-                      <Text style={styles.matchmakingCategoryText}>Select Wager</Text>
-                    
-                  </View>
-                    <View style={{paddingHorizontal: 10, marginBottom: 10, flexDirection: 'row', gap: 5}}>
-                    {[
-                      {amount: 0, label: 'Free'},
-                      {amount: 5, label: '$5'},
-                      {amount: 10, label: '$10'},
-                      {amount: 25, label: '$25'},
-                    ].map((wager, index) => (
-                      <TouchableOpacity
-                        key={wager.amount}
-                        style={[
-                          styles.matchmakingWagerBtn,
-                          {backgroundColor: theme.colors.secondary, borderColor: theme.colors.secondary},
-                          wagerSelected == wager.amount && {borderColor: theme.colors.text, borderWidth: 2},
-                          index === 5 && {marginRight: 40}
-                        ]}
-                        onPress={() => setWagerSelected(wager.amount)}
-                      >
-                        <Text style={styles.matchmakingWagerTxt}>{wager.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                </View>
-              )}
+          
+              
               <View
                 style={{
                   backgroundColor: theme.colors.background,
@@ -1535,9 +1507,9 @@ const Home: React.FC = () => {
                   <Text
                     style={{
 
-                      color: theme.colors.accent2,
+                      color: theme.colors.text,
                       fontFamily: 'InterTight-Black',
-                      fontSize: 28,
+                      fontSize: 20,
 
                     }}>
                     Payout
