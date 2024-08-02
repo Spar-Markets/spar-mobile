@@ -8,6 +8,7 @@ import stockDataSlice from './stockDataSlice';
 import stockSlice from './stockSlice';
 import uiSlice from './uiSlice';
 import activeMatchesSlice from './activeMatchesSlice';
+import matchmakingSlice from './matchmakingSlice';
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ export const store = configureStore({
     stockData: stockDataSlice,
     stock: stockSlice,
     ui: uiSlice,
-    activeMatches: activeMatchesSlice
+    activeMatches: activeMatchesSlice,
+    matchmaking: matchmakingSlice
   },
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware({

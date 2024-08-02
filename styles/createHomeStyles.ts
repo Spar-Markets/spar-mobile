@@ -110,6 +110,8 @@ const createHomeStyles = (theme: any, width: number) => {
     percentIndicator: {
         backgroundColor: theme.colors.tertiary,
         borderRadius: 5,
+        justifyContent: 'center'
+
     },
     percentText: {
         paddingHorizontal: 5,

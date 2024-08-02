@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import { addFollowing } from '../../GlobalDataManagment/userSlice';
+import { setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
 
 const UserCard = (props:any) => {
 
@@ -101,31 +102,44 @@ const UserCard = (props:any) => {
       return following.find((user:any) => user.userID === userID);
     };
 
+    const handleChallengeFriend = () => {
+      dispatch(setChallengedFriend({userID: props.otherUserID, username: props.username}))
+      navigation.goBack()
+      console.log("Challenged", props.username)
+    }
+
 
     //the button that shows up on right side of usercard
     const ActionButton = () => {
+      if (props.isChallengeCard == true) {
+        return (
+          <TouchableOpacity style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.stockUpAccent, borderRadius: 100}} onPress={handleChallengeFriend}>
+              <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+                <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Challenge</Text>
+              </View>
+          </TouchableOpacity>)
+      }
       if (status == 'pending') {
         return (
-        <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.primary, borderRadius: 5}}>
+        <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.primary, borderRadius: 50}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               <Text style={{color: theme.colors.tertiary, fontFamily: 'InterTight-Bold'}}>Pending</Text>
-              <Icon name="spinner" size={14} color={theme.colors.tertiary}/>
             </View>
         </View>)
       } else if (findFollowingByID(props.otherUserID) == null) {
         return (
-        <TouchableOpacity onPress={requestFollow} style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.secondary, borderRadius: 5}}>
+        <TouchableOpacity onPress={requestFollow} style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.secondary, borderRadius: 50}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Follow</Text>
-              <Icon name="plus-circle" size={14} color={theme.colors.text}/>
+              {/*<Icon name="plus-circle" size={14} color={theme.colors.text}/>*/}
             </View>
         </TouchableOpacity>)
       } else if (findFollowingByID(props.otherUserID) != null) {
         return (
-          <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.accent2, borderRadius: 5}}>
+          <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.accent2, borderRadius: 50}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Followed</Text>
-              <Icon name="check-circle" size={14} color={theme.colors.text}/>
+              {/*<Icon name="check-circle" size={14} color={theme.colors.text}/>*/}
             </View>
           </View>
         )

@@ -25,7 +25,7 @@ interface SearchProfile {
   username: string;
 }
 
-const FollowersFollowing = (props:any) => {
+const FollowersFollowing = () => {
   const { theme } = useTheme();
   const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
@@ -43,8 +43,6 @@ const FollowersFollowing = (props:any) => {
   const [searchResults, setSearchResults] = useState<SearchProfile[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const params = route.params as any
-
   /*const updateUserProfiles = async () => {
     try {
       const response = await axios.post(serverUrl + '/getProfileList');
@@ -57,12 +55,8 @@ const FollowersFollowing = (props:any) => {
     }
   };*/
 
-  useEffect(() => {
-    
-  }, []);
-
-
   const handleSearch = async (text: string) => {
+    
     setProfileSearch(text);
     setLoading(true); // Start loading
     if (text) {
@@ -113,7 +107,7 @@ const FollowersFollowing = (props:any) => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers} isChallengeCard={true}/>
               </View>
             )}
           />
