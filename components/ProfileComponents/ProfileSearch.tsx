@@ -60,15 +60,6 @@ const ProfileSearch = () => {
     }
   };
 
-  useEffect(() => {
-  
-      console.log("Followers:", user.followers)
-      setFollowers(user.followers)
-      setFollowing(user.following)
-    
-  }, [])
-
-  const [showResults, setShowResults] = useState(false);
 
 
 
@@ -105,16 +96,6 @@ const ProfileSearch = () => {
     }
   };
 
-  useEffect(() => {
-    if (searchResults.length > 0) {
-      const timer = setTimeout(() => {
-        setShowResults(true);
-      }, 10000); // 300ms delay
-      return () => clearTimeout(timer); // Cleanup the timeout if searchResults changes again before 300ms
-    } else {
-      setShowResults(false);
-    }
-  }, [searchResults]);
 
   return (
     <View style={styles.container}>
@@ -149,7 +130,7 @@ const ProfileSearch = () => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={user.following} followers={user.followers}/>
               </View>
             )}
           />

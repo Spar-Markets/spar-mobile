@@ -3,7 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import { useSelector, useDispatch} from 'react-redux';
 import { RootState } from '../GlobalDataManagment/store';
-import { setBalance, setFollowers, setFollowing, setHasDefaultProfileImage, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
+import { setBalance, setDefaultProfileImage, setFollowers, setFollowing, setHasDefaultProfileImage, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
 
 interface UserData {
   __v: number;
@@ -38,35 +38,41 @@ const useUserData = (userID?: string) => {
 
   const dispatch = useDispatch()
 
+  const [gotData, setGotData] = useState(false)
+
   useEffect(() => {
-    if (userID && userIsMade) {
-      const fetchUserData = async () => {
-        try {
-          //console.log("server url FROM env:", `${process.env.SERVER_URL}`);
-          //console.log("Server url endpoint:", `${serverUrl}/getUser`);
-          //console.log("USEUSER, UserID:", userID);
-          console.log("PASSING USER ID IN TO GET USER ENDPOINT:", userID)
-          console.log("SERVER URL", serverUrl)
-          const response = await axios.post(`${serverUrl}/getUser`, { userID });
-          console.log("HELLO", response.data)
-          //console.log('Fetched User Data:', response.data);
-          dispatch(setUsername(response.data.username))
-          dispatch(setUserBio(response.data.bio))
-          dispatch(setSkillRating(response.data.skillRating))
-          dispatch(setBalance(response.data.balance))
-          dispatch(setFollowers(response.data.followers))
-          dispatch(setFollowing(response.data.following))
-  
-          setUserData(response.data);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchUserData();
-    } else {
-      setLoading(false);
+    if (!gotData) {
+      if (userID && userIsMade) {
+        const fetchUserData = async () => {
+          try {
+            //console.log("server url FROM env:", `${process.env.SERVER_URL}`);
+            //console.log("Server url endpoint:", `${serverUrl}/getUser`);
+            //console.log("USEUSER, UserID:", userID);
+            console.log("PASSING USER ID IN TO GET USER ENDPOINT:", userID)
+            console.log("SERVER URL", serverUrl)
+            const response = await axios.post(`${serverUrl}/getUser`, { userID });
+            //console.log('Fetched User Data:', response.data);
+            dispatch(setUsername(response.data.username))
+            dispatch(setUserBio(response.data.bio))
+            dispatch(setSkillRating(response.data.skillRating))
+            dispatch(setBalance(response.data.balance))
+            dispatch(setFollowers(response.data.followers))
+            dispatch(setFollowing(response.data.following))
+            dispatch(setHasDefaultProfileImage(response.data.hasDefaultProfileImage))
+            dispatch(setDefaultProfileImage(response.data.defaultProfileImage))
+
+            setUserData(response.data);
+            setGotData(true)
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+        fetchUserData();
+      } else {
+        setLoading(false);
+      }
     }
   }, [userID && userIsMade]);
 

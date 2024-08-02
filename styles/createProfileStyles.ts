@@ -133,7 +133,7 @@ const createProfileStyles = (theme: any, width: number) => {
     userCardPic: {
         width: 40,
         height: 40,
-        borderRadius: 10
+        borderRadius: 500
     },
     sectionContainer: {
         flexDirection: 'row', 
