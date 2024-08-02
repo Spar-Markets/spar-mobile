@@ -37,10 +37,8 @@ const FollowersFollowing = () => {
   const followers = useSelector((state: RootState) => state.user.followers)
   const following = useSelector((state: RootState) => state.user.following)
   
-
-  const [userProfiles, setUserProfiles] = useState<string[]>([]);
   const [profileSearch, setProfileSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchProfile[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchProfile[]>();
   const [loading, setLoading] = useState(false);
 
   /*const updateUserProfiles = async () => {
@@ -97,7 +95,16 @@ const FollowersFollowing = () => {
       </View>
       <View style={{ flex: 1, marginTop: 10}}>
         {profileSearch === '' ? (
-          <View></View>
+          <FlatList
+            data={followers}
+            keyExtractor={(item) => item.username}
+            keyboardDismissMode="on-drag"
+            renderItem={({ item }) => (
+              <View>
+                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers} isChallengeCard={true}/>
+              </View>
+            )}
+          />
         ) : loading ? (
           <ActivityIndicator size="large" color={theme.colors.primary} />
         ) : (

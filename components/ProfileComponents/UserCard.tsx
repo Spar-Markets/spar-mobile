@@ -45,31 +45,49 @@ const UserCard = (props:any) => {
         console.error('Error checking follow status:', error);
       }
     };
+
+    const [hasDefaultProfileImage, setHasDefaultProfileImage] = useState<any>(null)
     
     useEffect(() => {
         const getProfileImage = async () => {
-          const imageRef = ref(storage, `profileImages/${props.otherUserID}`);
           try {
-            const url = await getDownloadURL(imageRef);
-            console.log(props.username, url);
-            if (url) {
-              setProfileImage(url);
-              setNoPic(false);
-            } else {
-              setNoPic(true)
-              setImageLoading(false)
+          const response = await axios.get(`${serverUrl}/getProfileImages/${props.otherUserID}`);
+          const { hasDefaultProfileImage, defaultProfileImage } = response.data;
+          const imageMap = [
+            '',
+            require('../../assets/images/profile1.png'),
+            require('../../assets/images/profile2.png'),
+            require('../../assets/images/profile3.png'),
+          ];
+
+          if (hasDefaultProfileImage == true) {
+            const tempURI = imageMap[Number(defaultProfileImage)]
+            setHasDefaultProfileImage(true)
+            setProfileImage(tempURI)
+          } else if (hasDefaultProfileImage == false) {
+            const imageRef = ref(storage, `profileImages/${props.otherUserID}`);
+            try {
+              const url = await getDownloadURL(imageRef);
+              console.log(props.username, url);
+              if (url) {
+                setHasDefaultProfileImage(false)
+                setProfileImage(url);
+              } 
+            } catch (error) {
+              console.log("HELLA THINGS WRONG IF U GETTING HERE")
             }
-          } catch (error) {
-            setNoPic(true);
           }
           setLoading(false);
+          } catch (error) {
+            console.log(error)
+          }
         };
         checkFollowStatus()
         getProfileImage();
       }, [props.otherUserID, props.username]);
     
     useEffect(() => {
-        if (profileImage || (noPic == true)) {
+        if (profileImage) {
             setLoading(false)
         }
     }, [profileImage])
@@ -163,11 +181,7 @@ const UserCard = (props:any) => {
 
     return (
         <TouchableOpacity style={{marginHorizontal: 20, flexDirection: 'row', height: 50, alignItems: 'center', gap: 20}} onPress={() => navigation.navigate("OtherProfile", {otherUserID: props.otherUserID})}>
-            {profileImage && <Image style={styles.userCardPic} onLoad={() => setImageLoading(false)} source={{uri: profileImage}}></Image>}
-            {noPic == true && 
-            <View style={[styles.userCardPic, {backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.tertiary, justifyContent: 'center', alignItems: 'center'}]}>
-                <Text style={{fontFamily: 'InterTight-Black', color: theme.colors.text}}>{props.username.slice(0,1)}</Text>
-            </View>}
+            {profileImage && <Image style={styles.userCardPic} onLoad={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : {uri: profileImage}}></Image>}
             {(!imageLoading || noPic) && <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 15}}>{props.username}</Text>}
             <View style={{flex: 1}}></View>
             {(!imageLoading || noPic) && <ActionButton/>}
