@@ -483,26 +483,28 @@ const Home: React.FC = () => {
         disappearsOnIndex={-1}
         appearsOnIndex={0}
         opacity={0.4}>
-        <View style={{backgroundColor: theme.colors.opposite, flex: 1}}></View>
+        <View style={{backgroundColor: theme.colors.opposite, flex: 1, zIndex: 0}}></View>
       </BottomSheetBackdrop>
     ),
     [],
   );
+
+  
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
 
   const handleInfoChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
+    console.log('handleInfoSheetChanges', index);
   }, []);
 
   const handleMatchSummaryChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
+    console.log('handleMatchSummarySheetChanges', index);
   }, []);
 
   const handleMatchmakingChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
+    console.log('handleMatchmakingSheetChanges', index);
   }, []);
 
   const handleEnterMatchmaking = async (
@@ -813,15 +815,16 @@ const Home: React.FC = () => {
       <TouchableOpacity
         onPress={handlePress}
         style={[
-          gameModeSelected == props.text && {
+          gameModeSelected == props.text ? {
             backgroundColor: activeGameModeColor,
-          },
+          } : {backgroundColor: theme.colors.secondary},
           {
             paddingHorizontal: 15,
             borderRadius: 50,
             alignItems: 'center',
             flexDirection: 'row',
             gap: 5,
+            marginRight: 10
           },
         ]}>
         <Text
@@ -977,8 +980,8 @@ const Home: React.FC = () => {
             style={{width: width}}
             showsHorizontalScrollIndicator={false}>
             <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
-              <GameModeButton text={'Head-to-Head'} icon={'sword-cross'} />
-              <GameModeButton text={'Tournaments'} icon={'tournament'} />
+              <GameModeButton text={'Head-to-Head'}/>
+              <GameModeButton text={'Tournaments'}/>
             </View>
           </ScrollView>
         </View>
@@ -1312,7 +1315,9 @@ const Home: React.FC = () => {
               handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
               backdropComponent={renderBackdrop}
               onClose={() => {
-                dispatch(setChallengedFriend({userID: null, username: null}))
+                if (challengedFriend.userID) {
+                  dispatch(setChallengedFriend({userID: null, username: null}))
+                }
               }}
             >
               <BottomSheetView style={{flex: 1}}>
@@ -1642,7 +1647,7 @@ const Home: React.FC = () => {
                 </View>
               )}
             </View>
-          </BottomSheetView>
+              </BottomSheetView>
         </BottomSheet>
         <BottomSheet
           ref={infoSheetRef}
@@ -1747,145 +1752,6 @@ const Home: React.FC = () => {
                 }}>
                 {activeMatchSummaryMatchID}
               </Text>
-            </View>
-          </BottomSheetView>
-        </BottomSheet>
-
-        <BottomSheet
-          ref={matchmakingSheetRef}
-          snapPoints={[300]}
-          index={-1}
-          enablePanDownToClose
-          onChange={handleMatchmakingChanges}
-          backgroundStyle={{backgroundColor: theme.colors.background}}
-          handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
-          backdropComponent={renderBackdrop}>
-          <BottomSheetView style={{flex: 1}}>
-            <View style={{gap: 10, flex: 1}}>
-              <Text
-                style={{
-                  color: theme.colors.text,
-                  fontFamily: 'Intertight-Bold',
-                  fontSize: 20,
-                  paddingHorizontal: 20,
-                }}>
-                Select a Mode
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  expandBottomSheet();
-                  closeMatchmakingSheet();
-                }}
-                style={{
-                  alignItems: 'center',
-                  gap: 10,
-                  width: width,
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  flexDirection: 'row',
-                  height: 60,
-                }}>
-                <View>
-                  <Text
-                    style={{
-                      color: theme.colors.stockUpAccent,
-                      fontFamily: 'InterTight-Black',
-                      fontSize: 20,
-                    }}>
-                    Stock
-                  </Text>
-                  <Text
-                    style={{
-                      color: theme.colors.secondaryText,
-                      fontFamily: 'InterTight-Black',
-                      fontSize: 14,
-                    }}>
-                    Trade stocks only
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <View
-                style={{
-                  height: 1,
-                  backgroundColor: theme.colors.primary,
-                  width: width - 40,
-                  marginHorizontal: 20,
-                }}></View>
-              <View
-                style={{
-                  alignItems: 'center',
-                  gap: 10,
-                  width: width,
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  flexDirection: 'row',
-                  height: 60,
-                }}>
-                <MaterialIcons
-                  name="construction"
-                  size={40}
-                  color={theme.colors.tertiary}
-                />
-                <View>
-                  <Text
-                    style={{
-                      color: theme.colors.tertiary,
-                      fontFamily: 'InterTight-Black',
-                      fontSize: 20,
-                    }}>
-                    Crypto
-                  </Text>
-                  <Text
-                    style={{
-                      color: theme.colors.tertiary,
-                      fontFamily: 'InterTight-Black',
-                      fontSize: 14,
-                    }}>
-                    Trade cryptocurrencies only
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={{
-                  height: 1,
-                  backgroundColor: theme.colors.primary,
-                  width: width - 40,
-                  marginHorizontal: 20,
-                }}></View>
-              <View
-                style={{
-                  alignItems: 'center',
-                  gap: 10,
-                  width: width,
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  flexDirection: 'row',
-                  height: 60,
-                }}>
-                <MaterialIcons
-                  name="construction"
-                  size={40}
-                  color={theme.colors.tertiary}
-                />
-                <View>
-                  <Text
-                    style={{
-                      color: theme.colors.tertiary,
-                      fontFamily: 'InterTight-Black',
-                      fontSize: 20,
-                    }}>
-                    Options
-                  </Text>
-                  <Text
-                    style={{
-                      color: theme.colors.tertiary,
-                      fontFamily: 'InterTight-Black',
-                      fontSize: 14,
-                    }}>
-                    Trade option contracts only
-                  </Text>
-                </View>
-              </View>
             </View>
           </BottomSheetView>
         </BottomSheet>
