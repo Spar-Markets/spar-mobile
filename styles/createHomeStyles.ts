@@ -383,7 +383,7 @@ const createHomeStyles = (theme: any, width: number) => {
     },
     addButton: {
       height: 50,
-      width: width-40,
+      flex: 1,
       borderRadius: 50,
       paddingHorizontal: 15,
       backgroundColor: theme.colors.accent,
@@ -391,7 +391,7 @@ const createHomeStyles = (theme: any, width: number) => {
       alignItems: 'center',
       elevation: 1000,
       zIndex: 1000,
-      marginHorizontal: 20,
+      
       marginVertical: 10,
       flexDirection: 'row',
   },

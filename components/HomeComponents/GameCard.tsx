@@ -764,7 +764,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
 
   useEffect(() => {
 
-    if (addPointInterval) {
+    
     if (matchIsOver) {
       if (ws.current) {
         ws.current.close();
@@ -810,11 +810,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
         //setYourFormattedDataLength(newPointData.length)      
         return newPointData
       })
-    }, addPointInterval)
+    }, 10000)
   
  
     return () => clearInterval(interval);
-  }
+  
   }, [matchIsOver])
 
 

@@ -61,6 +61,7 @@ import Settings from './components/ProfileComponents/Settings';
 import useUserDetails from './hooks/useUserDetails';
 import { setBalance } from './GlobalDataManagment/userSlice';
 import { Text } from 'react-native';
+import Invitations from './components/HomeComponents/Invitations';
 
 const Stack = createNativeStackNavigator();
 
@@ -314,6 +315,16 @@ const AppContent = (): React.ReactElement => {
               headerShown: false,
               gestureEnabled: true,
               gestureDirection: 'horizontal',
+            }}
+          />
+          <Stack.Screen
+            name="Invitations"
+            component={Invitations}
+            options={{
+              headerShown: false,
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+              animation: 'slide_from_bottom',
             }}
           />
         </Stack.Navigator>
