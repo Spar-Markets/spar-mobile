@@ -131,8 +131,8 @@ const createProfileStyles = (theme: any, width: number) => {
         paddingLeft: 10,
     },
     userCardPic: {
-        width: 40,
-        height: 40,
+        width: 60,
+        height: 60,
         borderRadius: 500
     },
     sectionContainer: {

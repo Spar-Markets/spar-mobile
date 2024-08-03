@@ -82,7 +82,7 @@ import {
 } from '../../GlobalDataManagment/activeMatchesSlice';
 
 import { setBalance } from '../../GlobalDataManagment/userSlice';
-import { setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
+import { resetChallengedFriend, setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
 
 const {width} = Dimensions.get('window');
 
@@ -841,33 +841,29 @@ const Home: React.FC = () => {
 
   const [selectedStart, setSelectedStart] = useState("")
   
-  const [challengedFriendPicture, setChallengedFriendPicture] = useState<any>(null)
-
-  const fetchOtherProfileImageFromFirebase = async () => {
-    if (challengedFriend.userID) {
-      try {
-        const imageRef = ref(storage, `profileImages/${challengedFriend.userID}`);
-        const url = await getDownloadURL(imageRef);
-        if (url) {
-          console.log('Fetched URL from Firebase:', url);
-          console.log("RAHHH", url)
-          setChallengedFriendPicture(url)
-        }
-      } catch (error) {
-        console.log('No profile set');
-        setChallengedFriendPicture("")
+  const handleInviteFriend = async (challengerUserID:string, invitedUserID:string, wager:number, timeframe:number, mode:string) => {
+    try {
+      const invitation = {
+        challengerUserID,
+        invitedUserID,
+        wager,
+        timeframe,
+        mode,
+        type: "HTH",
       }
+      const response = await axios.post(serverUrl + "/challengeFriend", invitation)
+      if (response.status == 200) {
+        //implment showing little alert to say inviitation sent
+        console.log("Invitation sent to", challengedFriend.userID)
+        closeBottomSheet()
+      } else {
+        console.error("Error sending invitation to friend:", response)
+      }
+    } catch (error) {
+      console.error("Error sending invitation to friend");
     }
-  };
-
-  useEffect(() => {
-    if (challengedFriend.userID) {
-      console.log("DOING THISSSSS")
-      fetchOtherProfileImageFromFirebase()
-    }
-  }, [challengedFriend.userID])
-
-
+  }
+  
   if (loading) {
     return (
       <View style={styles.container}>
@@ -1223,21 +1219,26 @@ const Home: React.FC = () => {
                           style={{
                             flexDirection: 'row',
                             backgroundColor: 'transparent',
+                            alignItems: 'center',
+                            marginHorizontal: 20,
+                            gap: 5,
                           }}>
                           {/*<TouchableOpacity onPress={() => navigation.navigate("PastMatches")} style={{height: 40, borderRadius: 5, backgroundColor: theme.colors.opposite, width: (width-45)*0.12, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
                     <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
                 </TouchableOpacity>*/}
+                          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{backgroundColor: theme.colors.accent2, height: 50, width: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 50}}>
+                              <FeatherIcon name="inbox" color={theme.colors.text} size={24}/>
+                              {/*<View style={{backgroundColor: theme.colors.stockDownAccent, width: 20, height: 20, borderRadius: 50, position: 'absolute', right: -2, top: -2, justifyContent: 'center', alignItems: 'center',borderWidth: 2, borderColor: theme.colors.background}}>
+                                <Text style={{color: theme.colors.text, fontFamily: "InterTight-Bold", fontSize: 12}}>1</Text>
+                              </View>*/}
+                          </TouchableOpacity>
                           <TouchableOpacity
                             style={[
                               styles.addButton,
                               {
-                                backgroundColor: showAdditionalButtons
-                                  ? theme.colors.background
-                                  : theme.colors.accent2,
+                                backgroundColor: theme.colors.accent2,
                                 zIndex: 1,
-                                borderColor: showAdditionalButtons
-                                  ? theme.colors.opposite
-                                  : 'transparent',
+                                borderColor: theme.colors.accent2,
                                 borderWidth: 2,
                               },
                             ]}
@@ -1307,7 +1308,7 @@ const Home: React.FC = () => {
 
             <BottomSheet
               ref={bottomSheetRef}
-              snapPoints={selectedStart == "Stock" ? [470] : [510]}
+              snapPoints={selectedStart == "Stock" ? [470] : challengedFriend.userID == null ? [520] : [520]}
               index={-1}
               enablePanDownToClose
               onChange={handleSheetChanges}  
@@ -1334,14 +1335,19 @@ const Home: React.FC = () => {
                   <>
                   {challengedFriend.userID == null ?
                   <View style={{marginHorizontal: 20, marginTop: 10}}>
-                    <TouchableOpacity onPress={() => navigation.navigate('FollowersFollowing', {userID: user.userID, username: user.username})} style={{gap: 5, paddingHorizontal: 20, paddingVertical: 20, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.accent2, justifyContent: 'center', alignItems: 'center'}}>
+                    <TouchableOpacity onPress={() => navigation.navigate('FollowersFollowing', {userID: user.userID, username: user.username})} style={{height:70, gap: 5, paddingHorizontal: 20, paddingVertical: 20, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.accent2, justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18}}>Select a Friend</Text>
                     </TouchableOpacity>
                   </View>
                   :
                   <View style={{marginHorizontal: 20, marginTop: 10}}>
-                    <TouchableOpacity onPress={() => navigation.navigate('FollowersFollowing', {userID: user.userID, username: user.username})} style={{gap: 5, paddingHorizontal: 20, paddingVertical: 20, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18}}>{challengedFriend.username}</Text>
+                    <TouchableOpacity style={{gap: 5, paddingHorizontal: 20, paddingVertical: 20, height: 70, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.secondary,  alignItems: 'center'}}>
+                      {challengedFriend.hasDefaultProfileImage != null && <Image style={{height: 35, width: 35, borderRadius: 100}} source={challengedFriend.hasDefaultProfileImage == true ? challengedFriend.profileImageUri as any : {uri: challengedFriend.profileImageUri} }/>}
+                      <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 24, marginLeft: 10}}>{challengedFriend.username}</Text>
+                      <View style={{flex: 1}}></View>
+                      <TouchableOpacity onPress={() => dispatch(resetChallengedFriend())}>
+                        <Icon name="close" color={theme.colors.stockDownAccent} size={24}/>
+                      </TouchableOpacity>
                     </TouchableOpacity>
                   </View>
                   }
@@ -1404,8 +1410,8 @@ const Home: React.FC = () => {
             </View>
             <View
               style={{
-                backgroundColor: theme.colors.primary,
-                marginHorizontal: 20,
+                backgroundColor: theme.colors.background,
+                marginHorizontal: 10,
                 marginTop: 10,
                 borderRadius: 10,
               }}>
@@ -1580,12 +1586,13 @@ const Home: React.FC = () => {
                   <>
                   {challengedFriend.userID ?
                   <TouchableOpacity
-                  onPress={() =>
-                    handleEnterMatchmaking(
+                  onPress={async () =>
+                    /*handleEnterMatchmaking(
                       wagerSelected,
                       timeframeSelected,
                       modeSelected,
-                    )
+                    )*/
+                   await handleInviteFriend(user.userID, challengedFriend.userID!, wagerSelected, timeframeSelected, modeSelected)
                   }
                   style={{
                     marginHorizontal: 20,

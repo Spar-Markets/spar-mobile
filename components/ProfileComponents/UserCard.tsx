@@ -13,11 +13,13 @@ import axios from 'axios'
 import { serverUrl } from '../../constants/global';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useUserDetails from '../../hooks/useUserDetails';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Entypo';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import { addFollowing } from '../../GlobalDataManagment/userSlice';
 import { setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
+import getProfileImage from '../../utility/getProfileImage';
+
 
 const UserCard = (props:any) => {
 
@@ -28,6 +30,8 @@ const UserCard = (props:any) => {
     const [loading, setLoading] = useState(true)
     const [noPic, setNoPic] = useState(false)
     const [status, setStatus] = useState<string | null>(null)
+
+    Icon.loadFont()
 
     const navigation = useNavigation<any>();
 
@@ -49,42 +53,21 @@ const UserCard = (props:any) => {
     const [hasDefaultProfileImage, setHasDefaultProfileImage] = useState<any>(null)
     
     useEffect(() => {
-        const getProfileImage = async () => {
-          try {
-          const response = await axios.get(`${serverUrl}/getProfileImages/${props.otherUserID}`);
-          const { hasDefaultProfileImage, defaultProfileImage } = response.data;
-          const imageMap = [
-            '',
-            require('../../assets/images/profile1.png'),
-            require('../../assets/images/profile2.png'),
-            require('../../assets/images/profile3.png'),
-          ];
 
-          if (hasDefaultProfileImage == true) {
-            const tempURI = imageMap[Number(defaultProfileImage)]
-            setHasDefaultProfileImage(true)
-            setProfileImage(tempURI)
-          } else if (hasDefaultProfileImage == false) {
-            const imageRef = ref(storage, `profileImages/${props.otherUserID}`);
-            try {
-              const url = await getDownloadURL(imageRef);
-              console.log(props.username, url);
-              if (url) {
-                setHasDefaultProfileImage(false)
-                setProfileImage(url);
-              } 
-            } catch (error) {
-              console.log("HELLA THINGS WRONG IF U GETTING HERE")
-            }
-          }
-          setLoading(false);
-          } catch (error) {
-            console.log(error)
-          }
-        };
         checkFollowStatus()
-        getProfileImage();
-      }, [props.otherUserID, props.username]);
+        
+        getProfileImage(props.otherUserID)
+        .then(profileImageResponse => {
+          console.log("YAA", profileImageResponse);
+          if (profileImageResponse) {
+            setHasDefaultProfileImage(profileImageResponse.hasDefaultProfileImage)
+            setProfileImage(profileImageResponse.profileImage)
+          }
+        })
+        .catch(error => {
+          console.error("error setting profile image", error)
+        })
+      }, [props.otherUserID]);
     
     useEffect(() => {
         if (profileImage) {
@@ -121,7 +104,7 @@ const UserCard = (props:any) => {
     };
 
     const handleChallengeFriend = () => {
-      dispatch(setChallengedFriend({userID: props.otherUserID, username: props.username}))
+      dispatch(setChallengedFriend({userID: props.otherUserID, username: props.username, profileImageUri: profileImage, hasDefaultProfileImage: hasDefaultProfileImage}))
       navigation.goBack()
       console.log("Challenged", props.username)
     }
@@ -131,22 +114,22 @@ const UserCard = (props:any) => {
     const ActionButton = () => {
       if (props.isChallengeCard == true) {
         return (
-          <TouchableOpacity style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.stockUpAccent, borderRadius: 100}} onPress={handleChallengeFriend}>
+          <TouchableOpacity style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.accent2, borderRadius: 10}} onPress={handleChallengeFriend}>
               <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-                <Text style={{color: theme.colors.background, fontFamily: 'InterTight-Bold'}}>Challenge</Text>
+                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Challenge</Text>
               </View>
           </TouchableOpacity>)
       }
       if (status == 'pending') {
         return (
-        <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.primary, borderRadius: 50}}>
+        <View style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, borderRadius: 50}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               <Text style={{color: theme.colors.tertiary, fontFamily: 'InterTight-Bold'}}>Pending</Text>
             </View>
         </View>)
       } else if (findFollowingByID(props.otherUserID) == null) {
         return (
-        <TouchableOpacity onPress={requestFollow} style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.secondary, borderRadius: 50}}>
+        <TouchableOpacity onPress={requestFollow} style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.secondary, borderRadius: 50}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Follow</Text>
               {/*<Icon name="plus-circle" size={14} color={theme.colors.text}/>*/}
@@ -154,7 +137,7 @@ const UserCard = (props:any) => {
         </TouchableOpacity>)
       } else if (findFollowingByID(props.otherUserID) != null) {
         return (
-          <View style={{paddingHorizontal: 15, paddingVertical: 6, backgroundColor: theme.colors.accent2, borderRadius: 50}}>
+          <View style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.accent2, borderRadius: 50}}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Followed</Text>
               {/*<Icon name="check-circle" size={14} color={theme.colors.text}/>*/}
@@ -180,11 +163,17 @@ const UserCard = (props:any) => {
     //make ti grab fllowers on every new search not every usercard hella inefficnet
 
     return (
-        <TouchableOpacity style={{marginHorizontal: 20, flexDirection: 'row', height: 50, alignItems: 'center', gap: 20}} onPress={() => navigation.navigate("OtherProfile", {otherUserID: props.otherUserID})}>
-            {profileImage && <Image style={styles.userCardPic} onLoad={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : {uri: profileImage}}></Image>}
-            {(!imageLoading || noPic) && <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 15}}>{props.username}</Text>}
+        <TouchableOpacity style={{marginHorizontal: 20, flexDirection: 'row', height: 70, alignItems: 'center', gap: 15}} onPress={() => navigation.navigate("OtherProfile", {otherUserID: props.otherUserID})}>
+            {profileImage && <Image style={styles.userCardPic} onLoadEnd={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : {uri: profileImage}}></Image>}
+            {(!imageLoading || noPic) && <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18}}>{props.username}</Text>}
             <View style={{flex: 1}}></View>
-            {(!imageLoading || noPic) && <ActionButton/>}
+            {(!imageLoading || noPic) && 
+            <View style={{flexDirection: 'row', gap: 5, height: 25}}>
+            <ActionButton/>
+            <TouchableOpacity style={{paddingHorizontal: 5, borderRadius: 10, height: '100%', alignItems: 'center', justifyContent: 'center'}}>
+              <Icon name="dots-three-horizontal" color={theme.colors.text} size={24}/>
+            </TouchableOpacity>
+            </View>}
         </TouchableOpacity>
     )
 }
