@@ -272,25 +272,7 @@ const Home: React.FC = () => {
     }
   };
 
-  /*const getMatchData = async () => {
-    try {
-      console.log(`Server Url: ${process.env.SERVER_URL}`);
-      console.log('getmatchdata', activeMatches);
-      const md: MatchData[] = [];
-      for (const id of activeMatches) {
-        const matchDataResponse = await axios.post(
-          serverUrl + '/getMatchData',
-          {matchID: id},
-        );
-        md.push(matchDataResponse.data);
-      }
-      setMatchData(md);
-      setLoading(false);
-      console.log('SET MATCH DATA PAGE SHOULD NOW LOAD');
-    } catch (error) {
-      console.error('in get match data error' + error);
-    }
-  };*/
+
 
   const cancelMatchmaking = async () => {
     try {
@@ -301,8 +283,8 @@ const Home: React.FC = () => {
       console.log(response);
       dispatch(setIsInMatchmaking(false));
       setSearchingForMatch(false);
-      ws.current!.close();
-      ws.current = null;
+      //ws.current!.close();
+      //ws.current = null;
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
         console.log(error.response.message);
@@ -610,6 +592,15 @@ const Home: React.FC = () => {
     }
   }, [activeMatches]);
 
+  useEffect(() => {
+    if (userID) {
+      if (!ws.current) {
+        setupSocket()
+        console.log("SETTING UP THE HOME WEBSOCKET")
+      }
+    }
+  }, [userID])
+
   //searchingForMatch || isInMatchmaking -----> these conditions == true, open websocket to look for match being created
   const setupSocket = async () => {
     return new Promise((resolve, reject) => {
@@ -659,8 +650,8 @@ const Home: React.FC = () => {
             setNoMatches(false);
             dispatch(setIsInMatchmaking(false));
             setSearchingForMatch(false);
-            ws.current!.close();
-            ws.current = null;
+            //ws.current!.close();
+            //ws.current = null;
             console.log('MATCH ADDED:', newMatch.matchID);
             if (balance) {
               dispatch(setBalance(balance - newMatch.wagerAmt));

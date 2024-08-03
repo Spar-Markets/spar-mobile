@@ -1,21 +1,35 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface UserState {
-    isInMatchmaking: boolean
-    isUserMade: boolean
-    userID: string | null;
-    username: string;
-    userBio: string;
-    balance:number;
-    hasDefaultProfileImage: boolean;
-    defaultProfileImage: string;
-    skillrating: number;
-    following: Follower[];
-    followers: Follower[];
-    invitations: Object
+interface Invitation {
+  challengerUserID: string;
+  wager: number;
+  timeframe: number;
+  createdAt: Date;
+  mode: string;
+  type: string;
 }
 
-const initialState = {
+interface Follower {
+  userID: string;
+  username: string;
+}
+
+interface UserState {
+  isInMatchmaking: boolean;
+  isUserMade: boolean;
+  userID: string | null;
+  username: string | null;
+  userBio: string | null;
+  balance: number | null;
+  hasDefaultProfileImage: boolean | null;
+  defaultProfileImage: string | null;
+  skillRating: number | null;
+  following: Follower[];
+  followers: Follower[];
+  invitations: { [invitationID: string]: Invitation };
+}
+
+const initialState: UserState = {
   isInMatchmaking: false,
   isUserMade: false,
   userID: null,
@@ -25,15 +39,10 @@ const initialState = {
   hasDefaultProfileImage: null,
   defaultProfileImage: null,
   skillRating: null,
-  following: [] as Follower[],
-  followers: [] as Follower[],
-  invitations: null
-}
-
-interface Follower {
-  userID: string;
-  username: string;
-}
+  following: [],
+  followers: [],
+  invitations: {}
+};
 
 const userSlice = createSlice({
   name: 'user',
@@ -78,11 +87,17 @@ const userSlice = createSlice({
     addFollowing: (state, action: PayloadAction<Follower>) => {
       state.following.push(action.payload);
     },
-    setInvitations: (state, action) => {
-      state.invitations= action.payload
+    setInvitations: (state, action: PayloadAction<{ [key: string]: Invitation }>) => {
+      state.invitations = action.payload;
     },
+    addInvitation: (state, action: PayloadAction<{ invitationID: string; invitation: Invitation }>) => {
+      state.invitations[action.payload.invitationID] = action.payload.invitation;
+    },
+    removeInvitation: (state, action: PayloadAction<string>) => {
+      delete state.invitations[action.payload];
+    }
   }
 });
 
-export const { setIsInMatchmaking, setInvitations, setDefaultProfileImage, addFollower, addFollowing, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, setFollowers, setFollowing } = userSlice.actions;
+export const { setIsInMatchmaking, addInvitation, removeInvitation, setInvitations, setDefaultProfileImage, addFollower, addFollowing, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, setFollowers, setFollowing } = userSlice.actions;
 export default userSlice.reducer;

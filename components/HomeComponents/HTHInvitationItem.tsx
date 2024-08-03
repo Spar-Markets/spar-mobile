@@ -7,6 +7,10 @@ import createHomeStyles from '../../styles/createHomeStyles';
 import axios from 'axios'
 import { serverUrl } from '../../constants/global';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { removeInvitation } from '../../GlobalDataManagment/userSlice';
 
 interface Invitation {
   invitationID: string;
@@ -32,6 +36,10 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
   const styles = createHomeStyles(theme, width)
 
   const [username, setUsername] = useState<any>(null)
+
+  const user = useSelector((state: RootState) => state.user)
+
+  const navigation = useNavigation<any>(); 
 
   useEffect(() => {
     console.log(item)
@@ -63,17 +71,32 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
       });
   }, [item.challengerUserID]);
 
+  const dispatch = useDispatch()
+
+  const handleAcceptInvite = async () => {
+    try {
+        console.log("HANDLING INVITE ACCEPT:",item.invitationID, user.userID)
+        const response = await axios.post(serverUrl + "/acceptChallenge", { invitationID: item.invitationID, invitedUserID: user.userID })
+        if (response.status = 200) {
+            navigation.goBack()
+            dispatch(removeInvitation(item.invitationID))
+        }
+    } catch (error) {
+        console.error("server error", error)
+    }
+}
+
   if (loading) {
     return <View/>
   }
 
   return (
-    <View style={{ padding: 10, backgroundColor: theme.colors.primary, borderRadius: 10}}>
+    <View style={{ padding: 10, backgroundColor: theme.colors.primary, borderRadius: 10, borderColor: theme.colors.secondary, borderWidth: 1}}>
       {profileImage && (
         <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15}}>
                 <Image
-                    style={{ height: 60, width: 60, borderRadius: 50 }}
+                    style={{ height: 60, width: 60, borderRadius: 50,borderWidth: 1, borderColor: theme.colors.secondary}}
                     source={hasDefaultProfileImage ? profileImage : { uri: profileImage }}
                 />
                 <View style={{gap: 5}}>
@@ -96,14 +119,14 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
                 
             </View>
             
-            <View style={{flexDirection: 'row', gap: 10, marginTop: 20}}>
+            <View style={{flexDirection: 'row', gap: 5, marginTop: 20}}>
                 <View style={{flex: 1}}>
-                    <TouchableOpacity style={{borderRadius: 50, backgroundColor: theme.colors.accent2, borderWidth: 2, borderColor: theme.colors.accent2, alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity onPress={handleAcceptInvite} style={{borderRadius: 8, backgroundColor: theme.colors.accent2, borderWidth: 2, borderColor: theme.colors.accent2, alignItems: 'center', justifyContent: 'center'}}>
                         <Text style={{color: theme.colors.text,fontFamily: 'InterTight-Bold', padding: 10}}>Accept (${item.wager})</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{flex: 1}}>
-                    <TouchableOpacity style={{borderRadius: 50, borderColor: theme.colors.opposite, borderWidth: 2, alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity style={{borderRadius: 8, borderColor: theme.colors.opposite, borderWidth: 2, alignItems: 'center', justifyContent: 'center'}}>
                         <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', padding: 10}}>Decline</Text>
                     </TouchableOpacity>
                 </View>

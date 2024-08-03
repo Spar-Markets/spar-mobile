@@ -19,12 +19,7 @@ const Menu = () => {
 
   const handleLogout = async () => {
     await signOut(auth);
-    await AsyncStorage.removeItem('customProfileImgPath');
-    await AsyncStorage.removeItem('userID');
-    await AsyncStorage.removeItem('hasDefaultProfileImage');
-    await AsyncStorage.removeItem('defaultProfileImage');
-
-    dispatch(setUserIsMade(false));
+    await AsyncStorage.removeItem('user');
   };
 
   const navigation = useNavigation<any>();
