@@ -31,7 +31,7 @@ const FollowersFollowing = () => {
 
   const user = useSelector((state: any) => state.user)
   const friends = useSelector((state: RootState) => state.user.friends)
-  
+
   const [profileSearch, setProfileSearch] = useState("");
   const [searchResults, setSearchResults] = useState<string[]>();
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ const FollowersFollowing = () => {
   //TODO: endpoint to 
 
   const handleSearch = async (text: string) => {
-    
+
     setProfileSearch(text);
     setLoading(true); // Start loading
     if (text) {
@@ -55,7 +55,7 @@ const FollowersFollowing = () => {
       const formattedResults: string[] = [];
       for (let result of results) {
         formattedResults.push(result.obj);
-      } 
+      }
       setSearchResults(formattedResults);
     } else {
       setSearchResults([]);
@@ -69,7 +69,7 @@ const FollowersFollowing = () => {
     <View style={styles.container}>
       <PageHeader text={"Challenge a Friend"} />
       <View
-        style={{ 
+        style={{
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
@@ -84,15 +84,15 @@ const FollowersFollowing = () => {
           placeholder="Search"
         />
       </View>
-      <View style={{ flex: 1, marginTop: 10}}>
+      <View style={{ flex: 1, marginTop: 10 }}>
         {profileSearch === '' ? (
           <FlatList
             data={friends}
-            keyExtractor={(item) => item.username}
+            keyExtractor={(item) => item}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers} isChallengeCard={true}/>
+                <UserCard otherUserID={item} isChallengeCard={true} />
               </View>
             )}
           />
@@ -101,11 +101,11 @@ const FollowersFollowing = () => {
         ) : (
           <FlatList
             data={searchResults}
-            keyExtractor={(item) => item.username}
+            keyExtractor={(item) => item}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers} isChallengeCard={true}/>
+                <UserCard otherUserID={item} isChallengeCard={true} />
               </View>
             )}
           />

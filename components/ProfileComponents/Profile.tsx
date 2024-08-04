@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Pressable,
   Platform,
@@ -23,11 +23,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import CircularProgress from 'react-native-circular-progress-indicator';
-import {SvgXml} from 'react-native-svg';
-import {serverUrl} from '../../constants/global';
+import { SvgXml } from 'react-native-svg';
+import { serverUrl } from '../../constants/global';
 import axios from 'axios';
-import {useTheme} from '../ContextComponents/ThemeContext';
-import {useDimensions} from '../ContextComponents/DimensionsContext';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import createGlobalStyles from '../../styles/createGlobalStyles';
 import {
@@ -38,18 +38,18 @@ import {
 import firebase from '../firebase/firebaseconfig';
 import ImagePicker from 'react-native-image-crop-picker';
 import useUserDetails from '../../hooks/useUserDetails';
-import {storage} from '../../firebase/firebase';
-import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
+import { storage } from '../../firebase/firebase';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
-import {useDispatch, useSelector} from 'react-redux';
-import {setProfileImageUri} from '../../GlobalDataManagment/imageSlice';
+import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
 import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
 import WatchlistButton from '../HomeComponents/WatchlistButton';
-import {SegmentedButtons} from 'react-native-paper';
+import { SegmentedButtons } from 'react-native-paper';
 import PageHeader from '../GlobalComponents/PageHeader';
-import {RootState} from '../../GlobalDataManagment/store';
-import {setHasDefaultProfileImage} from '../../GlobalDataManagment/userSlice';
+import { RootState } from '../../GlobalDataManagment/store';
+import { setHasDefaultProfileImage } from '../../GlobalDataManagment/userSlice';
 
 const imageMap = [
   '',
@@ -58,9 +58,9 @@ const imageMap = [
   Image.resolveAssetSource(require('../../assets/images/profile3.png')).uri,
 ];
 
-const Profile = ({navigation}: any) => {
-  const {theme} = useTheme();
-  const {width, height} = useDimensions();
+const Profile = ({ navigation }: any) => {
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
   const [image, setImage] = useState<string | null>(null);
@@ -184,7 +184,7 @@ const Profile = ({navigation}: any) => {
   return (
     <View style={[styles.container]}>
       <PageHeader canGoBack={false} onProfile={true} />
-      <ScrollView style={{marginTop: 10}}>
+      <ScrollView style={{ marginTop: 10 }}>
         <View
           style={{
             backgroundColor: theme.colors.background,
@@ -204,24 +204,24 @@ const Profile = ({navigation}: any) => {
                 <Image
                   style={[
                     styles.profilePic,
-                    {borderWidth: 1, borderColor: theme.colors.secondaryText},
+                    { borderWidth: 1, borderColor: theme.colors.secondaryText },
                   ]}
-                  source={{uri: profileImageUri}}
+                  source={{ uri: profileImageUri }}
                 />
               )}
               {hasDefaultProfileImage == false && (
                 <Image
                   style={[
                     styles.profilePic,
-                    {borderWidth: 1, borderColor: theme.colors.text},
+                    { borderWidth: 1, borderColor: theme.colors.text },
                   ]}
-                  source={{uri: profileImageUri} as any}
+                  source={{ uri: profileImageUri } as any}
                 />
               )}
             </TouchableOpacity>
           </View>
           <View>
-            <View style={{marginHorizontal: 20, marginTop: 20}}>
+            <View style={{ marginHorizontal: 20, marginTop: 20 }}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -241,29 +241,14 @@ const Profile = ({navigation}: any) => {
                   style={styles.mainContainer}
                   onPress={() =>
                     navigation.navigate('FollowersFollowing', {
-                      type: 'followers',
-                      username: user.username,
-                    })
-                  }>
-                  <Text style={styles.mainContainerType}>
-                    {user.followers ? user.followers.length : 0 ?? 0}{' '}
-                    <Text style={{color: theme.colors.secondaryText}}>
-                      Followers
-                    </Text>
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.mainContainer}
-                  onPress={() =>
-                    navigation.navigate('FollowersFollowing', {
                       type: 'following',
                       username: user.username,
                     })
                   }>
                   <Text style={styles.mainContainerType}>
-                    {user.following ? user.following.length : 0 ?? 0}{' '}
-                    <Text style={{color: theme.colors.secondaryText}}>
-                      Following
+                    {user.friendCount}{' '}
+                    <Text style={{ color: theme.colors.secondaryText }}>
+                      {user.friendCount == 1 ? "Friend" : "Friends"}
                     </Text>
                   </Text>
                 </TouchableOpacity>
@@ -337,7 +322,7 @@ const Profile = ({navigation}: any) => {
           </View>
         </View>
 
-        <View style={{marginTop: 10, marginHorizontal: 10, gap: 10}}>
+        <View style={{ marginTop: 10, marginHorizontal: 10, gap: 10 }}>
           <TouchableOpacity
             style={{
               borderWidth: 2,
@@ -349,7 +334,7 @@ const Profile = ({navigation}: any) => {
               paddingVertical: 15,
             }}>
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Withdraw
             </Text>
           </TouchableOpacity>
@@ -391,13 +376,13 @@ const Profile = ({navigation}: any) => {
               name="bank"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Payment Methods
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -421,13 +406,13 @@ const Profile = ({navigation}: any) => {
               name="file-document-multiple"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Documents
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -451,13 +436,13 @@ const Profile = ({navigation}: any) => {
               name="bank-transfer"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Transfers
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -495,13 +480,13 @@ const Profile = ({navigation}: any) => {
               name="activity"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Activity
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -525,13 +510,13 @@ const Profile = ({navigation}: any) => {
               name="eye"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Watchlists
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -556,13 +541,13 @@ const Profile = ({navigation}: any) => {
               name="gear"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Settings
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -571,7 +556,7 @@ const Profile = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
 
-        <View style={{marginVertical: 20}}>
+        <View style={{ marginVertical: 20 }}>
           {/*<Text
               style={{
                 color: theme.colors.text,

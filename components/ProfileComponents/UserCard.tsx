@@ -78,6 +78,7 @@ const UserCard = (props: any) => {
       const response = await axios.post(serverUrl + "/acceptFriendRequest", { acceptedUserID: user.userID, requesterUserID: props.otherUserID })
       if (response.status == 200) {
         console.log("accepted")
+        dispatch(addFriend(props.otherUserID))
         setStatus("accepted")
       }
     } catch (error) {
@@ -129,7 +130,6 @@ const UserCard = (props: any) => {
       const response = await axios.post(serverUrl + '/addFriendRequest', { userID: user.userID, requestedUserID: props.otherUserID })
       if (response.status === 200) {
         console.log("Friended", props.username)
-        dispatch(addFriend(props.otherUserID))
         setLoadingRequest(false)
       }
     } catch (error) {
@@ -138,9 +138,9 @@ const UserCard = (props: any) => {
   }
 
   const handleChallengeFriend = () => {
-    dispatch(setChallengedFriend({ userID: props.otherUserID, username: props.username, profileImageUri: profileImage, hasDefaultProfileImage: hasDefaultProfileImage }))
+    dispatch(setChallengedFriend({ userID: props.otherUserID, username: username, profileImageUri: profileImage, hasDefaultProfileImage: hasDefaultProfileImage }))
     navigation.goBack()
-    console.log("Challenged", props.username)
+    console.log("Challenged", username)
   }
 
   //the button that shows up on right side of usercard
@@ -156,11 +156,13 @@ const UserCard = (props: any) => {
     }
 
     else if (status == 'accepted') {
-      <TouchableOpacity style={{ paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, borderRadius: 50 }} onPress={handleChallengeFriend}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-          <Icon name="dots-three-horizontal" size={22} color={theme.colors.text} />
-        </View>
-      </TouchableOpacity>
+      console.log("HELOOoooooooooooo")
+      return (
+        <TouchableOpacity style={{ paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.secondary, borderRadius: 50 }} onPress={handleChallengeFriend}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <Icon name="dots-three-horizontal" size={22} color={theme.colors.text} />
+          </View>
+        </TouchableOpacity>)
     }
 
     else if (status == 'requested') {

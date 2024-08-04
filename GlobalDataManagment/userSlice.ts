@@ -12,6 +12,7 @@ interface UserState {
   skillRating: number | null;
   friends: string[];
   invitations: Record<string, any> | null;
+  friendCount: number | null
 }
 
 const initialState: UserState = {
@@ -25,7 +26,8 @@ const initialState: UserState = {
   defaultProfileImage: null,
   skillRating: null,
   friends: [],
-  invitations: null
+  invitations: null,
+  friendCount: null
 }
 
 const userSlice = createSlice({
@@ -62,6 +64,9 @@ const userSlice = createSlice({
     setFriends: (state, action) => {
       state.friends = action.payload
     },
+    setFriendCount: (state, action) => {
+      state.friendCount = action.payload
+    },
     addFriend: (state, action: PayloadAction<string>) => {
       state.friends.push(action.payload)
     },
@@ -74,5 +79,5 @@ const userSlice = createSlice({
   }
 });
 
-export const { setIsInMatchmaking, addFriend, removeFriend, setFriends, setInvitations, setDefaultProfileImage, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, } = userSlice.actions;
+export const { setIsInMatchmaking, setFriendCount, addFriend, removeFriend, setFriends, setInvitations, setDefaultProfileImage, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, } = userSlice.actions;
 export default userSlice.reducer;
