@@ -25,8 +25,7 @@ const UserCard = (props: any) => {
   const styles = createProfileStyles(theme, width);
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [noPic, setNoPic] = useState(false)
-  const [status, setStatus] = useState<string | null>("unfollowed")
+  const [status, setStatus] = useState<string | null>(null)
 
   Icon.loadFont()
 
@@ -38,6 +37,7 @@ const UserCard = (props: any) => {
 
   const getUsername = async () => {
     try {
+      console.log("look at me", props.otherUserID)
       const response = await axios.post(serverUrl + '/getUsernameByID', { userID: props.otherUserID });
       setUsername(response.data.username)
       console.log(response.data.username)
@@ -192,6 +192,7 @@ const UserCard = (props: any) => {
 
 
     else {
+      setStatus("unfollowed")
       return (
         <TouchableOpacity onPress={addFriendRequest} style={{ paddingHorizontal: 15, height: 30, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.secondary, borderRadius: 50 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -207,9 +208,10 @@ const UserCard = (props: any) => {
     return <View />
   }
 
+
   if (loading || !status || !profileImage) {
     return (
-      <View style={{ width: width - 40, marginHorizontal: 20, height: 50 }}>
+      <View style={{ width: width - 40, height: 50, marginHorizontal: 20 }}>
 
       </View>
     );
@@ -222,8 +224,8 @@ const UserCard = (props: any) => {
     <TouchableOpacity style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 15, paddingVertical: 10, maxWidth: width - 40 }} onPress={() => navigation.navigate("OtherProfile", { otherUserID: props.otherUserID })}>
       {profileImage &&
 
-        <Image style={styles.userCardPic} onLoadEnd={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : { uri: profileImage }}></Image>}
-      {(!imageLoading || noPic) &&
+        <Image style={styles.userCardPic} onLoad={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : { uri: profileImage }}></Image>}
+      {(!imageLoading) &&
 
         <View style={{ flex: 1 }}>
 
@@ -234,7 +236,7 @@ const UserCard = (props: any) => {
 
         </View>
       }
-      {(!imageLoading || noPic) &&
+      {(!imageLoading) &&
         <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
           <ActionButton />
         </View>}

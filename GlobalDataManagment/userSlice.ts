@@ -93,15 +93,19 @@ const userSlice = createSlice({
       state.invitations = action.payload;
     },
     addInvitation: (state, action: PayloadAction<{ invitationID: string; invitation: Invitation }>) => {
-      state.invitations[action.payload.invitationID] = action.payload.invitation;
+      if (state.invitations) {
+        state.invitations[action.payload.invitationID] = action.payload.invitation;
+      }
     },
     removeInvitation: (state, action: PayloadAction<string>) => {
-      delete state.invitations[action.payload];
+      if (state.invitations) {
+        delete state.invitations[action.payload];
+      }
     }
   }
 });
 
 
-export const { setIsInMatchmaking, setFriendCount, addFriend, removeFriend, setFriends, setInvitations, setDefaultProfileImage, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, } = userSlice.actions;
+export const { setIsInMatchmaking, removeInvitation, setFriendCount, addFriend, removeFriend, setFriends, setInvitations, setDefaultProfileImage, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -19,6 +19,11 @@ import UserCard from './UserCard';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 
+interface searchResult {
+  userID: string,
+  username: string
+}
+
 
 const FollowersFollowing = () => {
   const { theme } = useTheme();
@@ -32,11 +37,27 @@ const FollowersFollowing = () => {
   const friends = useSelector((state: RootState) => state.user.friends)
 
   const [profileSearch, setProfileSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<string[]>();
+  const [searchResults, setSearchResults] = useState<searchResult[]>();
   const [loading, setLoading] = useState(false);
 
+  const profileObjects = useRef<any>([])
+
+  const getProfileObjects = async () => {
+    try {
+      console.log("friends", friends)
+
+      const response = await axios.post(serverUrl + "/getUsernamesByIDs", { userIDs: friends })
+      if (response.status == 200) {
+        console.log(response.data)
+        profileObjects.current = response.data
+      }
+    } catch (error) {
+      console.error("error getting friend usernames", error)
+    }
+  }
+
   useEffect(() => {
-    console.log(friends)
+    getProfileObjects()
   }, [])
 
   //TODO: endpoint to 
@@ -46,15 +67,12 @@ const FollowersFollowing = () => {
     setProfileSearch(text);
     setLoading(true); // Start loading
     if (text) {
-      const results = fuzzysort.go(text, friends, {
+      const results = fuzzysort.go(text, profileObjects.current, {
         keys: ['username'],
         limit: 7,
       });
-      console.log(results);
-      const formattedResults: string[] = [];
-      for (let result of results) {
-        formattedResults.push(result.obj);
-      }
+      console.log("RESULTS", results);
+      const formattedResults: any[] = results.map(result => result.obj);
       setSearchResults(formattedResults);
     } else {
       setSearchResults([]);
@@ -100,11 +118,11 @@ const FollowersFollowing = () => {
         ) : (
           <FlatList
             data={searchResults}
-            keyExtractor={(item) => item}
+            keyExtractor={(item) => item.userID}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard otherUserID={item} isChallengeCard={true} />
+                <UserCard otherUserID={item.userID} isChallengeCard={true} />
               </View>
             )}
           />

@@ -143,6 +143,7 @@ const InGameStockSearch = () => {
                     endAt={params?.endAt} />
                 </View>
               )}
+              keyboardShouldPersistTaps="always"
             />
           </View>
         )}
