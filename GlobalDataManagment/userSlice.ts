@@ -24,9 +24,10 @@ interface UserState {
   hasDefaultProfileImage: boolean | null;
   defaultProfileImage: string | null;
   skillRating: number | null;
-  following: Follower[];
-  followers: Follower[];
-  invitations: { [invitationID: string]: Invitation };
+  friends: string[];
+  invitations: Record<string, any> | null;
+  friendCount: number | null
+
 }
 
 const initialState: UserState = {
@@ -39,10 +40,11 @@ const initialState: UserState = {
   hasDefaultProfileImage: null,
   defaultProfileImage: null,
   skillRating: null,
-  following: [],
-  followers: [],
-  invitations: {}
-};
+  friends: [],
+  invitations: null,
+  friendCount: null
+}
+
 
 const userSlice = createSlice({
   name: 'user',
@@ -75,17 +77,17 @@ const userSlice = createSlice({
     setSkillRating: (state, action) => {
       state.hasDefaultProfileImage = action.payload
     },
-    setFollowers: (state, action) => {
-      state.followers = action.payload
+    setFriends: (state, action) => {
+      state.friends = action.payload
     },
-    setFollowing: (state, action) => {
-      state.following = action.payload
+    setFriendCount: (state, action) => {
+      state.friendCount = action.payload
     },
-    addFollower: (state, action: PayloadAction<Follower>) => {
-      state.followers.push(action.payload);
+    addFriend: (state, action: PayloadAction<string>) => {
+      state.friends.push(action.payload)
     },
-    addFollowing: (state, action: PayloadAction<Follower>) => {
-      state.following.push(action.payload);
+    removeFriend: (state, action: PayloadAction<string>) => {
+      state.friends = state.friends.filter(friend => friend !== action.payload);
     },
     setInvitations: (state, action: PayloadAction<{ [key: string]: Invitation }>) => {
       state.invitations = action.payload;
@@ -99,5 +101,7 @@ const userSlice = createSlice({
   }
 });
 
-export const { setIsInMatchmaking, addInvitation, removeInvitation, setInvitations, setDefaultProfileImage, addFollower, addFollowing, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, setFollowers, setFollowing } = userSlice.actions;
+
+export const { setIsInMatchmaking, setFriendCount, addFriend, removeFriend, setFriends, setInvitations, setDefaultProfileImage, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, } = userSlice.actions;
+
 export default userSlice.reducer;

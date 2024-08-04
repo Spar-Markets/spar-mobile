@@ -16,166 +16,230 @@ import useUserDetails from '../../hooks/useUserDetails';
 import Icon from 'react-native-vector-icons/Entypo';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
-import { addFollowing } from '../../GlobalDataManagment/userSlice';
 import { setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
 import getProfileImage from '../../utility/getProfileImage';
+import { addFriend } from '../../GlobalDataManagment/userSlice';
 
+const UserCard = (props: any) => {
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
+  const styles = createProfileStyles(theme, width);
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [noPic, setNoPic] = useState(false)
+  const [status, setStatus] = useState<string | null>("unfollowed")
 
-const UserCard = (props:any) => {
+  Icon.loadFont()
 
-    const { theme } = useTheme();
-    const { width, height } = useDimensions();
-    const styles = createProfileStyles(theme, width);
-    const [profileImage, setProfileImage] = useState<string | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [noPic, setNoPic] = useState(false)
-    const [status, setStatus] = useState<string | null>(null)
+  const navigation = useNavigation<any>();
 
-    Icon.loadFont()
+  const [hasDefaultProfileImage, setHasDefaultProfileImage] = useState<any>(null)
 
-    const navigation = useNavigation<any>();
+  const [username, setUsername] = useState<any>(null)
 
-    const following = props.following
-    const followers = props.followers
+  const getUsername = async () => {
+    try {
+      const response = await axios.post(serverUrl + '/getUsernameByID', { userID: props.otherUserID });
+      setUsername(response.data.username)
+      console.log(response.data.username)
+    } catch (error) {
+      console.error("Error getting username")
+    }
+  }
 
-    const checkFollowStatus = async () => {
-      try {
-        console.log("USER ID PASSED", props.yourUserID)
-        console.log("OTHER USER ID PASSED", props.otherUserID)
-        const response = await axios.post(serverUrl + '/checkFollowStatus', {userID: props.yourUserID, otherUserID: props.otherUserID});
-        setStatus(response.data.status);
-        console.log("DO U FOLLOW", props.username, response.data.status)
-      } catch (error) {
-        console.error('Error checking follow status:', error);
-      }
-    };
-
-    const [hasDefaultProfileImage, setHasDefaultProfileImage] = useState<any>(null)
-    
-    useEffect(() => {
-
-        checkFollowStatus()
-        
-        getProfileImage(props.otherUserID)
-        .then(profileImageResponse => {
-          console.log("YAA", profileImageResponse);
-          if (profileImageResponse) {
-            setHasDefaultProfileImage(profileImageResponse.hasDefaultProfileImage)
-            setProfileImage(profileImageResponse.profileImage)
-          }
-        })
-        .catch(error => {
-          console.error("error setting profile image", error)
-        })
-      }, [props.otherUserID]);
-    
-    useEffect(() => {
-        if (profileImage) {
-            setLoading(false)
+  const isFriend = async () => {
+    try {
+      const response = await axios.post(serverUrl + "/friendShipCheck", { user1ID: user.userID, user2ID: props.otherUserID })
+      if (response.status == 200) {
+        if (response.data == true) {
+          console.log("IS FRIEND", response.data)
+          setStatus("accepted")
         }
-    }, [profileImage])
-
-    const [imageLoading, setImageLoading] = useState(true)
-
-    const user = useSelector((state: RootState) => state.user)
-
-    const dispatch = useDispatch()
-
-    const requestFollow = async () => {
-      try {
-          console.log({userID: user.userID, otherUserID: props.otherUserID, yourUsername: user.username, otherUsername: props.username})
-          const response = await axios.post(serverUrl + '/addFollowRequest', {userID: user.userID, otherUserID: props.otherUserID, yourUsername: user.username, otherUsername: props.username})
-          if (response.status === 200) {
-              console.log("Followed", props.username)
-              dispatch(addFollowing({userID: props.otherUserID, username: props.username}))
-              setStatus("pending")
-          }
-      } catch (error) {
-          Alert.alert(`Error Following ${error}`)
       }
+    } catch (error) {
+      console.error("error checking if is friend")
     }
+  }
 
-    const findFollowerByID = (userID:string) => {
-      return followers.find((user:any) => user.userID === userID);
-    };
-
-    const findFollowingByID = (userID:string) => {
-      return following.find((user:any) => user.userID === userID);
-    };
-
-    const handleChallengeFriend = () => {
-      dispatch(setChallengedFriend({userID: props.otherUserID, username: props.username, profileImageUri: profileImage, hasDefaultProfileImage: hasDefaultProfileImage}))
-      navigation.goBack()
-      console.log("Challenged", props.username)
-    }
-
-
-    //the button that shows up on right side of usercard
-    const ActionButton = () => {
-      if (props.isChallengeCard == true) {
-        return (
-          <TouchableOpacity style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.accent2, borderRadius: 10}} onPress={handleChallengeFriend}>
-              <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-                <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Challenge</Text>
-              </View>
-          </TouchableOpacity>)
+  const checkRequestedStatus = async () => {
+    try {
+      const response = await axios.post(serverUrl + "/checkRequestedStatus", { yourUserID: user.userID, checkUserID: props.otherUserID })
+      console.log("Is requested", response.data)
+      if (response.data == true) {
+        setStatus("requested")
       }
-      if (status == 'pending') {
-        return (
-        <View style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, borderRadius: 50}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <Text style={{color: theme.colors.tertiary, fontFamily: 'InterTight-Bold'}}>Pending</Text>
-            </View>
-        </View>)
-      } else if (findFollowingByID(props.otherUserID) == null) {
-        return (
-        <TouchableOpacity onPress={requestFollow} style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.secondary, borderRadius: 50}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Follow</Text>
-              {/*<Icon name="plus-circle" size={14} color={theme.colors.text}/>*/}
-            </View>
-        </TouchableOpacity>)
-      } else if (findFollowingByID(props.otherUserID) != null) {
-        return (
-          <View style={{paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.accent2, borderRadius: 50}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>Followed</Text>
-              {/*<Icon name="check-circle" size={14} color={theme.colors.text}/>*/}
-            </View>
+    } catch (error) {
+      console.error("error checking requestedStatus", error)
+    }
+  }
+
+  const acceptFriendRequest = async () => {
+    try {
+      const response = await axios.post(serverUrl + "/acceptFriendRequest", { acceptedUserID: user.userID, requesterUserID: props.otherUserID })
+      if (response.status == 200) {
+        console.log("accepted")
+        dispatch(addFriend(props.otherUserID))
+        setStatus("accepted")
+      }
+    } catch (error) {
+      console.error("error accepting friend request")
+    }
+  }
+
+  const unrequest = async () => {
+    try {
+      const response = await axios.post(serverUrl + "/deleteFriendRequest", { targetUserID: props.otherUserID, requesterUserID: user.userID })
+      if (response.status == 200) {
+        setStatus("unfollowed")
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    getUsername()
+    checkRequestedStatus()
+    isFriend()
+    getProfileImage(props.otherUserID)
+      .then(profileImageResponse => {
+        if (profileImageResponse) {
+          setHasDefaultProfileImage(profileImageResponse.hasDefaultProfileImage)
+          setProfileImage(profileImageResponse.profileImage)
+          setLoading(false)
+        }
+      })
+      .catch(error => {
+        console.error("error setting profile image", error)
+      })
+  }, [props.otherUserID]);
+
+
+  const [imageLoading, setImageLoading] = useState(true)
+
+  const [loadingRequest, setLoadingRequest] = useState(false)
+
+  const user = useSelector((state: RootState) => state.user)
+
+  const dispatch = useDispatch()
+
+  const addFriendRequest = async () => {
+    try {
+      setStatus("requested")
+      setLoadingRequest(true)
+      const response = await axios.post(serverUrl + '/addFriendRequest', { userID: user.userID, requestedUserID: props.otherUserID })
+      if (response.status === 200) {
+        console.log("Friended", props.username)
+        setLoadingRequest(false)
+      }
+    } catch (error) {
+      Alert.alert(`Error Friending ${error}`)
+    }
+  }
+
+  const handleChallengeFriend = () => {
+    dispatch(setChallengedFriend({ userID: props.otherUserID, username: username, profileImageUri: profileImage, hasDefaultProfileImage: hasDefaultProfileImage }))
+    navigation.goBack()
+    console.log("Challenged", username)
+  }
+
+  //the button that shows up on right side of usercard
+  const ActionButton = () => {
+    if (props.isChallengeCard == true) {
+      return (
+        <TouchableOpacity style={{ paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.accent2, borderRadius: 50 }} onPress={handleChallengeFriend}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>Challenge</Text>
           </View>
-        )
-      }
-    }
-
-    if (props.yourUserID == props.otherUserID) {
-      return <View></View>
-    }
-    
-    if (loading || !status) {
-        return (
-          <View style={{width: width-40, marginHorizontal: 20, height: 50}}>
-            
-          </View>
-        );
-      }
-
-
-    //make ti grab fllowers on every new search not every usercard hella inefficnet
-
-    return (
-        <TouchableOpacity style={{marginHorizontal: 20, flexDirection: 'row', height: 70, alignItems: 'center', gap: 15}} onPress={() => navigation.navigate("OtherProfile", {otherUserID: props.otherUserID})}>
-            {profileImage && <Image style={styles.userCardPic} onLoadEnd={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : {uri: profileImage}}></Image>}
-            {(!imageLoading || noPic) && <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18}}>{props.username}</Text>}
-            <View style={{flex: 1}}></View>
-            {(!imageLoading || noPic) && 
-            <View style={{flexDirection: 'row', gap: 5, height: 25}}>
-            <ActionButton/>
-            <TouchableOpacity style={{paddingHorizontal: 5, borderRadius: 10, height: '100%', alignItems: 'center', justifyContent: 'center'}}>
-              <Icon name="dots-three-horizontal" color={theme.colors.text} size={24}/>
-            </TouchableOpacity>
-            </View>}
         </TouchableOpacity>
-    )
+      )
+    }
+
+    else if (status == 'accepted') {
+      console.log("HELOOoooooooooooo")
+      return (
+        <TouchableOpacity style={{ paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.secondary, borderRadius: 50 }} onPress={handleChallengeFriend}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <Icon name="dots-three-horizontal" size={22} color={theme.colors.text} />
+          </View>
+        </TouchableOpacity>)
+    }
+
+    else if (status == 'requested') {
+      return (
+        <TouchableOpacity onPress={unrequest} style={{ paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, borderRadius: 50 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <Text style={{ color: theme.colors.tertiary, fontFamily: 'InterTight-Bold' }}>Requested</Text>
+          </View>
+        </TouchableOpacity>)
+    }
+
+    else if (props.incomingFriendRequest == true) {
+      return (
+        <View style={{ flexDirection: 'row', gap: 5 }}>
+          <TouchableOpacity onPress={acceptFriendRequest} style={{ paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.accent2, borderRadius: 50 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>Accept</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ paddingHorizontal: 15, height: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, borderRadius: 50 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>Delete</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+
+
+    else {
+      return (
+        <TouchableOpacity onPress={addFriendRequest} style={{ paddingHorizontal: 15, height: 30, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.secondary, borderRadius: 50 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>Add Friend</Text>
+          </View>
+        </TouchableOpacity>)
+    }
+  }
+
+
+  if (props.yourUserID == props.otherUserID) {
+    return <View />
+  }
+
+  if (loading || !status) {
+    return (
+      <View style={{ width: width - 40, marginHorizontal: 20, height: 50 }}>
+
+      </View>
+    );
+  }
+
+
+  //make ti grab fllowers on every new search not every usercard hella inefficnet
+
+  return (
+    <TouchableOpacity style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 15, paddingVertical: 10, maxWidth: width - 40 }} onPress={() => navigation.navigate("OtherProfile", { otherUserID: props.otherUserID })}>
+      {profileImage &&
+
+        <Image style={styles.userCardPic} onLoadEnd={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : { uri: profileImage }}></Image>}
+      {(!imageLoading || noPic) &&
+
+        <View style={{ flex: 1 }}>
+
+          <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 15 }}>{username}</Text>
+
+          {props.incomingFriendRequest == true && <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Regular', fontSize: 15 }}>friend request</Text>}
+
+
+        </View>
+      }
+      {(!imageLoading || noPic) &&
+        <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+          <ActionButton />
+        </View>}
+    </TouchableOpacity>
+  )
 }
 
 export default UserCard

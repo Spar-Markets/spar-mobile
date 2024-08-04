@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Pressable,
   Platform,
@@ -23,11 +23,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import CircularProgress from 'react-native-circular-progress-indicator';
-import {SvgXml} from 'react-native-svg';
-import {serverUrl} from '../../constants/global';
+import { SvgXml } from 'react-native-svg';
+import { serverUrl } from '../../constants/global';
 import axios from 'axios';
-import {useTheme} from '../ContextComponents/ThemeContext';
-import {useDimensions} from '../ContextComponents/DimensionsContext';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import createGlobalStyles from '../../styles/createGlobalStyles';
 import {
@@ -38,29 +38,29 @@ import {
 import firebase from '../firebase/firebaseconfig';
 import ImagePicker from 'react-native-image-crop-picker';
 import useUserDetails from '../../hooks/useUserDetails';
-import {storage} from '../../firebase/firebase';
-import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
+import { storage } from '../../firebase/firebase';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
-import {useDispatch, useSelector} from 'react-redux';
-import {setProfileImageUri} from '../../GlobalDataManagment/imageSlice';
+import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
 import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
 import WatchlistButton from '../HomeComponents/WatchlistButton';
-import {SegmentedButtons} from 'react-native-paper';
+import { SegmentedButtons } from 'react-native-paper';
 import PageHeader from '../GlobalComponents/PageHeader';
-import {RootState} from '../../GlobalDataManagment/store';
-import {setHasDefaultProfileImage} from '../../GlobalDataManagment/userSlice';
+import { RootState } from '../../GlobalDataManagment/store';
+import { setHasDefaultProfileImage } from '../../GlobalDataManagment/userSlice';
 
 const imageMap = [
   '',
-  require('../../assets/images/profile1.png'),
-  require('../../assets/images/profile2.png'),
-  require('../../assets/images/profile3.png'),
+  Image.resolveAssetSource(require('../../assets/images/profile1.png')).uri,
+  Image.resolveAssetSource(require('../../assets/images/profile2.png')).uri,
+  Image.resolveAssetSource(require('../../assets/images/profile3.png')).uri,
 ];
 
-const Profile = ({navigation}: any) => {
-  const {theme} = useTheme();
-  const {width, height} = useDimensions();
+const Profile = ({ navigation }: any) => {
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
   const [image, setImage] = useState<string | null>(null);
@@ -69,62 +69,59 @@ const Profile = ({navigation}: any) => {
     (state: any) => state.image.profileImageUri,
   );
 
-
   MaterialCommunityIcons.loadFont();
   MaterialIcons.loadFont();
   FeatherIcons.loadFont();
 
   const username = useSelector((state: RootState) => state.user.username);
   const userBio = useSelector((state: RootState) => state.user.userBio);
-  const hasDefaultProfileImage = useSelector((state: RootState) => state.user.hasDefaultProfileImage);
-  const defaultProfileImage = useSelector((state: RootState) => state.user.defaultProfileImage);
+  const hasDefaultProfileImage = useSelector(
+    (state: RootState) => state.user.hasDefaultProfileImage,
+  );
+  const defaultProfileImage = useSelector(
+    (state: RootState) => state.user.defaultProfileImage,
+  );
 
-  const user = useSelector((state: any) => state.user)
+  const user = useSelector((state: any) => state.user);
 
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     if (hasDefaultProfileImage != null && loading) {
       const getProfileImage = async () => {
         try {
-
           if (hasDefaultProfileImage == false) {
             const imageRef = ref(storage, `profileImages/${user.userID}`);
             try {
               const url = await getDownloadURL(imageRef);
               console.log(user.username, url);
               if (url) {
-                dispatch(setHasDefaultProfileImage(false))
-                dispatch(setProfileImageUri(url))
+                dispatch(setHasDefaultProfileImage(false));
+                dispatch(setProfileImageUri(url));
               }
             } catch (error) {
-              console.log("no firebase image")
+              console.log('no firebase image');
             }
-          }
-          
-          else if (hasDefaultProfileImage == true) {
+          } else if (hasDefaultProfileImage == true) {
             const tempURI = imageMap[Number(defaultProfileImage)];
-            console.log("Temp", tempURI)
-            dispatch(setHasDefaultProfileImage(true))
+            console.log('Temp', tempURI);
+            dispatch(setHasDefaultProfileImage(true));
             dispatch(setProfileImageUri(tempURI));
-          } 
+          }
         } catch (error) {
           console.error('Failed to load profile image path:', error);
         } finally {
           setLoading(false);
         }
       };
-    
+
       getProfileImage();
-    
     }
   }, [hasDefaultProfileImage]);
 
-
   const dispatch = useDispatch();
 
-  const [tempLibraryPick, setTempLibraryPick] = useState(false)
+  const [tempLibraryPick, setTempLibraryPick] = useState(false);
 
   const choosePhotoFromLibrary = () => {
     ImagePicker.openPicker({
@@ -140,10 +137,10 @@ const Profile = ({navigation}: any) => {
         const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
         dispatch(setHasDefaultProfileImage(false));
         dispatch(setProfileImageUri(imageUri));
-        const uploadImage = async (image:any) => {
+        const uploadImage = async (image: any) => {
           uploadProfileImageToFirebase(image);
           console.log('custom image', image);
-      
+
           if (hasDefaultProfileImage == false) {
             console.log(
               'no need to change the mongo to false becasue this is another cutom image',
@@ -154,14 +151,13 @@ const Profile = ({navigation}: any) => {
               status: false,
             });
           }
-        }
-        uploadImage(imageUri)
+        };
+        uploadImage(imageUri);
       })
       .catch((error: any) => {
         console.log('Image picker error:', error);
       });
   };
-
 
   const uploadProfileImageToFirebase = async (imageUri: string) => {
     if (imageUri) {
@@ -187,69 +183,60 @@ const Profile = ({navigation}: any) => {
 
   return (
     <View style={[styles.container]}>
-
       <PageHeader canGoBack={false} onProfile={true} />
-      <ScrollView style={{marginTop: 10}}>
+      <ScrollView style={{ marginTop: 10 }}>
         <View
           style={{
             backgroundColor: theme.colors.background,
             paddingBottom: 20,
-             alignItems: 'center'
+            alignItems: 'center',
           }}>
-
-
-          <View style={{marginHorizontal: 20, marginTop: 20, flexDirection: 'row', alignItems: 'center', gap: 20}}>
+          <View
+            style={{
+              marginHorizontal: 20,
+              marginTop: 20,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 20,
+            }}>
             <TouchableOpacity onPress={choosePhotoFromLibrary}>
               {hasDefaultProfileImage == true && (
                 <Image
                   style={[
                     styles.profilePic,
-                    {borderWidth: 1, borderColor: theme.colors.secondaryText},
+                    { borderWidth: 1, borderColor: theme.colors.secondaryText },
                   ]}
-                  source={profileImageUri}
+                  source={{ uri: profileImageUri }}
                 />
               )}
               {hasDefaultProfileImage == false && (
                 <Image
                   style={[
                     styles.profilePic,
-                    {borderWidth: 1, borderColor: theme.colors.text},
+                    { borderWidth: 1, borderColor: theme.colors.text },
                   ]}
-                  source={{uri: profileImageUri} as any}
+                  source={{ uri: profileImageUri } as any}
                 />
               )}
             </TouchableOpacity>
-            
-
-            
           </View>
           <View>
-            <View style={{marginHorizontal: 20, marginTop: 20}}>
+            <View style={{ marginHorizontal: 20, marginTop: 20 }}>
               <View
                 style={{
                   flexDirection: 'row',
                   justifyContent: 'center',
                 }}>
                 <Text style={[styles.usernameText]}>@{username}</Text>
-                
               </View>
 
-              <View style={{flexDirection: 'row', justifyContent: 'center', gap: 5, marginBottom: 10}}>
-                <TouchableOpacity
-                  style={styles.mainContainer}
-                  onPress={() =>
-                    navigation.navigate('FollowersFollowing', {
-                      type: 'followers',
-                      username: user.username,
-                    })
-                  }>
-                  <Text style={styles.mainContainerType}>
-                    {user.followers ? user.followers.length : 0 ?? 0}{' '}
-                    <Text style={{color: theme.colors.secondaryText}}>
-                      Followers
-                    </Text>
-                  </Text>
-                </TouchableOpacity>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 5,
+                  marginBottom: 10,
+                }}>
                 <TouchableOpacity
                   style={styles.mainContainer}
                   onPress={() =>
@@ -259,9 +246,9 @@ const Profile = ({navigation}: any) => {
                     })
                   }>
                   <Text style={styles.mainContainerType}>
-                    {user.following ? user.following.length : 0 ?? 0}{' '}
-                    <Text style={{color: theme.colors.secondaryText}}>
-                      Following
+                    {user.friendCount}{' '}
+                    <Text style={{ color: theme.colors.secondaryText }}>
+                      {user.friendCount == 1 ? "Friend" : "Friends"}
                     </Text>
                   </Text>
                 </TouchableOpacity>
@@ -272,7 +259,7 @@ const Profile = ({navigation}: any) => {
                     alignItems: 'center',
                     backgroundColor: theme.colors.primary,
                     marginTop: 10,
-                    borderRadius: 10
+                    borderRadius: 10,
                   }}
                   onPress={() =>
                     navigation.navigate('editProfilePage', {
@@ -292,7 +279,6 @@ const Profile = ({navigation}: any) => {
             </View>
           </View>
         </View>
-
 
         <Text
           style={{
@@ -336,7 +322,7 @@ const Profile = ({navigation}: any) => {
           </View>
         </View>
 
-        <View style={{marginTop: 10, marginHorizontal: 10, gap: 10}}>
+        <View style={{ marginTop: 10, marginHorizontal: 10, gap: 10 }}>
           <TouchableOpacity
             style={{
               borderWidth: 2,
@@ -348,7 +334,7 @@ const Profile = ({navigation}: any) => {
               paddingVertical: 15,
             }}>
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Withdraw
             </Text>
           </TouchableOpacity>
@@ -390,13 +376,13 @@ const Profile = ({navigation}: any) => {
               name="bank"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Payment Methods
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -420,13 +406,13 @@ const Profile = ({navigation}: any) => {
               name="file-document-multiple"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Documents
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -450,13 +436,13 @@ const Profile = ({navigation}: any) => {
               name="bank-transfer"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Transfers
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -494,13 +480,13 @@ const Profile = ({navigation}: any) => {
               name="activity"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Activity
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -524,13 +510,13 @@ const Profile = ({navigation}: any) => {
               name="eye"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Watchlists
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -555,13 +541,13 @@ const Profile = ({navigation}: any) => {
               name="gear"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Settings
             </Text>
-            <View style={{flex: 1}} />
+            <View style={{ flex: 1 }} />
             <FeatherIcons
               name="chevron-right"
               size={24}
@@ -570,7 +556,7 @@ const Profile = ({navigation}: any) => {
           </TouchableOpacity>
         </View>
 
-        <View style={{marginVertical: 20}}>
+        <View style={{ marginVertical: 20 }}>
           {/*<Text
               style={{
                 color: theme.colors.text,
