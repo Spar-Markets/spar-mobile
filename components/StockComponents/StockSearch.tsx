@@ -15,7 +15,6 @@ import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/n
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockSearchStyles from '../../styles/createStockStyles';
-import useUserDetails from '../../hooks/useUserDetails';
 import SearchCard from './SearchCard';
 import { serverUrl } from '../../constants/global';
 import UserCard from '../ProfileComponents/UserCard';
@@ -57,7 +56,7 @@ const StockSearch: React.FC = () => {
 
   const [isFocused, setIsFocused] = useState(false);
 
-  const { userData } = useUserDetails();
+ 
   const user = useSelector((state: any) => state.user)
 
   const [following, setFollowing] = useState<String[]>([])
@@ -92,8 +91,6 @@ const StockSearch: React.FC = () => {
 
   const handleSearch = (text: string) => {
     setStockSearch(text);
-    setFollowing(userData?.following ?? [])
-    setFollowers(userData?.followers ?? [])
     if (text) {
       const stockResults = fuzzysort.go(text, listOfTickers, {
         keys: ['ticker', 'companyName'],

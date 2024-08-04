@@ -83,6 +83,7 @@ import {
 
 import { setBalance } from '../../GlobalDataManagment/userSlice';
 import { resetChallengedFriend, setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
+// import storage from '@react-native-firebase/storage';
 
 const { width } = Dimensions.get('window');
 

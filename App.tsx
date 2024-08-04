@@ -36,7 +36,7 @@ import {Provider, useDispatch} from 'react-redux';
 import {store} from './GlobalDataManagment/store';
 import CreatePost from './components/FeedComponents/CreatePost';
 
-import useAuth from './hooks/useAuth';
+// import useAuth from './hooks/useAuth';
 
 import Menu from './components/GlobalComponents/Menu';
 import SplashScreen from './components/OnboardComponents/SplashScreen';
@@ -58,33 +58,84 @@ import FollowersFollowing from './components/ProfileComponents/FollowersFollowin
 import PastMatches from './components/HeadToHeadComponents/PastMatches';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import Settings from './components/ProfileComponents/Settings';
-import useUserDetails from './hooks/useUserDetails';
-import { setBalance } from './GlobalDataManagment/userSlice';
+import { setBalance, setDefaultProfileImage, setFriendCount, setFriends, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUserID, setUsername } from './GlobalDataManagment/userSlice';
 import { Text } from 'react-native';
 import Invitations from './components/HomeComponents/Invitations';
+import axios from 'axios';
+
+import auth from '@react-native-firebase/auth';
+import { serverUrl } from './constants/global';
 
 const Stack = createNativeStackNavigator();
 
 const AppContent = (): React.ReactElement => {
   const {theme} = useTheme();
-  const {user, loading} = useAuth();
-  const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
-
-  const balance = useSelector((state: RootState) => state.user.balance)
-
-  const {userData} = useUserDetails();
+  // const {user, loading} = useAuth();
+  // firebase
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState();
 
   const dispatch = useDispatch()
 
-  useEffect(() => {
-    console.log('userIsMade has changed', userIsMade);
-  }, [userIsMade]);
+
+  // Handle user state changes
+  async function setUserState(user: any) {
+    if (user) {
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+      dispatch(setUserID((user as any).uid))
+      setUser(user);
+    } else {
+      await AsyncStorage.removeItem('user');
+      setUser(undefined);
+    }
+    if (initializing) setInitializing(false);
+  }
 
   useEffect(() => {
-    if (userData) {
-      dispatch(setBalance(userData.balance))
-    }
-  }, [userData])
+    const subscriber = auth().onAuthStateChanged(setUserState);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+  
+  const userID = useSelector((state:RootState) => state.user.userID); 
+
+  const [userData, setUserData] = useState<any>(null)
+
+  useEffect(() => {
+      if (userID) {
+        const fetchUserData = async () => {
+          try {
+            //console.log("server url FROM env:", `${process.env.SERVER_URL}`);
+            //console.log("Server url endpoint:", `${serverUrl}/getUser`);
+            //console.log("USEUSER, UserID:", userID);
+            console.log("PASSING USER ID IN TO GET USER ENDPOINT:", userID)
+            console.log("SERVER URL", serverUrl)
+            const userResponse = await axios.post(`${serverUrl}/getUser`, { userID });
+            const friendResponse = await axios.post(`${serverUrl}/getFriends`, { userID })
+            //console.log('Fetched User Data:', response.data);
+            dispatch(setUsername(userResponse.data.username))
+            dispatch(setUserBio(userResponse.data.bio))
+            dispatch(setSkillRating(userResponse.data.skillRating))
+            dispatch(setBalance(userResponse.data.balance))
+            // dispatch(setFollowers(response.data.followers))
+            // dispatch(setFollowing(response.data.following))
+
+            dispatch(setHasDefaultProfileImage(userResponse.data.hasDefaultProfileImage))
+            dispatch(setDefaultProfileImage(userResponse.data.defaultProfileImage))
+            dispatch(setInvitations(userResponse.data.invitations))
+            dispatch(setFriendCount(userResponse.data.friendCount))
+
+            dispatch(setFriends(friendResponse.data))
+
+            setUserData(userResponse.data);
+         
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          }
+        };
+        fetchUserData();
+      }
+  }, [userID]);
+
 
   const [showSplash, setShowSplash] = useState(true);
 
@@ -118,14 +169,14 @@ const AppContent = (): React.ReactElement => {
   }, [fadeIn]);
 
   useEffect(() => {
-    if (user && userIsMade && userData) {
+    if (user && /*userIsMade &&*/ userData) {
       setFadeIn(true)
     }
-  }, [user, userIsMade, userData])
+  }, [user, /*userIsMade,*/ userData])
 
-
+  if (initializing) return <SplashScreen/>;
   //onboard or main stack depending on user status
-  if (user && userIsMade == true && userData) {
+  if (user && /*userIsMade == true &&*/ userData) {
     return (
       <Animated.View style={{flex: 1}}>
       <NavigationContainer theme={theme}>

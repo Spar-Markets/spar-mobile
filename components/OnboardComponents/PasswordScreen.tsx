@@ -5,11 +5,11 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createOnboardStyles from '../../styles/createOnboardStyles';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
-import useAuth from '../../hooks/useAuth';
+// import { auth } from '../../firebase/firebase';
+// import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
-import useUserDetails from '../../hooks/useUserDetails';
+// import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 

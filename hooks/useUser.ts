@@ -27,22 +27,21 @@ interface UserData {
 
 /**
  * grabs user data from mongo
- * @param userID 
  * @returns 
  */
-const useUserData = (userID?: string) => {
+const useUserData = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const userIsMade = useSelector((state: RootState) => state.user.isUserMade);
+  const userID = useSelector((state: RootState) => state.user.userID);
 
   const dispatch = useDispatch()
 
   const [gotData, setGotData] = useState<boolean>(false)
-
+  
   useEffect(() => {
     if (!gotData) {
-      if (userID && userIsMade) {
+      if (userID) {
         const fetchUserData = async () => {
           try {
             //console.log("server url FROM env:", `${process.env.SERVER_URL}`);
@@ -80,9 +79,9 @@ const useUserData = (userID?: string) => {
         setLoading(false);
       }
     }
-  }, [userID && userIsMade]);
+  }, [userID]);
 
-  return { userData, loading };
+  return { userData };
 };
 
 export default useUserData;

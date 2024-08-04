@@ -14,12 +14,8 @@ import {useTheme} from '../ContextComponents/ThemeContext';
 import {useDimensions} from '../ContextComponents/DimensionsContext';
 import createOnboardStyles from '../../styles/createOnboardStyles';
 import {useNavigation} from '@react-navigation/native';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
-import {auth, storage} from '../../firebase/firebase';
-import useAuth from '../../hooks/useAuth';
+// import {auth, storage} from '../../firebase/firebase';
+// import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
 import {serverUrl} from '../../constants/global';
 import useUserDetails from '../../hooks/useUserDetails';
@@ -27,10 +23,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {getDownloadURL, ref} from 'firebase/storage';
 import {useDispatch} from 'react-redux';
-import {setHasDefaultProfileImage, setUserIsMade} from '../../GlobalDataManagment/userSlice';
+import {setHasDefaultProfileImage, setUserID, setUserIsMade} from '../../GlobalDataManagment/userSlice';
+import auth from '@react-native-firebase/auth';
 
 const SignInScreen = (props: any) => {
-  const {user} = useAuth();
 
   // Layout and Style Initialization
   const {theme} = useTheme();
@@ -58,44 +54,12 @@ const SignInScreen = (props: any) => {
         //search for username and user in mongo and get corresponding email,
         //grab the email and set it it emailInput, then run sinInwithEmailandPassword
 
-        const credentials = await signInWithEmailAndPassword(
-          auth,
+        const credentials = await auth().signInWithEmailAndPassword(
           emailInput,
           passwordInput,
         );
         if (credentials.user) {
-          //sets userID globally in async
-          console.log(credentials.user);
-          await AsyncStorage.setItem(
-            'userID',
-            (credentials.user as any).uid,
-          ).then(async () => {
-            dispatch(setUserIsMade(true));
-            const userInMongo = await axios.post(`${serverUrl}/getUser`, {
-              userID: (credentials.user as any).uid,
-            });
-  
-            console.log(
-              'userinmongo',
-              userInMongo,
-              'userhasdefaultimage',
-              userInMongo.data.hasDefaultProfileImage,
-              'mongoooo',
-              userInMongo.data.defaultProfileImage,
-            );
-            await AsyncStorage.setItem(
-              'hasDefaultProfileImage',
-              userInMongo.data.hasDefaultProfileImage,
-            );
-            await AsyncStorage.setItem(
-              'defaultProfileImage',
-              userInMongo.data.defaultProfileImage,
-            );
-            
-            //dispatch(setHasDefaultProfileImage(userInMongo.data.hasDefaultProfileImage))
-          });
-
-
+          dispatch(setUserID((credentials.user as any).uid))
         }
       } catch (error) {
         console.log(error);
