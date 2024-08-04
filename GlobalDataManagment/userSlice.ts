@@ -1,21 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
-    isInMatchmaking: boolean
-    isUserMade: boolean
-    userID: string | null;
-    username: string;
-    userBio: string;
-    balance:number;
-    hasDefaultProfileImage: boolean;
-    defaultProfileImage: string;
-    skillrating: number;
-    following: Follower[];
-    followers: Follower[];
-    invitations: Object
+  isInMatchmaking: boolean;
+  isUserMade: boolean;
+  userID: string | null;
+  username: string | null;
+  userBio: string | null;
+  balance: number | null;
+  hasDefaultProfileImage: boolean | null;
+  defaultProfileImage: string | null;
+  skillRating: number | null;
+  friends: string[];
+  invitations: Record<string, any> | null;
 }
 
-const initialState = {
+const initialState: UserState = {
   isInMatchmaking: false,
   isUserMade: false,
   userID: null,
@@ -25,14 +24,8 @@ const initialState = {
   hasDefaultProfileImage: null,
   defaultProfileImage: null,
   skillRating: null,
-  following: [] as Follower[],
-  followers: [] as Follower[],
+  friends: [],
   invitations: null
-}
-
-interface Follower {
-  userID: string;
-  username: string;
 }
 
 const userSlice = createSlice({
@@ -66,17 +59,14 @@ const userSlice = createSlice({
     setSkillRating: (state, action) => {
       state.hasDefaultProfileImage = action.payload
     },
-    setFollowers: (state, action) => {
-      state.followers = action.payload
+    setFriends: (state, action) => {
+      state.friends = action.payload
     },
-    setFollowing: (state, action) => {
-      state.following = action.payload
+    addFriend: (state, action: PayloadAction<string>) => {
+      state.friends.push(action.payload)
     },
-    addFollower: (state, action: PayloadAction<Follower>) => {
-      state.followers.push(action.payload);
-    },
-    addFollowing: (state, action: PayloadAction<Follower>) => {
-      state.following.push(action.payload);
+    removeFriend: (state, action: PayloadAction<string>) => {
+      state.friends = state.friends.filter(friend => friend !== action.payload);
     },
     setInvitations: (state, action) => {
       state.invitations= action.payload
@@ -84,5 +74,5 @@ const userSlice = createSlice({
   }
 });
 
-export const { setIsInMatchmaking, setInvitations, setDefaultProfileImage, addFollower, addFollowing, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, setFollowers, setFollowing } = userSlice.actions;
+export const { setIsInMatchmaking, addFriend, removeFriend, setFriends, setInvitations, setDefaultProfileImage, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, } = userSlice.actions;
 export default userSlice.reducer;

@@ -45,9 +45,6 @@ const ProfileSearch = () => {
   const [searchResults, setSearchResults] = useState<SearchProfile[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [following, setFollowing] = useState<any>([])
-  const [followers, setFollowers] = useState<any>([])
-
   const updateUserProfiles = async () => {
     try {
       const response = await axios.post(serverUrl + '/getProfileList');
@@ -130,7 +127,7 @@ const ProfileSearch = () => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={user.following} followers={user.followers}/>
+                <UserCard otherUserID={item.userID} yourUserID={user.userID}/>
               </View>
             )}
           />

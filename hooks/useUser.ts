@@ -3,7 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import { useSelector, useDispatch} from 'react-redux';
 import { RootState } from '../GlobalDataManagment/store';
-import { setBalance, setDefaultProfileImage, setFollowers, setFollowing, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
+import { setBalance, setDefaultProfileImage, setFriends, addFriend, removeFriend, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
 
 interface UserData {
   __v: number;
@@ -50,20 +50,23 @@ const useUserData = (userID?: string) => {
             //console.log("USEUSER, UserID:", userID);
             console.log("PASSING USER ID IN TO GET USER ENDPOINT:", userID)
             console.log("SERVER URL", serverUrl)
-            const response = await axios.post(`${serverUrl}/getUser`, { userID });
+            const userResponse = await axios.post(`${serverUrl}/getUser`, { userID });
+            const friendResponse = await axios.post(`${serverUrl}/getFriends`, { userID })
             //console.log('Fetched User Data:', response.data);
-            dispatch(setUsername(response.data.username))
-            dispatch(setUserBio(response.data.bio))
-            dispatch(setSkillRating(response.data.skillRating))
-            dispatch(setBalance(response.data.balance))
-            dispatch(setFollowers(response.data.followers))
-            dispatch(setFollowing(response.data.following))
-            dispatch(setHasDefaultProfileImage(response.data.hasDefaultProfileImage))
-            dispatch(setDefaultProfileImage(response.data.defaultProfileImage))
-            dispatch(setInvitations(response.data.invitations))
-            
+            dispatch(setUsername(userResponse.data.username))
+            dispatch(setUserBio(userResponse.data.bio))
+            dispatch(setSkillRating(userResponse.data.skillRating))
+            dispatch(setBalance(userResponse.data.balance))
+            // dispatch(setFollowers(response.data.followers))
+            // dispatch(setFollowing(response.data.following))
 
-            setUserData(response.data);
+            dispatch(setHasDefaultProfileImage(userResponse.data.hasDefaultProfileImage))
+            dispatch(setDefaultProfileImage(userResponse.data.defaultProfileImage))
+            dispatch(setInvitations(userResponse.data.invitations))
+
+            dispatch(setFriends(friendResponse.data))
+
+            setUserData(userResponse.data);
             setGotData(true)
           } catch (error) {
             console.error('Error fetching user data:', error);

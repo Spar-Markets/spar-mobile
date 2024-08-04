@@ -11,11 +11,11 @@ import { serverUrl } from '../../constants/global';
 import timeAgo from '../../utility/timeAgo';
 import FriendRequestCard from './FriendRequestCard';
 import { useSelector } from 'react-redux';
+import UserCard from './UserCard';
 
 interface FriendRequest {
   createdAt: Date,
-  from: string,
-  status: string
+  userID: string
 }
 
 const ProfileActivity = ({ navigation }: any) => {
@@ -34,11 +34,11 @@ const ProfileActivity = ({ navigation }: any) => {
     try {
       const response = await axios.post(serverUrl + "/checkIncomingFriendRequests", { userID: user.userID });
       if (response.status === 200) {
-        setFriendRequests(response.data.incomingRequests);
-        console.log(response.data.incomingRequests);
+        setFriendRequests(response.data);
+        console.log("helllo", response.data);
       }
     } catch (error) {
-      console.error(error);
+      console.error(error); 
     } finally {
       setLoading(false);
     }
@@ -52,18 +52,18 @@ const ProfileActivity = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <PageHeader text="Activity" />
+      <PageHeader text="Notifications" />
       <View style={{ flex: 1 }}>
         {loading ? (
           <View></View>
         ) : (
           <FlatList
             data={friendRequests}
-            keyExtractor={(item) => item.from}
+            keyExtractor={(item) => item.userID}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
  
-              <FriendRequestCard otherUserID={item.from} userID={user.userID}/>
+              <UserCard incomingFriendRequest={true} otherUserID={item.userID}/>
               
             )}
           />
