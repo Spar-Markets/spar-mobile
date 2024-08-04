@@ -58,7 +58,7 @@ const useUserData = () => {
             dispatch(setBalance(userResponse.data.balance))
             // dispatch(setFollowers(response.data.followers))
             // dispatch(setFollowing(response.data.following))
-
+            console.log(userResponse.data.hasDefaultProfileImage, "useuser GRANT")
             dispatch(setHasDefaultProfileImage(userResponse.data.hasDefaultProfileImage))
             dispatch(setDefaultProfileImage(userResponse.data.defaultProfileImage))
             dispatch(setInvitations(userResponse.data.invitations))

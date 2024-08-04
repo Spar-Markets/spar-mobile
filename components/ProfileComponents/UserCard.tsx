@@ -5,7 +5,6 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import createProfileStyles from '../../styles/createProfileStyles';
 import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../firebase/firebase';
 import { Skeleton } from '@rneui/base';
 import { Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -198,7 +197,8 @@ const UserCard = (props: any) => {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
             <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>Add Friend</Text>
           </View>
-        </TouchableOpacity>)
+        </TouchableOpacity>
+      )
     }
   }
 
@@ -207,7 +207,7 @@ const UserCard = (props: any) => {
     return <View />
   }
 
-  if (loading || !status) {
+  if (loading || !status || !profileImage) {
     return (
       <View style={{ width: width - 40, marginHorizontal: 20, height: 50 }}>
 

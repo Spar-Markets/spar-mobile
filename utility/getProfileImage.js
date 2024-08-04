@@ -1,12 +1,12 @@
 import axios from 'axios';
-import {getDownloadURL, ref} from 'firebase/storage';
-import {storage} from '../firebase/firebase';
-import {serverUrl} from '../constants/global';
+import { getDownloadURL, ref } from 'firebase/storage';
+import storage from '@react-native-firebase/storage';
+import { serverUrl } from '../constants/global';
 
 const getProfileImage = async userID => {
   try {
     const response = await axios.get(`${serverUrl}/getProfileImages/${userID}`);
-    const {hasDefaultProfileImage, defaultProfileImage} = response.data;
+    const { hasDefaultProfileImage, defaultProfileImage } = response.data;
     const imageMap = [
       '',
       require('../assets/images/profile1.png'),
@@ -17,13 +17,13 @@ const getProfileImage = async userID => {
     if (hasDefaultProfileImage == true) {
       const tempURI = imageMap[Number(defaultProfileImage)];
 
-      return {hasDefaultProfileImage: true, profileImage: tempURI};
+      return { hasDefaultProfileImage: true, profileImage: tempURI };
     } else if (hasDefaultProfileImage == false) {
-      const imageRef = ref(storage, `profileImages/${userID}`);
+      const imageRef = storage().ref(`profileImages/${userID}`);
       try {
-        const url = await getDownloadURL(imageRef);
+        const url = await imageRef.getDownloadURL();
         if (url) {
-          return {hasDefaultProfileImage: false, profileImage: url};
+          return { hasDefaultProfileImage: false, profileImage: url };
         }
       } catch (error) {
         console.log('HELLA THINGS WRONG IF U GETTING HERE');

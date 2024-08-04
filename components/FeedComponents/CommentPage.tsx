@@ -8,7 +8,6 @@ import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import generateRandomString from '../../utility/generateRandomString';
-import useUserDetails from '../../hooks/useUserDetails';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import { addCommentToPost, clearCommentsForPost, setCommentsForPost } from '../../GlobalDataManagment/postSlice';
@@ -124,33 +123,33 @@ const CommentPage = () => {
 
 
     return () => {
-        dispatch(clearCommentsForPost(params!.postId));
+      dispatch(clearCommentsForPost(params!.postId));
     };
   }, [params, dispatch]);
 
-//keyboard animation
+  //keyboard animation
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardWillShow', (event: KeyboardEvent) => {
-        Animated.spring(animatedMargin, {
-            toValue: event.endCoordinates.height + 20, // Add extra space here
-            speed: 14,
-            bounciness: 1,
-            useNativeDriver: false
-        }).start();
+      Animated.spring(animatedMargin, {
+        toValue: event.endCoordinates.height + 20, // Add extra space here
+        speed: 14,
+        bounciness: 1,
+        useNativeDriver: false
+      }).start();
     });
 
     const keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', () => {
-        Animated.spring(animatedMargin, {
-            toValue: 70, // Keep some space at the bottom when keyboard is hidden
-            speed:14,
-            bounciness: 1,
-            useNativeDriver: false
-        }).start();
+      Animated.spring(animatedMargin, {
+        toValue: 70, // Keep some space at the bottom when keyboard is hidden
+        speed: 14,
+        bounciness: 1,
+        useNativeDriver: false
+      }).start();
     });
 
     return () => {
-        keyboardDidShowListener.remove();
-        keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
     };
   }, []);
 
@@ -158,52 +157,52 @@ const CommentPage = () => {
 
   const renderItem = ({ item }: { item: CommentType }) => (
     <View>
-        <Comment {...item} />
-        <View style={{height: 10}}></View>
-        <CommentGap/>
+      <Comment {...item} />
+      <View style={{ height: 10 }}></View>
+      <CommentGap />
     </View>
   );
 
 
   return (
     <View style={styles.commentsContainer}>
-        <PageHeader text="Comments" />
+      <PageHeader text="Comments" />
 
-        {/* skeleton code for loading */}
-        <FlatList
-            data={post?.comments ? post?.comments.slice().reverse() : []}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.commentId}
-            keyboardDismissMode='on-drag'
-            contentContainerStyle={{ flexGrow: 1 }}
-            ListHeaderComponent={
-                <View>
-                {params?.image ? <Post {...post} onComment={true} image={params?.image}/> : <Post {...post} onComment={true}/>}
-                <View style={{height: 6, backgroundColor: theme.colors.primary, marginTop: 10}}></View>
-                </View>}
+      {/* skeleton code for loading */}
+      <FlatList
+        data={post?.comments ? post?.comments.slice().reverse() : []}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.commentId}
+        keyboardDismissMode='on-drag'
+        contentContainerStyle={{ flexGrow: 1 }}
+        ListHeaderComponent={
+          <View>
+            {params?.image ? <Post {...post} onComment={true} image={params?.image} /> : <Post {...post} onComment={true} />}
+            <View style={{ height: 6, backgroundColor: theme.colors.primary, marginTop: 10 }}></View>
+          </View>}
+      />
+      <Animated.View style={[{ flexDirection: 'row', marginBottom: 50, borderTopWidth: 1, borderColor: theme.colors.accent }, { marginBottom: animatedMargin }]}>
+        <TextInput
+          ref={commentInputRef}
+          placeholder="Comment something..."
+          placeholderTextColor={theme.colors.tertiary}
+          onChangeText={setCommentInput}
+          value={commentInput}
+          style={[styles.commentInputContainer, { flex: 1 }]}
+          selectionColor={theme.colors.accent}
+          maxLength={250}
+          multiline
         />
-        <Animated.View style={[{flexDirection: 'row', marginBottom: 50, borderTopWidth: 1, borderColor: theme.colors.accent}, {marginBottom: animatedMargin}]}>
-            <TextInput
-              ref={commentInputRef} 
-              placeholder="Comment something..."
-              placeholderTextColor={theme.colors.tertiary}
-              onChangeText={setCommentInput}
-              value={commentInput}
-              style={[styles.commentInputContainer, { flex: 1 }]}
-              selectionColor={theme.colors.accent}
-              maxLength={250}
-              multiline
-            />
-            {commentInput.length > 0 ? (
-            <TouchableOpacity style={styles.postButton} onPress={confirmComment}>
-                <Text style={styles.postButtonText}>Post</Text>
-            </TouchableOpacity>
-            ) : (
-            <TouchableOpacity style={[styles.postButton, { backgroundColor: theme.colors.tertiary }]}>
-                <Text style={styles.postButtonText}>Post</Text>
-            </TouchableOpacity>
-            )}
-        </Animated.View>
+        {commentInput.length > 0 ? (
+          <TouchableOpacity style={styles.postButton} onPress={confirmComment}>
+            <Text style={styles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={[styles.postButton, { backgroundColor: theme.colors.tertiary }]}>
+            <Text style={styles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        )}
+      </Animated.View>
     </View>
   );
 };

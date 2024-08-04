@@ -33,7 +33,6 @@ import {
   setUserBio,
   setUsername,
 } from '../../GlobalDataManagment/userSlice';
-import useUserDetails from '../../hooks/useUserDetails';
 import GameCard from './GameCard';
 import GameCardSkeleton from './GameCardSkeleton';
 import { serverUrl, websocketUrl } from '../../constants/global';
@@ -60,7 +59,7 @@ import {
 import HapticFeedback from 'react-native-haptic-feedback';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../firebase/firebase';
+// import { storage } from '../../firebase/firebase';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
@@ -217,13 +216,13 @@ const Home: React.FC = () => {
   const fetchProfileImageFromFirebase = async () => {
     if (user.userID) {
       try {
-        const imageRef = ref(storage, `profileImages/${user.userID}`);
-        const url = await getDownloadURL(imageRef);
-        if (url) {
-          console.log('Fetched URL from Firebase:', url);
-          await AsyncStorage.setItem('profileImgPath', url);
-          dispatch(setProfileImageUri(url));
-        }
+        // const imageRef = ref(storage, `profileImages/${user.userID}`);
+        // const url = await getDownloadURL(imageRef);
+        // if (url) {
+        //   console.log('Fetched URL from Firebase:', url);
+        //   await AsyncStorage.setItem('profileImgPath', url);
+        //   dispatch(setProfileImageUri(url));
+        // }
       } catch (error) {
         console.log('No profile set');
         //implement default image logic
@@ -233,8 +232,8 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const getProfilePicture = async () => {
-      await requestPermissions();
-      if (user.userID) {
+      //await requestPermissions();
+      /*if (user.userID) {
         try {
           const profileImagePath = await AsyncStorage.getItem('profileImgPath');
           if (profileImagePath) {
@@ -251,17 +250,16 @@ const Home: React.FC = () => {
         } finally {
           setImageLoading(false);
         }
-      }
+      }*/
     };
     getProfilePicture();
   }, [user.userID]);
 
   const fetchMatchIDs = async () => {
     try {
-      const userID = await AsyncStorage.getItem('userID');
       console.log('grant', userID);
       const response = await axios.post(serverUrl + '/getUserMatches', {
-        userID,
+        userID: user.userID,
       });
 
       console.log('Matches2: ', response);
@@ -277,9 +275,8 @@ const Home: React.FC = () => {
 
   const cancelMatchmaking = async () => {
     try {
-      const userID = await AsyncStorage.getItem('userID');
       const response = await axios.post(serverUrl + '/cancelMatchmaking', {
-        userID,
+        userID: user.userID,
       });
       console.log(response);
       dispatch(setIsInMatchmaking(false));
@@ -296,9 +293,8 @@ const Home: React.FC = () => {
 
   const getIsInMatchMaking = async () => {
     try {
-      const userID = await AsyncStorage.getItem('userID');
       const response = await axios.post(serverUrl + '/areTheyMatchmaking', {
-        userID,
+        userID: user.userID,
       });
       console.log(response.data.result);
       if (response.data.result) {

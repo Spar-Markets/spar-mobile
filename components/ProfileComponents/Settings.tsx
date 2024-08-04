@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -10,35 +10,33 @@ import {
   Alert,
 } from 'react-native';
 import axios from 'axios';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {serverUrl} from '../../constants/global';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { serverUrl } from '../../constants/global';
 import fuzzysort from 'fuzzysort';
-import {useTheme} from '../ContextComponents/ThemeContext';
-import {useDimensions} from '../ContextComponents/DimensionsContext';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import PageHeader from '../GlobalComponents/PageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import UserCard from './UserCard';
-import useUserDetails from '../../hooks/useUserDetails';
+
 import createGlobalStyles from '../../styles/createGlobalStyles';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {red} from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
-import {ScrollView} from 'react-native-gesture-handler';
-import {auth} from '../../firebase/firebase';
-import {
-  deleteUser,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  User,
-} from 'firebase/auth';
+import { red } from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
+import { ScrollView } from 'react-native-gesture-handler';
+import auth from '@react-native-firebase/auth'
+import AuthProvider from '@react-native-firebase/auth'
+
 import Dialog from 'react-native-dialog';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../GlobalDataManagment/store';
 
 const Settings = () => {
-  const {theme, toggleTheme} = useTheme();
-  const {width, height} = useDimensions();
+  const { theme, toggleTheme } = useTheme();
+  const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = async () => {
@@ -82,37 +80,22 @@ const Settings = () => {
     handleDeleteAccount();
   };
 
-  const reauthenticate = async (
-    email: string,
-    password: string,
-    user: User,
-  ) => {
-    if (email) {
-      const credential = EmailAuthProvider.credential(email, password);
-      try {
-        await reauthenticateWithCredential(user, credential);
-        return true;
-      } catch (error) {
-        console.error('Error reauthenticating:', error);
-        Alert.alert('Error', 'Re-authentication failed. Please try again.');
-        return false;
-      }
-    }
-    return false;
-  };
+  const user = useSelector((state: RootState) => state.user)
+
 
   const handleDeleteAccount = async () => {
     try {
-      const user = auth.currentUser;
-      if (user) {
-        if (await reauthenticate(inputEmail, inputPass, user)) {
-          const userID = await AsyncStorage.getItem('userID');
+      const fbUser = auth().currentUser
+      if (fbUser) {
+        const credential = AuthProvider.EmailAuthProvider.credential(inputEmail, inputPass)
+
+        if (await fbUser.reauthenticateWithCredential(credential)) {
           const deleteAccountResponse = await axios.post(
             `${serverUrl}/deleteAccount`,
-            {userID: userID},
+            { userID: user.userID },
           );
           if (deleteAccountResponse.status == 200) {
-            deleteUser(user)
+            await fbUser.delete()
               .then(() => {
                 console.log('DELETED SUCCESSFULLY');
                 Alert.alert(
@@ -192,10 +175,10 @@ const Settings = () => {
               name="sun"
               size={24}
               color={theme.colors.text}
-              style={{width: 30}}
+              style={{ width: 30 }}
             />
             <Text
-              style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>
+              style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
               Toggle Appearance
             </Text>
             <Switch

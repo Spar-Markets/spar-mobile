@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,27 +10,26 @@ import {
   ScrollView,
   Keyboard,
 } from 'react-native';
-import {useTheme} from '../ContextComponents/ThemeContext';
-import {useDimensions} from '../ContextComponents/DimensionsContext';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createOnboardStyles from '../../styles/createOnboardStyles';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 // import {auth, storage} from '../../firebase/firebase';
 // import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
-import {serverUrl} from '../../constants/global';
-import useUserDetails from '../../hooks/useUserDetails';
+import { serverUrl } from '../../constants/global';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {getDownloadURL, ref} from 'firebase/storage';
-import {useDispatch} from 'react-redux';
-import {setHasDefaultProfileImage, setUserID, setUserIsMade} from '../../GlobalDataManagment/userSlice';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { useDispatch } from 'react-redux';
+import { setHasDefaultProfileImage, setUserID, setUserIsMade } from '../../GlobalDataManagment/userSlice';
 import auth from '@react-native-firebase/auth';
 
 const SignInScreen = (props: any) => {
 
   // Layout and Style Initialization
-  const {theme} = useTheme();
-  const {width, height} = useDimensions();
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
   const styles = createOnboardStyles(theme, width);
 
   const navigation = useNavigation<any>();
@@ -72,23 +71,23 @@ const SignInScreen = (props: any) => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? -30 : -100}>
-      <View style={{flexGrow: 1}}>
+      <View style={{ flexGrow: 1 }}>
         <View style={styles.container}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('Onboard1', {reverseAnimation: true})
+              navigation.navigate('Onboard1', { reverseAnimation: true })
             }>
             <Icon name={'times'} size={24} color={theme.colors.opposite} />
           </TouchableOpacity>
           <Text style={styles.mainText}>Sign In</Text>
-          <View style={{flex: 1}}></View>
+          <View style={{ flex: 1 }}></View>
           <View
             style={[
               styles.inputContainer,
-              isEmailFocused && {borderColor: theme.colors.accent},
+              isEmailFocused && { borderColor: theme.colors.accent },
             ]}>
             <Text style={styles.textInputType}>Email</Text>
             <TextInput
@@ -108,7 +107,7 @@ const SignInScreen = (props: any) => {
           <View
             style={[
               styles.inputContainer,
-              isPasswordFocused && {borderColor: theme.colors.accent},
+              isPasswordFocused && { borderColor: theme.colors.accent },
             ]}>
             <Text style={styles.textInputType}>Password</Text>
             <TextInput
@@ -125,7 +124,7 @@ const SignInScreen = (props: any) => {
               secureTextEntry
             />
           </View>
-          <View style={{flex: 1}}></View>
+          <View style={{ flex: 1 }}></View>
           {/*<TouchableOpacity onPress={() => navigation.navigate('LoginScreen')} style={{ justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ color: theme.colors.text }}>Already have an account? Log in</Text>
             </TouchableOpacity>*/}

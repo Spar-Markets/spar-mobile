@@ -16,7 +16,6 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import PageHeader from '../GlobalComponents/PageHeader';
 import UserCard from './UserCard';
-import useUserDetails from '../../hooks/useUserDetails';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 

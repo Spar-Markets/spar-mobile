@@ -10,11 +10,9 @@ import { serverUrl } from '../../constants/global';
 import { useDispatch, useSelector } from 'react-redux';
 import { addPost } from '../../GlobalDataManagment/postSlice';
 import generateRandomString from '../../utility/generateRandomString';
-import useUserDetails from '../../hooks/useUserDetails';
 import CommentType from "../../types/CommentType"
 import ImagePicker from 'react-native-image-crop-picker'
 import { Image } from 'react-native';
-import { storage } from '../../firebase/firebase';
 import { ref, uploadBytes } from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer'
 import { RootState } from '../../GlobalDataManagment/store';
@@ -36,7 +34,7 @@ const CreatePost = (props: any) => {
 
     const [image, setImage] = useState<string | null>(null)
 
-    const user = useSelector((state:RootState) => state.user)
+    const user = useSelector((state: RootState) => state.user)
 
     const choosePhotoFromLibrary = () => {
         ImagePicker.openPicker({
@@ -61,14 +59,14 @@ const CreatePost = (props: any) => {
             selectedText: {
                 color: theme.colors.text,
                 fontWeight: 'bold',
-                paddingVertical: 5, 
-                paddingHorizontal: 10 
+                paddingVertical: 5,
+                paddingHorizontal: 10
             },
             notSelectedText: {
                 color: color,
-                fontWeight: 'bold', 
-                paddingVertical: 5, 
-                paddingHorizontal: 10 
+                fontWeight: 'bold',
+                paddingVertical: 5,
+                paddingHorizontal: 10
             },
             selectedBtn: {
                 backgroundColor: color,
@@ -108,7 +106,7 @@ const CreatePost = (props: any) => {
         const keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', () => {
             Animated.spring(animatedMargin, {
                 toValue: 70, // Keep some space at the bottom when keyboard is hidden
-                speed:14,
+                speed: 14,
                 bounciness: 1,
                 useNativeDriver: false
             }).start();
@@ -120,7 +118,7 @@ const CreatePost = (props: any) => {
         };
     }, []);
 
-    const yourProfileImageUri = useSelector((state:any) => state.image.profileImageUri);
+    const yourProfileImageUri = useSelector((state: any) => state.image.profileImageUri);
 
     const confirmPost = async () => {
         try {
@@ -162,23 +160,23 @@ const CreatePost = (props: any) => {
 
             console.log(localPostData)
 
-            const response = await axios.post(serverUrl+"/postToDatabase", mongoPostData);
+            const response = await axios.post(serverUrl + "/postToDatabase", mongoPostData);
             console.log(response.data)
-            
+
             if (response.status == 200) {
                 try {
                     if (image) {
                         const uri = image; // The URI of the image to be resized
                         const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
                         const quality = 100; // The quality of the resized image (0-100)
-                        
+
                         ImageResizer.createResizedImage(
-                        uri, 500, 500, format, quality,
+                            uri, 500, 500, format, quality,
                         ).then(async (response) => {
                             const imageRes = await fetch(response.uri);
                             const blob = await imageRes.blob();
-                            const imgRef = ref(storage, `postImages/${postId}`);
-                            await uploadBytes(imgRef, blob);
+                            //const imgRef = ref(storage, `postImages/${postId}`);
+                            //await uploadBytes(imgRef, blob);
                             dispatch(addPost(localPostData))
                             navigation.goBack()
                             console.log('Image uploaded successfully');
@@ -193,7 +191,7 @@ const CreatePost = (props: any) => {
             }
         } catch (error) {
             console.log(error)
-        } 
+        }
     }
 
 
@@ -205,18 +203,18 @@ const CreatePost = (props: any) => {
                     <Icon name="chevron-left" style={{ marginRight: 20, color: theme.colors.opposite }} size={24} />
                 </TouchableOpacity>
                 <Text style={styles.createPostHeaderText}>Create Post</Text>
-                
+
                 {/*make this a button only if all requirments met*/}
                 {(selectedCategory != "" && postTextInput != "" && postTitleInput) != "" &&
-                <TouchableOpacity onPress={confirmPost} style={[styles.headerBtnRight, {backgroundColor: theme.colors.accent}]}>
-                    <Text style={styles.headerBtnRightText}>Post</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity onPress={confirmPost} style={[styles.headerBtnRight, { backgroundColor: theme.colors.accent }]}>
+                        <Text style={styles.headerBtnRightText}>Post</Text>
+                    </TouchableOpacity>
                 }
 
                 {(selectedCategory == "" || postTextInput == "" || postTitleInput == "") &&
-                <View style={[styles.headerBtnRight, {backgroundColor: theme.colors.tertiary}]}>
-                    <Text style={styles.headerBtnRightText}>Post</Text>
-                </View>
+                    <View style={[styles.headerBtnRight, { backgroundColor: theme.colors.tertiary }]}>
+                        <Text style={styles.headerBtnRightText}>Post</Text>
+                    </View>
                 }
 
 
@@ -242,28 +240,28 @@ const CreatePost = (props: any) => {
                         style={styles.createPostTextInputContainer}
                         selectionColor={theme.colors.accent}
                         multiline
-                        
+
                     />
-                    {image != null ? 
-                        <View style={{marginHorizontal: 20, marginVertical: 20}}>
-                            <Image 
-                                source={{uri: image}} 
+                    {image != null ?
+                        <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
+                            <Image
+                                source={{ uri: image }}
                                 style={{
-                                    width: width-40, 
+                                    width: width - 40,
                                     height: undefined,
                                     aspectRatio: 1,
                                     borderRadius: 10,
-                                }} 
+                                }}
                                 resizeMode="cover"
                             />
                         </View>
-                    : null}
+                        : null}
                 </ScrollView>
 
                 <Animated.View style={[styles.categorySelect, { marginBottom: animatedMargin }]}>
-                <TouchableOpacity style={{marginLeft: 20}} onPress={choosePhotoFromLibrary}>
-                    <Icon name="photo" color={theme.colors.text} size={28}/>
-                </TouchableOpacity>
+                    <TouchableOpacity style={{ marginLeft: 20 }} onPress={choosePhotoFromLibrary}>
+                        <Icon name="photo" color={theme.colors.text} size={28} />
+                    </TouchableOpacity>
                     <Text style={styles.categorySelectText}>Select Category</Text>
                     <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
                         {categoryButton("Discussion", theme.colors.discussion)}
