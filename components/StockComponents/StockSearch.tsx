@@ -57,7 +57,7 @@ const StockSearch: React.FC = () => {
 
   const [isFocused, setIsFocused] = useState(false);
 
-  const {userData} = useUserDetails();
+  const { userData } = useUserDetails();
   const user = useSelector((state: any) => state.user)
 
   const [following, setFollowing] = useState<String[]>([])
@@ -76,7 +76,7 @@ const StockSearch: React.FC = () => {
       const tickerlistresponse = response.data;
       const profileListResponse = response2.data;
       const newsResponse = response3.data.results;
-      
+
       setProfileList(profileListResponse);
       setListOfTickers(tickerlistresponse);
       setNews(newsResponse)
@@ -128,26 +128,26 @@ const StockSearch: React.FC = () => {
 
   const renderItem = ({ item }: { item: CombinedObject }) => {
     if (item.type === 'profile') {
-      return <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers}/>;
+      return <UserCard username={item.username} otherUserID={item.userID} yourUserID={user.userID} following={following} followers={followers} />;
     }
-    return <SearchCard ticker={item.ticker} name={item.companyName}/>;
+    return <SearchCard ticker={item.ticker} name={item.companyName} />;
   };
 
   const renderSectionHeader = ({ section: { title } }: { section: { title: string } }) => (
-    <View style={[title == "Profiles" && {paddingVertical: 10}, {backgroundColor: theme.colors.background, marginHorizontal: 20}]}>
-      <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 24}}>{title}</Text>
+    <View style={[title == "Profiles" && { paddingVertical: 10 }, { backgroundColor: theme.colors.background, marginHorizontal: 20 }]}>
+      <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 24 }}>{title}</Text>
     </View>
   );
 
-  const newsRenderItem = ({item}:any) => {
+  const newsRenderItem = ({ item }: any) => {
     return (
-      <DiscoverNewsCard 
-      title={item.title} 
-      publisherName={item.author} 
-      timePublished={new Date(item.published_utc).toLocaleTimeString()} 
-      article_url={item.article_url} 
-      image_url={item.image_url}
-      relatedTickers={item.tickers}/>
+      <DiscoverNewsCard
+        title={item.title}
+        publisherName={item.author}
+        timePublished={new Date(item.published_utc).toLocaleTimeString()}
+        article_url={item.article_url}
+        image_url={item.image_url}
+        relatedTickers={item.tickers} />
     )
   }
 
@@ -159,26 +159,23 @@ const StockSearch: React.FC = () => {
         <Text style={styles.headerText}>Discover</Text>
       </View>
       <View style={[styles.searchBox, isFocused && { borderWidth: 2, borderColor: theme.colors.text }]}>
-      <Icon name="search" size={20} color={isFocused ? theme.colors.text : theme.colors.tertiary}/>
-      <TextInput
-        style={{flex: 1, color: theme.colors.text, height: 35, borderRadius: 5}}
-        onChangeText={handleSearch}
-        value={stockSearch}
-        placeholder="Search Assets & People..."
-        placeholderTextColor={theme.colors.tertiary}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-
-      />
+        <Icon name="search" size={20} color={isFocused ? theme.colors.text : theme.colors.tertiary} />
+        <TextInput
+          style={{ flex: 1, color: theme.colors.text, height: 35, borderRadius: 5 }}
+          onChangeText={handleSearch}
+          value={stockSearch}
+          placeholder="Search Assets & People..."
+          placeholderTextColor={theme.colors.tertiary}
+        />
       </View>
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         {stockSearch === '' ? (
-          <FlatList 
+          <FlatList
             data={news}
             renderItem={newsRenderItem}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={() => {
-              return (<View style={{width: width-40, height: 2, backgroundColor: theme.colors.primary, marginHorizontal: 20}}/>)
+              return (<View style={{ width: width - 40, height: 2, backgroundColor: theme.colors.primary, marginHorizontal: 20 }} />)
             }}
             keyboardDismissMode='on-drag'
             keyboardShouldPersistTaps="always"
@@ -191,7 +188,7 @@ const StockSearch: React.FC = () => {
             renderSectionHeader={renderSectionHeader}
             keyboardShouldPersistTaps="always"
             keyboardDismissMode='on-drag'
-            />
+          />
         )}
       </View>
     </View>

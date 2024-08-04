@@ -3,7 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../constants/global';
 import { useSelector, useDispatch} from 'react-redux';
 import { RootState } from '../GlobalDataManagment/store';
-import { setBalance, setDefaultProfileImage, setFriends, addFriend, removeFriend, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUsername } from '../GlobalDataManagment/userSlice'
+import { setBalance, setDefaultProfileImage, setFriends, addFriend, removeFriend, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUsername, setFriendCount } from '../GlobalDataManagment/userSlice'
 
 interface UserData {
   __v: number;
@@ -63,6 +63,7 @@ const useUserData = (userID?: string) => {
             dispatch(setHasDefaultProfileImage(userResponse.data.hasDefaultProfileImage))
             dispatch(setDefaultProfileImage(userResponse.data.defaultProfileImage))
             dispatch(setInvitations(userResponse.data.invitations))
+            dispatch(setFriendCount(userResponse.data.friendCount))
 
             dispatch(setFriends(friendResponse.data))
 

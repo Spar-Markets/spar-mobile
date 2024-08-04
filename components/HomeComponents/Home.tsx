@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,19 +15,19 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import {useTheme} from '../ContextComponents/ThemeContext';
-import {useDimensions} from '../ContextComponents/DimensionsContext';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import ToggleButton from './ToggleButton';
 import DiscoverCard from './DiscoverCard';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   setIsInMatchmaking,
   setUserBio,
@@ -36,7 +36,7 @@ import {
 import useUserDetails from '../../hooks/useUserDetails';
 import GameCard from './GameCard';
 import GameCardSkeleton from './GameCardSkeleton';
-import {serverUrl, websocketUrl} from '../../constants/global';
+import { serverUrl, websocketUrl } from '../../constants/global';
 import StockCard from '../StockComponents/StockCard';
 import {
   Blur,
@@ -59,23 +59,23 @@ import {
 } from 'react-native-reanimated';
 import HapticFeedback from 'react-native-haptic-feedback';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
-import {getDownloadURL, ref} from 'firebase/storage';
-import {storage} from '../../firebase/firebase';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../firebase/firebase';
 import RNFS from 'react-native-fs';
-import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
-import {setProfileImageUri} from '../../GlobalDataManagment/imageSlice';
+import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
+import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
 import SmallActivityIndicator from '../GlobalComponents/SmallActivityIndicator';
 import CreateWatchlistButton from './CreateWatchlistButton';
 import WatchlistButton from './WatchlistButton';
-import {FAB, Portal, PaperProvider} from 'react-native-paper';
+import { FAB, Portal, PaperProvider } from 'react-native-paper';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import {Svg, Circle as SvgCircle} from 'react-native-svg';
+import { Svg, Circle as SvgCircle } from 'react-native-svg';
 import AnimatedRing from '../GlobalComponents/AnimatedRing';
-import {setGlobalTickers} from '../../GlobalDataManagment/stockDataSlice';
-import {RootState} from '../../GlobalDataManagment/store';
+import { setGlobalTickers } from '../../GlobalDataManagment/stockDataSlice';
+import { RootState } from '../../GlobalDataManagment/store';
 import {
   addMatch,
   setActiveMatches,
@@ -84,7 +84,7 @@ import {
 import { setBalance } from '../../GlobalDataManagment/userSlice';
 import { resetChallengedFriend, setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 Icon.loadFont();
 EntypoIcons.loadFont();
@@ -114,8 +114,8 @@ const Home: React.FC = () => {
   }
 
   // Layout and Style Initialization
-  const {theme} = useTheme();
-  const {width, height} = useDimensions();
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
   const styles = createHomeStyles(theme, width);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -341,7 +341,7 @@ const Home: React.FC = () => {
         onPress: () => console.log('Cancel Pressed'),
         style: 'cancel',
       },
-      {text: 'Yes', onPress: () => cancelMatchmaking()},
+      { text: 'Yes', onPress: () => cancelMatchmaking() },
     ]);
   };
 
@@ -394,13 +394,13 @@ const Home: React.FC = () => {
   const flatListRef = useRef<FlatList<any>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const onViewRef = useRef(({viewableItems}: {viewableItems: any}) => {
+  const onViewRef = useRef(({ viewableItems }: { viewableItems: any }) => {
     if (viewableItems.length > 0) {
       setCurrentIndex(viewableItems[0].index ?? 0);
     }
   });
 
-  const viewConfigRef = useRef({viewAreaCoveragePercentThreshold: 30});
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
   const profileImageUri = useSelector(
     (state: any) => state.image.profileImageUri,
@@ -483,13 +483,13 @@ const Home: React.FC = () => {
         disappearsOnIndex={-1}
         appearsOnIndex={0}
         opacity={0.4}>
-        <View style={{backgroundColor: theme.colors.opposite, flex: 1, zIndex: 0}}></View>
+        <View style={{ backgroundColor: theme.colors.opposite, flex: 1, zIndex: 0 }}></View>
       </BottomSheetBackdrop>
     ),
     [],
   );
 
-  
+
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
@@ -586,7 +586,7 @@ const Home: React.FC = () => {
     if (ws.current) {
       //console.log("SENDING WS HEARTBEAT FROM GAMECARD")
       //console.log("FROM GAME CARD", ws.current)
-      const heartbeat = {type: 'heartbeat'};
+      const heartbeat = { type: 'heartbeat' };
       ws.current.send(JSON.stringify(heartbeat));
     }
   };
@@ -628,7 +628,7 @@ const Home: React.FC = () => {
           );
           // first send match ID
           ws.current!.send(
-            JSON.stringify({type: 'matchmaking', userID: userID}),
+            JSON.stringify({ type: 'matchmaking', userID: userID }),
           );
         } else {
           console.log('WebSocket is not open');
@@ -654,7 +654,7 @@ const Home: React.FC = () => {
             const newMatch = JSONMessage.newMatch;
             // do logic to display new match
             dispatch(
-              addMatch({matchID: newMatch.matchID, endAt: newMatch.endAt}),
+              addMatch({ matchID: newMatch.matchID, endAt: newMatch.endAt }),
             );
             setNoMatches(false);
             dispatch(setIsInMatchmaking(false));
@@ -817,7 +817,7 @@ const Home: React.FC = () => {
         style={[
           gameModeSelected == props.text ? {
             backgroundColor: activeGameModeColor,
-          } : {backgroundColor: theme.colors.secondary},
+          } : { backgroundColor: theme.colors.secondary },
           {
             paddingHorizontal: 15,
             borderRadius: 50,
@@ -840,8 +840,8 @@ const Home: React.FC = () => {
 
 
   const [selectedStart, setSelectedStart] = useState("")
-  
-  const handleInviteFriend = async (challengerUserID:string, invitedUserID:string, wager:number, timeframe:number, mode:string) => {
+
+  const handleInviteFriend = async (challengerUserID: string, invitedUserID: string, wager: number, timeframe: number, mode: string) => {
     try {
       const invitation = {
         challengerUserID,
@@ -863,16 +863,16 @@ const Home: React.FC = () => {
       console.error("Error sending invitation to friend");
     }
   }
-  
+
   if (loading) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={{flex: 1}} />
+          <View style={{ flex: 1 }} />
           <TouchableOpacity>
             <Icon
               name="search"
-              style={[styles.icon, {marginRight: 5}]}
+              style={[styles.icon, { marginRight: 5 }]}
               size={24}
             />
           </TouchableOpacity>
@@ -880,7 +880,7 @@ const Home: React.FC = () => {
             <Icon name="bars" style={styles.icon} size={24} />
           </TouchableOpacity>
         </View>
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <CustomActivityIndicator size={60} color={theme.colors.text} />
         </View>
       </View>
@@ -888,12 +888,12 @@ const Home: React.FC = () => {
   }
 
   return (
-    <View style={{backgroundColor: theme.colors.background, flex: 1}}>
+    <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.navigate('Menu')}
-            style={{justifyContent: 'center', alignItems: 'center'}}>
+            style={{ justifyContent: 'center', alignItems: 'center' }}>
             {/*<Image
                     style={{width: 16, height: 30}}
                     source={require('../../assets/images/logo.png')}
@@ -908,9 +908,9 @@ const Home: React.FC = () => {
             </Text>
           </TouchableOpacity>
 
-          <View style={{flex: 1}}></View>
+          <View style={{ flex: 1 }}></View>
 
-          <View style={{justifyContent: 'center', flexDirection: 'row'}}>
+          <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
             <View
               style={{
                 backgroundColor: hexToRGBA(theme.colors.secondary, 0.3),
@@ -939,7 +939,7 @@ const Home: React.FC = () => {
                   alignItems: 'center',
                   marginRight: 3,
                 }}>
-                <MaterialIcons name="add" color={theme.colors.text} size={20} />
+                <MaterialIcons name="add" color={"#fff"} size={20} />
               </TouchableOpacity>
             </View>
           </View>
@@ -970,21 +970,21 @@ const Home: React.FC = () => {
               </View>*/}
         </View>
 
-        <View style={{height: 35, marginTop: 10}}>
+        <View style={{ height: 35, marginTop: 10 }}>
           <ScrollView
             horizontal
-            style={{width: width}}
+            style={{ width: width }}
             showsHorizontalScrollIndicator={false}>
-            <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
-              <GameModeButton text={'Head-to-Head'}/>
-              <GameModeButton text={'Tournaments'}/>
+            <View style={{ flexDirection: 'row', paddingHorizontal: 20 }}>
+              <GameModeButton text={'Head-to-Head'} />
+              <GameModeButton text={'Tournaments'} />
             </View>
           </ScrollView>
         </View>
         {gameModeSelected === 'Head-to-Head' && (
-          <View style={{flex: 1}}>
-            <View style={{flex: 1}}>
-              <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
+              <View style={{ flex: 1 }}>
                 {noMatches && !searchingForMatch && !isInMatchmaking && (
                   <View
                     style={{
@@ -1027,10 +1027,10 @@ const Home: React.FC = () => {
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     data={activeMatches} // Directly use activeMatches array
-                    renderItem={({item, index}) => {
+                    renderItem={({ item, index }) => {
                       return (
                         item && (
-                          <View style={{width, height: '100%'}}>
+                          <View style={{ width, height: '100%' }}>
                             <GameCard
                               userID={userID}
                               matchID={item.matchID} // Access id directly from the item
@@ -1091,7 +1091,7 @@ const Home: React.FC = () => {
                     }}>
                     <TouchableOpacity
                       onPress={() => toggleAdditionalButtons()}
-                      style={{flex: 1}}
+                      style={{ flex: 1 }}
                     />
                   </Animated.View>
                 )}
@@ -1118,7 +1118,7 @@ const Home: React.FC = () => {
                         }}>
                         Searching for Match
                       </Text>
-                      <View style={{flex: 1}} />
+                      <View style={{ flex: 1 }} />
                       <TouchableOpacity
                         onPress={cancelAlert}
                         style={{
@@ -1144,7 +1144,7 @@ const Home: React.FC = () => {
                               bottom: 60,
                               zIndex: 0,
                             },
-                            {transform: [{translateY}], opacity},
+                            { transform: [{ translateY }], opacity },
                           ]}>
                           {/* Add your additional buttons here */}
                           <TouchableOpacity
@@ -1226,9 +1226,9 @@ const Home: React.FC = () => {
                           {/*<TouchableOpacity onPress={() => navigation.navigate("PastMatches")} style={{height: 40, borderRadius: 5, backgroundColor: theme.colors.opposite, width: (width-45)*0.12, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
                     <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
                 </TouchableOpacity>*/}
-                          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{backgroundColor: theme.colors.accent2, height: 50, width: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 50}}>
-                              <FeatherIcon name="inbox" color={theme.colors.text} size={24}/>
-                              {/*<View style={{backgroundColor: theme.colors.stockDownAccent, width: 20, height: 20, borderRadius: 50, position: 'absolute', right: -2, top: -2, justifyContent: 'center', alignItems: 'center',borderWidth: 2, borderColor: theme.colors.background}}>
+                          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ backgroundColor: theme.colors.accent2, height: 50, width: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 50 }}>
+                            <FeatherIcon name="inbox" color={"#fff"} size={24} />
+                            {/*<View style={{backgroundColor: theme.colors.stockDownAccent, width: 20, height: 20, borderRadius: 50, position: 'absolute', right: -2, top: -2, justifyContent: 'center', alignItems: 'center',borderWidth: 2, borderColor: theme.colors.background}}>
                                 <Text style={{color: theme.colors.text, fontFamily: "InterTight-Bold", fontSize: 12}}>1</Text>
                               </View>*/}
                           </TouchableOpacity>
@@ -1265,7 +1265,7 @@ const Home: React.FC = () => {
         )}
 
         {gameModeSelected === 'Tournaments' && (
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <View
               style={{
                 width: width,
@@ -1304,57 +1304,57 @@ const Home: React.FC = () => {
         )}
 
 
-          
 
-            <BottomSheet
-              ref={bottomSheetRef}
-              snapPoints={selectedStart == "Stock" ? [470] : challengedFriend.userID == null ? [520] : [520]}
-              index={-1}
-              enablePanDownToClose
-              onChange={handleSheetChanges}  
-              backgroundStyle={{backgroundColor: theme.colors.background}}
-              handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
-              backdropComponent={renderBackdrop}
-              onClose={() => {
-                if (challengedFriend.userID) {
-                  dispatch(setChallengedFriend({userID: null, username: null}))
-                }
-              }}
-            >
-              <BottomSheetView style={{flex: 1}}>
-                <View style={{flexDirection: 'row', alignItems: 'center', marginHorizontal: 20}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20}}>
-                    {selectedStart == "Stock" && "Stock"}
-                    {selectedStart == "Friend" && "Challenge Friend"}
-                  </Text>
-                  <View style={{flex: 1}}></View>
 
-                </View>
-                <View>
-                {selectedStart == "Friend" &&
-                  <>
+        <BottomSheet
+          ref={bottomSheetRef}
+          snapPoints={selectedStart == "Stock" ? [470] : challengedFriend.userID == null ? [520] : [520]}
+          index={-1}
+          enablePanDownToClose
+          onChange={handleSheetChanges}
+          backgroundStyle={{ backgroundColor: theme.colors.background }}
+          handleIndicatorStyle={{ backgroundColor: theme.colors.tertiary }}
+          backdropComponent={renderBackdrop}
+          onClose={() => {
+            if (challengedFriend.userID) {
+              dispatch(setChallengedFriend({ userID: null, username: null }))
+            }
+          }}
+        >
+          <BottomSheetView style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 20 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20 }}>
+                {selectedStart == "Stock" && "Stock"}
+                {selectedStart == "Friend" && "Challenge Friend"}
+              </Text>
+              <View style={{ flex: 1 }}></View>
+
+            </View>
+            <View>
+              {selectedStart == "Friend" &&
+                <>
                   {challengedFriend.userID == null ?
-                  <View style={{marginHorizontal: 20, marginTop: 10}}>
-                    <TouchableOpacity onPress={() => navigation.navigate('FollowersFollowing', {userID: user.userID, username: user.username})} style={{height:70, gap: 5, paddingHorizontal: 20, paddingVertical: 20, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.accent2, justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18}}>Select a Friend</Text>
-                    </TouchableOpacity>
-                  </View>
-                  :
-                  <View style={{marginHorizontal: 20, marginTop: 10}}>
-                    <TouchableOpacity style={{gap: 5, paddingHorizontal: 20, paddingVertical: 20, height: 70, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.secondary,  alignItems: 'center'}}>
-                      {challengedFriend.hasDefaultProfileImage != null && <Image style={{height: 35, width: 35, borderRadius: 100}} source={challengedFriend.hasDefaultProfileImage == true ? challengedFriend.profileImageUri as any : {uri: challengedFriend.profileImageUri} }/>}
-                      <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 24, marginLeft: 10}}>{challengedFriend.username}</Text>
-                      <View style={{flex: 1}}></View>
-                      <TouchableOpacity onPress={() => dispatch(resetChallengedFriend())}>
-                        <Icon name="close" color={theme.colors.stockDownAccent} size={24}/>
+                    <View style={{ marginHorizontal: 20, marginTop: 10 }}>
+                      <TouchableOpacity onPress={() => navigation.navigate('FollowersFollowing', { userID: user.userID, username: user.username })} style={{ height: 70, gap: 5, paddingHorizontal: 20, paddingVertical: 20, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.accent2, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>Select a Friend</Text>
                       </TouchableOpacity>
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+                    :
+                    <View style={{ marginHorizontal: 20, marginTop: 10 }}>
+                      <TouchableOpacity style={{ gap: 5, paddingHorizontal: 20, paddingVertical: 20, height: 70, flexDirection: 'row', borderRadius: 10, backgroundColor: theme.colors.secondary, alignItems: 'center' }}>
+                        {challengedFriend.hasDefaultProfileImage != null && <Image style={{ height: 35, width: 35, borderRadius: 100 }} source={challengedFriend.hasDefaultProfileImage == true ? challengedFriend.profileImageUri as any : { uri: challengedFriend.profileImageUri }} />}
+                        <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 24, marginLeft: 10 }}>{challengedFriend.username}</Text>
+                        <View style={{ flex: 1 }}></View>
+                        <TouchableOpacity onPress={() => dispatch(resetChallengedFriend())}>
+                          <Icon name="close" color={theme.colors.stockDownAccent} size={24} />
+                        </TouchableOpacity>
+                      </TouchableOpacity>
+                    </View>
                   }
-                  </>
-                  }
-          
-              
+                </>
+              }
+
+
               <View
                 style={{
                   backgroundColor: theme.colors.background,
@@ -1380,10 +1380,10 @@ const Home: React.FC = () => {
                     gap: 5,
                   }}>
                   {[
-                    {amount: 0, label: 'Free'},
-                    {amount: 5, label: '$5'},
-                    {amount: 10, label: '$10'},
-                    {amount: 25, label: '$25'},
+                    { amount: 0, label: 'Free' },
+                    { amount: 5, label: '$5' },
+                    { amount: 10, label: '$10' },
+                    { amount: 25, label: '$25' },
                   ].map((wager, index) => (
                     <TouchableOpacity
                       key={wager.amount}
@@ -1397,7 +1397,7 @@ const Home: React.FC = () => {
                           borderColor: theme.colors.text,
                           borderWidth: 2,
                         },
-                        index === 5 && {marginRight: 40},
+                        index === 5 && { marginRight: 40 },
                       ]}
                       onPress={() => setWagerSelected(wager.amount)}>
                       <Text style={styles.matchmakingWagerTxt}>
@@ -1433,9 +1433,9 @@ const Home: React.FC = () => {
                   gap: 5,
                 }}>
                 {[
-                  {amount: 900, label: '15m'},
-                  {amount: 86400, label: '1d'},
-                  {amount: 604800, label: '1w'},
+                  { amount: 900, label: '15m' },
+                  { amount: 86400, label: '1d' },
+                  { amount: 604800, label: '1w' },
                 ].map((timeframe, index) => (
                   <TouchableOpacity
                     key={timeframe.amount}
@@ -1449,7 +1449,7 @@ const Home: React.FC = () => {
                         borderColor: theme.colors.text,
                         borderWidth: 2,
                       },
-                      index === 5 && {marginRight: 40},
+                      index === 5 && { marginRight: 40 },
                     ]}
                     onPress={() => setTimeFrameSelected(timeframe.amount)}>
                     <Text style={styles.matchmakingWagerTxt}>
@@ -1474,7 +1474,7 @@ const Home: React.FC = () => {
                 alignItems: 'center',
                 flexDirection: 'row',
               }}>
-              <View style={{alignItems: 'center'}}>
+              <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                   onPress={expandInfoSheet}
                   style={{
@@ -1505,10 +1505,10 @@ const Home: React.FC = () => {
                   ${(1.1 * wagerSelected!).toFixed(2)}
                 </Text>
               </View>
-              <View style={{marginHorizontal: 20}}>
+              <View style={{ marginHorizontal: 20 }}>
                 <Icon name="arrow-right" size={24} color={theme.colors.text} />
               </View>
-              <View style={{alignItems: 'center'}}>
+              <View style={{ alignItems: 'center' }}>
                 <View
                   style={{
                     flexDirection: 'row',
@@ -1553,84 +1553,84 @@ const Home: React.FC = () => {
                 marginVertical: 20,
               }}>
               {wagerSelected != null &&
-              timeframeSelected != 0 &&
-              modeSelected != '' &&
-              !enteredMatchmakingCheck ? (
+                timeframeSelected != 0 &&
+                modeSelected != '' &&
+                !enteredMatchmakingCheck ? (
                 <>
                   {selectedStart != "Friend" ?
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleEnterMatchmaking(
-                        wagerSelected,
-                        timeframeSelected,
-                        modeSelected,
-                      )
-                    }
-                    style={{
-                      marginHorizontal: 20,
-                      height: 50,
-                      backgroundColor: theme.colors.accent2,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderRadius: 10,
-                    }}>
-                    <Text
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleEnterMatchmaking(
+                          wagerSelected,
+                          timeframeSelected,
+                          modeSelected,
+                        )
+                      }
                       style={{
-                        color: theme.colors.text,
-                        fontFamily: 'InterTight-Bold',
-                        fontSize: 18,
+                        marginHorizontal: 20,
+                        height: 50,
+                        backgroundColor: theme.colors.accent2,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderRadius: 10,
                       }}>
-                      Enter Matchmaking
-                    </Text>
-                  </TouchableOpacity> : 
-                  <>
-                  {challengedFriend.userID ?
-                  <TouchableOpacity
-                  onPress={async () =>
-                    /*handleEnterMatchmaking(
-                      wagerSelected,
-                      timeframeSelected,
-                      modeSelected,
-                    )*/
-                   await handleInviteFriend(user.userID, challengedFriend.userID!, wagerSelected, timeframeSelected, modeSelected)
-                  }
-                  style={{
-                    marginHorizontal: 20,
-                    height: 50,
-                    backgroundColor: theme.colors.accent2,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 10,
-                  }}>
-                  <Text
-                    style={{
-                      color: theme.colors.text,
-                      fontFamily: 'InterTight-Bold',
-                      fontSize: 18,
-                    }}>
-                    Invite {challengedFriend.username}
-                  </Text>
-                </TouchableOpacity> : 
-                <View
-              
-                style={{
-                  marginHorizontal: 20,
-                  height: 50,
-                  backgroundColor: theme.colors.tertiary,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 10,
-                }}>
-                <Text
-                  style={{
-                    color: theme.colors.primary,
-                    fontFamily: 'InterTight-Bold',
-                    fontSize: 18,
-                  }}>
-                  Select a Friend
-                </Text>
-              </View>}
-                </>
+                      <Text
+                        style={{
+                          color: theme.colors.text,
+                          fontFamily: 'InterTight-Bold',
+                          fontSize: 18,
+                        }}>
+                        Enter Matchmaking
+                      </Text>
+                    </TouchableOpacity> :
+                    <>
+                      {challengedFriend.userID ?
+                        <TouchableOpacity
+                          onPress={async () =>
+                            /*handleEnterMatchmaking(
+                              wagerSelected,
+                              timeframeSelected,
+                              modeSelected,
+                            )*/
+                            await handleInviteFriend(user.userID, challengedFriend.userID!, wagerSelected, timeframeSelected, modeSelected)
+                          }
+                          style={{
+                            marginHorizontal: 20,
+                            height: 50,
+                            backgroundColor: theme.colors.accent2,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 10,
+                          }}>
+                          <Text
+                            style={{
+                              color: theme.colors.text,
+                              fontFamily: 'InterTight-Bold',
+                              fontSize: 18,
+                            }}>
+                            Invite {challengedFriend.username}
+                          </Text>
+                        </TouchableOpacity> :
+                        <View
+
+                          style={{
+                            marginHorizontal: 20,
+                            height: 50,
+                            backgroundColor: theme.colors.tertiary,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 10,
+                          }}>
+                          <Text
+                            style={{
+                              color: theme.colors.primary,
+                              fontFamily: 'InterTight-Bold',
+                              fontSize: 18,
+                            }}>
+                            Select a Friend
+                          </Text>
+                        </View>}
+                    </>
                   }
                 </>
               ) : (
@@ -1654,7 +1654,7 @@ const Home: React.FC = () => {
                 </View>
               )}
             </View>
-              </BottomSheetView>
+          </BottomSheetView>
         </BottomSheet>
         <BottomSheet
           ref={infoSheetRef}
@@ -1662,11 +1662,11 @@ const Home: React.FC = () => {
           index={-1}
           enablePanDownToClose
           onChange={handleInfoChanges}
-          backgroundStyle={{backgroundColor: theme.colors.background}}
-          handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
+          backgroundStyle={{ backgroundColor: theme.colors.background }}
+          handleIndicatorStyle={{ backgroundColor: theme.colors.tertiary }}
           backdropComponent={renderBackdrop}>
-          <BottomSheetView style={{flex: 1}}>
-            <View style={{gap: 10, marginHorizontal: 20}}>
+          <BottomSheetView style={{ flex: 1 }}>
+            <View style={{ gap: 10, marginHorizontal: 20 }}>
               <Text
                 style={{
                   color: theme.colors.text,
@@ -1713,7 +1713,7 @@ const Home: React.FC = () => {
                 }}>
                 Payout if Win
               </Text>
-              <View style={{flex: 1}}></View>
+              <View style={{ flex: 1 }}></View>
               <Text
                 style={{
                   color: theme.colors.accent,
@@ -1732,10 +1732,10 @@ const Home: React.FC = () => {
           index={-1}
           enablePanDownToClose
           onChange={handleMatchSummaryChanges}
-          backgroundStyle={{backgroundColor: theme.colors.background}}
-          handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
+          backgroundStyle={{ backgroundColor: theme.colors.background }}
+          handleIndicatorStyle={{ backgroundColor: theme.colors.tertiary }}
           backdropComponent={renderBackdrop}>
-          <BottomSheetView style={{flex: 1}}>
+          <BottomSheetView style={{ flex: 1 }}>
             <View
               style={{
                 gap: 10,
@@ -1769,12 +1769,12 @@ const Home: React.FC = () => {
           index={-1}
           enablePanDownToClose
           onChange={handleMatchmakingChanges}
-          backgroundStyle={{backgroundColor: theme.colors.background}}
-          handleIndicatorStyle={{backgroundColor: theme.colors.tertiary}}
+          backgroundStyle={{ backgroundColor: theme.colors.background }}
+          handleIndicatorStyle={{ backgroundColor: theme.colors.tertiary }}
           backdropComponent={renderBackdrop}>
-          <BottomSheetView style={{flex: 1}}>
+          <BottomSheetView style={{ flex: 1 }}>
             {!(isInMatchmaking || searchingForMatch) ? (
-              <View style={{gap: 10, flex: 1}}>
+              <View style={{ gap: 10, flex: 1 }}>
                 <Text
                   style={{
                     color: theme.colors.text,
