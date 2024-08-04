@@ -20,9 +20,6 @@ const websocketSlice = createSlice({
     removeWebSocket: (state, action: PayloadAction<string>) => {
       delete state[action.payload];
     },*/
-    updateMatchData: (state, action: PayloadAction<{id: string, matchData: Object}>) => {
-
-    }
   },
 });
 

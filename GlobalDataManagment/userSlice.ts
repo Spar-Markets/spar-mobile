@@ -1,5 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface Invitation {
+  challengerUserID: string;
+  wager: number;
+  timeframe: number;
+  createdAt: Date;
+  mode: string;
+  type: string;
+}
+
+interface Follower {
+  userID: string;
+  username: string;
+}
+
 interface UserState {
   isInMatchmaking: boolean;
   isUserMade: boolean;
@@ -13,6 +27,7 @@ interface UserState {
   friends: string[];
   invitations: Record<string, any> | null;
   friendCount: number | null
+
 }
 
 const initialState: UserState = {
@@ -29,6 +44,7 @@ const initialState: UserState = {
   invitations: null,
   friendCount: null
 }
+
 
 const userSlice = createSlice({
   name: 'user',
@@ -73,11 +89,19 @@ const userSlice = createSlice({
     removeFriend: (state, action: PayloadAction<string>) => {
       state.friends = state.friends.filter(friend => friend !== action.payload);
     },
-    setInvitations: (state, action) => {
-      state.invitations= action.payload
+    setInvitations: (state, action: PayloadAction<{ [key: string]: Invitation }>) => {
+      state.invitations = action.payload;
     },
+    addInvitation: (state, action: PayloadAction<{ invitationID: string; invitation: Invitation }>) => {
+      state.invitations[action.payload.invitationID] = action.payload.invitation;
+    },
+    removeInvitation: (state, action: PayloadAction<string>) => {
+      delete state.invitations[action.payload];
+    }
   }
 });
 
+
 export const { setIsInMatchmaking, setFriendCount, addFriend, removeFriend, setFriends, setInvitations, setDefaultProfileImage, setUserIsMade, setUserID, setUserBio, setUsername, setHasDefaultProfileImage, setBalance, setSkillRating, } = userSlice.actions;
+
 export default userSlice.reducer;
