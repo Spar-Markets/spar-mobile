@@ -76,6 +76,7 @@ const StockSearch: React.FC = () => {
       const tickerlistresponse = response.data;
       const profileListResponse = response2.data;
       const newsResponse = response3.data.results;
+      console.log(profileListResponse)
 
       setProfileList(profileListResponse);
       setListOfTickers(tickerlistresponse);
@@ -84,6 +85,18 @@ const StockSearch: React.FC = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  const updateProfileList = async () => {
+    try {
+      const response = await axios.post(serverUrl + '/getProfileList');
+      if (response.status == 200) {
+        console.log("updating profile list")
+        setProfileList(response.data);
+      }
+    } catch (error) {
+      console.log("error updating profile list", error)
+    }
+  }
 
   useEffect(() => {
     updateTickerList();
@@ -151,6 +164,11 @@ const StockSearch: React.FC = () => {
     )
   }
 
+  useEffect(() => {
+    if (stockSearch == "") {
+      updateProfileList()
+    }
+  }, [stockSearch])
 
 
   return (
@@ -166,6 +184,7 @@ const StockSearch: React.FC = () => {
           value={stockSearch}
           placeholder="Search Assets & People..."
           placeholderTextColor={theme.colors.tertiary}
+          onFocus={async () => await updateProfileList()}
         />
       </View>
       <View style={{ flex: 1 }}>
@@ -188,6 +207,7 @@ const StockSearch: React.FC = () => {
             renderSectionHeader={renderSectionHeader}
             keyboardShouldPersistTaps="always"
             keyboardDismissMode='on-drag'
+
           />
         )}
       </View>

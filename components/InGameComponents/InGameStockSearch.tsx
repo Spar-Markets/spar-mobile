@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -9,9 +9,9 @@ import {
   FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import {serverUrl} from '../../constants/global';
+import { serverUrl } from '../../constants/global';
 import StockCard from '../StockCard';
 import fuzzysort from 'fuzzysort';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -83,7 +83,7 @@ const InGameStockSearch = () => {
 
   const CategoryButton = (category: string) => {
     return (
-      <TouchableOpacity style={{backgroundColor: theme.colors.primary, borderRadius: 10}}>
+      <TouchableOpacity style={{ backgroundColor: theme.colors.primary, borderRadius: 10 }}>
         <Text
           style={styles.categoryButton}>
           {category}
@@ -94,7 +94,7 @@ const InGameStockSearch = () => {
 
   return (
     <View style={styles.container}>
-      <HTHPageHeader text="Trade" endAt={params?.endAt}/>
+      <HTHPageHeader text="Trade" endAt={params?.endAt} />
       <TextInput
         style={styles.searchBox}
         onChangeText={handleSearch}
@@ -103,7 +103,7 @@ const InGameStockSearch = () => {
       />
       <View style={{}}>
         {stockSearch == '' ? (
-          <View style={{marginHorizontal: 20}}>
+          <View style={{ marginHorizontal: 20 }}>
             <Text
               style={{
                 fontFamily: 'InterTight-Black',
@@ -113,12 +113,12 @@ const InGameStockSearch = () => {
               }}>
               Explore by Category
             </Text>
-            <View style={{flexDirection: 'row', gap: 5, marginTop: 15}}>
+            <View style={{ flexDirection: 'row', gap: 5, marginTop: 15 }}>
               {CategoryButton('Artifical Intelligence')}
               {CategoryButton('Semiconductors')}
               {CategoryButton('Biotechnology')}
             </View>
-            <View style={{flexDirection: 'row', gap: 5, marginTop: 10}}>
+            <View style={{ flexDirection: 'row', gap: 5, marginTop: 10 }}>
               {CategoryButton('Consumer Discretionary')}
               {CategoryButton('Financials')}
               {CategoryButton('Energy')}
@@ -129,21 +129,22 @@ const InGameStockSearch = () => {
             <FlatList
               data={searchResults}
               keyExtractor={item => item.ticker}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <View>
                   {/* <Text style={{color: '#FFFFFF'}}>
                     {item.ticker} - {item.companyName}
                   </Text> */}
                   <SearchCard
-                    ticker={item.ticker} 
-                    name={item.companyName} 
-                    inGame={true} 
-                    buyingPower={params?.buyingPower} 
-                    matchID={params?.matchID} 
+                    ticker={item.ticker}
+                    name={item.companyName}
+                    inGame={true}
+                    buyingPower={params?.buyingPower}
+                    matchID={params?.matchID}
                     assets={params?.assets}
-                    endAt={params?.endAt}/>
+                    endAt={params?.endAt} />
                 </View>
               )}
+              keyboardShouldPersistTaps="always"
             />
           </View>
         )}
