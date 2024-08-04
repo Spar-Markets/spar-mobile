@@ -5,11 +5,10 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createOnboardStyles from '../../styles/createOnboardStyles';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
-import useAuth from '../../hooks/useAuth';
+// import { auth } from '../../firebase/firebase';
+// import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
-import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -42,7 +41,7 @@ const PasswordScreen = (props: any) => {
 
   const continueToUsername = () => {
     if (passwordInput.length >= 6) {
-      navigation.navigate("UsernameScreen", {email: email, password: passwordInput});
+      navigation.navigate("UsernameScreen", { email: email, password: passwordInput });
     } else {
       Alert.alert('Invalid Password', 'Make it Longer');
     }
@@ -55,14 +54,14 @@ const PasswordScreen = (props: any) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? -30 : -100}
     >
-      <View style={{flexGrow: 1}}>
+      <View style={{ flexGrow: 1 }}>
         <View style={styles.container}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name={"times"} size={24} color={theme.colors.opposite} />
           </TouchableOpacity>
           <Text style={styles.mainText}>Choose a Password</Text>
           <View style={{ flex: 1 }}></View>
-          <View style={[styles.inputContainer, isFocused && {borderColor: theme.colors.accent}]}>
+          <View style={[styles.inputContainer, isFocused && { borderColor: theme.colors.accent }]}>
             <Text style={styles.textInputType}>Password</Text>
             <TextInput
               ref={passwordInputRef}

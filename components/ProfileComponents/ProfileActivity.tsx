@@ -5,7 +5,6 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import createGlobalStyles from '../../styles/createGlobalStyles';
-import useUserDetails from '../../hooks/useUserDetails';
 import PageHeader from '../GlobalComponents/PageHeader';
 import { serverUrl } from '../../constants/global';
 import timeAgo from '../../utility/timeAgo';
@@ -24,7 +23,6 @@ const ProfileActivity = ({ navigation }: any) => {
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
 
-  const { userData } = useUserDetails();
   const user = useSelector((state: any) => state.user)
 
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
@@ -38,7 +36,7 @@ const ProfileActivity = ({ navigation }: any) => {
         console.log("helllo", response.data);
       }
     } catch (error) {
-      console.error(error); 
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -62,9 +60,9 @@ const ProfileActivity = ({ navigation }: any) => {
             keyExtractor={(item) => item.userID}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
- 
-              <UserCard incomingFriendRequest={true} otherUserID={item.userID}/>
-              
+
+              <UserCard incomingFriendRequest={true} otherUserID={item.userID} />
+
             )}
           />
         )}

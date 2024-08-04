@@ -13,20 +13,14 @@ import {useTheme} from '../ContextComponents/ThemeContext';
 import {useDimensions} from '../ContextComponents/DimensionsContext';
 import createOnboardStyles from '../../styles/createOnboardStyles';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {createUserWithEmailAndPassword} from 'firebase/auth';
-import {auth} from '../../firebase/firebase';
-import useAuth from '../../hooks/useAuth';
+import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import {serverUrl} from '../../constants/global';
-import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {useDispatch} from 'react-redux';
 import {
-  setHasDefaultProfileImage,
   setUserID,
-  setUserIsMade,
-  setUsername,
 } from '../../GlobalDataManagment/userSlice';
 
 const UsernameScreen = (props: any) => {
@@ -34,8 +28,6 @@ const UsernameScreen = (props: any) => {
   const {theme} = useTheme();
   const {width, height} = useDimensions();
   const styles = createOnboardStyles(theme, width);
-
-  const {user} = useAuth();
 
   const navigation = useNavigation<any>();
 
@@ -74,8 +66,7 @@ const UsernameScreen = (props: any) => {
         return;
       }
 
-      const credentials = await createUserWithEmailAndPassword(
-        auth,
+      const credentials = await auth().createUserWithEmailAndPassword(
         email,
         password,
       );
@@ -87,9 +78,6 @@ const UsernameScreen = (props: any) => {
         // Select a random profile image
         const randomImage =
           profileImages[Math.floor(Math.random() * profileImages.length)];
-
-        // Set the profile image string
-        await AsyncStorage.setItem('defaultProfileImage', String(randomImage));
 
         console.log('User profile image initialized in AsyncStorage');
 
@@ -107,21 +95,12 @@ const UsernameScreen = (props: any) => {
           return;
         }
 
-        // Sets userID globally in async
+        // 
         if (response) {
           console.log('About to set userID');
           console.log('Credentials:', credentials);
           console.log('Credentials UID', (credentials.user as any).uid);
-          await AsyncStorage.setItem(
-            'userID',
-            (credentials.user as any).uid,
-          ).then(async () => {
-            await AsyncStorage.setItem('hasDefaultProfileImage', 'true');
-            dispatch(setHasDefaultProfileImage(true))
-            dispatch(setUserIsMade(true));
-            dispatch(setUserID((credentials.user as any).uid));
-            dispatch(setUsername(usernameInput));
-          });
+          dispatch(setUserID((credentials.user as any).uid));
         }
       }
 
@@ -133,9 +112,17 @@ const UsernameScreen = (props: any) => {
 
       // TODO make this production level: if there is an axios error, the user will still get into firebase and the rest of app but not be in MongoDB,
       // maybe create global hook that allows for MongoDB user population and make sure that it is populated
-    } catch (error) {
-      console.log(error);
-      Alert.alert('Error creating account, please try again');
+    } catch (error: any) {
+      if (error.code === 'auth/email-already-in-use') {
+        console.error('That email address is already in use!');
+        Alert.alert('That email address is already in use!');
+      }
+      else if (error.code === 'auth/invalid-email') {
+        console.error('That email address is invalid!');
+      } else {
+        console.error(error);
+        Alert.alert('Error creating account');
+      }
     }
   };
 

@@ -19,7 +19,6 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockSearchStyles from '../../styles/createStockStyles';
 
-import useUserDetails from '../../hooks/useUserDetails';
 import SearchCard from '../StockComponents/SearchCard';
 import HTHPageHeader from '../GlobalComponents/HTHPageHeader';
 

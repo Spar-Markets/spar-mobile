@@ -16,7 +16,6 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import PageHeader from '../GlobalComponents/PageHeader';
 import UserCard from './UserCard';
-import useUserDetails from '../../hooks/useUserDetails';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import debounce from 'lodash/debounce';
@@ -37,7 +36,6 @@ const ProfileSearch = () => {
 
   const navigation = useNavigation<any>();
 
-  const {userData} = useUserDetails()
   const user = useSelector((state: RootState) => state.user)
 
   const [userProfiles, setUserProfiles] = useState([]);
@@ -62,7 +60,7 @@ const ProfileSearch = () => {
 
   useEffect(() => {
 
-      updateUserProfiles();
+    updateUserProfiles();
 
   }, []);
 
@@ -98,7 +96,7 @@ const ProfileSearch = () => {
     <View style={styles.container}>
       <PageHeader text="Find People" />
       <View
-        style={{ 
+        style={{
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
@@ -114,20 +112,20 @@ const ProfileSearch = () => {
           placeholder="Search Profiles..."
         />
       </View>
-      <View style={{ flex: 1, marginTop: 10}}>
+      <View style={{ flex: 1, marginTop: 10 }}>
         {profileSearch === '' ? (
           <View></View>
         ) : loading ? (
           <ActivityIndicator color={theme.colors.text} />
         ) : (
-      
+
           <FlatList
             data={searchResults}
             keyExtractor={(item) => item.userID}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard otherUserID={item.userID} yourUserID={user.userID}/>
+                <UserCard otherUserID={item.userID} yourUserID={user.userID} />
               </View>
             )}
           />

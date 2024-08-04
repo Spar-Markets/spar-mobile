@@ -5,16 +5,15 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createOnboardStyles from '../../styles/createOnboardStyles';
 import { useNavigation } from '@react-navigation/native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
-import useAuth from '../../hooks/useAuth';
+// import { auth } from '../../firebase/firebase';
+// import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
-import useUserDetails from '../../hooks/useUserDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const EmailScreen = (props: any) => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   // Layout and Style Initialization
   const { theme } = useTheme();
@@ -45,10 +44,10 @@ const EmailScreen = (props: any) => {
     } else if (await isEmailTaken(emailInput)) {
       Alert.alert('Email is Taken', 'Please enter another email address')
     } else {
-      navigation.navigate("PasswordScreen", {email: emailInput});
+      navigation.navigate("PasswordScreen", { email: emailInput });
     }
   }
-  
+
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
       if (emailInputRef.current) {
@@ -71,14 +70,14 @@ const EmailScreen = (props: any) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? -30 : -100}
     >
-      <View style={{flexGrow: 1}}>
+      <View style={{ flexGrow: 1 }}>
         <View style={styles.container}>
           <TouchableOpacity onPress={() => navigation.navigate("Onboard1", { reverseAnimation: true })}>
             <Icon name={"times"} size={24} color={theme.colors.opposite} />
           </TouchableOpacity>
           <Text style={styles.mainText}>What's your Email?</Text>
           <View style={{ flex: 1 }}></View>
-          <View style={[styles.inputContainer, isFocused && {borderColor: theme.colors.accent}]}>
+          <View style={[styles.inputContainer, isFocused && { borderColor: theme.colors.accent }]}>
             <Text style={styles.textInputType}>Email</Text>
             <TextInput
               ref={emailInputRef}

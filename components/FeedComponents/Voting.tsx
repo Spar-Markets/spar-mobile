@@ -9,7 +9,7 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
 import HapticFeedback from "react-native-haptic-feedback";
-import useUserDetails from '../../hooks/useUserDetails';
+
 
 const Voting: React.FC<{ postId: string }> = ({ postId }) => {
   const dispatch = useDispatch();
@@ -43,8 +43,8 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
 
   const upvote = useCallback(async () => {
     HapticFeedback.trigger("impactMedium", {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
     });
     console.log("Upvoted");
     if (!post.isUpvoted) {
@@ -61,8 +61,8 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
 
   const downvote = useCallback(async () => {
     HapticFeedback.trigger("impactMedium", {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
     });
     console.log("DOWNVOTED");
     if (!post.isDownvoted) {
@@ -80,13 +80,13 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
 
   return (
     <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10, paddingVertical: 5 }}>
-      <TouchableOpacity onPress={upvote} style={{paddingRight: 10}}>
+      <TouchableOpacity onPress={upvote} style={{ paddingRight: 10 }}>
         <Animated.View style={{ transform: [{ translateY: upvotePosition }] }}>
           <Icon name="arrow-up" style={post.isUpvoted ? { color: theme.colors.stockUpAccent } : { color: theme.colors.secondaryText }} size={20} />
         </Animated.View>
       </TouchableOpacity>
       <Text style={styles.votesText}>{post.votes}</Text>
-      <TouchableOpacity onPress={downvote} style={{paddingLeft: 10}}>
+      <TouchableOpacity onPress={downvote} style={{ paddingLeft: 10 }}>
         <Animated.View style={{ transform: [{ translateY: downvotePosition }] }}>
           <Icon name="arrow-down" style={post?.isDownvoted ? { color: theme.colors.stockDownAccent } : { color: theme.colors.secondaryText }} size={20} />
         </Animated.View>

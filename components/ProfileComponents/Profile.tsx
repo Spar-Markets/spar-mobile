@@ -15,6 +15,8 @@ import {
   TextInput,
   SafeAreaView,
   Alert,
+  PermissionsAndroid,
+  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -30,16 +32,8 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import createGlobalStyles from '../../styles/createGlobalStyles';
-import {
-  launchCamera,
-  launchImageLibrary,
-  ImageLibraryOptions,
-} from 'react-native-image-picker';
-import firebase from '../firebase/firebaseconfig';
 import ImagePicker from 'react-native-image-crop-picker';
-import useUserDetails from '../../hooks/useUserDetails';
-import { storage } from '../../firebase/firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import storage from '@react-native-firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -50,6 +44,7 @@ import { SegmentedButtons } from 'react-native-paper';
 import PageHeader from '../GlobalComponents/PageHeader';
 import { RootState } from '../../GlobalDataManagment/store';
 import { setHasDefaultProfileImage } from '../../GlobalDataManagment/userSlice';
+
 
 const imageMap = [
   '',
@@ -91,13 +86,14 @@ const Profile = ({ navigation }: any) => {
       const getProfileImage = async () => {
         try {
           if (hasDefaultProfileImage == false) {
-            const imageRef = ref(storage, `profileImages/${user.userID}`);
+            const imageRef = storage().ref(`profileImages/${user.userID}`);
             try {
-              const url = await getDownloadURL(imageRef);
+              const url = await imageRef.getDownloadURL();
               console.log(user.username, url);
               if (url) {
                 dispatch(setHasDefaultProfileImage(false));
                 dispatch(setProfileImageUri(url));
+                console.log(url, "HOW THE HELL ARE WE HERE")
               }
             } catch (error) {
               console.log('no firebase image');
@@ -121,9 +117,71 @@ const Profile = ({ navigation }: any) => {
 
   const dispatch = useDispatch();
 
-  const [tempLibraryPick, setTempLibraryPick] = useState(false);
+  const requestPermissions = async () => {
+    let photoLibraryPermissionGranted = false;
 
-  const choosePhotoFromLibrary = () => {
+    if (Platform.OS === 'ios') {
+      const photoLibraryPermission = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+
+      if (photoLibraryPermission != RESULTS.GRANTED) {
+        console.log("TEST", photoLibraryPermission === RESULTS.BLOCKED)
+        Alert.alert(
+          "Permission Required",
+          "Customizing your profile picture requires access to photos. Please enable them in the app settings.",
+          [
+            {
+              text: "Cancel",
+              style: "cancel"
+            },
+            {
+              text: "Open Settings",
+              onPress: () => {
+                if (Platform.OS === 'ios') {
+                  Linking.openURL('app-settings:');
+                } else {
+                  Linking.openSettings();
+                }
+              }
+            }
+          ]
+        );
+      } else if (photoLibraryPermission === RESULTS.GRANTED) {
+        photoLibraryPermissionGranted = true;
+      }
+
+      // Uncomment this block if you need camera permissions
+      /*const cameraPermission = await check(PERMISSIONS.IOS.CAMERA);
+      if (cameraPermission !== RESULTS.GRANTED) {
+        await request(PERMISSIONS.IOS.CAMERA);
+      }*/
+    } else if (Platform.OS === 'android') {
+      const readPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      );
+
+      const writePermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      );
+
+      const cameraPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+      );
+
+      if (
+        readPermission === PermissionsAndroid.RESULTS.GRANTED &&
+        writePermission === PermissionsAndroid.RESULTS.GRANTED &&
+        cameraPermission === PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        photoLibraryPermissionGranted = true;
+      }
+    }
+
+    return photoLibraryPermissionGranted;
+  };
+
+
+  const choosePhotoFromLibrary = async () => {
+    console.log(await requestPermissions());
     ImagePicker.openPicker({
       cropping: true,
       cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
@@ -167,10 +225,9 @@ const Profile = ({ navigation }: any) => {
 
       ImageResizer.createResizedImage(uri, 150, 150, format, quality).then(
         async response => {
-          const imageRes = await fetch(response.uri);
-          const blob = await imageRes.blob();
-          const imgRef = ref(storage, `profileImages/${user.userID}`);
-          await uploadBytes(imgRef, blob);
+          const imgRef = storage().ref(`profileImages/${user.userID}`);
+          await imgRef.putFile(response.uri)
+          //await uploadBytes(imgRef, blob);
           console.log('Image uploaded successfully');
         },
       );
@@ -204,7 +261,7 @@ const Profile = ({ navigation }: any) => {
                 <Image
                   style={[
                     styles.profilePic,
-                    { borderWidth: 1, borderColor: theme.colors.secondaryText },
+                    ,
                   ]}
                   source={{ uri: profileImageUri }}
                 />
@@ -213,7 +270,7 @@ const Profile = ({ navigation }: any) => {
                 <Image
                   style={[
                     styles.profilePic,
-                    { borderWidth: 1, borderColor: theme.colors.text },
+                    ,
                   ]}
                   source={{ uri: profileImageUri } as any}
                 />

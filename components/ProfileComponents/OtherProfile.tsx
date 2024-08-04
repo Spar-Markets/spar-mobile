@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Pressable,
   Platform,
@@ -21,11 +21,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MIcon from 'react-native-vector-icons/MaterialIcons';
 import CircularProgress from 'react-native-circular-progress-indicator';
-import {SvgXml} from 'react-native-svg';
-import {serverUrl} from '../../constants/global';
+import { SvgXml } from 'react-native-svg';
+import { serverUrl } from '../../constants/global';
 import axios from 'axios';
-import {useTheme} from '../ContextComponents/ThemeContext';
-import {useDimensions} from '../ContextComponents/DimensionsContext';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import createGlobalStyles from '../../styles/createGlobalStyles';
 import {
@@ -33,16 +33,13 @@ import {
   launchImageLibrary,
   ImageLibraryOptions,
 } from 'react-native-image-picker';
-import firebase from '../firebase/firebaseconfig';
 import ImagePicker from 'react-native-image-crop-picker';
-import useUserDetails from '../../hooks/useUserDetails';
-import {storage} from '../../firebase/firebase';
-import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
-import {useDispatch, useSelector} from 'react-redux';
-import {setProfileImageUri} from '../../GlobalDataManagment/imageSlice';
-import {useRoute} from '@react-navigation/native';
+import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
+import { useRoute } from '@react-navigation/native';
 
 interface otherProfileParams {
   otherUserID: string;
@@ -67,9 +64,9 @@ interface UserData {
   incomingFollowRequests: [string];
 }
 
-const OtherProfile = ({navigation}: any) => {
-  const {theme} = useTheme();
-  const {width, height} = useDimensions();
+const OtherProfile = ({ navigation }: any) => {
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -78,7 +75,6 @@ const OtherProfile = ({navigation}: any) => {
 
   const params = route.params as otherProfileParams | undefined;
 
-  const {userData} = useUserDetails();
 
   const [loading, setLoading] = useState(true);
 
@@ -171,7 +167,7 @@ const OtherProfile = ({navigation}: any) => {
           onPress={() => navigation.goBack()}>
           <Icon name={'chevron-left'} size={24} color={theme.colors.opposite} />
         </TouchableOpacity>
-        <View style={{flex: 1}}></View>
+        <View style={{ flex: 1 }}></View>
         <TouchableOpacity style={styles.headerBtn}>
           <Icon name={'bars'} size={24} color={theme.colors.opposite} />
         </TouchableOpacity>
@@ -179,7 +175,7 @@ const OtherProfile = ({navigation}: any) => {
       <ScrollView>
         <View>
           {profileImage ? (
-            <Image style={styles.profilePic} source={{uri: profileImage}} />
+            <Image style={styles.profilePic} source={{ uri: profileImage }} />
           ) : (
             <View style={styles.profilePic}>
               <Text
