@@ -20,10 +20,6 @@ import useUserDetails from '../../hooks/useUserDetails';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 
-interface SearchProfile {
-  userID: string;
-  username: string;
-}
 
 const FollowersFollowing = () => {
   const { theme } = useTheme();
@@ -34,36 +30,29 @@ const FollowersFollowing = () => {
   const navigation = useNavigation<any>();
 
   const user = useSelector((state: any) => state.user)
-  const followers = useSelector((state: RootState) => state.user.followers)
-  const following = useSelector((state: RootState) => state.user.following)
+  const friends = useSelector((state: RootState) => state.user.friends)
   
   const [profileSearch, setProfileSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchProfile[]>();
+  const [searchResults, setSearchResults] = useState<string[]>();
   const [loading, setLoading] = useState(false);
 
-  /*const updateUserProfiles = async () => {
-    try {
-      const response = await axios.post(serverUrl + '/getProfileList');
-      if (response.status === 200) {
-        setUserProfiles(response.data);
-        console.log(response.data);
-      }
-    } catch (error) {
-      console.log("Error", error);
-    }
-  };*/
+  useEffect(() => {
+    console.log(friends)
+  }, [])
+
+  //TODO: endpoint to 
 
   const handleSearch = async (text: string) => {
     
     setProfileSearch(text);
     setLoading(true); // Start loading
     if (text) {
-      const results = fuzzysort.go(text, followers, {
+      const results = fuzzysort.go(text, friends, {
         keys: ['username'],
         limit: 7,
       });
       console.log(results);
-      const formattedResults: SearchProfile[] = [];
+      const formattedResults: string[] = [];
       for (let result of results) {
         formattedResults.push(result.obj);
       } 
@@ -73,6 +62,8 @@ const FollowersFollowing = () => {
     }
     setLoading(false); // Stop loading after processing results
   };
+
+  //make renderItem a component because you need to fetch username from userID, maybe inline function for getting username?
 
   return (
     <View style={styles.container}>
@@ -96,7 +87,7 @@ const FollowersFollowing = () => {
       <View style={{ flex: 1, marginTop: 10}}>
         {profileSearch === '' ? (
           <FlatList
-            data={followers}
+            data={friends}
             keyExtractor={(item) => item.username}
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
