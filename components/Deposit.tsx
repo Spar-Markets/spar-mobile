@@ -32,31 +32,29 @@ const Deposit = () => {
             getBalance();
         }*/
 
-        const fetchData = async () => {
-            try {
-                const email = await AsyncStorage.getItem("userEmail");
-                if (email) {
-                    const response = await axios.post(serverUrl+'/getAccessFromMongo', { email: email });
-                    if (response && response.data) {
-                        const token = response.data
-                        //console.log("Console Token: " + token);
-                        await getAccount(token); // Wait for getAccount to complete
-                        await getBalance(token); // Wait for getBalance to complete
+        // const fetchData = async () => {
+        //     try {
+        //         const email = await AsyncStorage.getItem("userEmail");
+        //         if (email) {
+        //             const response = await axios.post(serverUrl+'/getAccessFromMongo', { email: email });
+        //             if (response && response.data) {
+        //                 const token = response.data
+        //                 //console.log("Console Token: " + token);
+        //                 await getAccount(token); // Wait for getAccount to complete
+        //                 await getBalance(token); // Wait for getBalance to complete
                         
-                        setCurrAccessToken(token); //only for things outside of useEffect
-                    }
-                }
-                const response = await axios.post(serverUrl+"/getPlaidBalance");
-                console.log(response.data)
-            } catch (error) {
-                console.error("Error fetching access token:", error);
-            }
+        //                 setCurrAccessToken(token); //only for things outside of useEffect
+        //             }
+        //         }
+        //         const response = await axios.post(serverUrl+"/getPlaidBalance");
+        //         console.log(response.data)
+        //     } catch (error) {
+        //         console.error("Error fetching access token:", error);
+        //     }
 
-        };
+        // };
     
-        fetchData();
-
-
+        // fetchData();
     }, []);
 
     const handlePress = (value:string) => {

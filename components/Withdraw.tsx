@@ -35,29 +35,29 @@ const Withdraw = () => {
     );
     colorScheme == 'dark' ? setStyles(darkStyles) : setStyles(lightStyles);
 
-    const fetchData = async () => {
-      try {
-        const email = await AsyncStorage.getItem('userEmail');
-        if (email) {
-          const response = await axios.post(serverUrl + '/getAccessFromMongo', {
-            email: email,
-          });
-          if (response && response.data) {
-            const token = response.data;
-            await getAccount(token); // Wait for getAccount to complete
-            await getBalance(); // Wait for getBalance to complete
+    // const fetchData = async () => {
+    //   try {
+    //     const email = await AsyncStorage.getItem('userEmail');
+    //     if (email) {
+    //       const response = await axios.post(serverUrl + '/getAccessFromMongo', {
+    //         email: email,
+    //       });
+    //       if (response && response.data) {
+    //         const token = response.data;
+    //         await getAccount(token); // Wait for getAccount to complete
+    //         await getBalance(); // Wait for getBalance to complete
 
-            setCurrAccessToken(token); //only for things outside of useEffect
-          }
-        }
-        const response = await axios.post(serverUrl + '/getPlaidBalance');
-        console.log(response.data);
-      } catch (error) {
-        console.error('Error fetching access token:', error);
-      }
-    };
+    //         setCurrAccessToken(token); //only for things outside of useEffect
+    //       }
+    //     }
+    //     const response = await axios.post(serverUrl + '/getPlaidBalance');
+    //     console.log(response.data);
+    //   } catch (error) {
+    //     console.error('Error fetching access token:', error);
+    //   }
+    // };
 
-    fetchData();
+    // fetchData();
   }, []);
 
   const handlePress = (value: string) => {
@@ -128,7 +128,7 @@ const Withdraw = () => {
     );
     if (authData.data == 'approved') {
       try {
-        const email = await AsyncStorage.getItem('userEmail');
+        const email = "i put viagra in my goofy ahh uncle's drink and he tried to do bad things to me"
         const updateBalData = {
           email: email,
           withdraw: input,
@@ -163,7 +163,7 @@ const Withdraw = () => {
 
   const getBalance = async () => {
     try {
-      const email = await AsyncStorage.getItem('userEmail');
+      const email = "mama delete me"
       const data = {
         email: email,
       };
