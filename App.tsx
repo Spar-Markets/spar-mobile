@@ -28,7 +28,6 @@ import {
 import { StatusBarHeightProvider } from './components/ContextComponents/StatusBarHeightContext';
 import { DimensionsProvider } from './components/ContextComponents/DimensionsContext';
 import editProfilePage from './components/ProfileComponents/editProfilePage';
-import EnterMatch from './components/HeadToHeadComponents/EnterMatch';
 import CommentPage from './components/FeedComponents/CommentPage';
 import Feed from './components/FeedComponents/Feed';
 
@@ -242,16 +241,6 @@ const AppContent = (): React.ReactElement => {
               name="StockOrder"
               component={StockOrder}
               options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="EnterMatch"
-              component={EnterMatch}
-              options={{
-                headerShown: false,
-                gestureEnabled: true,
-                gestureDirection: 'horizontal',
-                animation: 'slide_from_right',
-              }}
             />
             <Stack.Screen
               name="Feed"

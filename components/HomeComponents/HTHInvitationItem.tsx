@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, Text } from 'react-native';
+import { View, Image, Text, Alert } from 'react-native';
 import getProfileImage from '../../utility/getProfileImage';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
@@ -75,12 +75,17 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
 
   const handleAcceptInvite = async () => {
     try {
-        console.log("HANDLING INVITE ACCEPT:",item.invitationID, user.userID)
-        const response = await axios.post(serverUrl + "/acceptChallenge", { invitationID: item.invitationID, invitedUserID: user.userID })
-        if (response.status = 200) {
-            navigation.goBack()
-            dispatch(removeInvitation(item.invitationID))
-        }
+      // client side balance check
+      if (user.balance == null || item.wager * 1.1 > user.balance) {
+        Alert.alert('You are broke. Insufficient funds.');
+        return;
+      }
+      console.log("HANDLING INVITE ACCEPT:",item.invitationID, user.userID)
+      const response = await axios.post(serverUrl + "/acceptChallenge", { invitationID: item.invitationID, invitedUserID: user.userID })
+      if (response.status = 200) {
+          navigation.goBack()
+          dispatch(removeInvitation(item.invitationID))
+      }
     } catch (error) {
         console.error("server error", error)
     }

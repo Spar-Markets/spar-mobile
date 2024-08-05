@@ -487,12 +487,11 @@ const Home: React.FC = () => {
     console.log('Balance:', balance);
     console.log('Wager:', wager);
 
-    // balance check
+    // client side balance check
     if (balance == null || wager * 1.1 > balance) {
       Alert.alert('You are broke. Insufficient funds.');
       return;
     }
-
 
     //retrieve user's skill rating
     setEnteredMatchmakingCheck(true);
@@ -821,6 +820,13 @@ const Home: React.FC = () => {
 
   const handleInviteFriend = async (challengerUserID: string, invitedUserID: string, wager: number, timeframe: number, mode: string) => {
     try {
+      // client side balance check
+      // balance check
+      if (balance == null || wager * 1.1 > balance) {
+        Alert.alert('You are broke. Insufficient funds.');
+        return;
+      }
+      user.userID
       const invitation = {
         challengerUserID,
         invitedUserID,
@@ -1590,7 +1596,6 @@ const Home: React.FC = () => {
                           </Text>
                         </TouchableOpacity> :
                         <View
-
                           style={{
                             marginHorizontal: 20,
                             height: 50,
