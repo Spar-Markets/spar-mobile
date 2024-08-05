@@ -1084,7 +1084,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                     style={[
                       { width: 55, height: 55, borderRadius: 100 },
                     ]}
-                    source={profileImageUri as any}
+                    source={{ uri: profileImageUri as any }}
                   />
                 )}
                 {!hasDefaultProfileImage && (
