@@ -921,27 +921,6 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   const [otherHasDefaultProfileImage, setOtherHasDefaultProfileImage] = useState(false)
 
   const getOtherProfileImage = async (user: string) => {
-    /*try {
-      const imageRef = ref(storage, `profileImages/${match[user].userID}`);
-      const url = await getDownloadURL(imageRef);
-      setOtherProfileUri(url)
-    } catch (error) {
-      try {
-        const userInMongoResponse = await axios.post(`${serverUrl}/getUser`, {
-          userID: match[user].userID,
-        });
-        if (userInMongoResponse.status === 200) {
-          console.log("SUCCESS GETTING OTHER PROFILE")
-          setOtherHasDefaultProfileImage(userInMongoResponse.data.hasDefaultProfileImage)
-          const defaultProfileIndex = Number(userInMongoResponse.data.defaultProfileImage)
-          if (userInMongoResponse.data.hasDefaultProfileImage) {
-            setOtherProfileUri(imageMap[defaultProfileIndex])
-          }
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }*/
     getProfileImage(match[user].userID)
       .then(profileImageResponse => {
         if (profileImageResponse) {
@@ -1079,20 +1058,20 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           <ScrollView showsVerticalScrollIndicator={false} style={{ paddingTop: 0 }}>
             <View style={{ flexDirection: 'row', marginTop: 0, height: 180, gap: 10, justifyContent: 'center', marginHorizontal: 10, borderRadius: 5 }}>
               <View style={{ marginRight: 10, backgroundColor: 'transparent', flex: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5 }}>
-                {hasDefaultProfileImage && (
+                {hasDefaultProfileImage == true && (
                   <Image
                     style={[
                       { width: 55, height: 55, borderRadius: 100 },
                     ]}
-                    source={{ uri: profileImageUri as any }}
+                    source={{ uri: profileImageUri }}
                   />
                 )}
-                {!hasDefaultProfileImage && (
+                {hasDefaultProfileImage == false && (
                   <Image
                     style={[
                       { width: 55, height: 55, borderRadius: 100 },
                     ]}
-                    source={{ uri: profileImageUri } as any}
+                    source={{ uri: profileImageUri }}
                   />
                 )}
                 <Text style={styles.userText}>You</Text>
@@ -1192,7 +1171,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   <CartesianChart data={oppFormattedData!} xKey="index" yKeys={["normalizedValue"]}
                     domain={{
                       y: [minY < 0 ? 1.1 * minY : 0.9 * minY, maxY],
-                      x: [0, oppFormattedData.length != 0 ? (oppFormattedData!.length - 1) / (((match.timeframe * 1000) - ((new Date(match.endAt)).getTime() - Date.now())) / (match.timeframe * 1000)) : 1]
+                      x: [0, oppFormattedData!.length == 1 ? 1 : (oppFormattedData!.length - 1) / (((match.timeframe * 1000) - ((new Date(match.endAt)).getTime() - Date.now())) / (match.timeframe * 1000))]
                     }}>
                     {({ points }) => (
                       // 👇 and we'll use the Line component to render a line path.
@@ -1219,7 +1198,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} chartPressState={state}
                     domain={{
                       y: [minY < 0 ? 1.1 * minY : 0.9 * minY, maxY],
-                      x: [0, yourFormattedData.length != 0 ? (yourFormattedData!.length - 1) / (((match.timeframe * 1000) - ((new Date(match.endAt)).getTime() - Date.now())) / (match.timeframe * 1000)) : 1]
+                      x: [0, yourFormattedData!.length == 1 ? 1 : (yourFormattedData!.length - 1) / (((match.timeframe * 1000) - ((new Date(match.endAt)).getTime() - Date.now())) / (match.timeframe * 1000))]
                     }}>
                     {({ points }) => {
                       //console.log(yourFormattedData)

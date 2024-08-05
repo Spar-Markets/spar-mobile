@@ -23,6 +23,7 @@ import DiscoverNewsCard from './DiscoverNewsCard';
 import timeAgo from '../../utility/timeAgo';
 import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome'
+import debounce from 'lodash/debounce';
 
 interface StockObject {
   ticker: string;
@@ -56,7 +57,7 @@ const StockSearch: React.FC = () => {
 
   const [isFocused, setIsFocused] = useState(false);
 
- 
+
   const user = useSelector((state: any) => state.user)
 
   const [following, setFollowing] = useState<String[]>([])
