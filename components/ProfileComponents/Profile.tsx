@@ -123,8 +123,8 @@ const Profile = ({ navigation }: any) => {
     if (Platform.OS === 'ios') {
       const photoLibraryPermission = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
 
-      if (photoLibraryPermission != RESULTS.GRANTED) {
-        console.log("TEST", photoLibraryPermission === RESULTS.BLOCKED)
+      if (photoLibraryPermission == RESULTS.BLOCKED) {
+
         Alert.alert(
           "Permission Required",
           "Customizing your profile picture requires access to photos. Please enable them in the app settings.",

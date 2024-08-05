@@ -103,6 +103,7 @@ const AppContent = (): React.ReactElement => {
   useEffect(() => {
     if (userID) {
       const fetchUserData = async () => {
+        console.log("LOOK AT MEEEEEEEEE ----------------", userID)
         try {
           //console.log("server url FROM env:", `${process.env.SERVER_URL}`);
           //console.log("Server url endpoint:", `${serverUrl}/getUser`);
@@ -110,7 +111,7 @@ const AppContent = (): React.ReactElement => {
           console.log("PASSING USER ID IN TO GET USER ENDPOINT:", userID)
           console.log("SERVER URL", serverUrl)
           const userResponse = await axios.post(`${serverUrl}/getUser`, { userID });
-          const friendResponse = await axios.post(`${serverUrl}/getFriends`, { userID })
+          const friendResponse = await axios.post(`${serverUrl}/getFriends`, { userID });
           //console.log('Fetched User Data:', response.data);
           dispatch(setUsername(userResponse.data.username))
           dispatch(setUserBio(userResponse.data.bio))
@@ -169,14 +170,14 @@ const AppContent = (): React.ReactElement => {
   }, [fadeIn]);
 
   useEffect(() => {
-    if (user && /*userIsMade &&*/ userData) {
+    if (user && userData) {
       setFadeIn(true)
     }
-  }, [user, /*userIsMade,*/ userData])
+  }, [user, userData])
 
   if (initializing) return <SplashScreen />;
   //onboard or main stack depending on user status
-  if (user && /*userIsMade == true &&*/ userData) {
+  if (user && userData) {
     return (
       <Animated.View style={{ flex: 1 }}>
         <NavigationContainer theme={theme}>

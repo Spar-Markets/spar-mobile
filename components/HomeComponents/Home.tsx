@@ -125,7 +125,7 @@ const Home: React.FC = () => {
   const [hasMatches, setHasMatches] = useState(false); // Set this value based on your logic
   const [skillRating, setSkillRating] = useState(0.0);
   //const [username, setUsername] = useState('');
-  const [userID, setUserID] = useState('');
+
   const [watchLists, setWatchLists] = useState<Object[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
@@ -257,7 +257,6 @@ const Home: React.FC = () => {
 
   const fetchMatchIDs = async () => {
     try {
-      console.log('grant', userID);
       const response = await axios.post(serverUrl + '/getUserMatches', {
         userID: user.userID,
       });
@@ -333,13 +332,6 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    const getUserID = async () => {
-      console.log('Getting userID');
-      const userID = await AsyncStorage.getItem('userID');
-      console.log('In HOME, UserID:', userID);
-      setUserID(userID!);
-    };
-    getUserID();
     getIsInMatchMaking();
     fetchMatchIDs();
   }, []);
@@ -518,13 +510,11 @@ const Home: React.FC = () => {
     console.log(matchLength);
     console.log(matchType);
 
-    const userID = await AsyncStorage.getItem('userID');
-    console.log('userID:', userID);
 
     //Asign current user's values to a player object
     const player = {
       username: user.username,
-      userID: userID,
+      userID: user.userID,
       skillRating: user.skillRating,
       entryFee: wager,
       matchLength: matchLength,
@@ -590,13 +580,13 @@ const Home: React.FC = () => {
   }, [activeMatches]);
 
   useEffect(() => {
-    if (userID) {
+    if (user.userID) {
       if (!ws.current) {
         setupSocket()
-        console.log("SETTING UP THE HOME WEBSOCKET")
+        console.log("SETTING UP THE HOME WEBSOCKET ---------------------------------------------")
       }
     }
-  }, [userID])
+  }, [user.userID])
 
   //searchingForMatch || isInMatchmaking -----> these conditions == true, open websocket to look for match being created
   const setupSocket = async () => {
@@ -616,7 +606,7 @@ const Home: React.FC = () => {
           );
           // first send match ID
           ws.current!.send(
-            JSON.stringify({ type: 'matchmaking', userID: userID }),
+            JSON.stringify({ type: 'matchmaking', userID: user.userID }),
           );
         } else {
           console.log('WebSocket is not open');
@@ -655,9 +645,9 @@ const Home: React.FC = () => {
             }
           } else if (
             JSONMessage.type == 'updateWinnings' &&
-            JSONMessage[userID]
+            JSONMessage[user.userID]
           ) {
-            dispatch(setBalance(balance + JSONMessage[userID]));
+            dispatch(setBalance(balance + JSONMessage[user.userID]));
           }
         } catch (error) {
           console.error('Error processing WebSocket message:', error);
@@ -1020,7 +1010,7 @@ const Home: React.FC = () => {
                         item && (
                           <View style={{ width, height: '100%' }}>
                             <GameCard
-                              userID={userID}
+                              userID={user.userID}
                               matchID={item.matchID} // Access id directly from the item
                               expandMatchSummarySheet={expandMatchSummarySheet}
                               setActiveMatchSummaryMatchID={

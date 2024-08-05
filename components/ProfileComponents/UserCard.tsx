@@ -192,7 +192,6 @@ const UserCard = (props: any) => {
 
 
     else {
-      setStatus("unfollowed")
       return (
         <TouchableOpacity onPress={addFriendRequest} style={{ paddingHorizontal: 15, height: 30, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.secondary, borderRadius: 50 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
