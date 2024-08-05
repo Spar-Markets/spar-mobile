@@ -60,6 +60,7 @@ import getCurrentPrice from '../../utility/getCurrentPrice';
 import { RootState } from '../../GlobalDataManagment/store';
 import { Image as SkiaImage } from '@shopify/react-native-skia';
 import { useFocusEffect } from '@react-navigation/native';
+import TimeButtons from '../InGameComponents/TimeButtons';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
@@ -84,7 +85,7 @@ const StockDetailGraph = (props: any) => {
 
   const { currentAccentColorValue, setCurrentAccentColorValue } = props;
 
-  const stockPrice = useSelector((state: RootState) => state.stock);
+  const stockPrice = useSelector((state: RootState) => state.stock.stockPrice);
 
   const TimeButton = ({ timeFrame }: any) => (
     <View>
@@ -189,7 +190,7 @@ const StockDetailGraph = (props: any) => {
     getPricesForSelectedTime();
   }, [props.ticker]);
 
-  const grabCurrentPrice = async (ticker: string) => {
+  /*const grabCurrentPrice = async (ticker: string) => {
     try {
       const price = await getCurrentPrice(ticker);
       if (price) {
@@ -199,11 +200,11 @@ const StockDetailGraph = (props: any) => {
     } catch (error) {
       console.error('stockdetailgraph: setting redux price error', error);
     }
-  };
+  };*/
 
   useEffect(() => {
     if (allPointData) {
-      grabCurrentPrice(props.ticker);
+      //grabCurrentPrice(props.ticker);
       setDataLoading(false);
     } else {
       setDataLoading(true);
@@ -475,7 +476,7 @@ const StockDetailGraph = (props: any) => {
         try {
           const jsonMessage = JSON.parse(message);
           runOnJS(setPassingLivePrice)(jsonMessage);
-          console.log(marketFraction)
+          //console.log(getMarketFraction(new Date(Date.now() - 90000)))
           if (!isActive) {
             runOnJS(dispatch)(updateStockPrice(jsonMessage[0]?.c)); //close live price for aggregate
           }
@@ -662,6 +663,12 @@ const StockDetailGraph = (props: any) => {
     }
   }, [allPointData]);
 
+  useEffect(() => {
+    if (props.logoUrl) {
+      console.log("TESTTTT", props.logoUrl)
+    }
+  }, [])
+
   return (
     <View>
       <View>
@@ -675,10 +682,12 @@ const StockDetailGraph = (props: any) => {
                   source={{ uri: props.logoUrl }}
                   style={{ aspectRatio: 1, borderRadius: 50, height: 50, width: 50 }}
                   onLoadStart={() => setStockLogoLoaded(false)}
-                  onLoad={() => setStockLogoLoaded(true)}
+                  onLoadEnd={() => setStockLogoLoaded(true)}
                 />
               </>
-            ) : <Skeleton animation={"pulse"} height={50} width={50} style={{ backgroundColor: theme.colors.primary, borderRadius: 50 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton>}
+            ) : props.logoUrl != 'logoUrlError' ? <Skeleton animation={"pulse"} height={50} width={50} style={{ backgroundColor: theme.colors.primary, borderRadius: 50 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton> : <View />}
+
+
 
             <View style={{ marginVertical: 1 }}>
               <Text style={styles.stockDetailsTickerText}>
@@ -726,14 +735,14 @@ const StockDetailGraph = (props: any) => {
                   <Text style={styles.stockPriceText}>
                     $
                     {
-                      stockPrice //pointData[pointData.length - 1].value
+                      stockPrice != null && stockPrice //pointData[pointData.length - 1].value
                         .toFixed(2)
                         .split('.')[0]
                     }
                     <Text style={{ fontSize: 15 }}>
                       .
                       {
-                        stockPrice //pointData[pointData.length - 1].value
+                        stockPrice != null && stockPrice //pointData[pointData.length - 1].value
                           .toFixed(2)
                           .split('.')[1]
                       }
@@ -896,18 +905,8 @@ const StockDetailGraph = (props: any) => {
           </Animated.View>
         </View>
       </View>
-
-      <View style={styles.timeCardContainer}>
-        <FlatList
-          horizontal
-          data={['1D', '1W', '1M', '3M', 'YTD', '1Y', '5Y', 'MAX']}
-          renderItem={({ item }) => (
-            <TimeButton timeFrame={item} color={currentAccentColorValue} />
-          )}
-          keyExtractor={item => item}
-          showsHorizontalScrollIndicator={false}
-          style={{ paddingLeft: 20 }}
-        />
+      <View>
+        <TimeButtons timeFrameSelected={timeFrameSelected} setTimeFrame={setTimeFrameSelected} setPointData={setPointData} allPointData={allPointData} currentAccentColorValue={props.currentAccentColorValue} />
       </View>
     </View>
   );

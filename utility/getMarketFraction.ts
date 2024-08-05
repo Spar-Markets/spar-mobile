@@ -6,13 +6,13 @@
 
 function getMarketFraction(currentDate:Date) {
     // Define the market open and close times
-    //if ((currentDate.getUTCHours() == 13 && currentDate.getUTCMinutes() >= 30) || (currentDate.getUTCHours() > 13 && currentDate.getUTCHours() < 20)) {
-    if ((currentDate.getUTCHours() > 8)) {
+    if ((currentDate.getUTCHours() == 13 && currentDate.getUTCMinutes() >= 30) || (currentDate.getUTCHours() > 13 && currentDate.getUTCHours() < 20)) {
+    //if ((currentDate.getUTCHours() > 13)) {
         const marketOpen = new Date(currentDate);
-        marketOpen.setHours(4, 0, 0, 0); // 9:30 AM
+        marketOpen.setHours(9, 30, 0, 0); // 9:30 AM
 
         const marketClose = new Date(currentDate);
-        marketClose.setHours(24, 0, 0, 0); // 4:00 PM
+        marketClose.setHours(16, 0, 0, 0); // 4:00 PM
 
         // Calculate the total market duration in milliseconds
         const marketDuration = marketClose.getTime() - marketOpen.getTime();

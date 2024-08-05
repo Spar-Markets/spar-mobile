@@ -1170,7 +1170,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                 }}>
                   <CartesianChart data={oppFormattedData!} xKey="index" yKeys={["normalizedValue"]}
                     domain={{
-                      y: [minY < 0 ? 1.1 * minY : 0.9 * minY, maxY],
+                      y: [minY == 0 ? minY - 1 : minY < 0 ? 1.04 * minY : 0.96 * minY, maxY == 0 ? maxY + 1 : maxY < 0 ? 0.96 * maxY : 1.04 * maxY],
                       x: [0, oppFormattedData!.length == 1 ? 1 : (oppFormattedData!.length - 1) / (((match.timeframe * 1000) - ((new Date(match.endAt)).getTime() - Date.now())) / (match.timeframe * 1000))]
                     }}>
                     {({ points }) => (
@@ -1197,7 +1197,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                 }}>
                   <CartesianChart data={yourFormattedData!} xKey="index" yKeys={["normalizedValue"]} chartPressState={state}
                     domain={{
-                      y: [minY < 0 ? 1.1 * minY : 0.9 * minY, maxY],
+                      y: [minY == 0 ? minY - 1 : minY < 0 ? 1.04 * minY : 0.96 * minY, maxY == 0 ? maxY + 1 : maxY < 0 ? 0.96 * maxY : 1.04 * maxY],
                       x: [0, yourFormattedData!.length == 1 ? 1 : (yourFormattedData!.length - 1) / (((match.timeframe * 1000) - ((new Date(match.endAt)).getTime() - Date.now())) / (match.timeframe * 1000))]
                     }}>
                     {({ points }) => {

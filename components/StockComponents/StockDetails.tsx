@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Image,
   Text,
@@ -9,26 +9,26 @@ import {
   ScrollView,
   Linking,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import {serverUrl} from '../../constants/global';
+import { serverUrl } from '../../constants/global';
 import StockDetailGraph from './StockDetailGraph';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import PageHeader from '../GlobalComponents/PageHeader';
-import {useTheme} from '../ContextComponents/ThemeContext';
-import {useDimensions} from '../ContextComponents/DimensionsContext';
+import { useTheme } from '../ContextComponents/ThemeContext';
+import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createStockStyles from '../../styles/createStockStyles';
 import NewsCard from './NewsCard';
 import timeAgo from '../../utility/timeAgo';
-import {Skeleton} from '@rneui/base';
-import {useSelector} from 'react-redux';
+import { Skeleton } from '@rneui/base';
+import { useSelector } from 'react-redux';
 import useUserDetails from '../../hooks/useUserDetails';
-import {TextDecoder} from 'util';
+import { TextDecoder } from 'util';
 import Timer from '../HomeComponents/Timer';
 import createGlobalStyles from '../../styles/createGlobalStyles';
 import HTHPageHeader from '../GlobalComponents/HTHPageHeader';
-import {polygonKey} from '../../constants/global';
+import { polygonKey } from '../../constants/global';
 import postSlice from '../../GlobalDataManagment/postSlice';
 import CustomActivityIndicator from '../GlobalComponents/CustomActivityIndicator';
 import Animated, {
@@ -40,7 +40,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
 import WatchlistButton from '../HomeComponents/WatchlistButton';
-import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { RootState } from '../../GlobalDataManagment/store';
 
 // interface for RouteParams, so we can expect the format of the params being passed in
@@ -67,8 +67,8 @@ const StockDetails = () => {
   const [timeFrameSelected, setTimeFrameSelected] = useState('1D');
   const [tickerData, setTickerData] = useState<any>(null);
   const [livePrice, setPassingLivePrice] = useState<any>(null);
-  const {theme} = useTheme();
-  const {width, height} = useDimensions();
+  const { theme } = useTheme();
+  const { width, height } = useDimensions();
   const styles = createStockStyles(theme, width);
   const globalStyles = createGlobalStyles(theme, width);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -125,7 +125,7 @@ const StockDetails = () => {
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const stockPrice = useSelector((state:RootState) => state.stock);
+  const stockPrice = useSelector((state: RootState) => state.stock.stockPrice);
 
   useEffect(() => {
     if (params?.assets) {
@@ -229,115 +229,114 @@ const StockDetails = () => {
   //     </View>
   //   );
   // }
-  
+
   return (
-    <View style={{flex: 1, backgroundColor: theme.colors.background}}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       {ticker != '' &&
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <View style={styles.stockDetailsContainer}>
             {params?.inGame ? (
               <HTHPageHeader endAt={params?.endAt} />
             ) : (
               <PageHeader />
             )}
-              <ScrollView
-                style={{paddingBottom: 60}}
-                showsVerticalScrollIndicator={false}>
-                <View>
-                  <StockDetailGraph
-                    setCurrPrice={setCurrentStockPrice}
-                    ticker={ticker}
-                    timeframe={timeFrameSelected}
-                    name={params?.name}
-                    logoUrl={
-                      tickerData && tickerData.detailsResponse.results.branding != undefined
-                        ? tickerData.detailsResponse.results.branding.icon_url +
-                          '?apiKey=' +
-                          polygonKey
-                        : 'logoUrlError'
-                    }
-                    currentAccentColorValue={currentAccentColorValue}
-                    setCurrentAccentColorValue={setCurrentAccentColorValue}
-                  />
-                </View>
-                
-                <>
-                  {(owns == true || params?.owns == true) && (
-                    <View style={{marginHorizontal: 25, marginTop: 10}}>
-                      <Text style={styles.subjectLabel}>Position</Text>
-                      <View style={{flexDirection: 'row', marginTop: 5}}>
-                        <View style={{flex: 0.7, gap: 10}}>
-                          <View>
-                            <Text style={styles.statType}>Shares</Text>
-                            {asset && (
-                              <Text style={styles.statData}>
-                                {asset.totalShares}
-                              </Text>
-                            )}
-                          </View>
-                          <View>
-                            <Text style={styles.statType}>Avg. Cost</Text>
-                            {asset && (
-                              <Text style={styles.statData}>
-                                ${asset.avgCostBasis.toFixed(2)}
-                              </Text>
-                            )}
-                          </View>
+            <ScrollView
+              style={{ paddingBottom: 60 }}
+              showsVerticalScrollIndicator={false}>
+              <View>
+                <StockDetailGraph
+                  setCurrPrice={setCurrentStockPrice}
+                  ticker={ticker}
+                  timeframe={timeFrameSelected}
+                  name={params?.name}
+                  logoUrl={
+                    tickerData && tickerData.detailsResponse.results.branding != undefined
+                      ? tickerData.detailsResponse.results.branding.icon_url +
+                      '?apiKey=' +
+                      polygonKey
+                      : 'logoUrlError'
+                  }
+                  currentAccentColorValue={currentAccentColorValue}
+                  setCurrentAccentColorValue={setCurrentAccentColorValue}
+                />
+              </View>
+
+              <>
+                {(owns == true || params?.owns == true) && (
+                  <View style={{ marginHorizontal: 25, marginTop: 10 }}>
+                    <Text style={styles.subjectLabel}>Position</Text>
+                    <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                      <View style={{ flex: 0.7, gap: 10 }}>
+                        <View>
+                          <Text style={styles.statType}>Shares</Text>
+                          {asset && (
+                            <Text style={styles.statData}>
+                              {asset.totalShares}
+                            </Text>
+                          )}
                         </View>
-                        <View style={{gap: 10}}>
-                          <View>
-                            <Text style={styles.statType}>Mkt Value</Text>
-                            <Text style={styles.statData}>${(asset.totalShares * stockPrice).toFixed(2)}</Text>
-                          </View>
-                          <View>
-                            <Text style={styles.statType}>Match Return</Text>
-                            <Text style={styles.statData}>{((asset.totalShares * stockPrice) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>
-                          </View>
+                        <View>
+                          <Text style={styles.statType}>Avg. Cost</Text>
+                          {asset && (
+                            <Text style={styles.statData}>
+                              ${asset.avgCostBasis.toFixed(2)}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+                      <View style={{ gap: 10 }}>
+                        <View>
+                          <Text style={styles.statType}>Mkt Value</Text>
+                          <Text style={styles.statData}>${(asset.totalShares * stockPrice!).toFixed(2)}</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.statType}>Match Return</Text>
+                          <Text style={styles.statData}>{((asset.totalShares * stockPrice!) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>
                         </View>
                       </View>
                     </View>
-                  )}
-                  <View style={{marginHorizontal: 25, marginTop: 10}}>
-                    <Text style={styles.subjectLabel}>Overview</Text>
-                    {tickerData != null ?
-                    <>
-                    <Text style={styles.overviewText}>
-                      {isExpanded
-                        ? tickerData?.detailsResponse?.results?.description
-                        : `${
-                            tickerData?.detailsResponse?.results?.description?.substring(
-                              0,
-                              200,
-                            ) || 'No description available.'
-                          }...`}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => setIsExpanded(!isExpanded)}
-                      style={{flexDirection: 'row', alignItems: 'center'}}>
-                      <Text style={styles.showMoreButtonText}>
-                        {isExpanded ? 'Show Less' : 'Show More'}
-                      </Text>
-                      {isExpanded ? (
-                        <Icon
-                          name="caret-up"
-                          style={[styles.icon, {marginLeft: 5}]}
-                          size={18}
-                        />
-                      ) : (
-                        <Icon
-                          name="caret-down"
-                          style={[styles.icon, {marginLeft: 5}]}
-                          size={18}
-                        />
-                      )}
-                    </TouchableOpacity>
-                    </> : <Skeleton animation={"pulse"} height={120} width={width-40} style={{backgroundColor: theme.colors.primary, borderRadius: 5, marginTop:5 }} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>}
                   </View>
-                  <View style={{marginTop: 15, marginHorizontal: 25}}>
-                    <Text style={styles.subjectLabel}>Statistics</Text>
-                    {tickerData != null ?
-                    <View style={{flexDirection: 'row', marginTop: 5}}>
-                      <View style={{flex: 0.7, gap: 10}}>
+                )}
+                <View style={{ marginHorizontal: 25, marginTop: 10 }}>
+                  <Text style={styles.subjectLabel}>Overview</Text>
+                  {tickerData != null ?
+                    <>
+                      <Text style={styles.overviewText}>
+                        {isExpanded
+                          ? tickerData?.detailsResponse?.results?.description
+                          : `${tickerData?.detailsResponse?.results?.description?.substring(
+                            0,
+                            200,
+                          ) || 'No description available.'
+                          }...`}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => setIsExpanded(!isExpanded)}
+                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={styles.showMoreButtonText}>
+                          {isExpanded ? 'Show Less' : 'Show More'}
+                        </Text>
+                        {isExpanded ? (
+                          <Icon
+                            name="caret-up"
+                            style={[styles.icon, { marginLeft: 5 }]}
+                            size={18}
+                          />
+                        ) : (
+                          <Icon
+                            name="caret-down"
+                            style={[styles.icon, { marginLeft: 5 }]}
+                            size={18}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    </> : <Skeleton animation={"pulse"} height={120} width={width - 40} style={{ backgroundColor: theme.colors.primary, borderRadius: 5, marginTop: 5 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton>}
+                </View>
+                <View style={{ marginTop: 15, marginHorizontal: 25 }}>
+                  <Text style={styles.subjectLabel}>Statistics</Text>
+                  {tickerData != null ?
+                    <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                      <View style={{ flex: 0.7, gap: 10 }}>
                         <View>
                           <Text style={styles.statType}>Open</Text>
                           <Text style={styles.statData}>
@@ -365,7 +364,7 @@ const StockDetails = () => {
                           )}
                         </View>
                       </View>
-                      <View style={{gap: 10}}>
+                      <View style={{ gap: 10 }}>
                         <View>
                           <Text style={styles.statType}>Market Cap</Text>
                           {tickerData.detailsResponse.results.market_cap && (
@@ -390,35 +389,35 @@ const StockDetails = () => {
                           <Text style={styles.statData}>-</Text>
                         </View>
                       </View>
-                    </View> : <Skeleton animation={"pulse"} height={200} width={width-40} style={{backgroundColor: theme.colors.primary, borderRadius: 5, marginTop:5 }} skeletonStyle={{backgroundColor: theme.colors.secondary}}></Skeleton>}
+                    </View> : <Skeleton animation={"pulse"} height={200} width={width - 40} style={{ backgroundColor: theme.colors.primary, borderRadius: 5, marginTop: 5 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton>}
+                </View>
+                <View style={{ marginTop: 20, paddingBottom: 130 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginRight: 20,
+                    }}>
+                    <Text style={[styles.subjectLabel, { marginLeft: 25 }]}>
+                      News
+                    </Text>
+                    <View style={{ flex: 1 }}></View>
+                    <TouchableOpacity
+                      style={{ paddingVertical: 5, paddingLeft: 10 }}>
+                      <Text style={styles.showMoreButtonText}>View More</Text>
+                    </TouchableOpacity>
                   </View>
-                  <View style={{marginTop: 20, paddingBottom: 130}}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginRight: 20,
-                      }}>
-                      <Text style={[styles.subjectLabel, {marginLeft: 25}]}>
-                        News
-                      </Text>
-                      <View style={{flex: 1}}></View>
-                      <TouchableOpacity
-                        style={{paddingVertical: 5, paddingLeft: 10}}>
-                        <Text style={styles.showMoreButtonText}>View More</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <ScrollView
-                      horizontal={true}
-                      showsHorizontalScrollIndicator={false}>
-                      {tickerData != null ?
-                      <View style={{flexDirection: 'row', paddingLeft: 20}}>
+                  <ScrollView
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}>
+                    {tickerData != null ?
+                      <View style={{ flexDirection: 'row', paddingLeft: 20 }}>
                         {tickerData.news.results
                           .slice(0, 3)
                           .map((item: any, index: any) => (
                             <View
                               key={index}
-                              style={{marginTop: 10, marginRight: 10}}>
+                              style={{ marginTop: 10, marginRight: 10 }}>
                               {item && 'title' in item && 'publisher' in item && (
                                 <NewsCard
                                   publisherName={item.publisher.name}
@@ -431,19 +430,19 @@ const StockDetails = () => {
                             </View>
                           ))}
                       </View> : <View></View>}
-                    </ScrollView>
-                  </View>
-                </>
-              </ScrollView>
+                  </ScrollView>
+                </View>
+              </>
+            </ScrollView>
           </View>
-          
-          
+
+
           {params?.inGame == true && (
             <View style={styles.TradeButtonContainer}>
               <TouchableOpacity
                 style={[
                   styles.tradeButton,
-                  {backgroundColor: currentAccentColorValue},
+                  { backgroundColor: currentAccentColorValue },
                 ]}
                 onPress={() =>
                   navigation.navigate('StockOrder', {
@@ -454,10 +453,10 @@ const StockDetails = () => {
                     buyingPower: params?.buyingPower,
                     endAt: params?.endAt,
                     logoUrl: tickerData && tickerData.detailsResponse.results.branding != undefined
-                    ? tickerData.detailsResponse.results.branding.icon_url +
+                      ? tickerData.detailsResponse.results.branding.icon_url +
                       '?apiKey=' +
                       polygonKey
-                    : 'logoUrlError'
+                      : 'logoUrlError'
                   })
                 }>
                 <Text style={styles.tradeButtonText}>Buy</Text>
@@ -466,7 +465,7 @@ const StockDetails = () => {
                 <TouchableOpacity
                   style={[
                     styles.tradeButton,
-                    {backgroundColor: currentAccentColorValue},
+                    { backgroundColor: currentAccentColorValue },
                   ]}
                   onPress={() =>
                     navigation.navigate('StockOrder', {
@@ -495,8 +494,8 @@ const StockDetails = () => {
               borderTopWidth: 1,
               borderRadius: 0,
             }}
-            handleIndicatorStyle={{backgroundColor: theme.colors.opposite}}>
-            <BottomSheetView style={{flex: 1}}>
+            handleIndicatorStyle={{ backgroundColor: theme.colors.opposite }}>
+            <BottomSheetView style={{ flex: 1 }}>
               <View style={styles.popup}>
                 <View style={styles.popupContent}>
                   <Text
@@ -508,9 +507,9 @@ const StockDetails = () => {
                     Add {ticker} to a List
                   </Text>
                 </View>
-                <ScrollView style={{width: width}}>
+                <ScrollView style={{ width: width }}>
                   <CreateWatchlistButton />
-                  <View style={{marginHorizontal: 20}}>
+                  <View style={{ marginHorizontal: 20 }}>
                     {watchLists.map((watchList: any, index) => {
                       return (
                         <WatchlistButton
