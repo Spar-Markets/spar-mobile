@@ -66,6 +66,7 @@ const ProfileSearch = () => {
 
   const debouncedSetSearchResults = useCallback(
     debounce((results) => {
+      console.log(results)
       setSearchResults(results);
       setLoading(false); // Stop loading after setting results
     }, 300), // 300ms debounce delay
@@ -80,7 +81,6 @@ const ProfileSearch = () => {
         keys: ['username'],
         limit: 7,
       });
-      console.log(results);
       const formattedResults: SearchProfile[] = [];
       for (let result of results) {
         formattedResults.push(result.obj);
@@ -125,7 +125,7 @@ const ProfileSearch = () => {
             keyboardDismissMode="on-drag"
             renderItem={({ item }) => (
               <View>
-                <UserCard otherUserID={item.userID} yourUserID={user.userID} />
+                <UserCard otherUserID={item.userID} />
               </View>
             )}
           />

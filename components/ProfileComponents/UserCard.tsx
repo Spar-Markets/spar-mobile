@@ -37,7 +37,7 @@ const UserCard = (props: any) => {
 
   const getUsername = async () => {
     try {
-      console.log("look at me", props.otherUserID)
+
       const response = await axios.post(serverUrl + '/getUsernameByID', { userID: props.otherUserID });
       setUsername(response.data.username)
       console.log(response.data.username)
@@ -51,7 +51,7 @@ const UserCard = (props: any) => {
       const response = await axios.post(serverUrl + "/friendShipCheck", { user1ID: user.userID, user2ID: props.otherUserID })
       if (response.status == 200) {
         if (response.data == true) {
-          console.log("IS FRIEND", response.data)
+
           setStatus("accepted")
         }
       }
@@ -63,7 +63,7 @@ const UserCard = (props: any) => {
   const checkRequestedStatus = async () => {
     try {
       const response = await axios.post(serverUrl + "/checkRequestedStatus", { yourUserID: user.userID, checkUserID: props.otherUserID })
-      console.log("Is requested", response.data)
+
       if (response.data == true) {
         setStatus("requested")
       }
@@ -128,7 +128,7 @@ const UserCard = (props: any) => {
       setLoadingRequest(true)
       const response = await axios.post(serverUrl + '/addFriendRequest', { userID: user.userID, requestedUserID: props.otherUserID })
       if (response.status === 200) {
-        console.log("Friended", props.username)
+
         setLoadingRequest(false)
       }
     } catch (error) {
@@ -209,9 +209,9 @@ const UserCard = (props: any) => {
   }
 
 
-  if (loading || !status || !profileImage) {
+  if (loading) {
     return (
-      <View style={{ width: width - 40, height: 50, marginHorizontal: 20 }}>
+      <View style={{ width: width - 40, height: 70, paddingVertical: 10, marginHorizontal: 20 }}>
 
       </View>
     );
@@ -221,7 +221,7 @@ const UserCard = (props: any) => {
   //make ti grab fllowers on every new search not every usercard hella inefficnet
 
   return (
-    <TouchableOpacity style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 15, paddingVertical: 10, maxWidth: width - 40 }} onPress={() => navigation.navigate("OtherProfile", { otherUserID: props.otherUserID })}>
+    <TouchableOpacity style={{ marginHorizontal: 20, height: 70, flexDirection: 'row', alignItems: 'center', gap: 15, paddingVertical: 10, maxWidth: width - 40 }} onPress={() => navigation.navigate("OtherProfile", { otherUserID: props.otherUserID })}>
       {profileImage &&
 
         <Image style={styles.userCardPic} onLoad={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : { uri: profileImage }}></Image>}
