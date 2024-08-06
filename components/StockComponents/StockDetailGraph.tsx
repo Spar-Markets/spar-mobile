@@ -61,6 +61,7 @@ import { RootState } from '../../GlobalDataManagment/store';
 import { Image as SkiaImage } from '@shopify/react-native-skia';
 import { useFocusEffect } from '@react-navigation/native';
 import TimeButtons from '../InGameComponents/TimeButtons';
+import StockDetailsGraphTopBar from './StockDetailsGraphTopBar';
 
 const StockDetailGraph = (props: any) => {
   const [pointData, setPointData] = useState<any[]>([]);
@@ -86,44 +87,6 @@ const StockDetailGraph = (props: any) => {
   const { currentAccentColorValue, setCurrentAccentColorValue } = props;
 
   const stockPrice = useSelector((state: RootState) => state.stock.stockPrice);
-
-  const TimeButton = ({ timeFrame }: any) => (
-    <View>
-      {timeFrameSelected == timeFrame ? (
-        <TouchableOpacity style={[styles.timeButtonSelectedContainer]}>
-          <View
-            style={{
-              height: 2,
-              width: '100%',
-              backgroundColor: currentAccentColorValue,
-            }}></View>
-          <Text style={styles.timeButtonSelectedText}>{timeFrame}</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity
-          onPress={() => {
-            if (allPointData) {
-              setTimeFrameSelected(timeFrame);
-              setPointData(allPointData[timeFrame]);
-
-              HapticFeedback.trigger('impactMedium', {
-                enableVibrateFallback: true,
-                ignoreAndroidSystemSettings: false,
-              });
-            }
-          }}
-          style={styles.timeButtonContainer}>
-          <View
-            style={{
-              height: 2,
-              width: '100%',
-              backgroundColor: 'transparent',
-            }}></View>
-          <Text style={[styles.timeButtonText]}>{timeFrame}</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
 
   const minY = useRef<number | null>(null)
   const maxY = useRef<number | null>(null)
@@ -203,13 +166,13 @@ const StockDetailGraph = (props: any) => {
   };*/
 
   useEffect(() => {
-    if (allPointData) {
+    if (allPointData && oneDayClose > 0) {
       //grabCurrentPrice(props.ticker);
       setDataLoading(false);
     } else {
       setDataLoading(true);
     }
-  }, [allPointData, timeFrameSelected]);
+  }, [allPointData, timeFrameSelected, oneDayClose]);
 
   const { state, isActive } = useChartPressState({ x: 0, y: { normalizedValue: 0 } });
 
@@ -243,9 +206,6 @@ const StockDetailGraph = (props: any) => {
       }
     },
   );
-
-
-
 
   function ToolTip({
     x,
@@ -285,347 +245,11 @@ const StockDetailGraph = (props: any) => {
     );
   }
 
-  //graph and data aninmation funtions
-
-  //gets percent difference based on array data
-  const animatedPercentDiff = useDerivedValue(() => {
-    let percentDiff;
-    if (pointData.length > 0) {
-      if (timeFrameSelected != '1D') {
-        percentDiff =
-          (pointData[currentIndex.value]?.value - pointData[0].value) /
-          Math.abs(pointData[0].value);
-      } else {
-        percentDiff =
-          (pointData[currentIndex.value]?.value - oneDayClose) /
-          Math.abs(oneDayClose);
-      }
-
-      return (100 * percentDiff).toFixed(2);
-    }
-    return '0.00';
-  }, [pointData]);
-
-  const animatedValueDiff = useDerivedValue(() => {
-    let valueDiff;
-    if (pointData.length > 0) {
-      if (timeFrameSelected != '1D') {
-        valueDiff = pointData[currentIndex.value]?.value - pointData[0].value;
-      } else {
-        valueDiff = pointData[currentIndex.value]?.value - oneDayClose;
-      }
-      if (valueDiff < 0) {
-        return '-$' + Math.abs(valueDiff).toFixed(2); //formatting negative differences
-      }
-      return '$' + Math.abs(valueDiff).toFixed(2);
-    }
-    return '0.00';
-  }, [pointData]);
-
-  const currentDate = useDerivedValue(() => {
-    if (pointData.length > 0) {
-      //console.log(currentIndex.value, pointData[currentIndex.value]?.date)
-      return ' • ' + pointData[currentIndex.value]?.date;
-    }
-    return '';
-  }, [pointData, state]);
-
-  const lastDate = useDerivedValue(() => {
-    if (pointData.length > 0) {
-      return ' • ' + pointData[pointData.length - 1]?.date;
-    }
-    return '';
-  }, [pointData, state]);
-
-  const priceFontSize = 26;
-  const priceFont = useFont(
-    require('../../assets/fonts/InterTight-Black.ttf'),
-    priceFontSize,
-  );
-
-  const percentValFontSize = 12;
-  const percentValFont = useFont(
-    require('../../assets/fonts/InterTight-Bold.ttf'),
-    percentValFontSize,
-  );
-
-  /*useEffect(() => {
-    if (pointData.length != 0 ) {
-      if (props.liveprice) {
-        console.log("live price, " + props.liveprice)
-      } else {
-        console.log("loading")
-      }
-    }
-  }, []);*/
-
-  const [onloadPercentDiff, setOnLoadPercentDiff] = useState('0.00');
-  const [onLoadValueDiff, setOnLoadValueDiff] = useState('0.00');
-  const [currentGradientAccent, setCurrentGradientAccent] = useState('');
-
-  const calculatePercentAndValueDiffAndColor = useCallback(() => {
-    let percentDiff;
-    if (pointData.length > 0) {
-      if (timeFrameSelected != '1D') {
-        percentDiff =
-          ((pointData[pointData.length - 1]?.value || 0) - pointData[0].value) /
-          Math.abs(pointData[0].value);
-      } else {
-        percentDiff =
-          ((pointData[pointData.length - 1]?.value || 0) - oneDayClose) /
-          Math.abs(oneDayClose);
-      }
-      const percentDiffValue = (100 * percentDiff).toFixed(2);
-      setOnLoadPercentDiff(percentDiffValue);
-      let valueDiff;
-
-      if (timeFrameSelected != '1D') {
-        valueDiff =
-          (pointData[pointData.length - 1]?.value || 0) - pointData[0].value;
-      } else {
-        valueDiff = (pointData[pointData.length - 1]?.value || 0) - oneDayClose;
-      }
-      if (pointData) {
-        if (valueDiff < 0) {
-          setOnLoadValueDiff('-$' + Math.abs(valueDiff).toFixed(2));
-          setCurrentAccentColorValue(theme.colors.stockDownAccent);
-          setCurrentGradientAccent('#3b0a06');
-        } else {
-          setOnLoadValueDiff('$' + Math.abs(valueDiff).toFixed(2));
-          setCurrentAccentColorValue(theme.colors.stockUpAccent);
-          setCurrentGradientAccent('#063b24');
-        }
-      }
-    } else {
-      setOnLoadPercentDiff('0.00');
-      setOnLoadValueDiff('0.00');
-    }
-  }, [pointData, colorScheme]);
-
-  const [livePrice, setPassingLivePrice] = useState<any>(null);
-
-
-  useEffect(() => {
-    calculatePercentAndValueDiffAndColor();
-  }, [pointData, colorScheme, livePrice]);
-
-  function uint8ArrayToString(array: any) {
-    return array.reduce(
-      (data: any, byte: any) => data + String.fromCharCode(byte),
-      '',
-    );
-  }
-
-  const ws = useRef<WebSocket | null>(null);
-
-  const [retries, setRetries] = useState(0);
-
-  const MAX_RETRIES = 5; // Maximum number of retry attempts
-  const RETRY_DELAY = 2000; // Delay between retries in milliseconds
-
-  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const sendHeartbeat = () => {
-    if (ws.current) {
-      // console.log('SENDING WS HEARTBEAT ON STOCK DETAILS');
-      // console.log('FROM STOCK DETAILS', ws.current);
-      const heartbeat = { type: 'heartbeat' };
-      ws.current.send(JSON.stringify(heartbeat));
-    }
-  };
-
-  useEffect(() => {
-    heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000); // 30 seconds interval
-
-    // Clear the interval when the component unmounts
-    return () => {
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-      }
-    };
-  }, []);
-
-  const setupSocket = async (ticker: any) => {
-    /*if (ws.current && (ws.current.readyState === WebSocket.OPEN || 
-      ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.CLOSING)) {
-      // WebSocket is already open or connecting, no need to create a new one
-      console.log("WS FROM RETURN CHECK:", ws.current)
-      return;
-    }*/
-
-    const socket = new WebSocket(websocketUrl);
-
-    ws.current = socket;
-
-    ws.current.onopen = () => {
-      console.log(`Connected to ${ticker}, but not ready for messages...`);
-      if (ws.current!) {
-        console.log(`Connection for ${ticker} is open and ready for messages`);
-        ws.current!.send(JSON.stringify({ ticker: ticker, status: 'add' }));
-      } else {
-        console.log('WebSocket is not open:', ws.current!.readyState);
-      }
-    };
-
-    ws.current.onmessage = event => {
-      const buffer = new Uint8Array(event.data);
-      const message = uint8ArrayToString(buffer);
-
-      //console.log(`Websocket Received message: ${message}`);
-      if (message != '') {
-        try {
-          const jsonMessage = JSON.parse(message);
-          runOnJS(setPassingLivePrice)(jsonMessage);
-          //console.log(getMarketFraction(new Date(Date.now() - 90000)))
-          if (!isActive) {
-            runOnJS(dispatch)(updateStockPrice(jsonMessage[0]?.c)); //close live price for aggregate
-          }
-        } catch (error) {
-          console.error('stock graph live data error', error);
-        }
-      }
-    };
-
-    ws.current.onerror = error => {
-      console.log('WebSocket error:', error || JSON.stringify(error));
-      if (retries < MAX_RETRIES) {
-        console.log(`Retrying connection (${retries + 1}/${MAX_RETRIES})...`);
-        setRetries(retries + 1);
-        setTimeout(() => {
-          setupSocket(ticker);
-        }, RETRY_DELAY);
-      } else {
-        console.error(
-          'Maximum retry attempts reached. Unable to connect to WebSocket.',
-        );
-      }
-    };
-
-    ws.current.onclose = () => {
-      console.log(`Connection to ${ticker} closed`);
-    };
-  };
-
-  useEffect(() => {
-    //console.log("SETTING UP SOCKET WITH:", props.ticker);
-    if (allPointData) {
-      setupSocket(props.ticker);
-
-      return () => {
-        if (ws.current) {
-          ws.current.send(
-            JSON.stringify({ ticker: props.ticker, status: 'delete' }),
-          );
-          ws.current.close(
-            1000,
-            'Closing websocket connection due to page being closed',
-          );
-          //console.log('Closed websocket connection due to page closing');
-          ws.current = null; // Ensure the reference is cleared
-        }
-      };
-    }
-  }, [allPointData]);
-
-  /*useEffect(() => {
-    if (livePrice) {
-      console.log("live price", livePrice[0]?.op)
-      pointData[pointData.length-1].normalizedValue = livePrice[0]?.op - pointData[0].value
-    }
-  }, [livePrice])*/
-
-  const [trackingTimeStamp, setTrackingTimeStamp] = useState<any>(null);
-  const [lastInterval, setLastInterval] = useState<any>(null);
-  const [isFirstAnimation, setIsFirstAnimation] = useState(true);
-
-  useEffect(() => {
-    if (timeFrameSelected == '1D') {
-      if (livePrice && pointData.length > 0) {
-        const livePriceTime = new Date(livePrice[0]?.e);
-        const livePriceMinutes = livePriceTime.getMinutes();
-        const livePriceSeconds = livePriceTime.getSeconds();
-
-        const formattedLivePriceTime = livePriceTime.toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        });
-
-        // Function to check if the timestamp is close to a 5-minute interval
-        const isCloseToFiveMinuteInterval = (minutes: any, seconds: any) => {
-          const remainder = minutes % 5;
-          return (
-            remainder === 0 && seconds < 30 //|| // Close to the start of a 5-minute interval
-            //(remainder === 4 && seconds > 30)    // Close to the end of a 5-minute interval
-          );
-        };
-
-        const currentInterval = Math.floor(livePriceMinutes / 5);
-
-        if (
-          isCloseToFiveMinuteInterval(livePriceMinutes, livePriceSeconds) &&
-          currentInterval !== lastInterval
-        ) {
-          //console.log("ADDING DATA POINT");
-          runOnJS(setPointData)(prevPointData => {
-            const newPointData = [...prevPointData];
-            // Update the last point with the current live price
-            newPointData[newPointData.length - 1] = {
-              ...newPointData[newPointData.length - 1],
-              normalizedValue: livePrice[0]?.c - prevPointData[0].value,
-              value: livePrice[0]?.c,
-              date: formattedLivePriceTime,
-            };
-            // Add a new point with the live price
-            newPointData.push({
-              value: livePrice[0]?.c,
-              normalizedValue: livePrice[0]?.c - prevPointData[0].value,
-              date: formattedLivePriceTime,
-            });
-            setTrackingTimeStamp(livePrice[0]?.e);
-            return newPointData;
-          });
-          setLastInterval(currentInterval); // Update the last interval
-        } else {
-          //console.log("animated point");
-          if (isFirstAnimation == true) {
-            runOnJS(setPointData)(prevPointData => {
-              const newPointData = [...prevPointData, {}];
-              // Update only the last point with the current live price and date
-              newPointData[newPointData.length - 1] = {
-                //...newPointData[newPointData.length - 1],
-                date: formattedLivePriceTime,
-                normalizedValue: livePrice[0]?.c - prevPointData[0].value,
-                value: livePrice[0]?.c,
-              };
-              //console.log(newPointData[newPointData.length - 1].date);
-              return newPointData;
-            });
-            setIsFirstAnimation(false);
-          } else {
-            runOnJS(setPointData)(prevPointData => {
-              const newPointData = [...prevPointData];
-              // Update only the last point with the current live price and date
-              newPointData[newPointData.length - 1] = {
-                //...newPointData[newPointData.length - 1],
-                date: formattedLivePriceTime,
-                normalizedValue: livePrice[0]?.c - prevPointData[0].value,
-                value: livePrice[0]?.c,
-              };
-              //console.log(newPointData[newPointData.length - 1].date);
-              return newPointData;
-            });
-          }
-        }
-      }
-    }
-  }, [livePrice]);
 
   const referenceLineObject = Array.from({ length: 50 }, (_, index) => ({
     index: index,
     normalizedValue: closePriceLineObject.normalizedValue,
   }));
-
-
 
   const graphOpacity = useRef(new Animated.Value(0)).current;
   const skeletonOpacity = useRef(new Animated.Value(1)).current;
@@ -672,7 +296,7 @@ const StockDetailGraph = (props: any) => {
   return (
     <View>
       <View>
-        <View
+        {/*} <View
           style={{ marginHorizontal: 20, marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
 
@@ -766,7 +390,24 @@ const StockDetailGraph = (props: any) => {
               <Skeleton animation={"pulse"} height={25} width={70} style={{ backgroundColor: theme.colors.primary, borderRadius: 50, }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton>
               <Skeleton animation={"pulse"} height={17} width={140} style={{ backgroundColor: theme.colors.primary, borderRadius: 50, marginTop: 5 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton>
             </View>}
-        </View>
+        </View>*/}
+
+        <StockDetailsGraphTopBar
+          allPointData={allPointData}
+          pointData={pointData}
+          setPointData={setPointData}
+          dataLoading={dataLoading}
+          isActive={isActive}
+          timeFrameSelected={timeFrameSelected}
+          currentIndex={currentIndex}
+          currentAccentColorValue={currentAccentColorValue}
+          setCurrentAccentColorValue={setCurrentAccentColorValue}
+          state={state}
+          oneDayClose={oneDayClose}
+          logoUrl={props.logoUrl}
+          ticker={props.ticker}
+          name={props.name}
+        />
 
         <View style={{ height: 400, marginVertical: 20 }}>
 
