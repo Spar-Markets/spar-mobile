@@ -58,8 +58,6 @@ const StockOrder = (props: any) => {
 
   const userID = useSelector((state: RootState) => state.user.userID);
 
-  const [toggleState, setToggleState] = useState('stock');
-
   const [shareQuantity, setShareQuantity] = useState('0');
   const [dollarAmount, setDollarAmount] = useState('0');
   const [inReview, setInReview] = useState(false);
@@ -67,6 +65,8 @@ const StockOrder = (props: any) => {
   const stockPrice = useSelector((state: RootState) => state.stock.stockPrice);
   const formattedShareQuantity = shareQuantity;
   const formattedDollarAmount = dollarAmount;
+
+  const [selectedMode, setSelectedMode] = useState('shares');
 
   const goBack = () => {
     navigation.goBack();
@@ -92,12 +92,26 @@ const StockOrder = (props: any) => {
 
   const purchaseStock = async () => {
     try {
-      const buyResponse = await axios.post(serverUrl + '/purchaseStock', {
-        userID: userID,
-        matchID: params?.matchID,
-        ticker: params?.ticker,
-        shares: shareQuantity,
-      });
+      let buyResponse;
+      if (selectedMode == "shares") {
+        buyResponse = await axios.post(serverUrl + '/purchaseStock', {
+          userID: userID,
+          matchID: params?.matchID,
+          ticker: params?.ticker,
+          shares: shareQuantity,
+          type: "shares"
+        });
+      } else {
+        // dollar logic
+        buyResponse = await axios.post(serverUrl + '/purchaseStock', {
+          userID: userID,
+          matchID: params?.matchID,
+          ticker: params?.ticker,
+          dollars: dollarAmount,
+          type: "dollars"
+        });
+      }
+
       console.log('Buy Response:', buyResponse.data);
       if (buyResponse) {
         navigation.replace('OrderSummary', {
@@ -217,8 +231,6 @@ const StockOrder = (props: any) => {
 
   const animation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
-
-  const [selectedMode, setSelectedMode] = useState('shares');
 
   const handleToggle = (option: any) => {
     console.log('toggled');

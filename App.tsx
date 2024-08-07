@@ -64,6 +64,8 @@ import axios from 'axios';
 
 import auth from '@react-native-firebase/auth';
 import { serverUrl } from './constants/global';
+import timeTillCloseOrOpen from './utility/timeTillCloseOrOpen';
+import isMarketOpen from './utility/marketOpen';
 
 const Stack = createNativeStackNavigator();
 
@@ -98,6 +100,22 @@ const AppContent = (): React.ReactElement => {
   const userID = useSelector((state: RootState) => state.user.userID);
 
   const [userData, setUserData] = useState<any>(null)
+
+
+  useEffect(() => {
+    const updateMarketStatus = () => {
+      const marketOpen = isMarketOpen();
+      const timeUntilNextChange = timeTillCloseOrOpen();
+      
+      setTimeout(() => {
+        updateMarketStatus();
+      }, timeUntilNextChange);
+    }
+    
+  })
+
+
+
 
   useEffect(() => {
     if (userID) {
