@@ -44,7 +44,13 @@ const OrderSummary = (props: any) => {
 
   const params = route.params as any
 
- /* useEffect(() => {
+  const price = params.isBuying ? params?.buyData.buyPrice : params?.sellData.sellPrice;
+
+  const costOrCredit = params.isBuying ? "Cost" : "Credit";
+
+  const updatedTotalshares = params.isBuying ? params?.buyData.updatedTotalshares : params?.sellData.updatedTotalShares
+ 
+  /* useEffect(() => {
     if (params?.ticker && params?.matchID) {
       console.log("Hello", params?.ticker, params?.matchID, matches[params?.matchID].yourAssets)
       yourShares.current = matches[params?.matchID].yourAssets[params?.ticker]
@@ -60,7 +66,6 @@ const OrderSummary = (props: any) => {
     }
   }, [params?.buyData])
 
-
   //console.log('StockOrder params:', params);
 
   const goBack = () => {
@@ -71,7 +76,7 @@ const OrderSummary = (props: any) => {
     <View style={{flex: 1, backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center', gap: 10}}>
         <View style={{backgroundColor: theme.colors.secondary, height: height/2, width: width -40, borderRadius: 10, alignItems: 'center', padding: 15}}>
           <Text style={{color: theme.colors.text, fontFamily: 'InterTight-SemiBold', fontSize: 24, marginTop: 10}}>{params?.isBuying ? "Buy" : "Sell"} Order Executed</Text>
-          <View style={{flex: 1, width: '100%', marginVertical: 10}}>
+            <View style={{flex: 1, width: '100%', marginVertical: 10}}>
             <View style={{flexDirection: 'row', marginVertical: 10, alignItems: 'center'}}>
               <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Ticker</Text>
               <View style={{flex: 1}}></View>
@@ -97,19 +102,19 @@ const OrderSummary = (props: any) => {
             <View style={{flexDirection: 'row', marginVertical: 10}}>
               <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Price</Text>
               <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>${(params?.buyData.buyPrice).toFixed(2)}</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>${(price).toFixed(2)}</Text>
             </View>
             <View style={{width: '100%', height: 1, backgroundColor: theme.colors.tertiary}}></View>
             <View style={{flexDirection: 'row', marginVertical: 10}}>
-              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Total Cost</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Total {costOrCredit}</Text>
               <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>${(parseFloat(params?.shares) * params?.buyData.buyPrice).toFixed(2)}</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>${(parseFloat(params?.shares) * price).toFixed(2)}</Text>
             </View>
             <View style={{width: '100%', height: 1, backgroundColor: theme.colors.tertiary}}></View>
             <View style={{flexDirection: 'row', marginVertical: 10}}>
               <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Total Match Position</Text>
               <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{params?.buyData.updatedTotalshares} Shares</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{updatedTotalshares} Shares</Text>
             </View>
           </View>
           <TouchableOpacity onPress={goBack} style={{backgroundColor: theme.colors.accent, width: '100%', alignItems: 'center',paddingVertical: 12, borderRadius: 5}} >
