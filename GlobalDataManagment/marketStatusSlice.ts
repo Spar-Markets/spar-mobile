@@ -5,16 +5,16 @@ const initialState = {
   isMarketOpen: isMarketOpen(),
 };
 
-const marketSlice = createSlice({
-  name: 'isMarketOpen', 
+const marketStatusSlice = createSlice({
+  name: 'marketStatus', 
   initialState,
   reducers: {
-    setProfileImageUri: (state, action) => {
+    setIsMarketOpen: (state, action) => {
       state.isMarketOpen = action.payload;
     },
   },
 });
 
-export const { setProfileImageUri } = isMarketOpenSliceactions;
+export const { setIsMarketOpen } = marketStatusSlice.actions;
 
-export default iisMarketOpenSlicereducer;
+export default marketStatusSlice.reducer;
