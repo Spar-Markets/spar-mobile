@@ -6,6 +6,7 @@ import {
   TextInput,
   FlatList,
   ActivityIndicator,
+  TextBase,
 } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -37,7 +38,7 @@ const FollowersFollowing = () => {
   const friends = useSelector((state: RootState) => state.user.friends)
 
   const [profileSearch, setProfileSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<searchResult[]>();
+  const [searchResults, setSearchResults] = useState<searchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
   const profileObjects = useRef<any>([])
@@ -116,17 +117,20 @@ const FollowersFollowing = () => {
         ) : loading ? (
           <ActivityIndicator size="large" color={theme.colors.primary} />
         ) : (
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item.userID}
-            keyboardDismissMode="on-drag"
-            renderItem={({ item }) => (
-              <View>
-                <UserCard otherUserID={item.userID} isChallengeCard={true} />
-              </View>
-            )}
-          />
-        )}
+          searchResults?.length > 0 ? (
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.userID}
+              keyboardDismissMode="on-drag"
+              renderItem={({ item }) => (
+                <View>
+                  <UserCard otherUserID={item.userID} isChallengeCard={true} />
+                </View>
+              )}
+            />
+          ) : (
+            <Text style={styles.friendText}>No Friends Found</Text>
+          ))}
       </View>
     </View>
   );
