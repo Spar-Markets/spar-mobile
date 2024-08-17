@@ -66,11 +66,10 @@ const CoreApp = (): React.ReactElement => {
             // You can return any component that you like here!
             return (
               <>
-                {/*<View style={{height: 1, width: width/5, backgroundColor: theme.colors.primary, marginBottom: 10}}></View>*/}
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 3, marginTop: 20 }}>
-                  {route.name != "Portfolio" ? <Icon name={iconName} size={size} color={color} /> : <View style={{ height: size, justifyContent: 'center' }}><Text style={[focused ? { color: theme.colors.text } : { color: theme.colors.secondaryText }, { fontFamily: 'InterTight-Bold', fontSize: 20 }]}>${balance}</Text></View>}
-                  <Text style={[focused ? { color: theme.colors.text } : { color: theme.colors.secondaryText }, { fontSize: 12, fontFamily: 'InterTight-Black' }]}>{route.name}</Text>
-                  <View style={[focused ? { backgroundColor: theme.colors.text } : { backgroundColor: 'transparent' }, { height: 3, width: width / 12, borderRadius: 5 }]}></View>
+                <View style={{ flex: 1, alignItems: 'center', gap: 3, marginTop: 20 }}>
+                  {route.name != "Portfolio" ? <Icon name={iconName} size={size} color={color} /> : <View style={{ height: size }}><Text style={[focused ? { color: theme.colors.text } : { color: theme.colors.secondaryText }, { fontFamily: 'InterTight-Bold', fontSize: 22 }]}>${balance}</Text></View>}
+                  <Text style={[focused ? { color: theme.colors.text } : { color: theme.colors.secondaryText }, { fontSize: 12, fontFamily: 'InterTight-medium' }]}>{route.name}</Text>
+                  <View style={[focused ? { backgroundColor: theme.colors.accent } : { backgroundColor: 'transparent' }, { height: 3, width: width / 16, borderRadius: 100 }]}></View>
                 </View>
               </>
             )
@@ -78,7 +77,7 @@ const CoreApp = (): React.ReactElement => {
           tabBarActiveTintColor: theme.colors.text, // Mint green color for active tab
           tabBarInactiveTintColor: theme.colors.secondaryText,
           tabBarStyle: {
-            height: 85, borderRadius: 0, paddingHorizontal: 10, backgroundColor: theme.colors.background
+            height: 85, borderRadius: 0, paddingHorizontal: 10, backgroundColor: theme.colors.background, marginBottom: 5
           }, // Black background for the tab bar
           tabBarShowLabel: false,
           /*tabBarBackground: () => (

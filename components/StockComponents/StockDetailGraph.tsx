@@ -296,102 +296,6 @@ const StockDetailGraph = (props: any) => {
   return (
     <View>
       <View>
-        {/*} <View
-          style={{ marginHorizontal: 20, marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-
-            {props.logoUrl && props.logoUrl != 'logoUrlError' ? (
-              <>
-                <Image
-                  source={{ uri: props.logoUrl }}
-                  style={{ aspectRatio: 1, borderRadius: 50, height: 50, width: 50 }}
-                  onLoadStart={() => setStockLogoLoaded(false)}
-                  onLoadEnd={() => setStockLogoLoaded(true)}
-                />
-              </>
-            ) : props.logoUrl != 'logoUrlError' ? <Skeleton animation={"pulse"} height={50} width={50} style={{ backgroundColor: theme.colors.primary, borderRadius: 50 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton> : <View />}
-
-
-
-            <View style={{ marginVertical: 1 }}>
-              <Text style={styles.stockDetailsTickerText}>
-                {props.ticker}
-              </Text>
-              <Text
-                style={[styles.stockDetailsNameText, { width: width / 3 }]}
-                numberOfLines={1}
-                ellipsizeMode="tail">
-                {props.name}
-              </Text>
-            </View>
-          </View>
-          <View style={{ flex: 1 }} />
-          {pointData && !dataLoading ?
-            <>
-              {isActive ? (
-                <View>
-                  <Text style={styles.stockPriceText}>
-                    $
-                    {pointData[currentIndex.value].value.toFixed(2).split('.')[0]}
-                    <Text style={{ fontSize: 15 }}>
-                      .
-                      {
-                        pointData[currentIndex.value].value
-                          .toFixed(2)
-                          .split('.')[1]
-                      }
-                    </Text>
-                  </Text>
-                  <Text
-                    style={[
-                      styles.stockPercentText,
-                      { color: currentAccentColorValue },
-                    ]}>
-                    {animatedValueDiff.value +
-                      ' (' +
-                      animatedPercentDiff.value +
-                      '%)' +
-                      currentDate.value}
-                  </Text>
-                </View>
-              ) : (
-                <View>
-                  <Text style={styles.stockPriceText}>
-                    $
-                    {
-                      stockPrice != null && stockPrice //pointData[pointData.length - 1].value
-                        .toFixed(2)
-                        .split('.')[0]
-                    }
-                    <Text style={{ fontSize: 15 }}>
-                      .
-                      {
-                        stockPrice != null && stockPrice //pointData[pointData.length - 1].value
-                          .toFixed(2)
-                          .split('.')[1]
-                      }
-                    </Text>
-                  </Text>
-                  <Text
-                    style={[
-                      styles.stockPercentText,
-                      { color: currentAccentColorValue },
-                    ]}>
-                    {onLoadValueDiff +
-                      ' (' +
-                      onloadPercentDiff +
-                      '%)' +
-                      lastDate.value}
-                  </Text>
-                </View>
-              )}
-            </> :
-            <View style={{ alignItems: 'flex-end' }}>
-              <Skeleton animation={"pulse"} height={25} width={70} style={{ backgroundColor: theme.colors.primary, borderRadius: 50, }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton>
-              <Skeleton animation={"pulse"} height={17} width={140} style={{ backgroundColor: theme.colors.primary, borderRadius: 50, marginTop: 5 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }}></Skeleton>
-            </View>}
-        </View>*/}
-
         <StockDetailsGraphTopBar
           allPointData={allPointData}
           pointData={pointData}
@@ -460,7 +364,7 @@ const StockDetailGraph = (props: any) => {
                                   cx={point.x}
                                   cy={point.y!}
                                   r={1} // radius of the dot
-                                  color={theme.colors.tertiary}
+                                  color={theme.colors.secondaryText}
                                 />
                               ))}
                             </Group>

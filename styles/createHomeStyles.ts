@@ -108,29 +108,29 @@ const createHomeStyles = (theme: any, width: number) => {
       fontSize: 16
     },
     percentIndicator: {
-        backgroundColor: theme.colors.tertiary,
         borderRadius: 5,
-        justifyContent: 'center'
+        flexDirection: 'row',
+        alignItems: 'center',
+        
+        
 
     },
     percentText: {
-        paddingHorizontal: 5,
-        paddingVertical: 3,
+
         fontFamily: 'InterTight-Bold',
         fontSize: 12
     },
 
     // GameCard
     gameCardContainer: {
-      width: (Dimensions.get('window').width-40),
-      //backgroundColor: "rgba(0,0,0,0.5)",
-      marginHorizontal: 20,
-      flex: 1,
-      borderRadius: 10,
-      marginTop: 10,
+      width: width-40, //(Dimensions.get('window').width-40),
+      backgroundColor: theme.colors.secondary,
+      borderColor: theme.colors.tertiary,
       borderWidth: 1,
-      borderColor: theme.colors.secondary
-
+      flex: 1,
+      borderRadius: 20,
+      marginTop: 10,
+      marginHorizontal: 20
     },
 
     indicatorContainer: {
@@ -138,13 +138,14 @@ const createHomeStyles = (theme: any, width: number) => {
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 10,
-      marginHorizontal: 15
+      marginHorizontal: 15,
+      
     },
     indicator: {
-      flex: 1,
-      height: 10,
-      borderRadius: 3,
-      marginHorizontal: 5,
+      width: 8,
+      height: 8,
+      borderRadius: 50,
+      marginHorizontal: 3,
     },
     activeIndicator: {
       backgroundColor: theme.colors.opposite, // Active color
@@ -213,15 +214,12 @@ const createHomeStyles = (theme: any, width: number) => {
     // Timer
     timerContainer: {
       borderRadius: 5,
-      justifyContent: 'center',
-      alignItems: 'center',
+
       flexDirection: 'row',
       gap: 5,
-      paddingVertical: 5
     },
     timeText: {
-      fontSize: 12,
-      color: theme.colors.stockDownAccent,
+      color: theme.colors.opposite,
       fontWeight: 'bold',
       fontFamily: 'InterTight-Bold',
     },

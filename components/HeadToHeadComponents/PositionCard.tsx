@@ -15,6 +15,7 @@ import { Group, loadData, RoundedRect } from '@shopify/react-native-skia';
 import { Rect } from 'react-native-svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { Skeleton } from '@rneui/base';
+import EntypoIcon from 'react-native-vector-icons/Entypo'
 
 
 const PositionCard = (props: any) => {
@@ -154,38 +155,48 @@ const PositionCard = (props: any) => {
 
       })}>
 
-      <View style={{ flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 20 }}>
-        <View style={{ flex: 1, flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 5 }}>
+        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
           <View>
             {tickerData != null && <Image source={{ uri: tickerData.branding.icon_url + '?apiKey=' + polygonKey }} height={40} width={40} style={{ borderRadius: 500 }} />}
           </View>
           <View style={{ justifyContent: 'center' }}>
             <Text style={styles.stockCardTicker}>{props.ticker}</Text>
-            {tickerData != null && <Text ellipsizeMode='tail' numberOfLines={1} style={[styles.stockCardName, { maxWidth: 150 }]}>{tickerData!.name}</Text>}
+            <Text style={[styles.stockCardDiff, { color: theme.colors.secondaryText }]}>{props.qty} Shares</Text>
           </View>
         </View>
-        <View style={{ justifyContent: 'center' }}>
+        {/*<View style={{ height: 40, flex: 1, marginHorizontal: 20 }}>
+          {pointData &&
+            <CartesianChart data={pointData} xKey="index" yKeys={["value"]}
+            >
+              {({ points, chartBounds }) => (
+                <>
+                  <Line points={points.value} color={currentAccentColor} strokeWidth={1.5} />
+                </>
+              )}
+            </CartesianChart>}
+        </View>*/}
+        <View style={{ justifyContent: 'center', flex: 1 }}>
           {yourTickerPrices[props.ticker] && <Text style={styles.stockCardValue}>${(yourTickerPrices[props.ticker]).toFixed(2)}</Text>}
-          <Text style={[styles.stockCardDiff, { color: currentAccentColor }]}>{valueDiff} ({percentDiff}%)</Text>
-          <Text style={[styles.stockCardDiff, { color: theme.colors.text }]}>{props.qty} Shares</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
+            <EntypoIcon name="triangle-up" color={currentAccentColor} size={16} />
+            <Text style={[styles.stockCardDiff, { color: currentAccentColor }]}>{valueDiff} ({percentDiff}%)</Text>
+          </View>
         </View>
       </View>
-      {/*<View style={{backgroundColor: theme.colors.tertiary, width: '50%', borderBottomLeftRadius: 9, borderTopRightRadius: 9, alignItems: 'center', paddingVertical: 4, marginTop: 2}}>
-                  <Text style={{color: theme.colors.text, fontFamily: 'InterTight-Bold'}}>QTY: {props.qty}</Text>
-                </View>*/}
-      <View style={{ height: 50 }}>
+
+      {/* <View style={{ height: 50 }}>
         {pointData &&
           <CartesianChart data={pointData} xKey="index" yKeys={["value"]}
           >
             {({ points, chartBounds }) => (
               <>
                 <Line points={points.value} color={currentAccentColor} strokeWidth={1.5} />
-                {/*<Area points={points.value} y0={chartBounds.bottom} color={hexToRGBA(currentAccentColor, 0.2)} />*/}
               </>
             )}
           </CartesianChart>}
         <View style={{ height: 10, width: '100%' }}></View>
-      </View>
+      </View>*/}
 
     </TouchableOpacity>
   )

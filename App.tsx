@@ -64,6 +64,7 @@ import axios from 'axios';
 
 import auth from '@react-native-firebase/auth';
 import { serverUrl } from './constants/global';
+import Chat from './components/HomeComponents/Chat';
 
 const Stack = createNativeStackNavigator();
 
@@ -361,6 +362,16 @@ const AppContent = (): React.ReactElement => {
             <Stack.Screen
               name="Invitations"
               component={Invitations}
+              options={{
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'horizontal',
+                animation: 'slide_from_bottom',
+              }}
+            />
+            <Stack.Screen
+              name="Chat"
+              component={Chat}
               options={{
                 headerShown: false,
                 gestureEnabled: true,

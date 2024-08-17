@@ -37,8 +37,8 @@ const HTHPageHeader = (props: any) => {
                     <Text style={styles.headerText}>{props.text}</Text>
                 </TouchableOpacity>}
             <View style={{ flex: 1 }}></View>
-            <View style={{ marginRight: 20, backgroundColor: theme.colors.primary, borderRadius: 100, paddingHorizontal: 10 }}>
-                <Timer endDate={props.endAt} timeFrame={props.timeFrame} />
+            <View style={{ marginRight: 20, backgroundColor: theme.colors.gameCardGrayAccent, borderColor: theme.colors.gameCardGrayBorder, borderWidth: 1, borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5 }}>
+                <Timer endDate={props.endAt} timeFrame={props.timeFrame} yourColor={props.yourColor} />
             </View>
 
         </View>

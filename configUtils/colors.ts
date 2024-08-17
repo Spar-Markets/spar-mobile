@@ -7,9 +7,12 @@ export const darkColors = {
     dark: true,
     colors: {
         primary: '#161712',//'#1a3040', //main boxes
-        secondary: '#222',
-        tertiary: '#666',
+        secondary: '#171718',
+        tertiary: '#232325',
         background: '#0C090D',
+        gameCardGrayAccent: '#222225',
+        gameCardGrayBorder: '#29292c',
+
         border: '#000',
         accent: '#60FFCF', //most buttons
         darkAccent: '#095c35',
@@ -26,6 +29,7 @@ export const darkColors = {
         optionsUpAccent: '#6DFF60',
         cryptoUpAccent: '#60ECFF',
         stockDownAccent: '#FF6060',
+        darkStockDownAccent: '#8c3232',
         optionsDownAccent: '#FF6099',
         cryptoDownAccent: '#FF8660',
         discussion: '#dd0000',
@@ -42,9 +46,11 @@ export const lightColors = {
     dark: false,
     colors: {
         primary: '#ececec', //main boxes
-        secondary: '#eee',
-        tertiary: '#939393',
+        secondary: '#f4f4f7',
+        tertiary: '#ccc',
         background: '#ffffff',
+        gameCardGrayAccent: '#222225',
+        gameCardGrayBorder: '#29292c',
         border: '#fff',
         accent: '#08a677', //most buttons
         accent2: '#345fe5', //border, some buttons
@@ -60,6 +66,7 @@ export const lightColors = {
         optionsUpAccent: '#6DFF60',
         cryptoUpAccent: '#60ECFF',
         stockDownAccent: '#FF6060',
+        darkStockDownAccent: '#8c3232',
         optionsDownAccent: '#FF6099',
         cryptoDownAccent: '#FF8660',
         discussion: '#dd0000',
