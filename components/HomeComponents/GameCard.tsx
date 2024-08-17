@@ -766,7 +766,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           date: new Date(Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         });
         setYourFormattedDataLength(newPointData.length)
-        console.log("adding point", newPointData[newPointData.length - 1])
+        //console.log("adding point", newPointData[newPointData.length - 1])
 
         return newPointData
       })

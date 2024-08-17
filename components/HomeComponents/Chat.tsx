@@ -96,11 +96,33 @@ const Chat = () => {
 
 
 
+    const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+    const sendHeartbeat = () => {
+        if (ws.current) {
+            //console.log("SENDING WS HEARTBEAT FROM GAMECARD")
+            //console.log("FROM GAME CARD", ws.current)
+            const heartbeat = { type: "heartbeat" }
+            ws.current.send(JSON.stringify(heartbeat))
+        }
+    }
+
+    useEffect(() => {
+        heartbeatIntervalRef.current = setInterval(sendHeartbeat, 30000); // 30 seconds interval
+
+        // Clear the interval when the component unmounts
+        return () => {
+            if (heartbeatIntervalRef.current) {
+                clearInterval(heartbeatIntervalRef.current);
+            }
+        };
+    }, [])
+
 
     //searchingForMatch || isInMatchmaking -----> these conditions == true, open websocket to look for match being created
     const setupSocket = async () => {
         return new Promise((resolve, reject) => {
-            console.log('Opening socket with url:', websocketUrl);
+            console.log('Opening chat socket with url:', websocketUrl);
             const socket = new WebSocket(websocketUrl);
 
             ws.current = socket;
