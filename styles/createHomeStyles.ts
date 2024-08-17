@@ -126,7 +126,7 @@ const createHomeStyles = (theme: any, width: number) => {
       width: width-40, //(Dimensions.get('window').width-40),
       backgroundColor: theme.colors.secondary,
       borderColor: theme.colors.tertiary,
-      borderWidth: 1,
+      borderWidth: 2,
       flex: 1,
       borderRadius: 20,
       marginTop: 10,
@@ -428,6 +428,42 @@ const createHomeStyles = (theme: any, width: number) => {
     fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'right'
+  },
+  chatContainer: {
+    flex: 1,
+  },
+
+  inputToolbarContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: theme.colors.background,
+    marginBottom: 10, // Adjust this to move the toolbar above the bottom of the window
+  },
+  textInput: {
+      flex: 1,
+      maxHeight: 100,  // Set a maximum height for the TextInput
+      minHeight: 40,  // Set the initial height of the TextInput to match the send button
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      paddingTop: 10,
+      backgroundColor: theme.colors.inputBackground,
+      borderRadius: 20,
+      fontSize: 16,
+      color: theme.colors.text,
+      borderColor: theme.colors.tertiary, 
+      borderWidth: 2
+      
+  },
+  sendButton: {
+      marginLeft: 10,
+      width: 40, // Fixed size for the send button
+      height: 40, // Fixed size for the send button
+      borderRadius: 20, // Make it a circle
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.colors.accent2, // Customize this color to match your theme
   },
 
   });

@@ -11,6 +11,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { removeInvitation } from '../../GlobalDataManagment/userSlice';
+import Ionicons from "react-native-vector-icons/Ionicons"
+import EntypoIcons from "react-native-vector-icons/Entypo"
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 
 interface Invitation {
   invitationID: string;
@@ -30,6 +33,10 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
   const [hasDefaultProfileImage, setHasDefaultProfileImage] = useState<boolean | null>(null);
   const [profileImage, setProfileImage] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true)
+
+  Ionicons.loadFont()
+  EntypoIcons.loadFont()
+  MaterialCommunityIcons.loadFont()
 
   const { theme } = useTheme();
   const { width, height } = useDimensions();
@@ -96,7 +103,9 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
   }
 
   return (
-    <View style={{ padding: 10, backgroundColor: theme.colors.primary, borderRadius: 10, borderColor: theme.colors.secondary, borderWidth: 1 }}>
+    <View style={{
+      padding: 10, backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderWidth: 1, borderRadius: 20
+    }}>
       {profileImage && (
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
@@ -107,16 +116,20 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
             <View style={{ gap: 5 }}>
               <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 20 }}>{username}</Text>
               <View style={{ flexDirection: 'row', gap: 5 }}>
-                <View style={{ backgroundColor: theme.colors.secondary, paddingVertical: 3, paddingHorizontal: 5, borderRadius: 5 }}>
+                <View style={{ flexDirection: 'row', backgroundColor: theme.colors.gameCardGrayAccent, gap: 5, borderColor: theme.colors.gameCardGrayBorder, borderWidth: 2, paddingVertical: 3, paddingHorizontal: 10, borderRadius: 50, justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="gift" size={14} color={theme.colors.opposite} />
                   <Text style={{ fontFamily: 'InterTight-Bold', color: theme.colors.text }}>${item.wager}</Text>
                 </View>
-                <View style={{ backgroundColor: theme.colors.secondary, paddingVertical: 3, paddingHorizontal: 5, borderRadius: 5 }}>
+                <View style={{ flexDirection: 'row', backgroundColor: theme.colors.gameCardGrayAccent, gap: 5, borderColor: theme.colors.gameCardGrayBorder, borderWidth: 2, paddingVertical: 3, paddingHorizontal: 10, borderRadius: 50, justifyContent: 'center', alignItems: 'center' }}>
+                  <EntypoIcons name="area-graph" size={14} color={theme.colors.opposite} />
                   <Text style={{ fontFamily: 'InterTight-Bold', color: theme.colors.text }}>{item.mode}</Text>
                 </View>
-                <View style={{ backgroundColor: theme.colors.secondary, paddingVertical: 3, paddingHorizontal: 5, borderRadius: 5 }}>
+                <View style={{ flexDirection: 'row', backgroundColor: theme.colors.gameCardGrayAccent, gap: 5, borderColor: theme.colors.gameCardGrayBorder, borderWidth: 2, paddingVertical: 3, paddingHorizontal: 10, borderRadius: 50, justifyContent: 'center', alignItems: 'center' }}>
+                  <MaterialCommunityIcons name="sword-cross" size={14} color={theme.colors.opposite} />
                   <Text style={{ fontFamily: 'InterTight-Bold', color: theme.colors.text }}>{item.type}</Text>
                 </View>
-                <View style={{ backgroundColor: theme.colors.secondary, paddingVertical: 3, paddingHorizontal: 5, borderRadius: 5 }}>
+                <View style={{ flexDirection: 'row', backgroundColor: theme.colors.gameCardGrayAccent, gap: 5, borderColor: theme.colors.gameCardGrayBorder, borderWidth: 2, paddingVertical: 3, paddingHorizontal: 10, borderRadius: 50, justifyContent: 'center', alignItems: 'center' }}>
+                  <MaterialCommunityIcons name="timer" size={14} color={theme.colors.opposite} />
                   <Text style={{ fontFamily: 'InterTight-Bold', color: theme.colors.text }}>{item.timeframe == 900 ? "15m" : item.timeframe == 86400 ? "1d" : "1w"}</Text>
                 </View>
               </View>
@@ -126,13 +139,13 @@ const HTHInvitationItem: React.FC<HTHInvitationItemProps> = ({ item }) => {
 
           <View style={{ flexDirection: 'row', gap: 5, marginTop: 20 }}>
             <View style={{ flex: 1 }}>
-              <TouchableOpacity onPress={handleAcceptInvite} style={{ borderRadius: 8, backgroundColor: theme.colors.accent2, borderWidth: 2, borderColor: theme.colors.accent2, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', padding: 10 }}>Accept (${item.wager})</Text>
+              <TouchableOpacity onPress={handleAcceptInvite} style={{ borderRadius: 15, height: 60, backgroundColor: theme.colors.accent2, borderColor: theme.colors.accent2, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', padding: 10 }}>Join Challenge (${item.wager})</Text>
               </TouchableOpacity>
             </View>
-            <View style={{ flex: 1 }}>
-              <TouchableOpacity style={{ borderRadius: 8, borderColor: theme.colors.opposite, borderWidth: 2, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', padding: 10 }}>Decline</Text>
+            <View>
+              <TouchableOpacity style={{ borderRadius: 15, backgroundColor: theme.colors.opposite, alignItems: 'center', justifyContent: 'center', height: 60, width: 60 }}>
+                <Ionicons name="close" size={24} />
               </TouchableOpacity>
             </View>
           </View>

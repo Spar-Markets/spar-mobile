@@ -1276,7 +1276,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   matchID: matchID,
                   userID: userID,
                   endAt: match.endAt,
-                  yourColor: yourColor
+                  yourColor: yourColor,
+                  otherProfileUri: otherProfileUri,
+                  otherHasDefaultProfileImage: otherHasDefaultProfileImage
                 })
               }}
               style={{
@@ -1323,7 +1325,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
 
         :
         <View style={{ width: width - 40, flex: 1, marginHorizontal: 20, marginTop: 10 }}>
-          <Skeleton animation={"pulse"} style={{ flex: 1, borderRadius: 10, backgroundColor: theme.colors.secondary }} skeletonStyle={{ backgroundColor: theme.colors.primary }} />
+          <Skeleton animation={"pulse"} style={{ flex: 1, borderRadius: 10, backgroundColor: theme.colors.tertiary, borderColor: theme.colors.tertiary, borderWidth: 1 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }} />
         </View>}
     </View >
   );

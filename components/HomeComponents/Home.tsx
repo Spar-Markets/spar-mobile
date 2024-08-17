@@ -868,13 +868,13 @@ const Home: React.FC = () => {
           <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
             <View
               style={{
-                backgroundColor: hexToRGBA(theme.colors.secondary, 0.3),
+                backgroundColor: theme.colors.secondary,
                 height: 35,
                 borderRadius: 50,
                 flexDirection: 'row',
                 alignItems: 'center',
-                borderWidth: 1,
-                borderColor: theme.colors.secondary,
+                borderWidth: 2,
+                borderColor: theme.colors.tertiary,
               }}>
               <Text
                 style={{
@@ -926,7 +926,7 @@ const Home: React.FC = () => {
         </View>
 
         <View style={{ height: 55, marginTop: 10 }}>
-          <View style={{ flex: 1, marginHorizontal: 20, backgroundColor: theme.colors.secondary, borderRadius: 100, borderColor: theme.colors.tertiary, borderWidth: 1, height: 10, flexDirection: 'row', gap: 5 }}>
+          <View style={{ flex: 1, marginHorizontal: 20, backgroundColor: theme.colors.secondary, borderRadius: 100, borderColor: theme.colors.tertiary, borderWidth: 2, height: 10, flexDirection: 'row', gap: 5 }}>
             <TouchableOpacity onPress={() => handleModePress("Head-to-Head")} style={[gameModeSelected == "Head-to-Head" && { backgroundColor: theme.colors.tertiary }, { flex: 1, alignItems: 'center', justifyContent: 'center', marginVertical: 5, marginLeft: 5, borderRadius: 100 }]}>
               <Text style={{ color: theme.colors.opposite, fontFamily: 'intertight-bold' }}>Head-to-Head</Text>
             </TouchableOpacity>
@@ -1168,79 +1168,6 @@ const Home: React.FC = () => {
                           {/* Add more buttons as needed */}
                         </Animated.View>
                       )}
-                      {/*
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            backgroundColor: 'transparent',
-                            alignItems: 'center',
-                            marginHorizontal: 20,
-                            gap: 5,
-                          }}>
-
-                          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ backgroundColor: theme.colors.accent2, height: 50, width: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 50 }}>
-                            <FeatherIcon name="inbox" color={"#fff"} size={24} />
-
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[
-                              styles.addButton,
-                              {
-                                backgroundColor: theme.colors.accent2,
-                                zIndex: 1,
-                                borderColor: theme.colors.accent2,
-                                borderWidth: 2,
-                              },
-                            ]}
-                            onPress={
-                              expandMatchmakingSheet 
-                            }>
-                            <Text
-                              style={{
-                                color: '#fff',
-                                fontFamily: 'InterTight-Black',
-                                fontSize: 18,
-                              }}>
-                              Start a Match
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      */}
-                      {
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            backgroundColor: theme.colors.secondary,
-                            marginHorizontal: 20,
-                            borderRadius: 500,
-                            marginBottom: 10,
-                            marginTop: 20,
-                            borderColor: theme.colors.tertiary,
-                            borderWidth: 1,
-                            gap: 5
-                          }}>
-                          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
-                            <MaterialIcons name="people" color={theme.colors.opposite} size={24} />
-
-                            <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>Invites</Text>
-
-                          </TouchableOpacity>
-                          <View style={{ height: '100%', alignItems: 'center', backgroundColor: 'red', zIndex: 1 }}>
-                            <TouchableOpacity onPress={expandMatchmakingSheet} style={{ position: 'absolute', zIndex: 2, bottom: -10, top: -10, justifyContent: 'center', alignItems: 'center', borderRadius: 500, backgroundColor: theme.colors.accent2, aspectRatio: 1, borderColor: theme.colors.tertiary, borderWidth: 3 }}>
-                              <MaterialCommunityIcons name="sword-cross" color={theme.colors.opposite} size={24} />
-
-                              {/*<Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>Matchmake</Text>*/}
-                            </TouchableOpacity>
-                          </View>
-
-                          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
-                            <MaterialCommunityIcons name="history" color={theme.colors.opposite} size={24} />
-
-                            <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>History</Text>
-
-                          </TouchableOpacity>
-                        </View>
-                      }
                     </View>
                   )}
                 </View>
@@ -1287,6 +1214,44 @@ const Home: React.FC = () => {
             </View>
           </View>
         )}
+
+        <View
+          style={{
+            flexDirection: 'row',
+            backgroundColor: theme.colors.secondary,
+            marginHorizontal: 20,
+            borderRadius: 500,
+            marginBottom: 10,
+            marginTop: 20,
+            borderColor: theme.colors.tertiary,
+            borderWidth: 2,
+            gap: 5
+          }}>
+          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
+            <MaterialIcons name="people" color={theme.colors.opposite} size={24} />
+
+            <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>Invites</Text>
+
+          </TouchableOpacity>
+          <View style={{ height: '100%', alignItems: 'center', backgroundColor: 'red', zIndex: 1 }}>
+            <TouchableOpacity onPress={expandMatchmakingSheet} style={{ position: 'absolute', zIndex: 2, bottom: -10, top: -10, justifyContent: 'center', alignItems: 'center', borderRadius: 500, backgroundColor: gameModeSelected == "Head-to-Head" ? theme.colors.accent2 : theme.colors.accent3, aspectRatio: 1, borderColor: theme.colors.tertiary, borderWidth: 3 }}>
+              {gameModeSelected == "Head-to-Head" ?
+                <MaterialCommunityIcons name={"sword-cross"} color={theme.colors.opposite} size={24} />
+                :
+                <Icon name="search" color={theme.colors.opposite} size={24} />
+              }
+
+              {/*<Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>Matchmake</Text>*/}
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
+            <MaterialCommunityIcons name="history" color={theme.colors.opposite} size={24} />
+
+            <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>History</Text>
+
+          </TouchableOpacity>
+        </View>
 
 
 
