@@ -152,20 +152,14 @@ const Chat = () => {
                 }
 
                 const message = event.data;
+                const parsedMessage = JSON.parse(event.data);
+
+                if (parsedMessage.type === 'newChat') {
+                    // Append the new chat to the messages array
+                    setMessages((prevMessages: any) => [...prevMessages, parsedMessage.newChat]);
+                }
 
                 console.log('chat websocket message received:', message);
-
-                try {
-                    const JSONMessage = JSON.parse(message);
-                    // Change stream handling for new matches
-                    if (JSONMessage.type == 'matchCreated') {
-                        console.log('Changestream for messages recieves');
-
-                    }
-
-                } catch (error) {
-                    console.error('Error processing WebSocket message:', error);
-                }
             };
 
             ws.current.onerror = error => {
