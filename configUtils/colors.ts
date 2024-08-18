@@ -6,39 +6,39 @@
 export const darkColors = {
     dark: true,
     colors: {
-        primary: '#161712',//'#1a3040', //main boxes
-        secondary: '#171718',
-        tertiary: '#232325',
-        background: '#0C090D',
-        gameCardGrayAccent: '#222225',
-        gameCardGrayBorder: '#29292c',
+        primary: '#161712',//'#1a3040', //main boxes // dark gray almost black
+        secondary: '#171718', // dark gray looks the same as above but slightly lighter
+        tertiary: '#232325', // lighter gray
+        background: '#0C090D', // black
+        gameCardGrayAccent: '#222225', // light gray 
+        gameCardGrayBorder: '#29292c', //  light gray
 
-        border: '#000',
-        accent: '#60FFCF', //most buttons
-        darkAccent: '#095c35',
-        accent2: '#345fe5', //border, some buttons
-        darkAccent2: '#0c1738',
-        accent3: '#ffa060',
-        text: '#ffffff', 
-        secondaryText: '#909090',
-        card: '#1b1b1b',
-        notification : '#dd0000',
-        tertiaryText: '#000000',
-        opposite: '#ffffff',
-        stockUpAccent: '#60FFCF',
-        optionsUpAccent: '#6DFF60',
-        cryptoUpAccent: '#60ECFF',
-        stockDownAccent: '#FF6060',
-        darkStockDownAccent: '#8c3232',
-        optionsDownAccent: '#FF6099',
-        cryptoDownAccent: '#FF8660',
-        discussion: '#dd0000',
-        meme: '#00dd00',
+        border: '#000', // black 
+        accent: '#60FFCF', //most buttons, green
+        darkAccent: '#095c35', // green 
+        accent2: '#345fe5', //border, some buttons, blue 
+        darkAccent2: '#0c1738', // navy blue 
+        accent3: '#ffa060', // orange/salmon
+        text: '#ffffff',  //white 
+        secondaryText: '#909090', // bright gray 
+        card: '#1b1b1b', // dark gray 
+        notification : '#dd0000', // red
+        tertiaryText: '#000000', // black
+        opposite: '#ffffff', // white
+        stockUpAccent: '#60FFCF', // green
+        optionsUpAccent: '#6DFF60', // green 
+        cryptoUpAccent: '#60ECFF', // blue 
+        stockDownAccent: '#FF6060', // red
+        darkStockDownAccent: '#8c3232', // dark red
+        optionsDownAccent: '#FF6099', //  pink 
+        cryptoDownAccent: '#FF8660', // orange 
+        discussion: '#dd0000', // red 
+        meme: '#00dd00', 
         news: '#0000dd',
         dub: '#dd00dd',
         question: '#00dddd',
         purpleAccent: '#F5BD02',
-        redAccent: '#FF006B'
+        redAccent: '#FF006B',
     }
 }
 
