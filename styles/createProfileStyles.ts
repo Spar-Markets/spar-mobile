@@ -21,12 +21,14 @@ const createProfileStyles = (theme: any, width: number) => {
         paddingHorizontal: 10,
     },
     profilePic: {
-        borderRadius: 500,
-        width: 110,
-        height: 110,
+        borderRadius: 100,
+        width: 70,
+        height: 70,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: theme.colors.primary
+        backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.tertiary,
+        borderWidth: 2
     },
     rankContainer: {
         backgroundColor: '#81BFB4',
@@ -39,16 +41,14 @@ const createProfileStyles = (theme: any, width: number) => {
         color: theme.colors.background
     },
     usernameText: {
-        fontFamily: 'InterTight-Black',
+        fontFamily: 'InterTight-bold',
         color: theme.colors.text,
-        fontSize: 20,
+        fontSize: 21,
     },
     bioText: {
-        fontFamily: 'InterTight-Medium',
+        fontFamily: 'InterTight-bold',
         color: theme.colors.text,
-        fontSize: 15,
-        marginHorizontal: 20,
-        textAlign: 'center'
+        fontSize: 14,
     },
     mainContainer: {
         borderRadius: 10,
@@ -58,7 +58,7 @@ const createProfileStyles = (theme: any, width: number) => {
     },
     mainContainerType: {
         color: theme.colors.text,
-        fontFamily: 'InterTight-Regular',
+        fontFamily: 'InterTight-Bold',
     },
     mainContainerText: {
         color: theme.colors.text,

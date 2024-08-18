@@ -892,7 +892,7 @@ const Home: React.FC = () => {
                   padding: 4,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginRight: 3,
+                  marginRight: 2,
                 }}>
                 <MaterialIcons name="add" color={"#fff"} size={20} />
               </TouchableOpacity>
@@ -1220,7 +1220,7 @@ const Home: React.FC = () => {
             flexDirection: 'row',
             backgroundColor: theme.colors.secondary,
             marginHorizontal: 20,
-            borderRadius: 500,
+            borderRadius: 100,
             marginBottom: 10,
             marginTop: 20,
             borderColor: theme.colors.tertiary,
