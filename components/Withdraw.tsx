@@ -11,10 +11,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {serverUrl} from '../constants/global';
+import { useSelector } from 'react-redux';
+import { RootState } from '../GlobalDataManagment/store';
 
 const Withdraw = () => {
   const navigation = useNavigation<any>();
   const colorScheme = useColorScheme();
+  const user = useSelector((state: RootState) => state.user)
 
   const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [styles, setStyles] = useState(darkStyles);
@@ -128,13 +131,12 @@ const Withdraw = () => {
     );
     if (authData.data == 'approved') {
       try {
-        const email = "i put viagra in my goofy ahh uncle's drink and he tried to do bad things to me"
         const updateBalData = {
-          email: email,
+          userID: user.userID,
           withdraw: input,
         };
         await axios.post(
-          serverUrl + '/updateUserBalanceWithdraw',
+          `${serverUrl} /updateUserBalanceWithdraw`,
           updateBalData,
         );
       } catch {
