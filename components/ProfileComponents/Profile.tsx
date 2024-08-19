@@ -16,7 +16,8 @@ import {
   SafeAreaView,
   Alert,
   PermissionsAndroid,
-  Linking
+  Linking,
+  Animated
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -46,6 +47,9 @@ import { RootState } from '../../GlobalDataManagment/store';
 import { setHasDefaultProfileImage } from '../../GlobalDataManagment/userSlice';
 import LinearGradient from 'react-native-linear-gradient';
 import { FlatList } from 'react-native';
+import { TabView } from '@rneui/base';
+import ProfileTabView from './ProfileTabView';
+import * as Progress from 'react-native-progress';
 
 
 
@@ -87,6 +91,7 @@ const Profile = ({ navigation }: any) => {
 
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
 
     if (hasDefaultProfileImage != null && loading) {
@@ -124,7 +129,7 @@ const Profile = ({ navigation }: any) => {
 
   useEffect(() => {
     if (loading) {
-      const getProfileImage = async () => {
+      const getBannerImage = async () => {
         try {
           const imageRef = storage().ref(`bannerImages/${user.userID}`);
           try {
@@ -142,7 +147,7 @@ const Profile = ({ navigation }: any) => {
           setLoading(false);
         }
       };
-      getProfileImage();
+      getBannerImage();
     }
   }, [])
 
@@ -274,7 +279,7 @@ const Profile = ({ navigation }: any) => {
   };
 
 
-
+  const [index, setIndex] = useState(0);
 
 
   const uploadProfileImageToFirebase = async (imageUri: string) => {
@@ -323,163 +328,158 @@ const Profile = ({ navigation }: any) => {
       flex: 1
     }}>
 
-      <ScrollView>
-
-
-        <TouchableOpacity onPress={chooseBannerFromLibrary} style={{ width: width, height: 150 }}>
-          {banner != null ?
-            <Image source={{ uri: banner }} style={{ width: width, height: 150 }} /> : <View style={{ width: width, height: 150, backgroundColor: theme.colors.accent2 }} />
-          }
-
-        </TouchableOpacity>
-        <TouchableOpacity onPress={choosePhotoFromLibrary} style={{ zIndex: 10, position: 'absolute', left: 10, top: 115 }}>
-          {hasDefaultProfileImage == true && (
-            <Image
-              style={[
-                styles.profilePic,
-                ,
-              ]}
-              source={{ uri: profileImageUri }}
-            />
-          )}
-          {hasDefaultProfileImage == false && (
-            <Image
-              style={[
-                styles.profilePic,
-                ,
-              ]}
-              source={{ uri: profileImageUri } as any}
-            />
-          )}
-        </TouchableOpacity>
 
 
 
-        <View style={{ marginHorizontal: 10, marginTop: 50, gap: 2 }}>
-          <View
+      <TouchableOpacity onPress={chooseBannerFromLibrary} style={{ width: width, height: 150 }}>
+        {banner != null ?
+          <Image source={{ uri: banner }} style={{ width: width, height: 150 }} /> : <View style={{ width: width, height: 150, backgroundColor: theme.colors.accent2 }} />
+        }
+
+      </TouchableOpacity>
+      <TouchableOpacity onPress={choosePhotoFromLibrary} style={{ zIndex: 10, position: 'absolute', left: 10, top: 115 }}>
+        {hasDefaultProfileImage == true && (
+          <Image
+            style={[
+              styles.profilePic,
+              ,
+            ]}
+            source={{ uri: profileImageUri }}
+          />
+        )}
+        {hasDefaultProfileImage == false && (
+          <Image
+            style={[
+              styles.profilePic,
+              ,
+            ]}
+            source={{ uri: profileImageUri } as any}
+          />
+        )}
+      </TouchableOpacity>
+
+
+
+      <View style={{ marginHorizontal: 10, marginTop: 50, gap: 2 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+          }}>
+          <Text style={[styles.usernameText]}>{username}</Text>
+          <TouchableOpacity
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 10,
-            }}>
-            <Text style={[styles.usernameText]}>{username}</Text>
-            <TouchableOpacity
-              style={{
-                aspectRatio: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-              }}
-              onPress={() =>
-                navigation.navigate('editProfilePage', {
-                  userID: user.userID,
-                  username: username,
-                  bio: userBio,
-                })
-              }>
-              <FeatherIcons
-                name="edit-2"
-                color={theme.colors.text}
-                size={18}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={{ flexDirection: 'row' }}>
-
-          </View>
-          <Text style={styles.bioText}>{userBio}</Text>
-          <View style={{ marginTop: 10, flexDirection: 'row', gap: 5, alignItems: 'center' }}>
-            <FeatherIcons name="calendar" color={theme.colors.secondaryText} size={16} />
-            <Text style={{ color: theme.colors.secondaryText, fontFamily: "intertight-medium" }}>Joined August 2, 2024</Text>
-          </View>
-        </View>
-
-
-
-
-        <View style={{ flexDirection: 'row', flex: 1, backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderRadius: 10, borderWidth: 2, marginHorizontal: 10, padding: 10, marginTop: 10 }}>
-          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
-              {user.friendCount}{' '}
-            </Text>
-            <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
-              {user.friendCount == 1 ? "Friend" : "Friends"}
-            </Text>
-          </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
-              26
-            </Text>
-            <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
-              Games Played
-            </Text>
-          </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
-              0
-            </Text>
-            <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
-              Posts
-            </Text>
-          </View>
-        </View>
-
-
-        <View style={{
-          backgroundColor: theme.colors.secondary,
-          marginHorizontal: 10,
-          borderColor: theme.colors.tertiary,
-          borderWidth: 2,
-          borderRadius: 10,
-          marginTop: 10,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingVertical: 10,
-          paddingHorizontal: 10
-        }}>
-          <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100 }}>
-            <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD</Text>
-          </LinearGradient>
-          <View style={{ flex: 1, marginHorizontal: 10, height: 10, backgroundColor: theme.colors.tertiary, borderRadius: 5, position: 'relative' }}>
-            {/* Progress Bar Fill */}
-            <View style={{
-              width: `${50}%`, // Set width based on progress
-              height: '100%',
-              backgroundColor: theme.colors.opposite,
-              borderRadius: 5,
-            }} />
-
-            {/* Progress Circle */}
-            <View style={{
-              position: 'absolute',
-              top: -5, // Adjusts the vertical alignment of the circle
-              left: `${50}%`,
-              marginLeft: -10, // Center the circle horizontally
-              width: 20,
-              height: 20,
-              borderRadius: 50,
-              backgroundColor: theme.colors.opposite,
-              alignItems: 'center',
+              aspectRatio: 1,
               justifyContent: 'center',
-            }}>
-              <Text style={{ color: theme.colors.background, fontSize: 8, fontFamily: 'intertight-Bold' }}>
-                {`${Math.round(50)}%`}
-              </Text>
-            </View>
-          </View>
-          <LinearGradient colors={["#B9F2FF", "#558B81"]} style={{ borderRadius: 100 }}>
-            <Text style={{ fontFamily: 'intertight-bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>DIAMOND</Text>
-          </LinearGradient>
+              alignItems: 'center',
+              borderRadius: 10,
+            }}
+            onPress={() =>
+              navigation.navigate('editProfilePage', {
+                userID: user.userID,
+                username: username,
+                bio: userBio,
+              })
+            }>
+            <FeatherIcons
+              name="edit-2"
+              color={theme.colors.text}
+              size={18}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={{ flexDirection: 'row' }}>
 
         </View>
+        <Text style={styles.bioText}>{userBio}</Text>
+        <View style={{ marginTop: 10, flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+          <FeatherIcons name="calendar" color={theme.colors.secondaryText} size={16} />
+          <Text style={{ color: theme.colors.secondaryText, fontFamily: "intertight-medium" }}>Joined August 2, 2024</Text>
+        </View>
+      </View>
 
 
 
 
+      <View style={{ flexDirection: 'row', backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderRadius: 100, borderWidth: 2, marginHorizontal: 10, padding: 10, marginTop: 10 }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+          <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+            {user.friendCount}{' '}
+          </Text>
+          <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+            {user.friendCount == 1 ? "Friend" : "Friends"}
+          </Text>
+        </View>
+        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+          <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+            26
+          </Text>
+          <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+            Games Played
+          </Text>
+        </View>
+        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+          <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+            0
+          </Text>
+          <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+            Posts
+          </Text>
+        </View>
+      </View>
+
+      <View>
+
+      </View>
 
 
-        {/*              <View
+      <View style={{
+        marginHorizontal: 10,
+        borderRadius: 10,
+        marginTop: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
+      }}>
+        <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100, zIndex: 100 }}>
+          <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD</Text>
+        </LinearGradient>
+        <View style={{ flex: 1, marginHorizontal: -2, height: 10, backgroundColor: theme.colors.tertiary, borderRadius: 0, position: 'relative' }}>
+
+          <View style={{
+            width: `${50}%`, // Set width based on progress
+            height: '100%',
+            backgroundColor: theme.colors.opposite,
+            borderRadius: 0,
+          }} />
+        </View>
+        <LinearGradient colors={["#B9F2FF", "#558B81"]} style={{ borderRadius: 100, zIndex: 100 }}>
+          <Text style={{ fontFamily: 'intertight-bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>DIAMOND</Text>
+        </LinearGradient>
+
+      </View>
+
+
+
+      <ProfileTabView />
+      {/*<TabView value={index} onChange={setIndex} containerStyle={{ width: width }} minSwipeRatio={0.2} minSwipeSpeed={0.5}>
+        <TabView.Item style={{ width: '100%' }}>
+          <ScrollView>
+            <Text style={{ color: 'white' }}>Tab 1 Content</Text>
+          </ScrollView>
+        </TabView.Item>
+        <TabView.Item style={{ width: '100%' }}>
+          <ScrollView>
+            <Text style={{ color: 'white' }}>Tab 2 Content</Text>
+          </ScrollView>
+        </TabView.Item>
+      </TabView>*/}
+
+
+
+      {/*              <View
                 style={{
                   flexDirection: 'row',
                   justifyContent: 'center',
@@ -801,8 +801,8 @@ const Profile = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>*/}
 
-        <View style={{ marginVertical: 20 }}>
-          {/*<Text
+      <View style={{ marginVertical: 20 }}>
+        {/*<Text
               style={{
                 color: theme.colors.text,
                 fontSize: 20,
@@ -828,8 +828,9 @@ const Profile = ({ navigation }: any) => {
                 );
               })}
             </View>*/}
-        </View>
-      </ScrollView>
+      </View>
+
+
     </View>
   );
 };

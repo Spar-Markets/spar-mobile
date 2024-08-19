@@ -77,7 +77,10 @@ const CoreApp = (): React.ReactElement => {
           tabBarActiveTintColor: theme.colors.text, // Mint green color for active tab
           tabBarInactiveTintColor: theme.colors.secondaryText,
           tabBarStyle: {
-            height: 85, borderRadius: 0, paddingHorizontal: 10, backgroundColor: theme.colors.background, marginBottom: 5
+            height: 85, borderRadius: 0,
+            paddingHorizontal: 10,
+            backgroundColor: theme.colors.background,
+            marginBottom: 5, zIndex: 1
           }, // Black background for the tab bar
           tabBarShowLabel: false,
           /*tabBarBackground: () => (
@@ -98,7 +101,7 @@ const CoreApp = (): React.ReactElement => {
         })}>
 
         <Tab.Screen name="Discover" component={StockSearch} options={{ headerShown: false, lazy: false }} />
-        {/*<Tab.Screen name="Feed" component={Feed} options={{headerShown:false}}/>*/}
+        <Tab.Screen name="Feed" component={Feed} options={{ headerShown: false }} />
         <Tab.Screen name="Portfolio" component={Home} options={{ headerShown: false, lazy: false }} />
         <Tab.Screen name="Bank" component={Bank} options={{ headerShown: false }} />
         <Tab.Screen name="Profile" component={Profile} options={{ headerShown: false, lazy: false }} />

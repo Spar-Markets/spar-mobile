@@ -27,12 +27,12 @@ const createProfileStyles = (theme: any, width: number) => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.tertiary,
-        borderWidth: 2
+        borderColor: theme.colors.background,
+        borderWidth: 4
     },
     rankContainer: {
         backgroundColor: '#81BFB4',
-        paddingVertical:5 ,
+        paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius:10,
     },
@@ -151,7 +151,32 @@ const createProfileStyles = (theme: any, width: number) => {
         backgroundColor: theme.colors.secondary, 
         justifyContent: 'center', 
         alignItems: 'center'
-    }
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: theme.backgroundColor,
+    },
+    button: {
+        paddingVertical: 10,
+        width: width / 3, // Adjust based on your design
+        alignItems: 'center',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: theme.colors.text,
+        fontFamily: 'InterTight-Bold'
+    },
+    indicator: {
+        height: 2,
+        backgroundColor: theme.colors.opposite,
+        position: 'absolute',
+        bottom: 0,
+    },
+    scene: {
+        flex: 1,
+    },
     
     
     
