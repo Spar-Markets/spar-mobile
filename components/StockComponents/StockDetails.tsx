@@ -474,7 +474,7 @@ const StockDetails = () => {
                       isSelling: true,
                       ticker: params?.ticker,
                       matchID: params?.matchID,
-                      qty: params?.qty,
+                      qty: asset.totalShares,
                       endAt: params?.endAt,
                     })
                   }>
