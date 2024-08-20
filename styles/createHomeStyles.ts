@@ -108,29 +108,29 @@ const createHomeStyles = (theme: any, width: number) => {
       fontSize: 16
     },
     percentIndicator: {
-        backgroundColor: theme.colors.tertiary,
         borderRadius: 5,
-        justifyContent: 'center'
+        flexDirection: 'row',
+        alignItems: 'center',
+        
+        
 
     },
     percentText: {
-        paddingHorizontal: 5,
-        paddingVertical: 3,
+
         fontFamily: 'InterTight-Bold',
         fontSize: 12
     },
 
     // GameCard
     gameCardContainer: {
-      width: (Dimensions.get('window').width-40),
-      //backgroundColor: "rgba(0,0,0,0.5)",
-      marginHorizontal: 20,
+      width: width-40, //(Dimensions.get('window').width-40),
+      backgroundColor: theme.colors.secondary,
+      borderColor: theme.colors.tertiary,
+      borderWidth: 2,
       flex: 1,
-      borderRadius: 10,
+      borderRadius: 20,
       marginTop: 10,
-      borderWidth: 1,
-      borderColor: theme.colors.secondary
-
+      marginHorizontal: 20
     },
 
     indicatorContainer: {
@@ -138,13 +138,14 @@ const createHomeStyles = (theme: any, width: number) => {
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 10,
-      marginHorizontal: 15
+      marginHorizontal: 15,
+      
     },
     indicator: {
-      flex: 1,
-      height: 10,
-      borderRadius: 3,
-      marginHorizontal: 5,
+      width: 8,
+      height: 8,
+      borderRadius: 50,
+      marginHorizontal: 3,
     },
     activeIndicator: {
       backgroundColor: theme.colors.opposite, // Active color
@@ -213,15 +214,12 @@ const createHomeStyles = (theme: any, width: number) => {
     // Timer
     timerContainer: {
       borderRadius: 5,
-      justifyContent: 'center',
-      alignItems: 'center',
+
       flexDirection: 'row',
       gap: 5,
-      paddingVertical: 5
     },
     timeText: {
-      fontSize: 12,
-      color: theme.colors.stockDownAccent,
+      color: theme.colors.opposite,
       fontWeight: 'bold',
       fontFamily: 'InterTight-Bold',
     },
@@ -430,6 +428,42 @@ const createHomeStyles = (theme: any, width: number) => {
     fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'right'
+  },
+  chatContainer: {
+    flex: 1,
+  },
+
+  inputToolbarContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: theme.colors.background,
+    marginBottom: 10, // Adjust this to move the toolbar above the bottom of the window
+  },
+  textInput: {
+      flex: 1,
+      maxHeight: 100,  // Set a maximum height for the TextInput
+      minHeight: 40,  // Set the initial height of the TextInput to match the send button
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      paddingTop: 10,
+      backgroundColor: theme.colors.inputBackground,
+      borderRadius: 20,
+      fontSize: 16,
+      color: theme.colors.text,
+      borderColor: theme.colors.tertiary, 
+      borderWidth: 2
+      
+  },
+  sendButton: {
+      marginLeft: 10,
+      width: 40, // Fixed size for the send button
+      height: 40, // Fixed size for the send button
+      borderRadius: 20, // Make it a circle
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.colors.accent2, // Customize this color to match your theme
   },
 
   });

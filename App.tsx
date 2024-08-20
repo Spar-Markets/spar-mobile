@@ -64,6 +64,10 @@ import axios from 'axios';
 
 import auth from '@react-native-firebase/auth';
 import { serverUrl } from './constants/global';
+import Chat from './components/HomeComponents/Chat';
+import timeTillCloseOrOpen from './utility/timeTillCloseOrOpen';
+import isMarketOpen from './utility/marketOpen';
+import { setIsMarketOpen } from './GlobalDataManagment/marketStatusSlice';
 
 const Stack = createNativeStackNavigator();
 
@@ -98,6 +102,28 @@ const AppContent = (): React.ReactElement => {
   const userID = useSelector((state: RootState) => state.user.userID);
 
   const [userData, setUserData] = useState<any>(null)
+
+  /**
+   * Maintain updated market status (market being open or closed).
+   * Sets initial value
+   */
+  useEffect(() => {
+    const updateMarketStatus = () => {
+      // set whether the market is currently open
+      const marketOpen = isMarketOpen();
+      dispatch(setIsMarketOpen(marketOpen));
+
+      // calculate time until next open or close
+      const timeUntilNextChange = timeTillCloseOrOpen();
+
+      // schedule an update to market status when the next close or open occurs
+      setTimeout(() => {
+        updateMarketStatus();
+      }, timeUntilNextChange);
+    }
+
+    updateMarketStatus();
+  }, [dispatch])
 
   useEffect(() => {
     if (userID) {
@@ -361,6 +387,16 @@ const AppContent = (): React.ReactElement => {
             <Stack.Screen
               name="Invitations"
               component={Invitations}
+              options={{
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'horizontal',
+                animation: 'slide_from_bottom',
+              }}
+            />
+            <Stack.Screen
+              name="Chat"
+              component={Chat}
               options={{
                 headerShown: false,
                 gestureEnabled: true,

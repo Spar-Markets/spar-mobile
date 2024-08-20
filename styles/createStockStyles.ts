@@ -238,7 +238,7 @@ const createStockSearchStyles = (theme: any, width: number) => {
     stockCardDiff: {
       color: theme.colors.stockUpAccent,
       fontSize: 11,
-      fontWeight: 'bold',
+      fontFamily: 'InterTight-bold',
       textAlign: 'right'
     },
 
@@ -295,12 +295,10 @@ const createStockSearchStyles = (theme: any, width: number) => {
   
 
   positionCardContainer: {
-    backgroundColor: theme.colors.background,
     //borderWidth: 1,
     //borderColor: theme.colors.secondary,
     justifyContent: 'center',
     borderRadius: 8,
-    marginHorizontal: 10,
     marginBottom: 10
     
   },

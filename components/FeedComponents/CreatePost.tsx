@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Keyboard, KeyboardEvent, TextInput, ScrollView, Animated, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard, KeyboardEvent, TextInput, ScrollView, Animated, StyleSheet, Platform, Linking, PermissionsAndroid, Alert } from 'react-native';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createFeedStyles from '../../styles/createFeedStyles';
@@ -16,6 +16,8 @@ import { Image } from 'react-native';
 import { ref, uploadBytes } from 'firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer'
 import { RootState } from '../../GlobalDataManagment/store';
+import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import storage from '@react-native-firebase/storage';
 
 const CreatePost = (props: any) => {
 
@@ -32,19 +34,87 @@ const CreatePost = (props: any) => {
     const [selectedCategory, setSelectedCategory] = useState("");
     const animatedMargin = useRef(new Animated.Value(70)).current;
 
-    const [image, setImage] = useState<string | null>(null)
+    const [image, setImage] = useState<any>(null)
 
     const user = useSelector((state: RootState) => state.user)
 
+
+    const requestPermissions = async () => {
+        let photoLibraryPermissionGranted = false;
+
+        if (Platform.OS === 'ios') {
+            const photoLibraryPermission = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+
+            if (photoLibraryPermission == RESULTS.BLOCKED) {
+
+                Alert.alert(
+                    "Permission Required",
+                    "Customizing your profile picture requires access to photos. Please enable them in the app settings.",
+                    [
+                        {
+                            text: "Cancel",
+                            style: "cancel"
+                        },
+                        {
+                            text: "Open Settings",
+                            onPress: () => {
+                                if (Platform.OS === 'ios') {
+                                    Linking.openURL('app-settings:');
+                                } else {
+                                    Linking.openSettings();
+                                }
+                            }
+                        }
+                    ]
+                );
+            } else if (photoLibraryPermission === RESULTS.GRANTED) {
+                photoLibraryPermissionGranted = true;
+            }
+
+            // Uncomment this block if you need camera permissions
+            /*const cameraPermission = await check(PERMISSIONS.IOS.CAMERA);
+            if (cameraPermission !== RESULTS.GRANTED) {
+              await request(PERMISSIONS.IOS.CAMERA);
+            }*/
+        } else if (Platform.OS === 'android') {
+            const readPermission = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+            );
+
+            const writePermission = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            );
+
+            const cameraPermission = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.CAMERA,
+            );
+
+            if (
+                readPermission === PermissionsAndroid.RESULTS.GRANTED &&
+                writePermission === PermissionsAndroid.RESULTS.GRANTED &&
+                cameraPermission === PermissionsAndroid.RESULTS.GRANTED
+            ) {
+                photoLibraryPermissionGranted = true;
+            }
+        }
+
+        return photoLibraryPermissionGranted;
+    };
+
     const choosePhotoFromLibrary = () => {
         ImagePicker.openPicker({
-            compressImageQuality: 0.3, // Adjust image quality
+            cropping: true,
             cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
             cropperToolbarColor: theme.colors.accent, // Toolbar color of the cropper
             cropperToolbarWidgetColor: theme.colors.text, // Toolbar widget color of the cropper
+            cropperToolbarTitle: 'Edit Photo',
+            freeStyleCropEnabled: true,
+            compressImageQuality: 1, // Set to 1 to avoid compression
+            width: 1000,
+            height: 1000
         }).then((image: any) => {
-            const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-            setImage(imageUri);
+            console.log(image);
+            setImage(image);
         }).catch((error: any) => {
             console.log("Image picker error:", error);
         });
@@ -125,9 +195,12 @@ const CreatePost = (props: any) => {
             //find cryptographically strong method, crypto cant be used in RN
             const postId = generateRandomString(40);
 
+            console.log("hello there", image)
+
             const localPostData = {
                 postId: postId,
-                username: user.username!, //fix to be current logged in user through AUTH
+                posterId: user.userID!,
+                username: user.username!,
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,
@@ -142,15 +215,15 @@ const CreatePost = (props: any) => {
                 isDownvoted: false,
                 postedTimeAgo: "",
                 comments: [],
-                image: image ? image : null,
-                profileImage: yourProfileImageUri
+                image: image ? image.path : null,
+                profileImage: yourProfileImageUri,
+                aspectRatio: image ? image.width / image.height : null
             };
             //console.log(localPostData)
 
             const mongoPostData = {
                 postId: postId,
                 posterId: user.userID!,
-                username: user.username!,
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,
@@ -166,17 +239,16 @@ const CreatePost = (props: any) => {
             if (response.status == 200) {
                 try {
                     if (image) {
-                        const uri = image; // The URI of the image to be resized
+                        const uri = image.path; // The URI of the image to be resized
                         const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
                         const quality = 100; // The quality of the resized image (0-100)
 
                         ImageResizer.createResizedImage(
-                            uri, 500, 500, format, quality,
+                            uri, image.width, image.height, format, quality,
                         ).then(async (response) => {
-                            const imageRes = await fetch(response.uri);
-                            const blob = await imageRes.blob();
-                            //const imgRef = ref(storage, `postImages/${postId}`);
-                            //await uploadBytes(imgRef, blob);
+                            const imgRef = storage().ref(`postImages/${postId}`);
+                            console.log(response.uri)
+                            await imgRef.putFile(response.uri)
                             dispatch(addPost(localPostData))
                             navigation.goBack()
                             console.log('Image uploaded successfully');
@@ -220,7 +292,7 @@ const CreatePost = (props: any) => {
 
             </View>
             <View style={{ flex: 1 }}>
-                <ScrollView style={{ backgroundColor: theme.colors.primary, marginBottom: 20 }} keyboardDismissMode='on-drag'>
+                <ScrollView style={{ backgroundColor: theme.colors.background, marginBottom: 20 }} keyboardDismissMode='on-drag'>
                     <TextInput
                         placeholder="Title"
                         placeholderTextColor={theme.colors.tertiary}
@@ -243,18 +315,18 @@ const CreatePost = (props: any) => {
 
                     />
                     {image != null ?
-                        <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
+                        <TouchableOpacity onPress={choosePhotoFromLibrary} style={{ marginHorizontal: 20, marginVertical: 20 }}>
                             <Image
-                                source={{ uri: image }}
+                                source={{ uri: image.path }}
                                 style={{
                                     width: width - 40,
                                     height: undefined,
-                                    aspectRatio: 1,
+                                    aspectRatio: image.width / image.height,
                                     borderRadius: 10,
                                 }}
                                 resizeMode="cover"
                             />
-                        </View>
+                        </TouchableOpacity>
                         : null}
                 </ScrollView>
 

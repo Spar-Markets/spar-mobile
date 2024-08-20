@@ -9,6 +9,8 @@ import stockSlice from './stockSlice';
 import uiSlice from './uiSlice';
 import activeMatchesSlice from './activeMatchesSlice';
 import matchmakingSlice from './matchmakingSlice';
+import marketStatusSlice from './marketStatusSlice';
+import commentSheetSlice from './commentSheetSlice';
 
 export const store = configureStore({
   reducer: {
@@ -21,7 +23,9 @@ export const store = configureStore({
     stock: stockSlice,
     ui: uiSlice,
     activeMatches: activeMatchesSlice,
-    matchmaking: matchmakingSlice
+    matchmaking: matchmakingSlice,
+    marketStatus: marketStatusSlice,
+    commentSheet: commentSheetSlice
   },
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware({

@@ -58,8 +58,6 @@ const StockOrder = (props: any) => {
 
   const userID = useSelector((state: RootState) => state.user.userID);
 
-  const [toggleState, setToggleState] = useState('stock');
-
   const [shareQuantity, setShareQuantity] = useState('0');
   const [dollarAmount, setDollarAmount] = useState('0');
   const [inReview, setInReview] = useState(false);
@@ -67,6 +65,8 @@ const StockOrder = (props: any) => {
   const stockPrice = useSelector((state: RootState) => state.stock.stockPrice);
   const formattedShareQuantity = shareQuantity;
   const formattedDollarAmount = dollarAmount;
+
+  const [selectedMode, setSelectedMode] = useState('shares');
 
   const goBack = () => {
     navigation.goBack();
@@ -84,18 +84,34 @@ const StockOrder = (props: any) => {
     (state: RootState) => state.websockets[params?.ticker],
   );
 
+  const user = useSelector((state: RootState) => state.user);
+
   useEffect(() => {
     console.log(ws);
   }, [ws]);
 
   const purchaseStock = async () => {
     try {
-      const buyResponse = await axios.post(serverUrl + '/purchaseStock', {
-        userID: userID,
-        matchID: params?.matchID,
-        ticker: params?.ticker,
-        shares: shareQuantity,
-      });
+      let buyResponse;
+      if (selectedMode == "shares") {
+        buyResponse = await axios.post(serverUrl + '/purchaseStock', {
+          userID: userID,
+          matchID: params?.matchID,
+          ticker: params?.ticker,
+          shares: shareQuantity,
+          type: "shares"
+        });
+      } else {
+        // dollar logic
+        buyResponse = await axios.post(serverUrl + '/purchaseStock', {
+          userID: userID,
+          matchID: params?.matchID,
+          ticker: params?.ticker,
+          dollars: dollarAmount,
+          type: "dollars"
+        });
+      }
+
       console.log('Buy Response:', buyResponse.data);
       if (buyResponse) {
         navigation.replace('OrderSummary', {
@@ -105,7 +121,7 @@ const StockOrder = (props: any) => {
           isSelling: params?.isSelling,
           matchID: params?.matchID,
           buyData: buyResponse.data,
-          logoUrl: params?.logoUrl
+          logoUrl: params?.logoUrl,
         });
       }
     } catch (error) {
@@ -115,19 +131,25 @@ const StockOrder = (props: any) => {
 
   const sellingStock = async () => {
     try {
-      const userID = await AsyncStorage.getItem('userID');
       const sellResponse = await axios.post(serverUrl + '/sellStock', {
-        userID: userID,
+        userID: user.userID,
         matchID: params?.matchID,
         ticker: params?.ticker,
         shares: shareQuantity,
       });
+      // TODO: handle error if order is invalid
+
       console.log('Sell Response:', sellResponse.data);
       if (sellResponse) {
         navigation.pop(2);
         navigation.replace('OrderSummary', {
           ticker: params?.ticker,
           shares: shareQuantity,
+          isBuying: params?.isBuying,
+          isSelling: params?.isSelling,
+          matchID: params?.matchID,
+          sellData: sellResponse.data,
+          logoUrl: params?.logoUrl,
         });
       }
     } catch (error) {
@@ -210,8 +232,6 @@ const StockOrder = (props: any) => {
   const animation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
 
-  const [selectedMode, setSelectedMode] = useState('shares');
-
   const handleToggle = (option: any) => {
     console.log('toggled');
     const toValue = option === 'shares' ? 0 : -screenWidth;
@@ -236,8 +256,6 @@ const StockOrder = (props: any) => {
       useNativeDriver: false,
     }).start();
   };
-
-
 
   const estimatedCost = stockPrice! * parseFloat(shareQuantity);
   const estimatedCostString = estimatedCost.toLocaleString(undefined, {
@@ -306,6 +324,43 @@ const StockOrder = (props: any) => {
     setCirclePosition({ x: event.nativeEvent.pageX, y: event.nativeEvent.pageY });
   };
 
+  /**
+   * Function to determine whether the currently inputted order is valid.
+   * Works for both buy and sell orders.
+   */
+  const isOrderValid = () => {
+    if (params.isBuying) {
+      // CASE 1: Check buying validity conditions
+      if (selectedMode == 'shares') {
+        return shareQuantity != '0' && estimatedCost <= params?.buyingPower;
+      } else if (selectedMode == 'dollars') {
+        return (
+          dollarAmount != '0' && parseFloat(dollarAmount) <= params?.buyingPower
+        );
+      } else {
+        return false;
+      }
+    } else {
+      // CASE 2: Check selling validity conditions
+      if (selectedMode == 'shares') {
+        // shares selling conditions
+        // share quantity != 0
+        // they own enough shares
+        return shareQuantity != '0' && params?.qty >= Number(shareQuantity);
+      } else if (selectedMode == 'dollars') {
+        // dollars selling conditions
+        // dollar amount != 0
+        // dollar value of their shares is less than or equal to dollar amount
+        return (
+          dollarAmount != '0' &&
+          params?.qty * stockPrice! <= Number(dollarAmount)
+        );
+      } else {
+        return false;
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       {params?.isBuying == true && (
@@ -320,7 +375,7 @@ const StockOrder = (props: any) => {
           endAt={params?.endAt}
         />
       )}
-      <View style={{ alignItems: 'center' }}>
+      {/* <View style={{alignItems: 'center'}}>
         {params?.isBuying && (
           <Text
             style={{
@@ -339,7 +394,7 @@ const StockOrder = (props: any) => {
             {params?.qty} Shares Available
           </Text>
         )}
-      </View>
+      </View> */}
       <StockOrderToggleButton onToggle={handleToggle} />
       {selectedMode == 'shares' ? (
         <View>
@@ -444,12 +499,7 @@ const StockOrder = (props: any) => {
       <View>
         <View style={{ marginBottom: 50 }}>
           <Animated.View style={{ transform: [{ translateY: keypadAnimation }] }}>
-            {(selectedMode == 'shares' &&
-              shareQuantity != '0' &&
-              estimatedCost <= params?.buyingPower) ||
-              (selectedMode == 'dollars' &&
-                dollarAmount != '0' &&
-                parseFloat(dollarAmount) <= params?.buyingPower) ? (
+            {isOrderValid() ? (
               <>
                 <TouchableOpacity
                   onPressIn={handlePressIn}
@@ -486,6 +536,7 @@ const StockOrder = (props: any) => {
               },
             ]}
           />
+
           <Animated.View style={{ transform: [{ translateY: keypadAnimation }] }}>
             <View>
               <View style={styles.row}>

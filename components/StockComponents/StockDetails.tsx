@@ -64,6 +64,7 @@ const StockDetails = () => {
   const route = useRoute();
   const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [ticker, setTicker] = useState('');
+  const [name, setName] = useState<any>('')
   const [timeFrameSelected, setTimeFrameSelected] = useState('1D');
   const [tickerData, setTickerData] = useState<any>(null);
   const [livePrice, setPassingLivePrice] = useState<any>(null);
@@ -232,7 +233,7 @@ const StockDetails = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      {ticker != '' &&
+      {ticker != '' && params &&
         <View style={{ flex: 1 }}>
           <View style={styles.stockDetailsContainer}>
             {params?.inGame ? (
@@ -287,11 +288,11 @@ const StockDetails = () => {
                       <View style={{ gap: 10 }}>
                         <View>
                           <Text style={styles.statType}>Mkt Value</Text>
-                          <Text style={styles.statData}>${(asset.totalShares * stockPrice!).toFixed(2)}</Text>
+                          {asset && <Text style={styles.statData}>${(asset.totalShares * stockPrice!).toFixed(2)}</Text>}
                         </View>
                         <View>
                           <Text style={styles.statType}>Match Return</Text>
-                          <Text style={styles.statData}>{((asset.totalShares * stockPrice!) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>
+                          {asset && <Text style={styles.statData}>{((asset.totalShares * stockPrice!) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>}
                         </View>
                       </View>
                     </View>

@@ -21,16 +21,18 @@ const createProfileStyles = (theme: any, width: number) => {
         paddingHorizontal: 10,
     },
     profilePic: {
-        borderRadius: 500,
-        width: 110,
-        height: 110,
+        borderRadius: 100,
+        width: 70,
+        height: 70,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: theme.colors.primary
+        backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.background,
+        borderWidth: 4
     },
     rankContainer: {
         backgroundColor: '#81BFB4',
-        paddingVertical:5 ,
+        paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius:10,
     },
@@ -39,16 +41,14 @@ const createProfileStyles = (theme: any, width: number) => {
         color: theme.colors.background
     },
     usernameText: {
-        fontFamily: 'InterTight-Black',
+        fontFamily: 'InterTight-bold',
         color: theme.colors.text,
-        fontSize: 20,
+        fontSize: 21,
     },
     bioText: {
-        fontFamily: 'InterTight-Medium',
+        fontFamily: 'InterTight-bold',
         color: theme.colors.text,
-        fontSize: 15,
-        marginHorizontal: 20,
-        textAlign: 'center'
+        fontSize: 14,
     },
     mainContainer: {
         borderRadius: 10,
@@ -58,7 +58,7 @@ const createProfileStyles = (theme: any, width: number) => {
     },
     mainContainerType: {
         color: theme.colors.text,
-        fontFamily: 'InterTight-Regular',
+        fontFamily: 'InterTight-Bold',
     },
     mainContainerText: {
         color: theme.colors.text,
@@ -151,7 +151,32 @@ const createProfileStyles = (theme: any, width: number) => {
         backgroundColor: theme.colors.secondary, 
         justifyContent: 'center', 
         alignItems: 'center'
-    }
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: theme.backgroundColor,
+    },
+    button: {
+        paddingVertical: 10,
+        width: width / 3, // Adjust based on your design
+        alignItems: 'center',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: theme.colors.text,
+        fontFamily: 'InterTight-Bold'
+    },
+    indicator: {
+        height: 2,
+        backgroundColor: theme.colors.opposite,
+        position: 'absolute',
+        bottom: 0,
+    },
+    scene: {
+        flex: 1,
+    },
     
     
     

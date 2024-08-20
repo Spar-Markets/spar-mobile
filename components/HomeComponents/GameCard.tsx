@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, act, useCallback } from 'react';
-import { ScrollView, Text, TouchableOpacity, View, useColorScheme, Platform } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View, useColorScheme, Platform, BackHandler } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { GraphPoint, LineGraph } from 'react-native-graph';
@@ -7,6 +7,7 @@ import { serverUrl, websocketUrl } from '../../constants/global';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FeatherIcon from 'react-native-vector-icons/Feather'
+import EntypoIcon from 'react-native-vector-icons/Entypo'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
@@ -68,6 +69,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   const navigation = useNavigation<any>();
 
   FeatherIcon.loadFont()
+  EntypoIcon.loadFont()
 
   const { theme } = useTheme();
   const { width, height } = useDimensions();
@@ -392,30 +394,6 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
       }
     };
   }
-
-  /* useEffect(() => {
-     if (yourFormattedData != null && oppFormattedData != null) {
-       //check if the formatteddatas have any value //TODO when there is no formatted data so jackson make snapshot always be added at match creation
-       if (yourFormattedData[yourFormattedData.length-1]?.value != undefined && oppFormattedData[oppFormattedData.length-1]?.value != undefined) {
-         //INTIALIZATION OF COLOR AND PRICES
-    
-         setYourTotalPrice(yourFormattedData[yourFormattedData.length-1].value)
-         //console.log("Opp formatted data", oppFormattedData);
- 
-         setOppTotalPrice(oppFormattedData[oppFormattedData.length-1].value)
-         if (yourFormattedData[yourFormattedData.length-1].value >= oppFormattedData[oppFormattedData.length-1].value) {
-           setYourColor(theme.colors.stockUpAccent)
-           setOppColor(theme.colors.tertiary)
-         } else {
-           setYourColor(theme.colors.stockDownAccent)
-           setOppColor(theme.colors.tertiary)
-         }
-         //getInitialPrices() 
-       }
-     } else {
-       setLoading(true)
-     }
-   }, [yourFormattedData, oppFormattedData])*/
 
   useEffect(() => {
     if (yourTickerPrices & oppTickerPrices) {
@@ -788,7 +766,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           date: new Date(Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         });
         setYourFormattedDataLength(newPointData.length)
-        console.log("adding point", newPointData[newPointData.length - 1])
+        //console.log("adding point", newPointData[newPointData.length - 1])
 
         return newPointData
       })
@@ -856,11 +834,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
         //console.log(yourTotalLivePrice, oppTotalLivePrice)
         if (yourTotalLivePrice + yourBuyingPower >= oppTotalLivePrice + oppBuyingPower) {
           setYourColor(theme.colors.stockUpAccent)
-          setOppColor(theme.colors.tertiary)
+          setOppColor(theme.colors.stockDownAccent)
 
         } else {
           setYourColor(theme.colors.stockDownAccent)
-          setOppColor(theme.colors.tertiary)
+          setOppColor(theme.colors.stockUpAccent)
         }
         const yourMax = Math.max(...yourFormattedData.map((item: any) => item.normalizedValue))
         const oppMax = Math.max(...oppFormattedData.map((item: any) => item.normalizedValue))
@@ -913,8 +891,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     );
   }
 
-  const length = 10;
-  const arrayWithZeroValues = Array.from({ length }, (_, index) => ({ index, value: 0 }));
+
+  const referenceLineObject = Array.from({ length: 50 }, (_, index) => ({
+    index: index,
+    normalizedValue: 0,
+  }));
 
   const [otherProfileUri, setOtherProfileUri] = useState<any>(null)
 
@@ -1026,7 +1007,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   return (
     <View style={{ flex: 1 }}>
       {matchIsOver &&
-        <BlurView style={{ position: 'absolute', gap: 20, justifyContent: 'center', alignItems: 'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10, borderWidth: 1, borderColor: theme.colors.secondary }} blurType="dark" blurAmount={4} reducedTransparencyFallbackColor="black">
+        <BlurView style={{ position: 'absolute', gap: 20, justifyContent: 'center', alignItems: 'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 20, marginTop: 10, borderWidth: 2, borderColor: theme.colors.tertiary }} blurType="dark" blurAmount={10} reducedTransparencyFallbackColor="black">
           <Icon name="checkmark-circle" color={theme.colors.accent} size={40} />
           <Text style={{ fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Match Completed!</Text>
           <View style={{ flexDirection: 'row', gap: 5 }}>
@@ -1040,12 +1021,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
         </BlurView>}
       {!loading && match && yourFormattedData && oppFormattedData ?
 
-        <LinearGradient colors={[theme.colors.primary, theme.colors.primary]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={styles.gameCardContainer}>
+        <View style={styles.gameCardContainer}>
 
-          <View style={{ flexDirection: 'row', marginTop: 10, marginHorizontal: 10, marginBottom: 5, gap: 5 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.background, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 5, gap: 10 }}>
-              <Timer endDate={match.endAt} timeFrame={match.timeframe} />
-            </View>
+          {/*<View style={{ flexDirection: 'row', marginTop: 10, marginHorizontal: 10, marginBottom: 5, gap: 5 }}>
             <View style={{ flex: 1 }}></View>
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 5, gap: 10 }}>
               <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>{match.matchType}</Text>
@@ -1053,90 +1031,109 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 5, gap: 10 }}>
               <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>${match.wagerAmt}</Text>
             </View>
-          </View>
+          </View>*/}
 
           <ScrollView showsVerticalScrollIndicator={false} style={{ paddingTop: 0 }}>
-            <View style={{ flexDirection: 'row', marginTop: 0, height: 180, gap: 10, justifyContent: 'center', marginHorizontal: 10, borderRadius: 5 }}>
-              <View style={{ marginRight: 10, backgroundColor: 'transparent', flex: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 5 }}>
-                {hasDefaultProfileImage == true && (
-                  <Image
-                    style={[
-                      { width: 55, height: 55, borderRadius: 100 },
-                    ]}
-                    source={{ uri: profileImageUri }}
-                  />
-                )}
-                {hasDefaultProfileImage == false && (
-                  <Image
-                    style={[
-                      { width: 55, height: 55, borderRadius: 100 },
-                    ]}
-                    source={{ uri: profileImageUri }}
-                  />
-                )}
-                <Text style={styles.userText}>You</Text>
+            <View style={{ flexDirection: 'row', marginTop: 20, gap: 10, marginHorizontal: 20, borderRadius: 5 }}>
+              <View style={{ backgroundColor: 'transparent', flex: 1, borderRadius: 8, justifyContent: 'center', gap: 5, }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  {hasDefaultProfileImage == true && (
+                    <Image
+                      style={[
+                        { width: 30, height: 30, borderRadius: 100 },
+                      ]}
+                      source={{ uri: profileImageUri }}
+                    />
+                  )}
+                  {hasDefaultProfileImage == false && (
+                    <Image
+                      style={[
+                        { width: 30, height: 30, borderRadius: 100 },
+                      ]}
+                      source={{ uri: profileImageUri }}
+                    />
+                  )}
+                  <Text style={styles.userText}>You</Text>
+                </View>
                 {!isActive ?
                   <>
-                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-black', fontSize: 20 }}>
                       ${yourTotalPrice.toFixed(2)}
                     </Text>
-                    <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(yourColor, 0.3) }]}>
-                      <Text style={[styles.percentText, { color: yourColor }]}>{((yourTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                      <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(yourColor, 0.3), paddingHorizontal: 2, borderColor: yourColor, borderWidth: 0.5 }]}>
+                        <EntypoIcon name="triangle-up" color={yourColor} size={18} />
+                        <Text style={[styles.percentText, { color: yourColor }]}>{((yourTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                      </View>
                     </View>
                   </> :
                   <>
-                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 20 }}>
                       ${yourFormattedData[animatedIndex] ? yourFormattedData[animatedIndex].value.toFixed(2) : yourTotalPrice.toFixed(2)}
                     </Text>
-                    <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(yourColor, 0.3) }]}>
-                      <Text style={[styles.percentText, { color: yourColor }]}>{((yourTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                      <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(yourColor, 0.3), paddingHorizontal: 2, borderColor: yourColor, borderWidth: 0.5 }]}>
+                        <EntypoIcon name="triangle-up" color={yourColor} size={18} />
+                        <Text style={[styles.percentText, { color: yourColor }]}>{((yourTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                      </View>
                     </View>
                   </>
                 }
 
               </View>
-              <View style={{ backgroundColor: 'transparent', borderRadius: 8, flex: 1, justifyContent: 'center', alignItems: 'center', gap: 5 }}>
-                {otherHasDefaultProfileImage && otherProfileUri && (
-                  <Image
-                    style={[
-                      { width: 55, height: 55, borderRadius: 100 },
-                    ]}
-                    source={otherProfileUri as any}
-                  />
-                )}
-                {!otherHasDefaultProfileImage && Image && (
-                  <Image
-                    style={[
-                      { width: 55, height: 55, borderRadius: 100 },
-                    ]}
-                    source={{ uri: otherProfileUri } as any}
-                  />
-                )}
-                <Text style={styles.userText}>{opponentUsername}</Text>
+              <View style={{ backgroundColor: 'transparent', flex: 1, borderRadius: 8, justifyContent: 'center', gap: 5, }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
+                  <Text style={styles.userText}>{opponentUsername}</Text>
+                  {otherHasDefaultProfileImage == true && (
+                    <Image
+                      style={[
+                        { width: 30, height: 30, borderRadius: 100 },
+                      ]}
+                      source={otherProfileUri as any}
+                    />
+                  )}
+                  {otherHasDefaultProfileImage == false && (
+                    <Image
+                      style={[
+                        { width: 30, height: 30, borderRadius: 100 },
+                      ]}
+                      source={{ uri: otherProfileUri } as any}
+                    />
+                  )}
+                </View>
                 {!isActive ?
                   <>
-                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>${(oppTotalPrice).toFixed(2)}</Text>
-                    <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(oppColor, 0.3) }]}>
-                      <Text style={[styles.percentText, { color: oppColor }]}>{((oppTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 20, textAlign: 'right' }}>
+                      ${oppTotalPrice.toFixed(2)}
+                    </Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                      <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(oppColor, 0.3), paddingHorizontal: 2, borderColor: oppColor, borderWidth: 0.5 }]}>
+                        <EntypoIcon name="triangle-down" color={oppColor} size={18} />
+                        <Text style={[styles.percentText, { color: oppColor }]}>{((oppTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                      </View>
                     </View>
                   </> :
                   <>
-                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>${oppFormattedData[animatedIndex] ? (oppFormattedData[animatedIndex].value).toFixed(2) : oppTotalPrice.toFixed(2)}</Text>
-                    <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(oppColor, 0.3) }]}>
-                      <Text style={[styles.percentText, { color: oppColor }]}>{((oppTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Black', fontSize: 20, textAlign: 'right' }}>${oppFormattedData[animatedIndex] ? (oppFormattedData[animatedIndex].value).toFixed(2) : oppTotalPrice.toFixed(2)}</Text>
+                    <View style={[styles.percentIndicator, { justifyContent: 'flex-end' }]}>
+                      <View style={[styles.percentIndicator, { backgroundColor: hexToRGBA(oppColor, 0.3), paddingHorizontal: 2, borderColor: oppColor, borderWidth: 0.5 }]}>
+                        <EntypoIcon name="triangle-down" color={oppColor} size={18} />
+                        <Text style={[styles.percentText, { color: oppColor }]}>{((oppTotalPrice - 100000) / (0.01 * 100000)).toFixed(2)}%</Text>
+                      </View>
                     </View>
                   </>
                 }
+
               </View>
-              <View style={{ backgroundColor: 'transparent', borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}>
+              {/* <View style={{ backgroundColor: 'transparent', borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>VS</Text>
-              </View>
+              </View>*/}
 
 
             </View>
 
 
-            <View style={{ marginTop: 5, height: 150, backgroundColor: theme.colors.background, marginHorizontal: 10, borderRadius: 5 }}>
+            <View style={{ marginTop: 5, height: 200, marginHorizontal: 0, borderRadius: 5 }}>
               <View style={{
                 position: 'absolute',
                 top: 0,
@@ -1145,13 +1142,30 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                 bottom: 0,
               }}>
                 {/*reference line*/}
-                <CartesianChart data={arrayWithZeroValues} xKey="index" yKeys={["value"]} domain={{ y: [minY < 0 ? 1.1 * minY : 0.9 * minY, maxY] }}>
+                <CartesianChart data={referenceLineObject} xKey="index" yKeys={["normalizedValue"]} domain={{ y: [minY == 0 ? minY - 1 : minY < 0 ? 1.04 * minY : 0.96 * minY, maxY == 0 ? maxY + 1 : maxY < 0 ? 0.96 * maxY : 1.04 * maxY] }}>
                   {({ points }) => {
+
+                    const repeatedPoints = points.normalizedValue.map(
+                      point => ({
+                        x: point.x, // Keep x as it is
+                        y: point.y, // Set y to the first normalized point's y value
+                        xValue: 0,
+                        yValue: 0,
+                      }),
+
+                    );
                     return (
                       <>
                         <Group>
-                          <Line points={points.value} color={theme.colors.tertiary}
-                            strokeWidth={1} /*animate={{ type: "timing", duration: 300 }}*/ curveType='linear'></Line>
+                          {repeatedPoints.map((point, index) => (
+                            <Circle
+                              key={index}
+                              cx={point.x}
+                              cy={point.y!}
+                              r={1} // radius of the dot
+                              color={theme.colors.secondaryText}
+                            />
+                          ))}
                         </Group>
                       </>
                     )
@@ -1221,30 +1235,11 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   </CartesianChart>
                 </View>}
             </View>
-            <View style={{
-              flexDirection: 'row',
-              backgroundColor: theme.colors.background,
-              padding: 15,
-              borderRadius: 5,
-              alignItems: 'center',
-              gap: 10,
-              marginHorizontal: 10,
-              marginTop: 5
-            }}>
-              <View style={{ backgroundColor: theme.colors.opposite, height: 32, width: 32, justifyContent: 'center', alignItems: 'center', borderRadius: 100 }}>
-                <FontAwesomeIcon name="bank" color={theme.colors.background} style={{ marginLeft: 2, marginBottom: 2 }} size={16} />
-              </View>
-              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-bold' }}>Buying Power</Text>
-              <View style={{ flex: 1 }}></View>
-              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-bold' }}>${(yourBuyingPower.toLocaleString())}</Text>
-
-            </View>
-
-            <View style={{ marginHorizontal: 0 }}>
+            <View>
 
 
               <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 18, marginHorizontal: 10, color: theme.colors.text, fontFamily: 'InterTight-Bold', marginBottom: 10 }}>My Positions</Text>
+                <Text style={{ marginHorizontal: 20, color: theme.colors.text, fontFamily: 'InterTight-semibold', marginBottom: 10 }}>My Positions</Text>
                 {yourAssets && yourAssets.length >= 1 &&
                   <>
                     {yourAssets.map((asset, index) => (
@@ -1262,40 +1257,78 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
               </View>
             </View>
           </ScrollView>
-          <View style={{ marginHorizontal: 10, gap: 5, flexDirection: 'row' }}>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate("InGameStockSearch", {
-                matchID: matchID,
-                userNumber: you,
-                buyingPower: yourBuyingPower,
-                assets: yourAssets,
-                endAt: match.endAt
-              })
-            }} style={[{ marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
-              <FeatherIcon name="message-circle" size={24} style={{ paddingHorizontal: 10 }} color={yourColor} />
+          <View style={{ flexDirection: 'row', marginHorizontal: 20, gap: 5, paddingTop: 10 }}>
+            <View style={{ flex: 1, backgroundColor: theme.colors.gameCardGrayAccent, borderColor: theme.colors.gameCardGrayBorder, borderWidth: 1, borderRadius: 8, padding: 10 }}>
+              <Text style={{ fontFamily: 'InterTight-semibold', color: theme.colors.secondaryText, fontSize: 12 }}>Buying Power</Text>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-bold' }}>${(yourBuyingPower.toLocaleString())}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: theme.colors.gameCardGrayAccent, borderColor: theme.colors.gameCardGrayBorder, borderWidth: 1, borderRadius: 8, padding: 10 }}>
+              <Text style={{ fontFamily: 'InterTight-semibold', color: theme.colors.secondaryText, fontSize: 12 }}>Time Remaining</Text>
+              <Timer endDate={match.endAt} timeFrame={match.timeframe} yourColor={yourColor} />
+            </View>
+          </View>
+
+
+          <View style={{ marginHorizontal: 20, marginBottom: 5, gap: 5, flexDirection: 'row' }}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Chat", {
+                  matchID: matchID,
+                  userID: userID,
+                  endAt: match.endAt,
+                  yourColor: yourColor,
+                  otherProfileUri: otherProfileUri,
+                  otherHasDefaultProfileImage: otherHasDefaultProfileImage,
+                  otherUsername: opponentUsername
+                })
+              }}
+              style={{
+                marginVertical: 10,
+                height: 50,
+                width: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 500
+              }}
+            >
+              <LinearGradient colors={[yourColor, yourColor == theme.colors.stockUpAccent ? theme.colors.darkAccent : theme.colors.darkStockDownAccent]} style={{ width: '100%', height: '100%', borderRadius: 500, justifyContent: 'center', alignItems: 'center' }}>
+                <FeatherIcon name="message-circle" size={24} color={theme.colors.opposite} />
+              </LinearGradient>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate("InGameStockSearch", {
-                matchID: matchID,
-                userNumber: you,
-                buyingPower: yourBuyingPower,
-                assets: yourAssets,
-                endAt: match.endAt
-              })
-            }} style={[{ flex: 1, marginVertical: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: hexToRGBA(yourColor, 0.3), justifyContent: 'center', borderRadius: 5 }]}>
-              <Text style={{ color: yourColor, fontFamily: 'InterTight-Black', fontSize: 18 }}>Trade</Text>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("InGameStockSearch", {
+                  matchID: matchID,
+                  userNumber: you,
+                  buyingPower: yourBuyingPower,
+                  assets: yourAssets,
+                  endAt: match.endAt
+                });
+              }}
+              style={{
+                marginVertical: 10,
+                height: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 500,
+                flex: 1
+              }}
+            >
+              <LinearGradient colors={[yourColor, yourColor == theme.colors.stockUpAccent ? theme.colors.darkAccent : theme.colors.darkStockDownAccent]} style={{ width: '100%', height: '100%', borderRadius: 500, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-Bold', fontSize: 16 }}>Trade</Text>
+              </LinearGradient>
             </TouchableOpacity>
 
 
           </View>
-        </LinearGradient>
+        </View >
 
 
         :
         <View style={{ width: width - 40, flex: 1, marginHorizontal: 20, marginTop: 10 }}>
-          <Skeleton animation={"pulse"} style={{ flex: 1, borderRadius: 10, backgroundColor: theme.colors.secondary }} skeletonStyle={{ backgroundColor: theme.colors.primary }} />
+          <Skeleton animation={"pulse"} style={{ flex: 1, borderRadius: 10, backgroundColor: theme.colors.tertiary, borderColor: theme.colors.tertiary, borderWidth: 1 }} skeletonStyle={{ backgroundColor: theme.colors.secondary }} />
         </View>}
-    </View>
+    </View >
   );
 };
 

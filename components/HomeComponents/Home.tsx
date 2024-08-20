@@ -179,82 +179,6 @@ const Home: React.FC = () => {
     }
   }, [user]);
 
-  const requestPermissions = async () => {
-    if (Platform.OS === 'ios') {
-      const photoLibraryPermission = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
-      if (photoLibraryPermission !== RESULTS.GRANTED) {
-        await request(PERMISSIONS.IOS.PHOTO_LIBRARY);
-      }
-
-      const cameraPermission = await check(PERMISSIONS.IOS.CAMERA);
-      if (cameraPermission !== RESULTS.GRANTED) {
-        await request(PERMISSIONS.IOS.CAMERA);
-      }
-    } else if (Platform.OS === 'android') {
-      const readPermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      );
-
-      const writePermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      );
-
-      const cameraPermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-      );
-
-      if (
-        readPermission !== PermissionsAndroid.RESULTS.GRANTED ||
-        writePermission !== PermissionsAndroid.RESULTS.GRANTED ||
-        cameraPermission !== PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        console.warn('Permissions not granted');
-      }
-    }
-  };
-
-  const fetchProfileImageFromFirebase = async () => {
-    if (user.userID) {
-      try {
-        // const imageRef = ref(storage, `profileImages/${user.userID}`);
-        // const url = await getDownloadURL(imageRef);
-        // if (url) {
-        //   console.log('Fetched URL from Firebase:', url);
-        //   await AsyncStorage.setItem('profileImgPath', url);
-        //   dispatch(setProfileImageUri(url));
-        // }
-      } catch (error) {
-        console.log('No profile set');
-        //implement default image logic
-      }
-    }
-  };
-
-  useEffect(() => {
-    const getProfilePicture = async () => {
-      //await requestPermissions();
-      /*if (user.userID) {
-        try {
-          const profileImagePath = await AsyncStorage.getItem('profileImgPath');
-          if (profileImagePath) {
-            console.log(
-              'Profile image path from AsyncStorage:',
-              profileImagePath,
-            );
-            dispatch(setProfileImageUri(profileImagePath));
-          } else {
-            await fetchProfileImageFromFirebase();
-          }
-        } catch (error) {
-          console.error('Failed to load profile image path:', error);
-        } finally {
-          setImageLoading(false);
-        }
-      }*/
-    };
-    getProfilePicture();
-  }, [user.userID]);
-
   const fetchMatchIDs = async () => {
     try {
       const response = await axios.post(serverUrl + '/getUserMatches', {
@@ -778,43 +702,14 @@ const Home: React.FC = () => {
     theme.colors.accent2,
   );
 
-  const GameModeButton = (props: any) => {
-    const handlePress = () => {
-      if (props.text == 'Head-to-Head') {
-        setActiveGameModeColor(theme.colors.accent2);
-      } else if (props.text == 'Tournaments') {
-        setActiveGameModeColor(theme.colors.accent3);
-      }
-      setGameModeSelected(props.text);
-    };
-
-    return (
-      <TouchableOpacity
-        onPress={handlePress}
-        style={[
-          gameModeSelected == props.text ? {
-            backgroundColor: activeGameModeColor,
-          } : { backgroundColor: theme.colors.secondary },
-          {
-            paddingHorizontal: 15,
-            borderRadius: 50,
-            alignItems: 'center',
-            flexDirection: 'row',
-            gap: 5,
-            marginRight: 10
-          },
-        ]}>
-        <Text
-          style={{
-            color: gameModeSelected == props.text ? '#fff' : theme.colors.text,
-            fontFamily: 'InterTight-Black',
-          }}>
-          {props.text}
-        </Text>
-      </TouchableOpacity>
-    );
+  const handleModePress = (mode: string) => {
+    if (mode == 'Head-to-Head') {
+      setActiveGameModeColor(theme.colors.accent2);
+    } else if (mode == 'Tournaments') {
+      setActiveGameModeColor(theme.colors.accent3);
+    }
+    setGameModeSelected(mode);
   };
-
 
   const [selectedStart, setSelectedStart] = useState("")
 
@@ -897,13 +792,13 @@ const Home: React.FC = () => {
           <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
             <View
               style={{
-                backgroundColor: hexToRGBA(theme.colors.secondary, 0.3),
+                backgroundColor: theme.colors.secondary,
                 height: 35,
                 borderRadius: 50,
                 flexDirection: 'row',
                 alignItems: 'center',
-                borderWidth: 1,
-                borderColor: theme.colors.secondary,
+                borderWidth: 2,
+                borderColor: theme.colors.tertiary,
               }}>
               <Text
                 style={{
@@ -921,7 +816,7 @@ const Home: React.FC = () => {
                   padding: 4,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginRight: 3,
+                  marginRight: 2,
                 }}>
                 <MaterialIcons name="add" color={"#fff"} size={20} />
               </TouchableOpacity>
@@ -954,16 +849,15 @@ const Home: React.FC = () => {
               </View>*/}
         </View>
 
-        <View style={{ height: 35, marginTop: 10 }}>
-          <ScrollView
-            horizontal
-            style={{ width: width }}
-            showsHorizontalScrollIndicator={false}>
-            <View style={{ flexDirection: 'row', paddingHorizontal: 20 }}>
-              <GameModeButton text={'Head-to-Head'} />
-              <GameModeButton text={'Tournaments'} />
-            </View>
-          </ScrollView>
+        <View style={{ height: 55, marginTop: 10 }}>
+          <View style={{ flex: 1, marginHorizontal: 20, backgroundColor: theme.colors.secondary, borderRadius: 100, borderColor: theme.colors.tertiary, borderWidth: 2, height: 10, flexDirection: 'row', gap: 5 }}>
+            <TouchableOpacity onPress={() => handleModePress("Head-to-Head")} style={[gameModeSelected == "Head-to-Head" && { backgroundColor: theme.colors.tertiary }, { flex: 1, alignItems: 'center', justifyContent: 'center', marginVertical: 5, marginLeft: 5, borderRadius: 100 }]}>
+              <Text style={{ color: theme.colors.opposite, fontFamily: 'intertight-bold' }}>Head-to-Head</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleModePress("Tournaments")} style={[gameModeSelected == "Tournaments" && { backgroundColor: theme.colors.tertiary }, { flex: 1, alignItems: 'center', justifyContent: 'center', marginVertical: 5, marginRight: 5, borderRadius: 100 }]}>
+              <Text style={{ color: theme.colors.opposite, fontFamily: 'intertight-bold' }}>Tournaments</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         {gameModeSelected === 'Head-to-Head' && (
           <View style={{ flex: 1 }}>
@@ -1014,7 +908,7 @@ const Home: React.FC = () => {
                     renderItem={({ item, index }) => {
                       return (
                         item && (
-                          <View style={{ width, height: '100%' }}>
+                          <View style={{ width: width, height: '100%' }}>
                             <GameCard
                               userID={user.userID}
                               matchID={item.matchID} // Access id directly from the item
@@ -1198,48 +1092,6 @@ const Home: React.FC = () => {
                           {/* Add more buttons as needed */}
                         </Animated.View>
                       )}
-                      {
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            backgroundColor: 'transparent',
-                            alignItems: 'center',
-                            marginHorizontal: 20,
-                            gap: 5,
-                          }}>
-                          {/*<TouchableOpacity onPress={() => navigation.navigate("PastMatches")} style={{height: 40, borderRadius: 5, backgroundColor: theme.colors.opposite, width: (width-45)*0.12, justifyContent: 'center', alignItems:'center', marginRight: 10}}>
-                    <EntypoIcons name="back-in-time" size={24} color={theme.colors.background}/>
-                </TouchableOpacity>*/}
-                          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ backgroundColor: theme.colors.accent2, height: 50, width: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 50 }}>
-                            <FeatherIcon name="inbox" color={"#fff"} size={24} />
-                            {/*<View style={{backgroundColor: theme.colors.stockDownAccent, width: 20, height: 20, borderRadius: 50, position: 'absolute', right: -2, top: -2, justifyContent: 'center', alignItems: 'center',borderWidth: 2, borderColor: theme.colors.background}}>
-                                <Text style={{color: theme.colors.text, fontFamily: "InterTight-Bold", fontSize: 12}}>1</Text>
-                              </View>*/}
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[
-                              styles.addButton,
-                              {
-                                backgroundColor: theme.colors.accent2,
-                                zIndex: 1,
-                                borderColor: theme.colors.accent2,
-                                borderWidth: 2,
-                              },
-                            ]}
-                            onPress={
-                              expandMatchmakingSheet /*() => {toggleAdditionalButtons()}*/
-                            }>
-                            <Text
-                              style={{
-                                color: '#fff',
-                                fontFamily: 'InterTight-Black',
-                                fontSize: 18,
-                              }}>
-                              Start a Match
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      }
                     </View>
                   )}
                 </View>
@@ -1286,6 +1138,44 @@ const Home: React.FC = () => {
             </View>
           </View>
         )}
+
+        <View
+          style={{
+            flexDirection: 'row',
+            backgroundColor: theme.colors.secondary,
+            marginHorizontal: 20,
+            borderRadius: 100,
+            marginBottom: 10,
+            marginTop: 20,
+            borderColor: theme.colors.tertiary,
+            borderWidth: 2,
+            gap: 5
+          }}>
+          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
+            <MaterialIcons name="people" color={theme.colors.opposite} size={24} />
+
+            <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>Invites</Text>
+
+          </TouchableOpacity>
+          <View style={{ height: '100%', alignItems: 'center', backgroundColor: 'red', zIndex: 1 }}>
+            <TouchableOpacity onPress={expandMatchmakingSheet} style={{ position: 'absolute', zIndex: 2, bottom: -10, top: -10, justifyContent: 'center', alignItems: 'center', borderRadius: 500, backgroundColor: gameModeSelected == "Head-to-Head" ? theme.colors.accent2 : theme.colors.accent3, aspectRatio: 1, borderColor: theme.colors.tertiary, borderWidth: 3 }}>
+              {gameModeSelected == "Head-to-Head" ?
+                <MaterialCommunityIcons name={"sword-cross"} color={theme.colors.opposite} size={24} />
+                :
+                <Icon name="search" color={theme.colors.opposite} size={24} />
+              }
+
+              {/*<Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>Matchmake</Text>*/}
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
+            <MaterialCommunityIcons name="history" color={theme.colors.opposite} size={24} />
+
+            <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>History</Text>
+
+          </TouchableOpacity>
+        </View>
 
 
 
@@ -1746,6 +1636,7 @@ const Home: React.FC = () => {
           </BottomSheetView>
         </BottomSheet>
 
+
         <BottomSheet
           ref={matchmakingSheetRef}
           snapPoints={[360]}
@@ -1754,7 +1645,9 @@ const Home: React.FC = () => {
           onChange={handleMatchmakingChanges}
           backgroundStyle={{ backgroundColor: theme.colors.background }}
           handleIndicatorStyle={{ backgroundColor: theme.colors.tertiary }}
-          backdropComponent={renderBackdrop}>
+          backdropComponent={renderBackdrop}
+          style={{ zIndex: 100 }}>
+
           <BottomSheetView style={{ flex: 1 }}>
             {!(isInMatchmaking || searchingForMatch) ? (
               <View style={{ gap: 10, flex: 1 }}>
