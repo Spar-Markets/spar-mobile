@@ -9,8 +9,6 @@ const createGlobalStyles = (theme: any, width: number) => {
     headerContainer: {
         flexDirection: 'row',
         display: 'flex',
-
-
     },
     headerText: {
         color: theme.colors.text,
