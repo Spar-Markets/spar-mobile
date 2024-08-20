@@ -1,7 +1,7 @@
 import React, { useRef, forwardRef, useCallback, useEffect, useState } from 'react';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useTheme } from '../ContextComponents/ThemeContext';
-import { Alert, FlatList, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { Alert, FlatList, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform, ActivityIndicator, Keyboard } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
@@ -121,6 +121,12 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
             snapPoints={['90%']}
             index={-1}
             enablePanDownToClose
+            onAnimate={(fromIndex, toIndex) => {
+                if (toIndex < fromIndex) {
+                    // If the bottom sheet is moving down, dismiss the keyboard
+                    Keyboard.dismiss();
+                }
+            }}
             onChange={handleSheetChanges}
             backgroundStyle={{ backgroundColor: theme.colors.background }}
             handleIndicatorStyle={{ backgroundColor: theme.colors.secondaryText }}

@@ -195,9 +195,12 @@ const CreatePost = (props: any) => {
             //find cryptographically strong method, crypto cant be used in RN
             const postId = generateRandomString(40);
 
+            console.log("hello there", image)
+
             const localPostData = {
                 postId: postId,
-                username: user.username!, //fix to be current logged in user through AUTH
+                posterId: user.userID!,
+                username: user.username!,
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,
@@ -214,14 +217,13 @@ const CreatePost = (props: any) => {
                 comments: [],
                 image: image ? image.path : null,
                 profileImage: yourProfileImageUri,
-                aspectRatio: image.width / image.height
+                aspectRatio: image ? image.width / image.height : null
             };
             //console.log(localPostData)
 
             const mongoPostData = {
                 postId: postId,
                 posterId: user.userID!,
-                username: user.username!,
                 postedTime: Date.now(),
                 type: selectedCategory,
                 title: postTitleInput,

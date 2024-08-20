@@ -9,6 +9,7 @@ import axios from "axios";
 import { serverUrl } from '../../constants/global';
 import getProfileImage from '../../utility/getProfileImage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Skeleton } from '@rneui/base';
 
 const FriendItem = ({ friendID }: { friendID: string }) => {
     const { theme } = useTheme();
@@ -33,7 +34,6 @@ const FriendItem = ({ friendID }: { friendID: string }) => {
                     if (profileImageResponse) {
                         setHasDefaultProfileImage(profileImageResponse.hasDefaultProfileImage);
                         setProfileUri(profileImageResponse.profileImage);
-                        setLoading(false);
                     }
                 })
                 .catch(error => {
@@ -41,27 +41,76 @@ const FriendItem = ({ friendID }: { friendID: string }) => {
                 });
         };
 
-        fetchUsername();
-        getOtherProfileImage();
+        fetchUsername().then(() => {
+            getOtherProfileImage().then(() => {
+                setLoading(false)
+            });
+        });
+
     }, [friendID]);
+
+    const [imageLoading, setImageLoading] = useState(true)
 
     return (
         <TouchableOpacity style={{ alignItems: 'center', gap: 3 }}>
+            {imageLoading && (
+                <Skeleton
+                    style={{ width: 80, height: 80, borderRadius: 100, backgroundColor: theme.colors.tertiary }}
+                    skeletonStyle={{ backgroundColor: theme.colors.secondary }}
+                />
+            )}
             {hasDefaultProfileImage && (
                 <Image
-                    style={{ width: 60, height: 60, borderRadius: 100 }}
+                    style={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 100,
+                        borderWidth: 2,
+                        borderColor: theme.colors.tertiary,
+                        position: imageLoading ? 'absolute' : 'relative',
+                        opacity: imageLoading ? 0 : 1,
+                    }}
                     source={profileUri as any}
+                    onLoadEnd={() => setImageLoading(false)}
                 />
             )}
             {!hasDefaultProfileImage && (
                 <Image
-                    style={{ width: 60, height: 60, borderRadius: 100 }}
+                    style={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 100,
+                        borderWidth: 2,
+                        borderColor: theme.colors.tertiary,
+                        position: imageLoading ? 'absolute' : 'relative',
+                        opacity: imageLoading ? 0 : 1,
+                    }}
                     source={{ uri: profileUri } as any}
+                    onLoadEnd={() => setImageLoading(false)}
                 />
             )}
-            <Text style={{ color: theme.colors.text, fontFamily: 'intertight-medium' }}>
-                {username || 'Loading...'}
-            </Text>
+            {!imageLoading ? (
+                <Text
+                    style={{
+                        color: theme.colors.text,
+                        fontFamily: 'intertight-bold',
+                        width: 80, // Set your max width here
+                        textAlign: 'center', // Center the text
+                    }}
+                    numberOfLines={1} // Restrict to one line
+                    ellipsizeMode="tail" // Add ellipsis if the text overflows
+                >
+                    {username || 'Loading...'}
+                </Text>
+            ) : (
+                <Skeleton
+                    animation={"pulse"}
+                    height={15}
+                    width={80}
+                    style={{ backgroundColor: theme.colors.tertiary, borderRadius: 50 }}
+                    skeletonStyle={{ backgroundColor: theme.colors.secondary }}
+                />
+            )}
         </TouchableOpacity>
     );
 };
@@ -72,16 +121,18 @@ const FindFriendsItem = () => {
     return (
         <TouchableOpacity style={{ alignItems: 'center', gap: 3 }}>
             <View style={{
-                width: 60,
-                height: 60,
+                width: 80,
+                height: 80,
                 borderRadius: 100,
-                backgroundColor: theme.colors.tertiary,
+                backgroundColor: theme.colors.secondary,
+                borderWidth: 2,
+                borderColor: theme.colors.tertiary,
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
                 <Text style={{ color: theme.colors.text, fontSize: 24 }}>+</Text>
             </View>
-            <Text style={{ color: theme.colors.text, fontFamily: 'intertight-medium' }}>
+            <Text style={{ color: theme.colors.text, fontFamily: 'intertight-bold' }}>
                 Find Friends
             </Text>
         </TouchableOpacity>

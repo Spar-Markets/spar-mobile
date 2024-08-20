@@ -436,7 +436,7 @@ const createHomeStyles = (theme: any, width: number) => {
   inputToolbarContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     paddingVertical: 10,
     backgroundColor: theme.colors.background,
     marginBottom: 10, // Adjust this to move the toolbar above the bottom of the window

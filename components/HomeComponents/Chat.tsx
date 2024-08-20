@@ -184,7 +184,7 @@ const Chat = () => {
 
     return (
         <View style={[styles.container]}>
-            <HTHPageHeader endAt={params?.endAt} yourColor={params?.yourColor} text={"Chat"} />
+            <HTHPageHeader endAt={params?.endAt} yourColor={params?.yourColor} text={params?.otherUsername} hasDefaultImage={params?.otherHasDefaultProfileImage} imageUri={params?.otherProfileUri} />
             <View style={{ flex: 1, marginTop: 10, marginBottom: 30 /*keyboard ative change*/ }}>
                 <GiftedChat
                     messages={messages}
@@ -211,13 +211,13 @@ const Chat = () => {
                                     padding: 2,
                                     color: theme.colors.opposite,
                                     fontSize: 14,  // Customize the font size for left bubbles
-                                    fontFamily: 'InterTight-Medium', // Customize the font weight for left bubbles
+                                    fontFamily: 'InterTight-Bold', // Customize the font weight for left bubbles
                                 },
                                 right: {
                                     padding: 2,
                                     color: theme.colors.opposite,
                                     fontSize: 14,  // Customize the font size for right bubbles
-                                    fontFamily: 'InterTight-Medium', // Customize the font weight for right bubbles
+                                    fontFamily: 'InterTight-Bold', // Customize the font weight for right bubbles
                                 },
                             }}
                         />

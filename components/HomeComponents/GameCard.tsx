@@ -1278,7 +1278,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   endAt: match.endAt,
                   yourColor: yourColor,
                   otherProfileUri: otherProfileUri,
-                  otherHasDefaultProfileImage: otherHasDefaultProfileImage
+                  otherHasDefaultProfileImage: otherHasDefaultProfileImage,
+                  otherUsername: opponentUsername
                 })
               }}
               style={{

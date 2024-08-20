@@ -19,9 +19,11 @@ import { Skeleton } from '@rneui/themed';
 import { deleteObject, getDownloadURL, ref } from 'firebase/storage';
 import GameCardSkeleton from '../HomeComponents/GameCardSkeleton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import storage from '@react-native-firebase/storage';
 import getProfileImage from '../../utility/getProfileImage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import storage from '@react-native-firebase/storage';
+import { setSelectedPost } from '../../GlobalDataManagment/commentSheetSlice';
+
 
 
 interface PostProps extends PostType {
@@ -45,24 +47,6 @@ const Post = (props: any) => {
 
     const navigation = useNavigation<any>();
 
-    const navigateToComments = () => {
-        navigation.navigate("CommentPage", {
-            postId: props.postId,
-            username: props.username,
-            postedTime: props.postedTime,
-            type: props.type,
-            title: props.title,
-            body: props.body,
-            votes: props.votes,
-            numComments: props.numComments,
-            numReposts: props.numReposts,
-            hasImage: props.hasImage,
-            isUpvoted: props.isUpvoted,
-            isDownvoted: props.isDownvoted,
-            image: image //uri to image
-        })
-    }
-
     // Sets initial votes on rerender
     const [loading, setLoading] = useState(true);
     const [image, setImage] = useState<string | null>(null);
@@ -71,6 +55,10 @@ const Post = (props: any) => {
     const yourProfileImageUri = useSelector((state: any) => state.image.profileImageUri);
     const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
     const [hasDefaultProfileImage, setHasDefaultProfileImage] = useState<any>(null)
+    const [username, setUsername] = useState<any>(null)
+
+    const [profileLoaded, setProfileLoaded] = useState(false)
+    const [mainImageLoaded, setMainImageLoaded] = useState(false);
 
     const getPosterProfileImage = async () => {
         getProfileImage(props.posterId)
@@ -122,27 +110,17 @@ const Post = (props: any) => {
                     }
                 }
 
-                /*if (props.posterId) {
-                    const posterDoc = await axios.post(`${serverUrl}/getUser`, { userID: props.posterId })
-                    if (posterDoc.data.hasDefaultProfileImage = true) {
-                        console.log(posterDoc.data)
-                        setProfileImageUri(posterDoc.data.defaultProfileImage)
-                    } else {
-                        const imageRef = storage().ref(`profileImages/${props.posterId}`)
-                        try {
-                            const url = await imageRef.getDownloadURL();
-                            if (url) {
-                                setProfileImageUri(url);
-                                console.log(url, "GOT POST IMAGE")
-                            }
-                        } catch (error) {
-                            console.log('no firebase image');
-                        }
-                        // const profileImageRef = ref(storage, `profileImages/${props.posterId}`);
-                        // const profileUrl = await getDownloadURL(profileImageRef);
-                        //setProfileImageUri(profileUrl);
+                const fetchUsername = async () => {
+                    try {
+                        const response = await axios.post(serverUrl + '/getUsernameByID', { userID: props.posterId });
+                        setUsername(response.data.username);
+                    } catch (error) {
+                        console.error(error);
                     }
-                }*/
+                };
+
+                fetchUsername()
+
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -193,9 +171,11 @@ const Post = (props: any) => {
         try {
 
             try {
-                if (props.hasImage == true || props.hasTempImage == true) {
-                    // const imgRef = ref(storage, `postImages/${postId}`);
-                    // await deleteObject(imgRef);
+                if (props.hasImage || props.hasTempImage) {
+                    const imgRef = storage().ref(`postImages/${postId}`);
+                    await imgRef.delete().catch((error) => {
+                        console.error('Error deleting image from Firebase:', error);
+                    });
                 }
                 const response = await axios.post(serverUrl + '/deletePost', {
                     postId: postId,
@@ -206,6 +186,9 @@ const Post = (props: any) => {
                     if (props.onComment == true) {
                         navigation.goBack()
                     }
+
+
+                    dispatch(setSelectedPost(null))
                     dispatch(deletePost(postId));
                     Alert.alert('Success', 'Post deleted successfully');
                     // You can update your state or UI here
@@ -216,7 +199,7 @@ const Post = (props: any) => {
                 }
             } catch (error) {
                 Alert.alert('Error', 'Failed to delete post');
-                console.log(error)
+                console.log("the error is", error)
                 return
             }
         } catch (error) {
@@ -228,6 +211,7 @@ const Post = (props: any) => {
     const [aspectRatio, setAspectRatio] = useState<any>(null)
 
     useEffect(() => {
+        console.log("has image", image != null)
         if (image) {
             console.log(image)
             Image.getSize(image, (width, height) => {
@@ -236,32 +220,6 @@ const Post = (props: any) => {
         }
     }, [image]);
 
-    /*if (loading && props.onComment == false) {
-        return (
-            <View style={styles.postsContainer}>
-                <View>
-                    <TouchableOpacity onPress={navigateToComments}>
-                        <View style={styles.postTopContainer}>
-                            <Skeleton animation={"wave"} style={[styles.postPic, { backgroundColor: theme.colors.primary }]} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>
-                            <Skeleton animation={"wave"} width={100} height={25} style={{ marginLeft: 10, backgroundColor: theme.colors.primary, borderRadius: 5 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>
-                            <View style={{ flex: 1 }}></View>
-                            <Skeleton animation={"wave"} width={100} height={25} style={{ marginLeft: 10, backgroundColor: theme.colors.primary, borderRadius: 50 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }} />
-                        </View>
-                        <Skeleton animation={"wave"} height={25} style={{ marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>
-                        <Skeleton animation={"wave"} height={25} style={{ marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>
-                        <Skeleton animation={"wave"} height={25} width={120} style={{ marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>
-                        {props.hasImage === true && <Skeleton animation={"wave"} height={width - 40} width={width - 40} style={{ marginTop: 10, backgroundColor: theme.colors.primary, borderRadius: 5 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>}
-                    </TouchableOpacity>
-                    <View style={styles.postBottomContainer}>
-                        <Skeleton animation={"wave"} height={35} width={60} style={{ backgroundColor: theme.colors.primary, borderRadius: 50 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>
-                        <View style={{ flex: 1 }}></View>
-
-                        <Skeleton animation={"wave"} height={35} width={100} style={{ backgroundColor: theme.colors.primary, borderRadius: 50 }} skeletonStyle={{ backgroundColor: theme.colors.tertiary }}></Skeleton>
-                    </View>
-                </View>
-            </View>
-        )
-    }*/
 
     return (
         <View style={styles.postsContainer}>
@@ -269,29 +227,34 @@ const Post = (props: any) => {
                 <View>
                     <TouchableOpacity onPress={() => props.expandCommentSheet(props.postId)}>
                         <View style={styles.postTopContainer}>
-
-                            {hasDefaultProfileImage == true && profileImageUri && (
-                                <Image
-                                    style={[
-                                        { width: 30, height: 30, borderRadius: 100 },
-                                    ]}
-                                    source={profileImageUri as any}
+                            {!profileLoaded && (
+                                <Skeleton
+                                    style={{ width: 30, height: 30, borderRadius: 100, backgroundColor: theme.colors.tertiary }}
+                                    skeletonStyle={{ backgroundColor: theme.colors.secondary }}
                                 />
                             )}
-                            {hasDefaultProfileImage == false && profileImageUri && (
+                            {profileImageUri && (
                                 <Image
                                     style={[
-                                        { width: 30, height: 30, borderRadius: 100 },
+                                        { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
                                     ]}
-                                    source={{ uri: profileImageUri } as any}
+                                    source={hasDefaultProfileImage ? profileImageUri : { uri: profileImageUri } as any}
+                                    onLoad={() => setProfileLoaded(true)}
                                 />
                             )}
                             {!profileImageUri && props.profileImage && props.hasTempProfileImage && (
-                                <Image style={styles.postPic} source={{ uri: props.profileImage }} />
-                            )
-                            }
+                                <Image
+                                    style={[
+                                        { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
+                                    ]}
+                                    source={{ uri: props.profileImage }}
+                                    onLoad={() => setProfileLoaded(true)}
+                                />
+                            )}
                             <View>
-                                <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
+                                {props.posterId == user.userId ? <Text style={styles.usernameAndTime}>{user.userId} • {props.postedTimeAgo}</Text>
+                                    : <Text style={styles.usernameAndTime}>{username} • {props.postedTimeAgo}</Text>
+                                }
                                 {categoryButton(props.type)}
                             </View>
                             <View style={{ flex: 1 }}></View>
@@ -305,12 +268,34 @@ const Post = (props: any) => {
                             <Text style={styles.subjectText}>{props.title}</Text>
                             <Text style={styles.messageText}>{props.body}</Text>
                         </View>
-                        {props.hasImage === true && image != null && <Image
-                            style={[styles.mainPic, { width: '100%', aspectRatio }]}
-                            source={{ uri: image }}
-                            resizeMode="contain" // or "cover"
-                        />}
-                        {props.hasTempImage === true && props.image != null && props.hasImage == false && <Image style={[styles.mainPic, { width: '100%', aspectRatio: props.aspectRatio }]} source={{ uri: props.image }} />}
+
+                        {!mainImageLoaded && props.hasImage === true && (
+                            <Skeleton
+                                style={[styles.mainPic, { width: width, height: 200, backgroundColor: theme.colors.tertiary }]}
+                                skeletonStyle={{ backgroundColor: theme.colors.secondary }}
+                            />
+                        )}
+                        {props.hasImage === true && image != null && (
+                            <Image
+                                style={[
+                                    styles.mainPic,
+                                    { width: '100%', aspectRatio, position: mainImageLoaded ? 'relative' : 'absolute', opacity: mainImageLoaded ? 1 : 0 }
+                                ]}
+                                source={{ uri: image }}
+                                resizeMode="contain"
+                                onLoad={() => setMainImageLoaded(true)}
+                            />
+                        )}
+                        {props.hasTempImage === true && props.image != null && props.hasImage == false && (
+                            <Image
+                                style={[
+                                    styles.mainPic,
+                                    { width: '100%', position: mainImageLoaded ? 'relative' : 'absolute', opacity: mainImageLoaded ? 1 : 0 }
+                                ]}
+                                source={{ uri: props.image }}
+                                onLoad={() => setMainImageLoaded(true)}
+                            />
+                        )}
                     </TouchableOpacity>
                     <View>
                         <View style={styles.postBottomContainer}>
@@ -355,17 +340,11 @@ const Post = (props: any) => {
                         <View style={styles.postTopContainer}>
                             <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
                             <View>
-                                <Text style={styles.usernameAndTime}>{props.username} • {props.postedTimeAgo}</Text>
+                                <Text style={styles.usernameAndTime}>{username} • {props.postedTimeAgo}</Text>
                                 {categoryButton(props.type)}
                             </View>
                             <View style={{ flex: 1 }}></View>
-                            {props.posterId == user.userID &&
-                                <TouchableOpacity onPress={() => {
-                                    handleDelete(props.postId)
-                                }}>
-                                    <Icon name="trash" size={18} color={theme.colors.secondaryText}></Icon>
-                                </TouchableOpacity>
-                            }
+
                         </View>
                         <View style={{ marginHorizontal: 15 }}>
                             <Text style={styles.subjectText}>{props.title}</Text>

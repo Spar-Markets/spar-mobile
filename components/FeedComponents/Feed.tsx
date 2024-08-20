@@ -25,6 +25,7 @@ import BottomSheet, {
 import { setSelectedPost } from '../../GlobalDataManagment/commentSheetSlice';
 import DmFriends from './DmFriends';
 
+
 const Feed: React.FC = () => {
   const { theme } = useTheme();
   const { width, height } = useDimensions();
@@ -118,6 +119,14 @@ const Feed: React.FC = () => {
     commentSheetRef.current?.expand();
   };
 
+  const selectedPost = useSelector((state: RootState) => state.commentSheet.selectedPost)
+
+  useEffect(() => {
+    if (selectedPost == null) {
+      commentSheetRef.current?.close()
+    }
+  }, [selectedPost])
+
 
 
   return (
@@ -152,7 +161,6 @@ const Feed: React.FC = () => {
             <View style={{ flex: 1 }}></View>
           </View>
         </View>*/}
-        <DmFriends />
         <FlatList
           data={posts}
           renderItem={renderItem}
@@ -170,6 +178,8 @@ const Feed: React.FC = () => {
           onEndReached={loadMorePosts}
           onEndReachedThreshold={0.5}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={<DmFriends />}
+          ListHeaderComponentStyle={{ marginBottom: 20 }}
         />
 
         <View style={{ position: 'absolute', right: 10, bottom: 0, zIndex: 100 }}>
