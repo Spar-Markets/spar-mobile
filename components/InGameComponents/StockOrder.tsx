@@ -141,7 +141,6 @@ const StockOrder = (props: any) => {
 
       console.log('Sell Response:', sellResponse.data);
       if (sellResponse) {
-        navigation.pop(2);
         navigation.replace('OrderSummary', {
           ticker: params?.ticker,
           shares: shareQuantity,

@@ -476,6 +476,11 @@ const StockDetails = () => {
                       matchID: params?.matchID,
                       qty: asset.totalShares,
                       endAt: params?.endAt,
+                      logoUrl: tickerData && tickerData.detailsResponse.results.branding != undefined
+                      ? tickerData.detailsResponse.results.branding.icon_url +
+                      '?apiKey=' +
+                      polygonKey
+                      : 'logoUrlError'
                     })
                   }>
                   <Text style={[styles.tradeButtonText]}>Sell</Text>
