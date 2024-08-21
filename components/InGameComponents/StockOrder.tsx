@@ -334,7 +334,7 @@ const StockOrder = (props: any) => {
         return shareQuantity != '0.' && Number(shareQuantity) != 0 && estimatedCost <= params?.buyingPower;
       } else if (selectedMode == 'dollars') {
         return (
-          dollarAmount != '0' && parseFloat(dollarAmount) <= params?.buyingPower
+          dollarAmount != '0.' && Number(dollarAmount) != 0 && parseFloat(dollarAmount) <= params?.buyingPower
         );
       } else {
         return false;
@@ -351,7 +351,7 @@ const StockOrder = (props: any) => {
         // dollar amount != 0
         // dollar value of their shares is less than or equal to dollar amount
         return (
-          dollarAmount != '0' &&
+          dollarAmount != '0.' && Number(dollarAmount) != 0 &&
           params?.qty * stockPrice! <= Number(dollarAmount)
         );
       } else {
