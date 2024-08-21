@@ -48,7 +48,7 @@ const OrderSummary = (props: any) => {
 
   const costOrCredit = params.isBuying ? "Cost" : "Credit";
 
-  const updatedTotalshares = params.isBuying ? params?.buyData.updatedTotalshares : params?.sellData.updatedTotalShares
+  const updatedTotalshares = params.isBuying ? params?.buyData.updatedTotalshares : params?.sellData.updatedTotalshares
  
   /* useEffect(() => {
     if (params?.ticker && params?.matchID) {

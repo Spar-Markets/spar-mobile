@@ -331,7 +331,7 @@ const StockOrder = (props: any) => {
     if (params.isBuying) {
       // CASE 1: Check buying validity conditions
       if (selectedMode == 'shares') {
-        return shareQuantity != '0' && estimatedCost <= params?.buyingPower;
+        return shareQuantity != '0.' && Number(shareQuantity) != 0 && estimatedCost <= params?.buyingPower;
       } else if (selectedMode == 'dollars') {
         return (
           dollarAmount != '0' && parseFloat(dollarAmount) <= params?.buyingPower
@@ -345,7 +345,7 @@ const StockOrder = (props: any) => {
         // shares selling conditions
         // share quantity != 0
         // they own enough shares
-        return shareQuantity != '0' && params?.qty >= Number(shareQuantity);
+        return shareQuantity != '0.' && Number(shareQuantity) != 0 && params?.qty >= Number(shareQuantity);
       } else if (selectedMode == 'dollars') {
         // dollars selling conditions
         // dollar amount != 0
