@@ -116,7 +116,7 @@ const StockOrder = (props: any) => {
       if (buyResponse) {
         navigation.replace('OrderSummary', {
           ticker: params?.ticker,
-          shares: shareQuantity,
+          shares: buyResponse.data.shares,
           isBuying: params?.isBuying,
           isSelling: params?.isSelling,
           matchID: params?.matchID,
