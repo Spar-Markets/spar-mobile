@@ -1,9 +1,16 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, useColorScheme, NativeModules, ScrollView, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { serverUrl } from '../constants/global';
+import FeatherIcons from 'react-native-vector-icons/Feather';
+import { useTheme } from '../components/ContextComponents/ThemeContext';
+import PageHeader from './GlobalComponents/PageHeader';
+
+import { useSelector } from 'react-redux';
+import { RootState } from '../GlobalDataManagment/store';
+
 
 const Deposit = () => {
     const navigation = useNavigation<any>(); 
@@ -12,49 +19,28 @@ const Deposit = () => {
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [styles, setStyles] = useState(darkStyles);
     const [currAccessToken, setCurrAccessToken] = useState();
-    const [accountID, setAccountID] = useState("");
     const [balance, setBalance] = useState("Retrieving...");
     const [input, setInput] = useState('0.00');
-    
+    const user = useSelector((state: RootState) => state.user)
+
     const goBack = () => {
         navigation.goBack();
-    };
-  
+    };  
+    const { theme } = useTheme();
+
+    FeatherIcons.loadFont();
+    const route = useRoute();
+
+    const params = route.params as any;
+    const accessTokens = params?.accessTokens
+    const accountID = params?.accountID
     useEffect(() => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
             setStatusBarHeight(response.height);
         });
         colorScheme == "dark" ? setStyles(darkStyles) : setStyles(lightStyles)
-
-        //getAccessToken().then(() => console.log("Token: " + currAccessToken))
-        /*if (l != null) {
-            getAccount();
-            getBalance();
-        }*/
-
-        // const fetchData = async () => {
-        //     try {
-        //         const email = await AsyncStorage.getItem("userEmail");
-        //         if (email) {
-        //             const response = await axios.post(serverUrl+'/getAccessFromMongo', { email: email });
-        //             if (response && response.data) {
-        //                 const token = response.data
-        //                 //console.log("Console Token: " + token);
-        //                 await getAccount(token); // Wait for getAccount to complete
-        //                 await getBalance(token); // Wait for getBalance to complete
-                        
-        //                 setCurrAccessToken(token); //only for things outside of useEffect
-        //             }
-        //         }
-        //         const response = await axios.post(serverUrl+"/getPlaidBalance");
-        //         console.log(response.data)
-        //     } catch (error) {
-        //         console.error("Error fetching access token:", error);
-        //     }
-
-        // };
-    
-        // fetchData();
+        console.log("bankingbitches", accessTokens, accountID)
+      
     }, []);
 
     const handlePress = (value:string) => {
@@ -96,101 +82,73 @@ const Deposit = () => {
       }
     };
 
-    const getAccount = async (token:String) => {
-        try {
-            const accessData = {
-                newAccessToken: token
-            };
-            const account = await axios.post(serverUrl+'/getAccount', accessData);
-            setAccountID(account.data.data.accounts[0].account_id);
-            console.log(account.data.data.accounts[0].balances)
-        } catch {
-          console.error("Error Getting Accont")
-        }
-      }
+
+
 
 
     const handleDeposit = async () => {
         
-        //GET ACCESS TOKEN FROM MONGO
         const transferAuthData = {
-            access_token: currAccessToken,
-            account_id: accountID,
-            amount: input,
-            type: "debit",
-            network: 'ach',
-            ach_class: 'ppd',
-            user: {
-                legal_name: "Joseph Quaratiello"
-            }
+          access_token: accessTokens,
+          account_id: params?.accountID,
+          // this shoud be dynamicaly set
+          amount: input,
+          // type: "debit",
+          // network: 'ach',
+          // ach_class: 'ppd',
+          // user: {
+          //     legal_name: "Grant Drinkwater"
+          // }
+      }
+      const authData = await axios.post(serverUrl+"/transfer", transferAuthData);
+      if (authData.data == 'approved') {
+
+
+      const transfers = await axios.post(serverUrl+"/getTransferList");
+        console.log("alright",transfers)
+        // parse transfer response to get just transfer ids
+
+      // Extract the transfer IDs
+      const transferIds = transfers.data.map(item => item.id);
+
+      console.log(transferIds);
+
+        const transferPackageForSim = {
+          transfer_id: transferIds[0]
+
         }
-        const authData = await axios.post(serverUrl+"/transfer", transferAuthData);
-        if (authData.data == 'approved') {
-            try {
-                const email = await AsyncStorage.getItem("userEmail");
-                const updateBalData = {
-                    email: email,
-                    deposit: input
-                } 
-                await axios.post(serverUrl+"/updateUserBalanceDeposit", updateBalData)
-            } catch {
-                console.error("error")
-            }
-        }
+        console.log("cream",transferPackageForSim)
+        const sim = await axios.post(`${serverUrl}/sandbox-transfer-simulate`, transferPackageForSim) 
+        console.log(sim)
+ 
+        try {  
+            const updateBalData = {
+                userID: user.userID,
+                deposit: input
+            } 
+            await axios.post(`${serverUrl}/updateUserBalanceDeposit`, updateBalData)
 
-        /*//console.log(transferId.data)
-        const simPendingToPostedData = {
-            transfer_id: transferId.data,
-            event_type: 'posted',
-        }
+            //redux their balance 
 
-        const simPostedToSettledData = {
-            transfer_id: transferId.data,
-            event_type: 'settled',
-        }*/
-
-        /*console.log("Begin Simming")
-        const postedResponse = await axios.post(serverUrl+"/simTransfer", simPendingToPostedData);
-        console.log(postedResponse.data)
-        const settledData = await axios.post(serverUrl+"/simTransfer", simPostedToSettledData);
-        console.log(settledData)
-        console.log("End Simming")*/
-        
-    }
-
-    const getBalance = async (token:String) => {
-        const accessData = {
-            newAccessToken: token
-        };
-        try {
-            const balGot = await axios.post(serverUrl+'/getBalance', accessData);
-            setBalance(balGot.data.accounts[0].balances.available)
-            console.log(balGot.data.accounts[0]) 
-            //console.log(balGot.data.accounts[0].balances.available)
         } catch {
-            console.error("Error Getting Balance")
+            console.error("error")
         }
+      }
     }
 
- 
- 
 
 
 return (
         
     <View style={[colorScheme == "dark" ? {backgroundColor: "#181818"} : {backgroundColor: '#fff'}, {flex: 1}]}>
-        <View style={{marginTop: statusBarHeight + 10, marginHorizontal: 15}}>
+        <View style={{marginTop: statusBarHeight + 10}}>
             <View style={{flexDirection: 'row'}}>
-                <View style={{flex: 1}}>
-                    <TouchableOpacity onPress={goBack} style={[colorScheme == "dark" ? {backgroundColor: '#fff'} : {backgroundColor: '#000'}, {height: 30, width: 60, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 12}]}>
-                        <Text style={[colorScheme == "dark" ? {color: '#000'} : {color: '#fff'}, {fontFamily: 'InterTight-Black', fontSize: 12}]}>Back</Text>
-                        {/*<Icon path={mdiChevronLeft}/>*/}
-                    </TouchableOpacity>
-                </View>
+
                 <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-                    <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {marginHorizontal: 15, fontFamily: 'InterTight-Black', fontSize: 20}]}>Deposit</Text>
+                <PageHeader text="" />
+
+                    <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, { fontFamily: 'InterTight-Black', fontSize: 20}]}>Deposit</Text>
                 </View>
-                <View style={{flex: 1}}/>
             </View>
         </View>
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>

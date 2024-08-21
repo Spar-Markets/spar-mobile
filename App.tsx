@@ -60,7 +60,10 @@ import Settings from './components/ProfileComponents/Settings';
 import { setBalance, setDefaultProfileImage, setFriendCount, setFriends, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUserID, setUsername } from './GlobalDataManagment/userSlice';
 import { Text } from 'react-native';
 import Invitations from './components/HomeComponents/Invitations';
+import History from './components/HomeComponents/History';
+
 import axios from 'axios';
+
 
 import auth from '@react-native-firebase/auth';
 import { serverUrl } from './constants/global';
@@ -387,6 +390,16 @@ const AppContent = (): React.ReactElement => {
             <Stack.Screen
               name="Invitations"
               component={Invitations}
+              options={{
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'horizontal',
+                animation: 'slide_from_bottom',
+              }}
+            />
+            <Stack.Screen
+              name="History"
+              component={History}
               options={{
                 headerShown: false,
                 gestureEnabled: true,

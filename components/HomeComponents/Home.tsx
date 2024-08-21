@@ -1169,7 +1169,7 @@ const Home: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => navigation.navigate("Invitations")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
+          <TouchableOpacity onPress={() => navigation.navigate("History")} style={{ gap: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, flex: 1, margin: 5, borderRadius: 500 }}>
             <MaterialCommunityIcons name="history" color={theme.colors.opposite} size={24} />
 
             <Text style={{ color: theme.colors.opposite, fontFamily: 'InterTight-medium', fontSize: 12 }}>History</Text>
