@@ -68,6 +68,9 @@ import Chat from './components/HomeComponents/Chat';
 import timeTillCloseOrOpen from './utility/timeTillCloseOrOpen';
 import isMarketOpen from './utility/marketOpen';
 import { setIsMarketOpen } from './GlobalDataManagment/marketStatusSlice';
+import DmPage from './components/FeedComponents/DmPage';
+
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 const Stack = createNativeStackNavigator();
 
@@ -404,6 +407,15 @@ const AppContent = (): React.ReactElement => {
                 animation: 'slide_from_bottom',
               }}
             />
+            <Stack.Screen
+              name="DmPage"
+              component={DmPage}
+              options={{
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'horizontal',
+              }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </Animated.View>
@@ -463,13 +475,17 @@ const App = (): React.ReactElement => {
   return (
     <ThemeProvider>
       <DimensionsProvider>
-        <StatusBarHeightProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <Provider store={store}>
-              <AppContent />
-            </Provider>
-          </GestureHandlerRootView>
-        </StatusBarHeightProvider>
+        <GestureHandlerRootView>
+          <BottomSheetModalProvider>
+            <StatusBarHeightProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <Provider store={store}>
+                  <AppContent />
+                </Provider>
+              </GestureHandlerRootView>
+            </StatusBarHeightProvider>
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
       </DimensionsProvider>
     </ThemeProvider>
   );

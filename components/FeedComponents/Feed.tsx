@@ -24,6 +24,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { setSelectedPost } from '../../GlobalDataManagment/commentSheetSlice';
 import DmFriends from './DmFriends';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
 
 const Feed: React.FC = () => {
@@ -66,6 +67,7 @@ const Feed: React.FC = () => {
       }));
 
       if (reset) {
+
         dispatch(setPosts(fetchedPosts));
         setSkip(100); // Reset skip to the next batch
       } else {
@@ -141,26 +143,13 @@ const Feed: React.FC = () => {
             }}>
             Community
           </Text>
+          <View style={{ flex: 1 }} />
+          <TouchableOpacity onPress={() => navigation.navigate("DmPage")}
+            style={{ padding: 10 }}
+          >
+            <FeatherIcon name="send" size={20} color={theme.colors.opposite} />
+          </TouchableOpacity>
         </View>
-        {/*<View style={styles.header}>
-          {profileImageUri ? <Image style={styles.profilePic} source={{ uri: profileImageUri }} /> :
-            <View style={styles.profilePic}>
-            </View>}
-          <View style={styles.searchSection}>
-            <Icon name="search" style={{ color: theme.colors.tertiary }} size={24} />
-            <TextInput
-              placeholder="Search Posts, People..."
-              placeholderTextColor={theme.colors.tertiary}
-              onChangeText={setSearchQuery}
-              value={searchQuery}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-              style={styles.searchInputContainer}
-              selectionColor={theme.colors.accent}
-            />
-            <View style={{ flex: 1 }}></View>
-          </View>
-        </View>*/}
         <FlatList
           data={posts}
           renderItem={renderItem}

@@ -69,11 +69,11 @@ const CoreApp = (): React.ReactElement => {
           tabBarShowLabel: false,
         })}
       >
-        <Tab.Screen name="Discover" component={StockSearch} options={{ headerShown: false, lazy: false }} />
+        <Tab.Screen name="Discover" component={StockSearch} options={{ headerShown: false }} />
         <Tab.Screen name="Feed" component={Feed} options={{ headerShown: false }} />
-        <Tab.Screen name="Portfolio" component={Home} options={{ headerShown: false, lazy: false }} />
-        <Tab.Screen name="Bank" component={Bank} options={{ headerShown: false, lazy: false }} />
-        <Tab.Screen name="Profile" component={Profile} options={{ headerShown: false, lazy: false }} />
+        <Tab.Screen name="Portfolio" component={Home} options={{ headerShown: false }} />
+        <Tab.Screen name="Bank" component={Bank} options={{ headerShown: false }} />
+        <Tab.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
       </Tab.Navigator>
     </View>
   );

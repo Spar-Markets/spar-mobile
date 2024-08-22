@@ -9,6 +9,7 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import PageHeader from '../GlobalComponents/PageHeader';
 
 const Chat = () => {
     const [messages, setMessages] = useState<IMessage[]>([]);
@@ -45,7 +46,7 @@ const Chat = () => {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const response = await axios.get(`${serverUrl}/messages/${params.matchID}`);
+                const response = await axios.get(`${serverUrl}/messages/${params.conversationID}`);
                 if (response.status === 200) {
                     const formattedMessages = response.data.messages.map((msg: any) => ({
                         _id: msg._id,
@@ -55,7 +56,8 @@ const Chat = () => {
                             _id: msg.userID,
                         },
                     }));
-                    setMessages(formattedMessages.reverse());  // GiftedChat expects messages in reverse order
+
+                    setMessages(formattedMessages);  // No need to sort again, as the backend did it
                 } else {
                     console.error('Failed to retrieve messages:', response.data.error);
                 }
@@ -116,7 +118,7 @@ const Chat = () => {
                 console.log('WebSocket closed on component unmount');
             }
         };
-    }, [params.matchID, params.userID]);
+    }, [params.conversationID, params.userID]);
 
     // Handle sending messages
     const onSend = useCallback(() => {
@@ -135,7 +137,7 @@ const Chat = () => {
             setMessages((previousMessages) => GiftedChat.append(previousMessages, newMessages));
 
             axios.post(`${serverUrl}/addMessage`, {
-                matchID: params.matchID,
+                conversationID: params.conversationID,
                 userID: params.userID,
                 message: inputText.trim(),
                 time: new Date(),
@@ -149,7 +151,7 @@ const Chat = () => {
 
             setInputText(''); // Clear the input after sending
         }
-    }, [inputText, params.matchID, params.userID]);
+    }, [inputText, params.conversationID, params.userID]);
 
     // Custom input toolbar for sending messages
     const renderInputToolbar = () => {
@@ -174,6 +176,10 @@ const Chat = () => {
         );
     };
 
+    useEffect(() => {
+        console.log(params)
+    }, [params])
+
     if (loading) {
         return (
             <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -184,7 +190,8 @@ const Chat = () => {
 
     return (
         <View style={[styles.container]}>
-            <HTHPageHeader endAt={params?.endAt} yourColor={params?.yourColor} text={params?.otherUsername} hasDefaultImage={params?.otherHasDefaultProfileImage} imageUri={params?.otherProfileUri} />
+            {params?.type == "match" && <HTHPageHeader endAt={params?.endAt} yourColor={params?.yourColor} text={params?.otherUsername} hasDefaultImage={params?.otherHasDefaultProfileImage} imageUri={params?.otherProfileUri} />}
+            {params?.type == "dm" && <PageHeader text={params?.username} hasDefaultImage={params?.hasDefaultImage} imageUri={params?.imageUri} onDm={true} />}
             <View style={{ flex: 1, marginTop: 10, marginBottom: 30 /*keyboard ative change*/ }}>
                 <GiftedChat
                     messages={messages}

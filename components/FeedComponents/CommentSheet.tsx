@@ -15,6 +15,7 @@ import { RootState } from '../../GlobalDataManagment/store';
 import generateRandomString from '../../utility/generateRandomString';
 import Post from './Post';
 import * as Progress from 'react-native-progress';
+import { setSelectedPost, setSelectedPostImageData } from '../../GlobalDataManagment/commentSheetSlice';
 
 
 const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
@@ -23,6 +24,7 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
     const dispatch = useDispatch();
 
     const selectedPostId = useSelector((state: RootState) => state.commentSheet.selectedPost)
+    const selectedPostImage = useSelector((state: RootState) => state.commentSheet.selectedPostImageData)
 
     const [comment, setComment] = useState('');
     const [loading, setLoading] = useState(true);
@@ -31,6 +33,10 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
     const post = useSelector((state: RootState) =>
         state.posts.find((p) => p.postId === selectedPostId)
     );
+
+    useEffect(() => {
+        console.log("selected post", post, selectedPostImage)
+    }, [selectedPostId])
 
     const fetchComments = async () => {
         try {
@@ -55,6 +61,8 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
             fetchComments();
         } else if (index === -1) {
             setLoading(true)
+            dispatch(setSelectedPost(null))
+            dispatch(setSelectedPostImageData(null))
             dispatch(clearCommentsForPost(selectedPostId!));
         }
     }, [selectedPostId]);
@@ -78,6 +86,9 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
     );
 
     const confirmComment = async () => {
+        if (comment == "") {
+            return
+        }
         try {
             const commentId = generateRandomString(40);
             const localCommentData: CommentType = {
@@ -106,6 +117,7 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
             const response = await axios.post(serverUrl + '/commentOnPost', mongoCommentData);
             if (response.status === 200) {
                 dispatch(addCommentToPost({ postId: selectedPostId!, comment: localCommentData }));
+                Keyboard.dismiss();
                 setComment('');
             } else {
                 Alert.alert('Error', 'Failed to Comment');
@@ -151,11 +163,9 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
                                 ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
                                 ListHeaderComponent={
                                     <View>
-                                        {post?.image ? (
-                                            <Post {...post} onComment={true} image={post.image} />
-                                        ) : (
-                                            <Post {...post} onComment={true} />
-                                        )}
+
+                                        <Post {...post} onComment={true} />
+
                                         <View style={{ height: 6, backgroundColor: theme.colors.primary, marginTop: 10 }} />
                                     </View>
                                 }
@@ -170,6 +180,7 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
                                         </Text>
                                     )
                                 )}
+                                style={{ marginVertical: 15 }}
                             />
                         </View>
                         <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'flex-end' }}>
@@ -192,20 +203,33 @@ const CommentSheet = forwardRef<BottomSheet>((props, ref) => {
                                 selectionColor={theme.colors.accent}
                                 multiline
                             />
-                            <TouchableOpacity
-                                style={{
-                                    marginLeft: 10,
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: 20,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: theme.colors.accent2,
-                                }}
-                                onPress={confirmComment}
-                            >
-                                <FeatherIcon name="send" size={20} color={theme.colors.opposite} />
-                            </TouchableOpacity>
+                            {comment == "" || comment == null ?
+                                <View
+                                    style={{
+                                        marginLeft: 10,
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: 20,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: theme.colors.secondary,
+                                    }}>
+                                    <FeatherIcon name="send" size={20} color={theme.colors.secondaryText} />
+                                </View> :
+                                <TouchableOpacity
+                                    style={{
+                                        marginLeft: 10,
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: 20,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: theme.colors.accent2,
+                                    }}
+                                    onPress={confirmComment}
+                                >
+                                    <FeatherIcon name="send" size={20} color={theme.colors.opposite} />
+                                </TouchableOpacity>}
                         </View>
                     </KeyboardAvoidingView>
                 }
