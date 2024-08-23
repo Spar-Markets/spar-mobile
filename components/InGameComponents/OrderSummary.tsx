@@ -49,7 +49,7 @@ const OrderSummary = (props: any) => {
 
   const costOrCredit = params.isBuying ? "Cost" : "Credit";
 
-  const updatedTotalshares = params.isBuying ? params?.buyData.updatedTotalshares : params?.sellData.updatedTotalshares
+  const updatedTotalShares = params.isBuying ? params?.buyData.updatedTotalShares : params?.sellData.updatedTotalShares
  
   /* useEffect(() => {
     if (params?.ticker && params?.matchID) {
@@ -115,7 +115,7 @@ const OrderSummary = (props: any) => {
             <View style={{flexDirection: 'row', marginVertical: 10}}>
               <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Total Match Position</Text>
               <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{updatedTotalshares} Shares</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{formatNumber(updatedTotalShares, 4)} Shares</Text>
             </View>
           </View>
           <TouchableOpacity onPress={goBack} style={{backgroundColor: theme.colors.accent, width: '100%', alignItems: 'center',paddingVertical: 12, borderRadius: 5}} >
