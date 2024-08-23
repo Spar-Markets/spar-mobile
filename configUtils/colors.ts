@@ -12,7 +12,6 @@ export const darkColors = {
         background: '#0C090D', // black
         gameCardGrayAccent: '#222225', // light gray 
         gameCardGrayBorder: '#29292c', //  light gray
-
         border: '#000', // black 
         accent: '#60FFCF', //most buttons, green
         darkAccent: '#095c35', // green 
@@ -50,6 +49,7 @@ export const lightColors = {
         tertiary: '#ccc',
         background: '#ffffff',
         gameCardGrayAccent: '#222225',
+
         gameCardGrayBorder: '#29292c',
         border: '#fff',
         accent: '#08a677', //most buttons

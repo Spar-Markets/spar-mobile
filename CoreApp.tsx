@@ -67,7 +67,7 @@ const CoreApp = (): React.ReactElement => {
             return (
               <>
                 <View style={{ flex: 1, alignItems: 'center', gap: 3, marginTop: 20 }}>
-                  {route.name != "Portfolio" ? <Icon name={iconName} size={size} color={color} /> : <View style={{ height: size }}><Text style={[focused ? { color: theme.colors.text } : { color: theme.colors.secondaryText }, { fontFamily: 'InterTight-Bold', fontSize: 22 }]}>${balance}</Text></View>}
+                  {route.name != "Portfolio" ? <Icon name={iconName} size={size} color={color} /> : <View style={{ height: size }}><Text style={[focused ? { color: theme.colors.text } : { color: theme.colors.secondaryText }, { fontFamily: 'InterTight-Bold', fontSize: 22 }]}>${balance?.toFixed(2)}</Text></View>}
                   <Text style={[focused ? { color: theme.colors.text } : { color: theme.colors.secondaryText }, { fontSize: 12, fontFamily: 'InterTight-medium' }]}>{route.name}</Text>
                   <View style={[focused ? { backgroundColor: theme.colors.accent } : { backgroundColor: 'transparent' }, { height: 3, width: width / 16, borderRadius: 100 }]}></View>
                 </View>

@@ -31,7 +31,7 @@ interface MatchesResponse {
     // Add other relevant properties if needed
 }
 
-const History = () => {
+const x = () => {
     // Layout and Style Initialization
     const { theme } = useTheme();
     const { width } = useDimensions();
@@ -46,7 +46,6 @@ const History = () => {
         const getPastMatches = async () => {
             try {
                 const response = await axios.post(serverUrl + "/getPastMatches", { userID: user.userID });
-                console.log(response.data.pastMatches)
                 setMatches(response.data); // Set the entire response data
             } catch (error) {
                 console.error('match history error', error);
@@ -133,4 +132,4 @@ const History = () => {
     );
 };
 
-export default History;
+export default x;
