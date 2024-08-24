@@ -10,6 +10,7 @@ import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import { center } from '@shopify/react-native-skia';
 
+
 interface Match {
     _id: string;
     matchType: string;
@@ -23,7 +24,7 @@ interface Match {
     opponentUsername: string;
 }
 
-const History = () => {
+const History1 = () => {
     // Layout and Style Initialization
     const { theme } = useTheme();
     const { width } = useDimensions();
@@ -128,4 +129,4 @@ const History = () => {
     }
 };
 
-export default History;
+export default History1;
