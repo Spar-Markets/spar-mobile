@@ -7,47 +7,78 @@ import { serverUrl } from '../constants/global';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import { useTheme } from '../components/ContextComponents/ThemeContext';
 import PageHeader from './GlobalComponents/PageHeader';
-
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../GlobalDataManagment/store';
+import createStockSearchStyles from '../styles/createStockStyles';
+import { useDimensions } from './ContextComponents/DimensionsContext';
+import { setBalance } from '../GlobalDataManagment/userSlice';
 
+interface account {
+  data: {};
+  token: string
+  // Add other properties based on your account object structure
+}
 
 const Deposit = () => {
     const navigation = useNavigation<any>(); 
     const colorScheme = useColorScheme();
+    const { theme } = useTheme();
+    const { width } = useDimensions();
+
+    const styles = createStockSearchStyles(theme, width);
 
     const [statusBarHeight, setStatusBarHeight] = useState(0);
-    const [styles, setStyles] = useState(darkStyles);
-    const [currAccessToken, setCurrAccessToken] = useState();
+    const [selectedAccount, setSelectedAccount] = useState<account[]>()
     const [balance, setBalance] = useState("Retrieving...");
     const [input, setInput] = useState('0.00');
     const user = useSelector((state: RootState) => state.user)
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const goBack = () => {
         navigation.goBack();
-    };  
-    const { theme } = useTheme();
+    };
+
+    const dispatch = useDispatch()
 
     FeatherIcons.loadFont();
     const route = useRoute();
-
     const params = route.params as any;
-    const accessTokens = params?.accessTokens
-    const accountID = params?.accountID
+
+    // Accounts passed from the banking page
+    const accounts = params?.accounts
+
+    const toggleDropdown = () => {
+      setDropdownOpen(!dropdownOpen);
+    };
+    const handleAccountSelect = (account) => {
+      setSelectedAccount(account);
+      setDropdownOpen(false);
+  };
+  
+  
     useEffect(() => {
         NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
             setStatusBarHeight(response.height);
         });
-        colorScheme == "dark" ? setStyles(darkStyles) : setStyles(lightStyles)
-        console.log("bankingbitches", accessTokens, accountID)
-      
+        console.log("Accounts", accounts)
+        if (accounts.length > 0) {
+          // set the first linked account as the default
+          console.log("Default account being set to:", accounts[0])
+          console.log("Default account token:", accounts[0].token)
+          console.log("Default account ID:", accounts[0].data.accounts[0].account_id)
+          console.log("formatting:", accounts[0].data.accounts)
+
+          setSelectedAccount(accounts[0])
+        } else {
+          console.log("No banks")
+        }
+
     }, []);
 
     const handlePress = (value:string) => {
       if (input === '0.00') {
         setInput('')
-        setInput((prevInput) => prevInput + value);
-        
+        setInput((prevInput) => prevInput + value);        
       }
       if (value === '0' && input === '0.00') {
         setInput('0.00')
@@ -83,77 +114,87 @@ const Deposit = () => {
     };
 
 
-
-
-
     const handleDeposit = async () => {
-        
-        const transferAuthData = {
-          access_token: accessTokens,
-          account_id: params?.accountID,
-          // this shoud be dynamicaly set
-          amount: input,
-          // type: "debit",
-          // network: 'ach',
-          // ach_class: 'ppd',
-          // user: {
-          //     legal_name: "Grant Drinkwater"
-          // }
-      }
-      const authData = await axios.post(serverUrl+"/transfer", transferAuthData);
-      if (authData.data == 'approved') {
-
-
-      const transfers = await axios.post(serverUrl+"/getTransferList");
-        console.log("alright",transfers)
-        // parse transfer response to get just transfer ids
-
-      // Extract the transfer IDs
-      const transferIds = transfers.data.map(item => item.id);
-
-      console.log(transferIds);
-
+        if (selectedAccount != undefined) {
+          console.log("deposit started",selectedAccount.token,selectedAccount.data.accounts[0].account_id)
+          const transferAuthData = {
+            access_token: selectedAccount.token,
+            account_id: selectedAccount.data.accounts[0].account_id,
+            // this shoud be dynamicaly set
+            amount: input,
+            // type: "debit",
+            // network: 'ach',
+            // ach_class: 'ppd',
+            // user: {
+            //     legal_name: "Grant Drinkwater"
+            // }
+        }
+        const authData = await axios.post(serverUrl+"/transfer", transferAuthData);
+        if (authData.data == 'approved') {
+        const transfers = await axios.post(serverUrl+"/getTransferList");
+        console.log("TransferLIST??",transfers)
+        // Parse transfer response to get just transfer ids
+        const transferIds = transfers.data.map(item => item.id);
         const transferPackageForSim = {
           transfer_id: transferIds[0]
-
         }
-        console.log("cream",transferPackageForSim)
         const sim = await axios.post(`${serverUrl}/sandbox-transfer-simulate`, transferPackageForSim) 
-        console.log(sim)
- 
-        try {  
-            const updateBalData = {
-                userID: user.userID,
-                deposit: input
-            } 
-            await axios.post(`${serverUrl}/updateUserBalanceDeposit`, updateBalData)
+        try {
+          const updateBalData = {
+            userID: user.userID,
+            deposit: input
+          } 
+          await axios.post(`${serverUrl}/updateUserBalanceDeposit`, updateBalData)
+          //redux their balance 
+          const balanceBeforeInput = user.balance
+          const totalbal = input + balanceBeforeInput
+          // dispatch(setBalance(totalbal))
 
-            //redux their balance 
 
-        } catch {
-            console.error("error")
+
+          } catch {
+              console.error("error??")
+          }
+        } else {
+
         }
+      } else {
+        console.log("how is the account undefined that can't be good")
+
       }
     }
 
-
-
 return (
-        
-    <View style={[colorScheme == "dark" ? {backgroundColor: "#181818"} : {backgroundColor: '#fff'}, {flex: 1}]}>
-        <View style={{marginTop: statusBarHeight + 10}}>
+    <View style={[styles.container, {marginTop:0}]}>
             <View style={{flexDirection: 'row'}}>
-
                 <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
                 <PageHeader text="" />
-
                     <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, { fontFamily: 'InterTight-Black', fontSize: 20}]}>Deposit</Text>
                 </View>
-            </View>
         </View>
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Text style={[colorScheme == "dark" ? {color: "#fff"} : {color: '#000'}, {fontSize: 60, fontFamily: 'InterTight-Black'}]}>${input}</Text>
-        <Text style={{color: "#888888", fontSize: 16, fontFamily: 'InterTight-Black'}}>Available Funds: {balance}</Text>
+
+        {selectedAccount !== undefined ? (
+          <TouchableOpacity onPress={toggleDropdown} style={{display: 'flex', justifyContent: "center", alignItems: 'center', gap: 5}}>
+            <Text style={{color: "#888888", fontSize: 16, fontFamily: 'InterTight-Black'  }}>
+              Account: {selectedAccount ? selectedAccount.data.accounts[0].name : 'Select Account'}
+            </Text>
+            <Text style={{color: "#888888", fontSize: 16, fontFamily: 'InterTight-Black'}}>Available Funds: {selectedAccount ? selectedAccount.data.accounts[0].balances.available : 'Select Account'}</Text>
+        </TouchableOpacity>
+        ) : (
+          <Text></Text>
+        )}
+        {dropdownOpen && (
+        <View style={{ backgroundColor: theme.colors.background, borderColor: theme.colors.border, borderWidth: 1, borderRadius: 8, marginTop: 10 }}>
+            {accounts.map((account, index) => (
+                <TouchableOpacity key={index} onPress={() => handleAccountSelect(account)} style={{ padding: 10,width: "70%" }}>
+                    <Text style={{ color: theme.colors.text }}>{account.data.accounts[0].persistent_account_id}</Text>
+                </TouchableOpacity>
+            ))}
+        </View>
+        )}
+
       </View>
       <View>
       <View style={{marginHorizontal: 10}}>
@@ -204,16 +245,12 @@ return (
       </View>
       
       <TouchableOpacity onPress={handleDeposit} style={{backgroundColor: "#1ae79c", alignItems: 'center', justifyContent: 'center', borderRadius: 12, height: 80, marginBottom: 30, marginTop: 20, marginHorizontal: 15}}>
-        <Text style={{color: '#000', fontFamily: 'InterTight-Black', fontSize: 18}}>Continue</Text>
+        <Text style={{color: '#000', fontFamily: 'InterTight-Black', fontSize: 18}}>Confirm</Text>
       </TouchableOpacity> 
-      
-      
       </View>
     </View>
     );
 };
-
-
 
 
 const darkStyles = StyleSheet.create({
