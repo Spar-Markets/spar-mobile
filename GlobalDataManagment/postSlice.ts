@@ -129,8 +129,20 @@ const postsSlice = createSlice({
         state.splice(index, 1);
       }
     },
+    addCommentsToPost(state, action: PayloadAction<{ postId: string; comments: CommentType[] }>) {
+      const { postId, comments } = action.payload;
+      const post = state.find((p) => p.postId === postId);
+      if (post) {
+        if (post.comments) {
+          post.comments.push(...comments); // Append the new comments to the existing ones
+        } else {
+          post.comments = comments; // If no comments exist, initialize with the new comments
+        }
+        post.numComments += comments.length; // Update the comment count
+      }
+    },
   },
 });
 
-export const { upvotePost, clearCommentsForPost, appendPosts, deletePost, setCommentsForPost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
+export const { upvotePost, addCommentsToPost, clearCommentsForPost, appendPosts, deletePost, setCommentsForPost, downvotePost, updatePostVotes, setDownvoteStatus, setUpvoteStatus, addPost, setPosts, addCommentToPost } = postsSlice.actions;
 export default postsSlice.reducer;

@@ -292,7 +292,7 @@ const StockDetails = () => {
                         </View>
                         <View>
                           <Text style={styles.statType}>Match Return</Text>
-                          {asset && <Text style={styles.statData}>{((asset.totalShares * stockPrice!) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>}
+                          {asset && stockPrice && <Text style={styles.statData}>{((asset.totalShares * stockPrice!) - (asset.totalShares * asset.avgCostBasis)).toFixed(2)}</Text>}
                         </View>
                       </View>
                     </View>
@@ -474,8 +474,13 @@ const StockDetails = () => {
                       isSelling: true,
                       ticker: params?.ticker,
                       matchID: params?.matchID,
-                      qty: params?.qty,
+                      qty: asset.totalShares,
                       endAt: params?.endAt,
+                      logoUrl: tickerData && tickerData.detailsResponse.results.branding != undefined
+                      ? tickerData.detailsResponse.results.branding.icon_url +
+                      '?apiKey=' +
+                      polygonKey
+                      : 'logoUrlError'
                     })
                   }>
                   <Text style={[styles.tradeButtonText]}>Sell</Text>

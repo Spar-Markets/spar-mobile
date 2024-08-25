@@ -28,6 +28,7 @@ import { Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../GlobalDataManagment/store';
 import { Skeleton } from '@rneui/base';
+import formatNumber from '../../utility/formatNumber';
 
 
 const OrderSummary = (props: any) => {
@@ -48,7 +49,7 @@ const OrderSummary = (props: any) => {
 
   const costOrCredit = params.isBuying ? "Cost" : "Credit";
 
-  const updatedTotalshares = params.isBuying ? params?.buyData.updatedTotalshares : params?.sellData.updatedTotalShares
+  const updatedTotalShares = params.isBuying ? params?.buyData.updatedTotalShares : params?.sellData.updatedTotalShares
  
   /* useEffect(() => {
     if (params?.ticker && params?.matchID) {
@@ -96,7 +97,7 @@ const OrderSummary = (props: any) => {
             <View style={{flexDirection: 'row', marginVertical: 10}}>
               <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Shares</Text>
               <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{params?.shares} Shares</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{formatNumber(params?.shares, 4)} Shares</Text>
             </View>
             <View style={{width: '100%', height: 1, backgroundColor: theme.colors.tertiary}}></View>
             <View style={{flexDirection: 'row', marginVertical: 10}}>
@@ -114,7 +115,7 @@ const OrderSummary = (props: any) => {
             <View style={{flexDirection: 'row', marginVertical: 10}}>
               <Text style={{color: theme.colors.text, fontFamily: 'intertight-semiBold'}}>Total Match Position</Text>
               <View style={{flex: 1}}></View>
-              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{updatedTotalshares} Shares</Text>
+              <Text style={{color: theme.colors.text, fontFamily: 'intertight-semibold'}}>{formatNumber(updatedTotalShares, 4)} Shares</Text>
             </View>
           </View>
           <TouchableOpacity onPress={goBack} style={{backgroundColor: theme.colors.accent, width: '100%', alignItems: 'center',paddingVertical: 12, borderRadius: 5}} >

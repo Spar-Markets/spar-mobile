@@ -1,51 +1,30 @@
 import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar, View, useColorScheme } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import SuccessScreen from './components/SuccessScreen';
-import Profile from './components/ProfileComponents/Profile';
-import { PlaidTheme } from './styles/style';
-import Home from './components/HomeComponents/Home';
+import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import StockSearch from './components/StockComponents/StockSearch';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
-import Bank from './components/Bank'
+import StockSearch from './components/StockComponents/StockSearch';
+import Profile from './components/ProfileComponents/Profile';
+import Home from './components/HomeComponents/Home';
+import Bank from './components/Bank';
 import Feed from './components/FeedComponents/Feed';
 import { useTheme } from './components/ContextComponents/ThemeContext';
-import { useStatusBarHeight } from './components/ContextComponents/StatusBarHeightContext';
 import { useDimensions } from './components/ContextComponents/DimensionsContext';
-import { Text } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from './GlobalDataManagment/store';
-import { BlurView } from '@react-native-community/blur';
-import LinearGradient from 'react-native-linear-gradient';
 
-const Tab = createBottomTabNavigator()
+const Tab = createBottomTabNavigator();
 
 const CoreApp = (): React.ReactElement => {
-  Icon.loadFont();
-
-  const balance = useSelector((state: RootState) => state.user.balance)
-
-  const [onHome, setOnHome] = useState(false)
-
   const { theme } = useTheme();
-  const statusBarHeight = useStatusBarHeight();
-  const { width, height } = useDimensions();
-  {/*<Auth0Provider
-  domain={Auth0Config.domain}
-  clientId={Auth0Config.clientId}
-  >
-</Auth0Provider>*/} //commented out because big issues with it
-  // if (balance) {
+  const { width } = useDimensions();
+  const balance = useSelector((state: RootState) => state.user.balance);
+
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
-            let iconName = "";
+            let iconName = '';
 
             if (route.name === 'Portfolio') {
               iconName = 'home';
@@ -59,11 +38,6 @@ const CoreApp = (): React.ReactElement => {
               iconName = 'th-large';
             }
 
-            if (route.name == "home" && focused) {
-              setOnHome(true)
-            }
-
-            // You can return any component that you like here!
             return (
               <>
                 <View style={{ flex: 1, alignItems: 'center', gap: 3, marginTop: 20 }}>
@@ -74,42 +48,27 @@ const CoreApp = (): React.ReactElement => {
               </>
             )
           },
-          tabBarActiveTintColor: theme.colors.text, // Mint green color for active tab
+          tabBarActiveTintColor: theme.colors.text,
           tabBarInactiveTintColor: theme.colors.secondaryText,
           tabBarStyle: {
-            height: 85, borderRadius: 0, paddingHorizontal: 10, backgroundColor: theme.colors.background, marginBottom: 5
-          }, // Black background for the tab bar
+            height: 85,
+            borderRadius: 0,
+            paddingHorizontal: 10,
+            backgroundColor: theme.colors.background,
+            marginBottom: 5,
+            zIndex: 1,
+          },
           tabBarShowLabel: false,
-          /*tabBarBackground: () => (
-            <View style={{flex: 1}}>
-              <BlurView
-                style={{flex: 1, borderRadius: 10}}
-                blurType="light"
-                blurAmount={20}
-              >
-
-              <LinearGradient
-                colors={['rgba(50, 50, 50, 0.3)', 'rgba(0, 0, 0, 0.5)']} start={{x:0, y: 1}} end={{x:1, y: 0}}
-                style={{flex: 1}}
-              />
-              </BlurView>
-            </View>
-          )*/
-        })}>
-
+        })}
+      >
         <Tab.Screen name="Discover" component={StockSearch} options={{ headerShown: false, lazy: false }} />
-        {/*<Tab.Screen name="Feed" component={Feed} options={{headerShown:false}}/>*/}
+        <Tab.Screen name="Feed" component={Feed} options={{ headerShown: false }} />
         <Tab.Screen name="Portfolio" component={Home} options={{ headerShown: false, lazy: false }} />
-        <Tab.Screen name="Bank" component={Bank} options={{ headerShown: false }} />
+        <Tab.Screen name="Bank" component={Bank} options={{ headerShown: false, lazy: false }} />
         <Tab.Screen name="Profile" component={Profile} options={{ headerShown: false, lazy: false }} />
       </Tab.Navigator>
     </View>
   );
-
-
-
 };
-
-
 
 export default CoreApp;

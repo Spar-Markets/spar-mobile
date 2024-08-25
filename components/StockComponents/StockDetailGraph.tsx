@@ -153,7 +153,7 @@ const StockDetailGraph = (props: any) => {
     getPricesForSelectedTime();
   }, [props.ticker]);
 
-  /*const grabCurrentPrice = async (ticker: string) => {
+  const grabCurrentPrice = async (ticker: string) => {
     try {
       const price = await getCurrentPrice(ticker);
       if (price) {
@@ -163,11 +163,11 @@ const StockDetailGraph = (props: any) => {
     } catch (error) {
       console.error('stockdetailgraph: setting redux price error', error);
     }
-  };*/
+  };
 
   useEffect(() => {
     if (allPointData && oneDayClose > 0) {
-      //grabCurrentPrice(props.ticker);
+      grabCurrentPrice(props.ticker);
       setDataLoading(false);
     } else {
       setDataLoading(true);

@@ -1007,7 +1007,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   return (
     <View style={{ flex: 1 }}>
       {matchIsOver &&
-        <BlurView style={{ position: 'absolute', gap: 20, justifyContent: 'center', alignItems: 'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 10, marginTop: 10, borderWidth: 1, borderColor: theme.colors.secondary }} blurType="dark" blurAmount={4} reducedTransparencyFallbackColor="black">
+        <BlurView style={{ position: 'absolute', gap: 20, justifyContent: 'center', alignItems: 'center', zIndex: 1000000, top: 0, left: 0, bottom: 0, right: 0, marginHorizontal: 20, borderRadius: 20, marginTop: 10, borderWidth: 2, borderColor: theme.colors.tertiary }} blurType="dark" blurAmount={10} reducedTransparencyFallbackColor="black">
           <Icon name="checkmark-circle" color={theme.colors.accent} size={40} />
           <Text style={{ fontSize: 24, color: theme.colors.text, fontFamily: 'InterTight-Black' }}>Match Completed!</Text>
           <View style={{ flexDirection: 'row', gap: 5 }}>
@@ -1278,7 +1278,8 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                   endAt: match.endAt,
                   yourColor: yourColor,
                   otherProfileUri: otherProfileUri,
-                  otherHasDefaultProfileImage: otherHasDefaultProfileImage
+                  otherHasDefaultProfileImage: otherHasDefaultProfileImage,
+                  otherUsername: opponentUsername
                 })
               }}
               style={{

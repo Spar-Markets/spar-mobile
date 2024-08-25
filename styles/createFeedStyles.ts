@@ -13,20 +13,19 @@ const createFeedStyles = (theme: any, width: number) => {
       flex: 1,
     },
     header: {
-      height: 40, 
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
-      marginHorizontal: 20,
-      marginBottom: 20
+        height: 40, 
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginHorizontal: 15,
     },
     headerText: {
         color: theme.colors.text,
-        fontWeight: 'bold',
         fontSize: 24,
-        marginVertical: 20,
-        marginHorizontal: 20           
-    },
+        fontFamily: 'InterTight-Black',
+        marginLeft: 5
+        
+      },
     searchSection: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -52,12 +51,12 @@ const createFeedStyles = (theme: any, width: number) => {
       color: theme.colors.text
     },
     postsContainer: {
-        marginHorizontal: 20,
         flex: 1
     },
     postTopContainer: {
         alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginHorizontal: 15
     },
     postPic: {
         width: 25,
@@ -65,9 +64,10 @@ const createFeedStyles = (theme: any, width: number) => {
         borderRadius: 100
     },
     usernameAndTime: {
-        marginLeft: 10,
         fontWeight: 'bold',
-        color: theme.colors.secondaryText
+        color: theme.colors.text,
+        fontSize: 12,
+        marginLeft: 10
     },
     typeContainer: {
         backgroundColor: theme.colors.notification,
@@ -87,7 +87,7 @@ const createFeedStyles = (theme: any, width: number) => {
     },
     messageText: {
         color: theme.colors.text,
-        marginTop: 5
+        marginTop: 0,
     },
     mainPicContainer: {
         flex: 1,
@@ -96,14 +96,14 @@ const createFeedStyles = (theme: any, width: number) => {
     },
     mainPic: {
         marginTop: 10, 
-        width: width-40,
-        aspectRatio: 0.6,
-        borderRadius: 10,
+        borderRadius: 0,
+
     },
     postBottomContainer: {
         flexDirection: 'row',
-        gap: 20,
-        marginVertical: 10
+        gap: 5,
+        marginTop: 15,
+        marginHorizontal: 15
     },
     votesText: {
         color: theme.colors.text,
@@ -161,7 +161,7 @@ const createFeedStyles = (theme: any, width: number) => {
     //create post
     createPostContainer: {
         paddingTop: statusBarHeight + 10,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.background,
         flex: 1,
     },
     headerContainer: {
@@ -230,6 +230,7 @@ const createFeedStyles = (theme: any, width: number) => {
     //comment 
     commentContainer: {
         marginTop: 10,
+        marginHorizontal: 15
     },
     commentVotesText: {
         color: theme.colors.text,

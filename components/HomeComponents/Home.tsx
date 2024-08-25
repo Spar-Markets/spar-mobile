@@ -179,82 +179,6 @@ const Home: React.FC = () => {
     }
   }, [user]);
 
-  const requestPermissions = async () => {
-    if (Platform.OS === 'ios') {
-      const photoLibraryPermission = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
-      if (photoLibraryPermission !== RESULTS.GRANTED) {
-        await request(PERMISSIONS.IOS.PHOTO_LIBRARY);
-      }
-
-      const cameraPermission = await check(PERMISSIONS.IOS.CAMERA);
-      if (cameraPermission !== RESULTS.GRANTED) {
-        await request(PERMISSIONS.IOS.CAMERA);
-      }
-    } else if (Platform.OS === 'android') {
-      const readPermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      );
-
-      const writePermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      );
-
-      const cameraPermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-      );
-
-      if (
-        readPermission !== PermissionsAndroid.RESULTS.GRANTED ||
-        writePermission !== PermissionsAndroid.RESULTS.GRANTED ||
-        cameraPermission !== PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        console.warn('Permissions not granted');
-      }
-    }
-  };
-
-  const fetchProfileImageFromFirebase = async () => {
-    if (user.userID) {
-      try {
-        // const imageRef = ref(storage, `profileImages/${user.userID}`);
-        // const url = await getDownloadURL(imageRef);
-        // if (url) {
-        //   console.log('Fetched URL from Firebase:', url);
-        //   await AsyncStorage.setItem('profileImgPath', url);
-        //   dispatch(setProfileImageUri(url));
-        // }
-      } catch (error) {
-        console.log('No profile set');
-        //implement default image logic
-      }
-    }
-  };
-
-  useEffect(() => {
-    const getProfilePicture = async () => {
-      //await requestPermissions();
-      /*if (user.userID) {
-        try {
-          const profileImagePath = await AsyncStorage.getItem('profileImgPath');
-          if (profileImagePath) {
-            console.log(
-              'Profile image path from AsyncStorage:',
-              profileImagePath,
-            );
-            dispatch(setProfileImageUri(profileImagePath));
-          } else {
-            await fetchProfileImageFromFirebase();
-          }
-        } catch (error) {
-          console.error('Failed to load profile image path:', error);
-        } finally {
-          setImageLoading(false);
-        }
-      }*/
-    };
-    getProfilePicture();
-  }, [user.userID]);
-
   const fetchMatchIDs = async () => {
     try {
       const response = await axios.post(serverUrl + '/getUserMatches', {
@@ -1712,6 +1636,7 @@ const Home: React.FC = () => {
           </BottomSheetView>
         </BottomSheet>
 
+
         <BottomSheet
           ref={matchmakingSheetRef}
           snapPoints={[360]}
@@ -1720,7 +1645,9 @@ const Home: React.FC = () => {
           onChange={handleMatchmakingChanges}
           backgroundStyle={{ backgroundColor: theme.colors.background }}
           handleIndicatorStyle={{ backgroundColor: theme.colors.tertiary }}
-          backdropComponent={renderBackdrop}>
+          backdropComponent={renderBackdrop}
+          style={{ zIndex: 100 }}>
+
           <BottomSheetView style={{ flex: 1 }}>
             {!(isInMatchmaking || searchingForMatch) ? (
               <View style={{ gap: 10, flex: 1 }}>
