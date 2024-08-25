@@ -15,7 +15,7 @@ import FeatherIcons from 'react-native-vector-icons/Feather';
 
 const Bank = ({ navigation }: any) => {
     const [linkToken, setLinkToken] = useState("");
-    const [accessTokens, setAccessTokens] = useState([String]);
+    const [accessTokens, setAccessTokens] = useState<String[]>([]);
     const [accountID, setAccountID] = useState("");
     const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
     const user = useSelector((state: RootState) => state.user)
@@ -71,7 +71,7 @@ interface AccountType {
         };
         try {
           const response = await axios.post(serverUrl+'/getAccessFromMongo', accessData);
-          console.log("Retrieved accesstokens from mongo " + response.data )
+          console.log("Retrieved accesstokens from mongo: " + response.data )
           setAccessTokens(response.data); 
           // Assuming accessToken is in the response data
         } catch (error) {
@@ -80,7 +80,7 @@ interface AccountType {
       }
   
       const accountsFunc = async () => {
-        console.log("prior to getting accounts", accessTokens);
+        console.log("Prior to getting accounts", accessTokens[0]);
       
         const accessData = {
           accessToken: accessTokens,
@@ -114,9 +114,10 @@ interface AccountType {
     }, [])
     
     useEffect(() => {
-      if (accessTokens.length === 1 && accessTokens[0] === String) {
-
+      if (accessTokens.length == 0 || accessTokens[0] == null) {
+        console.log("no accounts linked")
       } else {
+        console.log("ACCOUNTS LINKED")
         accountsFunc();
       }
   }, [linkToken]); // Run accounts only when accessTokens is set
@@ -173,6 +174,7 @@ interface AccountType {
             .then(async data => {
             // Access the values sent back from the server
 
+            
             const accessToken = data.access_token;
             const itemId = data.item_id;
             

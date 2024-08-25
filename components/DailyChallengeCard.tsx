@@ -1,5 +1,6 @@
 import { Text, TouchableOpacity, View, } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import React from 'react';
 
 const DailyChallengeCard = () => {
   
