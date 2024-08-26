@@ -1003,7 +1003,6 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   }, [updateIndex]);
 
 
-
   return (
     <View style={{ flex: 1 }}>
       {matchIsOver &&

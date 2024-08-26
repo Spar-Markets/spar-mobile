@@ -12,7 +12,6 @@ import { useTheme } from '../components/ContextComponents/ThemeContext';
 import { useDimensions } from './ContextComponents/DimensionsContext';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 
-
 const Bank = ({ navigation }: any) => {
     const [linkToken, setLinkToken] = useState("");
     const [accessTokens, setAccessTokens] = useState<String[]>([]);
@@ -93,12 +92,12 @@ interface AccountType {
 
           const flatAccounts = response.data.results.flatMap((item: any) => item.data.accounts);
           setAccountsWithTokens(response.data.results)
+          console.log(flatAccounts)
           setAccounts(flatAccounts);
         } catch (error) {
           console.error('Error fetching accounts:', error);
         }
       };
-      
 
     useEffect(() => {
       NativeModules.StatusBarManager.getHeight((response: { height: React.SetStateAction<number>; }) => {
@@ -108,13 +107,13 @@ interface AccountType {
         console.log("Getting Link Token")
         createLinkToken();
       }
-
       getAccessTokens()
 
     }, [])
     
     useEffect(() => {
-      if (accessTokens.length == 0 || accessTokens[0] == null) {
+      console.log("here",accessTokens)
+      if (accessTokens.length == 0) {
         console.log("no accounts linked")
       } else {
         console.log("ACCOUNTS LINKED")
@@ -174,7 +173,7 @@ interface AccountType {
             .then(async data => {
             // Access the values sent back from the server
 
-            
+
             const accessToken = data.access_token;
             const itemId = data.item_id;
             
