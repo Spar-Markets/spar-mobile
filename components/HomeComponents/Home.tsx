@@ -82,6 +82,8 @@ import {
 
 import { setBalance } from '../../GlobalDataManagment/userSlice';
 import { resetChallengedFriend, setChallengedFriend } from '../../GlobalDataManagment/matchmakingSlice';
+
+import MatchSummary from './MatchSummary';
 // import storage from '@react-native-firebase/storage';
 
 const { width } = Dimensions.get('window');
@@ -147,6 +149,8 @@ const Home: React.FC = () => {
 
   const [activeMatchSummaryMatchID, setActiveMatchSummaryMatchID] =
     useState('');
+
+  const [activeMatchSummaryOppProfileUri, setActiveMatchSummaryOppProfileUri] = useState<any>(null)
 
   const [enteredMatchmakingCheck, setEnteredMatchmakingCheck] = useState(false);
 
@@ -917,6 +921,9 @@ const Home: React.FC = () => {
                                 setActiveMatchSummaryMatchID
                               }
                               profileImageUri={profileImageUri}
+                              setActiveMatchSummaryOppProfileUri={
+                                setActiveMatchSummaryOppProfileUri
+                              }
                             />
                           </View>
                         )
@@ -1609,30 +1616,7 @@ const Home: React.FC = () => {
           handleIndicatorStyle={{ backgroundColor: theme.colors.tertiary }}
           backdropComponent={renderBackdrop}>
           <BottomSheetView style={{ flex: 1 }}>
-            <View
-              style={{
-                gap: 10,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                flex: 1,
-              }}>
-              <Text
-                style={{
-                  color: theme.colors.text,
-                  fontFamily: 'Intertight-Bold',
-                  fontSize: 20,
-                }}>
-                Match Summary
-              </Text>
-              <Text
-                style={{
-                  color: theme.colors.text,
-                  fontFamily: 'Intertight-Bold',
-                  fontSize: 12,
-                }}>
-                {activeMatchSummaryMatchID}
-              </Text>
-            </View>
+            {activeMatchSummaryMatchID ? <MatchSummary matchID={activeMatchSummaryMatchID}></MatchSummary> : <View></View>}
           </BottomSheetView>
         </BottomSheet>
 

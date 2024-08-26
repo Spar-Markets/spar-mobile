@@ -51,6 +51,7 @@ interface GameCardProps {
   expandMatchSummarySheet: any
   setActiveMatchSummaryMatchID: any
   profileImageUri: string
+  setActiveMatchSummaryOppProfileUri: any
 }
 
 const imageMap = [
@@ -64,7 +65,7 @@ const imageMap = [
 
 
 
-const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri }) => {
+const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummarySheet, setActiveMatchSummaryMatchID, profileImageUri, setActiveMatchSummaryOppProfileUri }) => {
   const colorScheme = useColorScheme();
   const navigation = useNavigation<any>();
 
@@ -1001,7 +1002,6 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
     const id = setInterval(updateIndex, 20);
     return () => clearInterval(id);
   }, [updateIndex]);
-
 
 
   return (

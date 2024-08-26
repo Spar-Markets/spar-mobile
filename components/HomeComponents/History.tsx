@@ -78,8 +78,8 @@ const History = () => {
         let resultDescription = '';
         let resultColor = '';
         const userWon = (item.user1 === user.userID && item.user1FinalValue > item.user2FinalValue) ||
-                        (item.user2 === user.userID && item.user2FinalValue > item.user1FinalValue);
-        
+            (item.user2 === user.userID && item.user2FinalValue > item.user1FinalValue);
+
         if (userWon) {
             resultText = 'You won a head-to-head match';
             resultDescription = `You won a head to head ${item.matchType} against ${item.opponentUsername} that lasted ${item.timeframe} seconds`
@@ -92,21 +92,21 @@ const History = () => {
             resultColor = theme.colors.stockDownAccent
 
         }
-    
+
         return (
-            <View style={{margin:10, display: 'flex', flexDirection: 'row',}}>
-                <View style={{ flex: 3.75/5}}>
-                    <Text style={[styles.matchTypeText, {color: resultColor, fontWeight: '600'}]}>{resultText}</Text>
-                    <Text style={[styles.matchTypeText,{fontSize: 14}] }>{resultDescription}</Text>
+            <View style={{ margin: 10, display: 'flex', flexDirection: 'row', }}>
+                <View style={{ flex: 3.75 / 5 }}>
+                    <Text style={[styles.matchTypeText, { color: resultColor, fontWeight: '600' }]}>{resultText}</Text>
+                    <Text style={[styles.matchTypeText, { fontSize: 14 }]}>{resultDescription}</Text>
                 </View>
-                <View style={{ flex: 1.25/5}}>
-                    <Text style={[styles.matchTypeText, {color: resultColor, textAlign: 'right' }]}>{wagerAmt}</Text>
-                    <Text style={[styles.matchTypeText, {fontSize: 14, textAlign: 'right' }]}>{new Date(item.createdAt).toLocaleString()}</Text>
+                <View style={{ flex: 1.25 / 5 }}>
+                    <Text style={[styles.matchTypeText, { color: resultColor, textAlign: 'right' }]}>{wagerAmt}</Text>
+                    <Text style={[styles.matchTypeText, { fontSize: 14, textAlign: 'right' }]}>{new Date(item.createdAt).toLocaleString()}</Text>
                 </View>
             </View>
         );
     };
-    
+
 
 
     if (!loading) {
@@ -120,7 +120,7 @@ const History = () => {
                         renderItem={renderMatchItem}
                         ItemSeparatorComponent={() => {
                             return (<View style={{ width: width - 40, height: 2, backgroundColor: theme.colors.primary, }} />)
-                          }}
+                        }}
                     />
                 </View>
             </View>
