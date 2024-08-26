@@ -23,14 +23,16 @@ const MatchSummary = ({ matchID }) => {
             const response = await axios.post(serverUrl + "/getPastMatch", { matchID: matchID, userID: userID });
             
             const responseTwo = await axios.post(serverUrl + "/getUsernameByID", { userID: userID });
-            console.log("hello", responseTwo)
-            if (userID == response.data.match.match.user1.userID) {
-                const responseThree = await axios.post(serverUrl + "/getUsernameByID", { userID: response.data.match.match.user2.userID });
+            if (userID == response.data.match.user1.userID) {
+                const responseThree = await axios.post(serverUrl + "/getUsernameByID", { userID: response.data.match.user2.userID });
+                console.log(responseTwo.data, responseThree.data)
                 setUsernames([responseTwo.data, responseThree.data])
 
             } else {
-                const responseFour = await axios.post(serverUrl + "/getUsernameByID", { userID: response.data.match.match.user1.userID });
+                const responseFour = await axios.post(serverUrl + "/getUsernameByID", { userID: response.data.match.user1.userID });
                 setUsernames([responseTwo.data, responseFour.data])
+
+
             }
 
             setMatch(response.data.match);
@@ -62,24 +64,27 @@ const MatchSummary = ({ matchID }) => {
                 Match Summary
             </Text>
 
-            {match ?
+            {match && usernames ?
                 <View style={{width: '100%'}}>
                     <View style={{display: 'flex', alignItems: "center"}}>
                         <Text style={{
-                            color: theme.colors.text,
+                            color: theme.colors.accent,
                             fontFamily: 'Intertight-Bold',
                             fontSize: 30,
+
                         }}>
-                        You won {String(2 * match.wagerAmt)}
+                        You won ${String(2 * match.wagerAmt)}
                         </Text>
                     </View>
-                    <View style={{display: 'flex', flexDirection: "row", marginTop: 20, gap: 30}}>
+                    <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-black', fontSize: 20 }}>
+                      ${match.user1FinalValue.toFixed(2)}
+                    </Text>
+                    <View style={{display: 'flex', flexDirection: "row", marginTop: 20, gap: 10}}>
                         <View style={{flex: 1}}>    
                             <Text
                                 style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 16}}>
 
-                                
-                                {String(match.user1.userID)}
+                                {String(usernames[0].username)}
 
                             </Text>
                             <Text
@@ -96,9 +101,8 @@ const MatchSummary = ({ matchID }) => {
                         <View style={{flex: 1, alignItems: "flex-end"}}>
                             <Text
                                 style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 16}}>
-
                                 
-                                {String(match.user1.userID)}
+                                {String(usernames[0].username)}
                             </Text>
                             <Text
                                 style={{color: theme.colors.text, fontFamily: 'Intertight-Bold', fontSize: 16}}>

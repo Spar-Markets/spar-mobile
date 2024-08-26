@@ -138,7 +138,7 @@ interface AccountType {
           <Text style={{fontSize: 36, color: '#60FFCF', fontWeight: "600"}}>${user.balance?.toFixed(2)}</Text>
           <View style={{display: 'flex', flexDirection: "row", gap: 10}}>
             <TouchableOpacity style={{flex: 1, padding:15, alignItems: "center", borderRadius: 10, backgroundColor: theme.colors.tertiary}} onPress={() => navigation.navigate('Withdrawl', {accountID: accountID, accessTokens: accessTokens})}>
-              <Text style={{color: theme.colors.opposite, fontWeight: "600", fontSize: 18}}>Withdrawl</Text>
+              <Text style={{color: theme.colors.opposite, fontWeight: "600", fontSize: 18}}>Withdraw</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{flex: 1, alignItems: "center", padding: 15, backgroundColor: "#60FFCF", borderRadius: 10}} onPress={() => navigation.navigate('Deposit', {accounts: accountsAndTokens})}>
               <Text style={{color: theme.colors.primary, fontWeight: "600", fontSize: 18}}>Deposit</Text>
