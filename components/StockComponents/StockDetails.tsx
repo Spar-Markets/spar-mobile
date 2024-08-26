@@ -62,6 +62,7 @@ const StockDetails = () => {
   const navigation = useNavigation<any>();
   const colorScheme = useColorScheme();
   const route = useRoute();
+
   const [statusBarHeight, setStatusBarHeight] = useState(0);
   const [ticker, setTicker] = useState('');
   const [name, setName] = useState<any>('')

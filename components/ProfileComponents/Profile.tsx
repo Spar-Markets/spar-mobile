@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Pressable,
   Platform,
@@ -50,6 +50,10 @@ import { FlatList } from 'react-native';
 import { TabView } from '@rneui/base';
 import ProfileTabView from './ProfileTabView';
 import * as Progress from 'react-native-progress';
+import YourPosts from './YourPosts';
+import LikedPosts from './LikedPosts';
+import DashboardView from './DashboardView';
+import formatDate from '../../utility/formatDate';
 
 
 
@@ -254,33 +258,6 @@ const Profile = ({ navigation }: any) => {
       });
   };
 
-  const chooseBannerFromLibrary = async () => {
-    console.log(await requestPermissions());
-    ImagePicker.openPicker({
-      cropping: true,
-      cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
-      cropperToolbarColor: theme.colors.accent, // Toolbar color of the cropper
-      cropperToolbarWidgetColor: theme.colors.text, // Toolbar widget color of the cropper
-      width: 1600, // Width for the cropped image
-      height: 500, // Height for the cropped image
-    })
-      .then((image: any) => {
-        const imageUri = image.path;
-        console.log('Image dimensions:', image.width, 'x', image.height); // Log image dimensions
-        console.log('Using image URI for upload:', imageUri); // Log the URI
-        console.log(image)
-
-        setBanner(imageUri);
-        uploadBannerImageToFirebase(imageUri);
-      })
-      .catch((error: any) => {
-        console.log('Image picker error:', error);
-      });
-  };
-
-
-  const [index, setIndex] = useState(0);
-
 
   const uploadProfileImageToFirebase = async (imageUri: string) => {
     if (imageUri) {
@@ -299,22 +276,67 @@ const Profile = ({ navigation }: any) => {
     }
   };
 
-  const uploadBannerImageToFirebase = async (imageUri: string) => {
-    if (imageUri) {
-      const uri = imageUri; // The URI of the image to be resized
-      const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
-      const quality = 100; // The quality of the resized image (0-100)
 
-      ImageResizer.createResizedImage(uri, 1600, 500, format, quality).then(
-        async response => {
-          const imgRef = storage().ref(`bannerImages/${user.userID}`);
-          await imgRef.putFile(response.uri)
-          //await uploadBytes(imgRef, blob);
-          console.log('Image uploaded successfully');
-        },
-      );
-    }
+  const [selectedIndex, setSelectedIndex] = useState(0); // Start with 0 for Posts
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
+  const indicatorWidth = width / 4; // Each tab takes up 1/3 of the screen
+
+  useEffect(() => {
+    // Set the initial indicator position on mount
+    scrollX.setValue(0);
+  }, [width]);
+
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    { useNativeDriver: false }
+  );
+
+  const handleTabPress = (index: number) => {
+    setSelectedIndex(index);
+    scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
   };
+
+  const handleMomentumScrollEnd = (event: any) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / width);
+    setSelectedIndex(index);
+  };
+
+  const textColorInterpolation = (index: number) => {
+    return scrollX.interpolate({
+      inputRange: [
+        (index - 1) * width,
+        index * width,
+        (index + 1) * width,
+      ],
+      outputRange: [
+        theme.colors.secondaryText,
+        theme.colors.text,
+        theme.colors.secondaryText,
+      ],
+      extrapolate: 'clamp',
+    });
+  };
+
+  const [scrollStarted, setScrollStarted] = useState(false); // Track if scrolling has started
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const handleScrollDown = useCallback(() => {
+    if (!scrollStarted) {
+      setScrollStarted(true);
+    }
+  }, [scrollStarted]);
+
+  useEffect(() => {
+    if (scrollStarted) {
+      Animated.timing(translateY, {
+        toValue: -200,
+        duration: 500, // Reduced duration for quicker response
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [scrollStarted]);
+
 
 
   if (loading || !user) {
@@ -322,148 +344,256 @@ const Profile = ({ navigation }: any) => {
   }
 
 
+  // /Animated.View style={{ transform: [{ translateY }], height: 200 }}
+
   return (
-    <View style={{
-      backgroundColor: theme.colors.background,
-      flex: 1
-    }}>
+    <View style={styles.container}
+    >
 
+      {/*I want this view to animate out of view above on scroll */}
+      <View>
 
+        {/*<TouchableOpacity onPress={chooseBannerFromLibrary} style={{ width: width, height: 150 }}>
+          {banner != null ?
+            <Image source={{ uri: banner }} style={{ width: width, height: 150 }} /> : <View style={{ width: width, height: 150, backgroundColor: theme.colors.accent2 }} />
+          }
 
-
-      <TouchableOpacity onPress={chooseBannerFromLibrary} style={{ width: width, height: 150 }}>
-        {banner != null ?
-          <Image source={{ uri: banner }} style={{ width: width, height: 150 }} /> : <View style={{ width: width, height: 150, backgroundColor: theme.colors.accent2 }} />
-        }
-
-      </TouchableOpacity>
-      <TouchableOpacity onPress={choosePhotoFromLibrary} style={{ zIndex: 10, position: 'absolute', left: 10, top: 115 }}>
-        {hasDefaultProfileImage == true && (
-          <Image
-            style={[
-              styles.profilePic,
-              ,
-            ]}
-            source={{ uri: profileImageUri }}
-          />
-        )}
-        {hasDefaultProfileImage == false && (
-          <Image
-            style={[
-              styles.profilePic,
-              ,
-            ]}
-            source={{ uri: profileImageUri } as any}
-          />
-        )}
-      </TouchableOpacity>
-
-
-
-      <View style={{ marginHorizontal: 10, marginTop: 50, gap: 2 }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-          }}>
-          <Text style={[styles.usernameText]}>{username}</Text>
+        </TouchableOpacity>*/}
+        <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity
             style={{
-              aspectRatio: 1,
-              justifyContent: 'center',
               alignItems: 'center',
-              borderRadius: 10,
+              paddingVertical: 15,
+              paddingHorizontal: 15,
             }}
-            onPress={() =>
-              navigation.navigate('editProfilePage', {
-                userID: user.userID,
-                username: username,
-                bio: userBio,
-              })
-            }>
-            <FeatherIcons
-              name="edit-2"
+            onPress={() => navigation.navigate('Settings')}>
+            <Icon
+              name="gear"
+              size={24}
               color={theme.colors.text}
-              size={18}
+              style={{ width: 30 }}
+            />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}></View>
+          <TouchableOpacity
+            style={{
+              alignItems: 'center',
+              paddingVertical: 15,
+              paddingHorizontal: 15,
+            }}
+            onPress={() => navigation.navigate('ProfileActivity')}>
+            <Icon
+              name="users"
+              size={24}
+              color={theme.colors.text}
+              style={{ width: 30 }}
             />
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity onPress={choosePhotoFromLibrary} style={{ zIndex: 10 }}>
+            {hasDefaultProfileImage == true && (
+              <Image
+                style={[
+                  styles.profilePic,
+                  ,
+                ]}
+                source={{ uri: profileImageUri }}
+              />
+            )}
+            {hasDefaultProfileImage == false && (
+              <Image
+                style={[
+                  styles.profilePic,
+                  ,
+                ]}
+                source={{ uri: profileImageUri } as any}
+              />
+            )}
+          </TouchableOpacity>
+
+          <View style={{ flexDirection: 'row', flex: 1, marginHorizontal: 10, padding: 10, marginTop: 10 }}>
+            <TouchableOpacity onPress={() =>
+              navigation.navigate('FollowersFollowing', {
+                type: 'following',
+                username: user.username,
+              })
+            } style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+                {user.friendCount}{' '}
+              </Text>
+              <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+                {user.friendCount == 1 ? "Friend" : "Friends"}
+              </Text>
+            </TouchableOpacity>
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+                0
+              </Text>
+              <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+                Games Played
+              </Text>
+            </View>
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+                0
+              </Text>
+              <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+                Posts
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={{ marginHorizontal: 10, gap: 2, marginTop: 10 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+            }}>
+            <Text style={[styles.usernameText]}>{username}</Text>
+            <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100, zIndex: 100, justifyContent: 'center' }}>
+              <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD II</Text>
+            </LinearGradient>
+            <View style={{ flex: 1 }}></View>
+            <TouchableOpacity
+              style={{
+                aspectRatio: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 10,
+              }}
+              onPress={() =>
+                navigation.navigate('editProfilePage', {
+                  userID: user.userID,
+                  username: username,
+                  bio: userBio,
+                })
+              }>
+              <FeatherIcons
+                name="edit-2"
+                color={theme.colors.text}
+                size={18}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+
+          </View>
+          <Text style={styles.bioText}>{userBio}</Text>
+          <View style={{ marginTop: 10, flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+            <FeatherIcons name="calendar" color={theme.colors.secondaryText} size={16} />
+            <Text style={{ color: theme.colors.secondaryText, fontFamily: "intertight-medium" }}>Joined {user.createdAt}</Text>
+          </View>
+
 
         </View>
-        <Text style={styles.bioText}>{userBio}</Text>
-        <View style={{ marginTop: 10, flexDirection: 'row', gap: 5, alignItems: 'center' }}>
-          <FeatherIcons name="calendar" color={theme.colors.secondaryText} size={16} />
-          <Text style={{ color: theme.colors.secondaryText, fontFamily: "intertight-medium" }}>Joined August 2, 2024</Text>
+
+
+
+
+
+        {/*}  <View style={{
+          marginHorizontal: 10,
+          borderRadius: 10,
+          marginTop: 10,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 10,
+        }}>
+          <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100, zIndex: 100 }}>
+            <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD</Text>
+          </LinearGradient>
+          <View style={{ flex: 1, marginHorizontal: -2, height: 10, backgroundColor: theme.colors.tertiary, borderRadius: 0, position: 'relative' }}>
+
+            <View style={{
+              width: `${50}%`, // Set width based on progress
+              height: '100%',
+              backgroundColor: theme.colors.opposite,
+              borderRadius: 0,
+            }} />
+          </View>
+          <LinearGradient colors={["#B9F2FF", "#558B81"]} style={{ borderRadius: 100, zIndex: 100 }}>
+            <Text style={{ fontFamily: 'intertight-bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>DIAMOND</Text>
+          </LinearGradient>
+
         </View>
+        */}
+
       </View>
 
-
-
-
-      <View style={{ flexDirection: 'row', backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderRadius: 100, borderWidth: 2, marginHorizontal: 10, padding: 10, marginTop: 10 }}>
-        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-          <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
-            {user.friendCount}{' '}
-          </Text>
-          <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
-            {user.friendCount == 1 ? "Friend" : "Friends"}
-          </Text>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, marginTop: 10 }}>
+        {/* Tab buttons with animated indicator */}
+        <View style={{ width: '100%', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', width: '100%' }}>
+            {['Dashboard', 'Activity', 'Posts', 'Missions'].map((label, index) => (
+              <TouchableOpacity
+                key={index}
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingVertical: 10,
+                }}
+                onPress={() => handleTabPress(index)}
+              >
+                <Animated.Text
+                  style={{
+                    color: textColorInterpolation(index),
+                    fontSize: 16,
+                    fontFamily: "intertight-bold"
+                  }}
+                >
+                  {label}
+                </Animated.Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {/* Animated indicator */}
+          <Animated.View
+            style={{
+              height: 2,
+              backgroundColor: theme.colors.text,
+              width: indicatorWidth,
+              position: 'absolute',
+              bottom: 0,
+              left: scrollX.interpolate({
+                inputRange: [0, width, width * 2, width * 3],
+                outputRange: [0, indicatorWidth, indicatorWidth * 2, indicatorWidth * 3],
+              }),
+            }}
+          />
         </View>
-        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-          <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
-            26
-          </Text>
-          <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
-            Games Played
-          </Text>
-        </View>
-        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-          <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
-            0
-          </Text>
-          <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
-            Posts
-          </Text>
-        </View>
+
+        {/* Horizontal ScrollView */}
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ width: width * 4 }}
+          style={{ flexGrow: 1 }}
+          onMomentumScrollEnd={handleMomentumScrollEnd}
+        >
+          <View style={{ width: width, justifyContent: 'center', alignItems: 'center' }}>
+            <DashboardView />
+          </View>
+          <View style={{ width: width, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'white' }}>Activity</Text>
+          </View>
+          <View style={{ width: width, justifyContent: 'center', alignItems: 'center' }}>
+            <YourPosts onScrollDown={handleScrollDown} />
+          </View>
+          <View style={{ width: width, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'white' }}>Missions View</Text>
+          </View>
+        </ScrollView>
       </View>
 
-      <View>
-
-      </View>
-
-
-      <View style={{
-        marginHorizontal: 10,
-        borderRadius: 10,
-        marginTop: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-      }}>
-        <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100, zIndex: 100 }}>
-          <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD</Text>
-        </LinearGradient>
-        <View style={{ flex: 1, marginHorizontal: -2, height: 10, backgroundColor: theme.colors.tertiary, borderRadius: 0, position: 'relative' }}>
-
-          <View style={{
-            width: `${50}%`, // Set width based on progress
-            height: '100%',
-            backgroundColor: theme.colors.opposite,
-            borderRadius: 0,
-          }} />
-        </View>
-        <LinearGradient colors={["#B9F2FF", "#558B81"]} style={{ borderRadius: 100, zIndex: 100 }}>
-          <Text style={{ fontFamily: 'intertight-bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>DIAMOND</Text>
-        </LinearGradient>
-
-      </View>
-
-
-
-      <ProfileTabView />
       {/*<TabView value={index} onChange={setIndex} containerStyle={{ width: width }} minSwipeRatio={0.2} minSwipeSpeed={0.5}>
         <TabView.Item style={{ width: '100%' }}>
           <ScrollView>
@@ -800,37 +930,6 @@ const Profile = ({ navigation }: any) => {
             />
           </TouchableOpacity>
         </View>*/}
-
-      <View style={{ marginVertical: 20 }}>
-        {/*<Text
-              style={{
-                color: theme.colors.text,
-                fontSize: 20,
-                fontFamily: 'InterTight-Bold',
-                marginHorizontal: 20,
-              }}>
-              Lists
-            </Text>
-            
-            <CreateWatchlistButton/>
-            
-            <View style={{marginHorizontal: 20}}>
-              {watchLists.map((watchList:any, index) => {
-                return (
-
-                    <WatchlistButton key={index} 
-                    watchListName={watchList.watchListName} 
-                    watchListIcon={watchList.watchListIcon}
-                    numberOfAssets={watchList.watchedStocks.length}
-                    assets={watchList.watchedStocks}
-                    />
-                  
-                );
-              })}
-            </View>*/}
-      </View>
-
-
     </View>
   );
 };

@@ -3,6 +3,8 @@ import { View, TouchableOpacity, Animated, Text, Easing } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { upvotePost, downvotePost, setUpvoteStatus, setDownvoteStatus } from '../../GlobalDataManagment/postSlice';
+import { upvotePost as upvoteYourPost, downvotePost as downvoteYourPost, setUpvoteStatus as setYourUpvoteStatus, setDownvoteStatus as setYourDownvoteStatus } from '../../GlobalDataManagment/yourPostsSlice';
+import { upvotePost as upvoteLikedPost, downvotePost as downvoteLikedPost, setUpvoteStatus as setLikedUpvoteStatus, setDownvoteStatus as setLikedDownvoteStatus } from '../../GlobalDataManagment/likedPostsSlice';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
 import { useTheme } from '../ContextComponents/ThemeContext';
@@ -11,10 +13,12 @@ import createFeedStyles from '../../styles/createFeedStyles';
 import HapticFeedback from "react-native-haptic-feedback";
 
 
-const Voting: React.FC<{ postId: string }> = ({ postId }) => {
+const Voting: React.FC<{ postId: string, onYourPosts: boolean }> = ({ postId, onYourPosts }) => {
   const dispatch = useDispatch();
-  const post = useSelector((state: any) => state.posts.find((p: any) => p.postId === postId), shallowEqual);
+  const post = useSelector((state: any) => onYourPosts ? state.yourPosts.find((p: any) => p.postId === postId) : state.posts.find((p: any) => p.postId === postId), shallowEqual);
   const user = useSelector((state: any) => state.user);
+
+
 
   const upvotePosition = useRef(new Animated.Value(0)).current;
   const downvotePosition = useRef(new Animated.Value(0)).current;
@@ -41,6 +45,10 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     ]).start();
   }, []);
 
+  useEffect(() => {
+    console.log("text", post)
+  }, [])
+
   const upvote = useCallback(async () => {
     HapticFeedback.trigger("impactMedium", {
       enableVibrateFallback: true,
@@ -50,7 +58,11 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     if (!post.isUpvoted) {
       animateButton(upvotePosition, 'up');
     }
-    dispatch(upvotePost(post.postId));
+    if (onYourPosts) {
+      dispatch(upvoteYourPost(post.postId))
+    } else {
+      dispatch(upvotePost(post.postId));
+    }
     try {
       const response = await axios.post(serverUrl + "/upvotePost", { userID: user.userID, postId: post.postId });
       console.log("Response:", response.data);
@@ -68,7 +80,12 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
     if (!post.isDownvoted) {
       animateButton(downvotePosition, 'down');
     }
-    dispatch(downvotePost(post.postId));
+    if (onYourPosts) {
+      dispatch(downvoteYourPost(post.postId))
+    }
+    else {
+      dispatch(downvotePost(post.postId));
+    }
     try {
       const response = await axios.post(serverUrl + "/downvotePost", { userID: user.userID, postId: post.postId });
       console.log("Response:", response.data);
@@ -79,7 +96,7 @@ const Voting: React.FC<{ postId: string }> = ({ postId }) => {
 
 
   return (
-    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 2, backgroundColor: theme.colors.secondary, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10, paddingVertical: 5 }}>
+    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 2, backgroundColor: theme.colors.secondary, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10, height: 35 }}>
       <TouchableOpacity onPress={upvote} style={{ paddingRight: 10 }}>
         <Animated.View style={{ transform: [{ translateY: upvotePosition }] }}>
           <Icon name="arrow-up" style={post.isUpvoted ? { color: theme.colors.stockUpAccent } : { color: theme.colors.secondaryText }} size={20} />

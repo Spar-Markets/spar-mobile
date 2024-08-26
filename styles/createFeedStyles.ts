@@ -67,7 +67,7 @@ const createFeedStyles = (theme: any, width: number) => {
         fontWeight: 'bold',
         color: theme.colors.text,
         fontSize: 12,
-        marginLeft: 10
+        marginLeft: 10,
     },
     typeContainer: {
         backgroundColor: theme.colors.notification,
@@ -230,7 +230,7 @@ const createFeedStyles = (theme: any, width: number) => {
     //comment 
     commentContainer: {
         marginTop: 10,
-        marginHorizontal: 15
+        marginHorizontal: 10
     },
     commentVotesText: {
         color: theme.colors.text,

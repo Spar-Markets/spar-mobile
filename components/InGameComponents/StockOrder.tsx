@@ -42,7 +42,7 @@ interface stockOrderParams {
   logoUrl: string;
 }
 
-const StockOrder = (props: any) => {
+const StockOrder = () => {
   const navigation = useNavigation<any>();
   const colorScheme = useColorScheme();
 

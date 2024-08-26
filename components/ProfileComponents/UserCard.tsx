@@ -220,7 +220,7 @@ const UserCard = (props: any) => {
   //make ti grab fllowers on every new search not every usercard hella inefficnet
 
   return (
-    <TouchableOpacity style={{ marginHorizontal: 20, height: 70, flexDirection: 'row', alignItems: 'center', gap: 15, paddingVertical: 10, maxWidth: width - 40 }} onPress={() => navigation.navigate("OtherProfile", { otherUserID: props.otherUserID })}>
+    <TouchableOpacity style={{ marginHorizontal: 20, height: 70, flexDirection: 'row', alignItems: 'center', gap: 15, paddingVertical: 10, maxWidth: width - 40 }} onPress={() => navigation.navigate("OtherProfile", { userID: props.otherUserID, profileImageUri: profileImage, hasDefaultProfileImage })}>
       {profileImage &&
 
         <Image style={styles.userCardPic} onLoad={() => setImageLoading(false)} source={hasDefaultProfileImage ? profileImage as any : { uri: profileImage }}></Image>}

@@ -1273,8 +1273,9 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate("Chat", {
-                  matchID: matchID,
+                  conversationID: matchID,
                   userID: userID,
+                  type: "match",
                   endAt: match.endAt,
                   yourColor: yourColor,
                   otherProfileUri: otherProfileUri,

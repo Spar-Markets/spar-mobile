@@ -11,6 +11,9 @@ import activeMatchesSlice from './activeMatchesSlice';
 import matchmakingSlice from './matchmakingSlice';
 import marketStatusSlice from './marketStatusSlice';
 import commentSheetSlice from './commentSheetSlice';
+import yourPostsSlice from './yourPostsSlice';
+import likedPostsSlice from './likedPostsSlice';
+import otherProfilePostsSlice from './otherProfilePostsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -25,7 +28,10 @@ export const store = configureStore({
     activeMatches: activeMatchesSlice,
     matchmaking: matchmakingSlice,
     marketStatus: marketStatusSlice,
-    commentSheet: commentSheetSlice
+    commentSheet: commentSheetSlice,
+    yourPosts: yourPostsSlice,
+    likedPosts: likedPostsSlice,
+    otherProfilePosts: otherProfilePostsSlice
   },
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware({

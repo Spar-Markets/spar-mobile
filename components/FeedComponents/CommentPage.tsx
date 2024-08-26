@@ -121,7 +121,6 @@ const CommentPage = () => {
 
     fetchComments();
 
-
     return () => {
       dispatch(clearCommentsForPost(params!.postId));
     };

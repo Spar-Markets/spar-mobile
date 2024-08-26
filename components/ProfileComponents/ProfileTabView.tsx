@@ -6,6 +6,7 @@ import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import Feed from '../FeedComponents/Feed';
 import Post from '../FeedComponents/Post';
+import YourPosts from './YourPosts';
 
 
 const ProfileTabView: React.FC = () => {
@@ -59,9 +60,7 @@ const ProfileTabView: React.FC = () => {
                 minSwipeRatio={0.4}
             >
                 <TabView.Item style={{ width: '100%' }}>
-                    <ScrollView style={styles.scene}>
-
-                    </ScrollView>
+                    <YourPosts />
                 </TabView.Item>
                 <TabView.Item style={{ width: '100%' }}>
                     <ScrollView style={styles.scene}>

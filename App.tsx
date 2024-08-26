@@ -57,7 +57,7 @@ import FollowersFollowing from './components/ProfileComponents/FollowersFollowin
 import PastMatches from './components/HeadToHeadComponents/PastMatches';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import Settings from './components/ProfileComponents/Settings';
-import { setBalance, setDefaultProfileImage, setFriendCount, setFriends, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUserID, setUsername } from './GlobalDataManagment/userSlice';
+import { setBalance, setCreatedAt, setDefaultProfileImage, setFriendCount, setFriends, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUserID, setUsername } from './GlobalDataManagment/userSlice';
 import { Text } from 'react-native';
 import Invitations from './components/HomeComponents/Invitations';
 import History from './components/HomeComponents/History';
@@ -71,6 +71,9 @@ import Chat from './components/HomeComponents/Chat';
 import timeTillCloseOrOpen from './utility/timeTillCloseOrOpen';
 import isMarketOpen from './utility/marketOpen';
 import { setIsMarketOpen } from './GlobalDataManagment/marketStatusSlice';
+import DmPage from './components/FeedComponents/DmPage';
+
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 const Stack = createNativeStackNavigator();
 
@@ -145,6 +148,7 @@ const AppContent = (): React.ReactElement => {
           dispatch(setUserBio(userResponse.data.bio))
           dispatch(setSkillRating(userResponse.data.skillRating))
           dispatch(setBalance(userResponse.data.balance))
+          dispatch(setCreatedAt(userResponse.data.createdAt))
           // dispatch(setFollowers(response.data.followers))
           // dispatch(setFollowing(response.data.following))
           console.log(userResponse.data.hasDefaultProfileImage, "useuser Grant")
@@ -417,6 +421,15 @@ const AppContent = (): React.ReactElement => {
                 animation: 'slide_from_bottom',
               }}
             />
+            <Stack.Screen
+              name="DmPage"
+              component={DmPage}
+              options={{
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'horizontal',
+              }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </Animated.View>
@@ -476,13 +489,17 @@ const App = (): React.ReactElement => {
   return (
     <ThemeProvider>
       <DimensionsProvider>
-        <StatusBarHeightProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <Provider store={store}>
-              <AppContent />
-            </Provider>
-          </GestureHandlerRootView>
-        </StatusBarHeightProvider>
+        <GestureHandlerRootView>
+          <BottomSheetModalProvider>
+            <StatusBarHeightProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <Provider store={store}>
+                  <AppContent />
+                </Provider>
+              </GestureHandlerRootView>
+            </StatusBarHeightProvider>
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
       </DimensionsProvider>
     </ThemeProvider>
   );

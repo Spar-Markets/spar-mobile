@@ -12,7 +12,8 @@ import timeAgo from '../../utility/timeAgo';
 import axios from 'axios'
 import { shallowEqual, useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { upvotePost, downvotePost, setUpvoteStatus, setDownvoteStatus, deletePost } from '../../GlobalDataManagment/postSlice';
+import { setUpvoteStatus, setDownvoteStatus, deletePost } from '../../GlobalDataManagment/postSlice';
+import { setUpvoteStatus as setYourUpvoteStatus, setDownvoteStatus as setYourDownvoteStatus, deletePost as deleteYourPost } from '../../GlobalDataManagment/postSlice';
 import { serverUrl } from '../../constants/global';
 import Voting from './Voting';
 import { Skeleton } from '@rneui/themed';
@@ -22,7 +23,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import getProfileImage from '../../utility/getProfileImage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import storage from '@react-native-firebase/storage';
-import { setSelectedPost } from '../../GlobalDataManagment/commentSheetSlice';
+import { setSelectedPost, setSelectedPostImageData } from '../../GlobalDataManagment/commentSheetSlice';
+import generateRandomString from '../../utility/generateRandomString';
+import { RootState } from '../../GlobalDataManagment/store';
 
 
 
@@ -43,6 +46,7 @@ const Post = (props: any) => {
     const styles = createFeedStyles(theme, width)
 
     const user = useSelector((state: any) => state.user);
+    const selectedPostImage = useSelector((state: RootState) => state.commentSheet.selectedPostImageData)
     const dispatch = useDispatch();
 
     const navigation = useNavigation<any>();
@@ -79,20 +83,36 @@ const Post = (props: any) => {
                 if (user) {
                     const newVoteStatus = await axios.post(serverUrl + '/getVoteStatus', { userID: user.userID, postId: props.postId });
                     if (newVoteStatus.data.voteType === 'up') {
-                        dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
-                        dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                        if (props.onYourPosts) {
+                            dispatch(setYourUpvoteStatus({ postId: props.postId, isUpvoted: true }));
+                            dispatch(setYourDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                        } else {
+                            dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: true }));
+                            dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                        }
                     } else if (newVoteStatus.data.voteType === 'down') {
-                        dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
-                        dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
+                        if (props.onYourPosts) {
+                            dispatch(setYourUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                            dispatch(setYourDownvoteStatus({ postId: props.postId, isDownvoted: true }));
+                        } else {
+                            dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                            dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: true }));
+                        }
                     } else {
-                        dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
-                        dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                        if (props.onYourPosts) {
+                            dispatch(setYourUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                            dispatch(setYourDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                        } else {
+                            dispatch(setUpvoteStatus({ postId: props.postId, isUpvoted: false }));
+                            dispatch(setDownvoteStatus({ postId: props.postId, isDownvoted: false }));
+                        }
+
                     }
                 }
 
                 getPosterProfileImage()
 
-                if (props.hasImage && !image && !props.onComment) {
+                if (props.hasImage && !image) {
                     try {
                         const imageRef = storage().ref(`postImages/${props.postId}`);
                         try {
@@ -183,12 +203,8 @@ const Post = (props: any) => {
 
                 if (response.status === 200) {
                     // Handle success
-                    if (props.onComment == true) {
-                        navigation.goBack()
-                    }
-
-
                     dispatch(setSelectedPost(null))
+                    dispatch(setSelectedPostImageData(null))
                     dispatch(deletePost(postId));
                     Alert.alert('Success', 'Post deleted successfully');
                     // You can update your state or UI here
@@ -211,9 +227,8 @@ const Post = (props: any) => {
     const [aspectRatio, setAspectRatio] = useState<any>(null)
 
     useEffect(() => {
-        console.log("has image", image != null)
+        //console.log("Test", props.hasTempImage === true && props.image != null && props.hasImage == false, props.hasTempImage, props.image, props.hasImage)
         if (image) {
-            console.log(image)
             Image.getSize(image, (width, height) => {
                 setAspectRatio(width / height);
             });
@@ -221,44 +236,95 @@ const Post = (props: any) => {
     }, [image]);
 
 
+    const handleDM = async () => {
+        try {
+            // Search for an existing conversation between the two users
+            const searchResponse = await axios.post(`${serverUrl}/conversations/search`, {
+                userID1: user.userID,
+                userID2: props.posterId
+            });
+
+            let conversationID;
+
+            if (searchResponse.data.exists) {
+                // Use the existing conversation's ID
+                conversationID = searchResponse.data.chat.conversationID;
+            } else {
+                // Generate a new conversation ID since no existing conversation was found
+                conversationID = generateRandomString(40);
+                console.log(conversationID, user.userID, props.posterId)
+
+                // Create the conversation by sending the first message
+                await axios.post(`${serverUrl}/conversations`, {
+                    conversationID,
+                    participantIDs: [user.userID, props.posterId],
+                    type: "dm" // Set the conversation type, e.g., "dm"
+                });
+
+                // Optionally, send an initial message to start the chat
+                await axios.post(`${serverUrl}/addMessage`, {
+                    conversationID,
+                    userID: user.userID,
+                    message: "Chat started", // Initial message
+                    time: new Date(),
+                });
+            }
+
+            // Navigate to the chat screen with the existing or newly created conversation ID
+            navigation.navigate("Chat", {
+                conversationID,
+                userID: user.userID,
+                type: "dm",
+                otherProfileUri: profileImageUri,
+                otherHasDefaultProfileImage: hasDefaultProfileImage,
+                otherUsername: username
+            });
+
+        } catch (error) {
+            console.error("Error handling DM:", error);
+        }
+    };
+
     return (
         <View style={styles.postsContainer}>
             {props.onComment == false ?
                 <View>
                     <TouchableOpacity onPress={() => props.expandCommentSheet(props.postId)}>
                         <View style={styles.postTopContainer}>
-                            {!profileLoaded && (
-                                <Skeleton
-                                    style={{ width: 30, height: 30, borderRadius: 100, backgroundColor: theme.colors.tertiary }}
-                                    skeletonStyle={{ backgroundColor: theme.colors.secondary }}
-                                />
-                            )}
-                            {profileImageUri && (
-                                <Image
-                                    style={[
-                                        { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
-                                    ]}
-                                    source={hasDefaultProfileImage ? profileImageUri : { uri: profileImageUri } as any}
-                                    onLoad={() => setProfileLoaded(true)}
-                                />
-                            )}
-                            {!profileImageUri && props.profileImage && props.hasTempProfileImage && (
-                                <Image
-                                    style={[
-                                        { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
-                                    ]}
-                                    source={{ uri: props.profileImage }}
-                                    onLoad={() => setProfileLoaded(true)}
-                                />
-                            )}
+                            <TouchableOpacity onPress={() => navigation.navigate("OtherProfile", { userID: props.posterId, profileImageUri, hasDefaultProfileImage })}>
+                                {!profileLoaded && (
+                                    <Skeleton
+                                        style={{ width: 30, height: 30, borderRadius: 100, backgroundColor: theme.colors.tertiary }}
+                                        skeletonStyle={{ backgroundColor: theme.colors.secondary }}
+                                    />
+                                )}
+                                {profileImageUri && (
+                                    <Image
+                                        style={[
+                                            { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
+                                        ]}
+                                        source={hasDefaultProfileImage ? profileImageUri : { uri: profileImageUri } as any}
+                                        onLoad={() => setProfileLoaded(true)}
+                                    />
+                                )}
+                                {!profileImageUri && props.profileImage && props.hasTempProfileImage && (
+                                    <Image
+                                        style={[
+                                            { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
+                                        ]}
+                                        source={{ uri: props.profileImage }}
+                                        onLoad={() => setProfileLoaded(true)}
+                                    />
+                                )}
+                            </TouchableOpacity>
                             <View>
-                                {props.posterId == user.userId ? <Text style={styles.usernameAndTime}>{user.userId} • {props.postedTimeAgo}</Text>
+                                {props.posterId == user.userID ? <Text style={styles.usernameAndTime}>{user.username} • {props.postedTimeAgo}</Text>
                                     : <Text style={styles.usernameAndTime}>{username} • {props.postedTimeAgo}</Text>
                                 }
                                 {categoryButton(props.type)}
                             </View>
                             <View style={{ flex: 1 }}></View>
-                            {((props.posterId == user.userID) || props.hasTempImage || props.profileImage) &&
+                            {(props.posterId == user.userID) &&
                                 <TouchableOpacity onPress={() => handleDelete(props.postId)}>
                                     <Icon name="trash" size={18} color={theme.colors.secondaryText}></Icon>
                                 </TouchableOpacity>
@@ -268,6 +334,7 @@ const Post = (props: any) => {
                             <Text style={styles.subjectText}>{props.title}</Text>
                             <Text style={styles.messageText}>{props.body}</Text>
                         </View>
+
 
                         {!mainImageLoaded && props.hasImage === true && (
                             <Skeleton
@@ -287,15 +354,18 @@ const Post = (props: any) => {
                             />
                         )}
                         {props.hasTempImage === true && props.image != null && props.hasImage == false && (
-                            <Image
-                                style={[
-                                    styles.mainPic,
-                                    { width: '100%', position: mainImageLoaded ? 'relative' : 'absolute', opacity: mainImageLoaded ? 1 : 0 }
-                                ]}
-                                source={{ uri: props.image }}
-                                onLoad={() => setMainImageLoaded(true)}
-                            />
+                            <>
+                                <Image
+                                    style={[
+                                        styles.mainPic,
+                                        { width: '100%', aspectRatio: props.aspectRatio, position: mainImageLoaded ? 'relative' : 'absolute', opacity: mainImageLoaded ? 1 : 0 }
+                                    ]}
+                                    source={{ uri: props.image }}
+                                    onLoad={() => setMainImageLoaded(true)}
+                                />
+                            </>
                         )}
+
                     </TouchableOpacity>
                     <View>
                         <View style={styles.postBottomContainer}>
@@ -303,7 +373,12 @@ const Post = (props: any) => {
                             <TouchableOpacity
                                 onPress={() => {
                                     props.expandCommentSheet(props.postId);  // Correctly invoke the function
+                                    if (props.hasTempImage === true && props.image != null && props.hasImage == false) {
+                                        dispatch(setSelectedPostImageData({ image: props.image, aspectRatio: props.aspectRatio }))
+                                    } else {
+                                        dispatch(setSelectedPostImageData({ image, aspectRatio }))
 
+                                    }
                                     console.log('expandCommentSheet called');
                                 }}
                                 style={{
@@ -314,19 +389,21 @@ const Post = (props: any) => {
                                     borderColor: theme.colors.tertiary,
                                     borderWidth: 2,
                                     borderRadius: 50,
-                                    paddingHorizontal: 10
+                                    paddingHorizontal: 10,
+                                    height: 35
                                 }}
                             >
                                 <Icon name="comments" style={{ color: theme.colors.opposite }} size={18} />
                                 <Text style={{ color: theme.colors.opposite, fontSize: 14, fontWeight: 'bold' }}>{props.numComments}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderWidth: 2, borderRadius: 50, paddingHorizontal: 10 }}>
+                            {props.posterId != user.userID && <TouchableOpacity onPress={handleDM} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderWidth: 2, borderRadius: 50, paddingHorizontal: 10 }}>
                                 <FeatherIcon name="send" size={18} color={theme.colors.opposite} />
                                 <Text style={{ color: theme.colors.opposite, fontSize: 14, fontWeight: 'bold' }}>DM</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity>}
                             <View style={{ flex: 1 }}></View>
 
-                            <Voting postId={props.postId} />
+                            <Voting postId={props.postId} onYourPosts={props.onYourPosts} />
+
                         </View>
                         <View>
 
@@ -340,38 +417,48 @@ const Post = (props: any) => {
                         <View style={styles.postTopContainer}>
                             <Image style={styles.postPic} source={require("../../assets/images/profilepic.png")}></Image>
                             <View>
-                                <Text style={styles.usernameAndTime}>{username} • {props.postedTimeAgo}</Text>
+                                {props.posterId == user.userID ? <Text style={styles.usernameAndTime}>{user.username} • {props.postedTimeAgo}</Text>
+                                    : username ? <Text style={styles.usernameAndTime}>{username} • {props.postedTimeAgo}</Text> :
+                                        <Skeleton
+                                            style={{ width: 100, height: 15, borderRadius: 100, backgroundColor: theme.colors.tertiary }}
+                                            skeletonStyle={{ backgroundColor: theme.colors.secondary }}
+                                        />
+                                }
                                 {categoryButton(props.type)}
                             </View>
                             <View style={{ flex: 1 }}></View>
-
+                            {((props.posterId == user.userID) || props.hasTempImage || props.profileImage) &&
+                                <TouchableOpacity onPress={() => handleDelete(props.postId)}>
+                                    <Icon name="trash" size={18} color={theme.colors.secondaryText}></Icon>
+                                </TouchableOpacity>
+                            }
                         </View>
                         <View style={{ marginHorizontal: 15 }}>
                             <Text style={styles.subjectText}>{props.title}</Text>
                             <Text style={styles.messageText}>{props.body}</Text>
                         </View>
                         <View style={styles.mainPicContainer}>
-                            {props.hasImage === true && <Image
-                                style={[styles.mainPic, { width: '100%', height: undefined }]}
-                                source={{ uri: props.image }}
+                            {props.hasImage === true && selectedPostImage != null && <Image
+                                style={[styles.mainPic, { width: width, aspectRatio: selectedPostImage.aspectRatio }]}
+                                source={{ uri: selectedPostImage.image }}
                                 resizeMode="contain" // or "cover" depending on your needs
                             />}
-                            {props.hasTempImage === true && props.image != null && props.hasImage == false && <Image style={[styles.mainPic, { aspectRatio: 1 }]} source={{ uri: props.image }} />}
+                            {props.hasTempImage === true && props.image != null && props.hasImage == false && <Image style={[styles.mainPic, { width: width, aspectRatio: selectedPostImage.aspectRatio }]} source={{ uri: selectedPostImage.image }} />}
                         </View>
                     </View>
                     <View style={styles.postBottomContainer}>
                         {/*Used to remake post on comment page without recalling db*/}
-                        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 2, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10, backgroundColor: theme.colors.secondary }}>
+                        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 2, borderRadius: 50, borderColor: theme.colors.tertiary, paddingHorizontal: 10, backgroundColor: theme.colors.secondary, height: 35 }}>
                             <Icon name="comments" style={{ color: theme.colors.opposite }} size={20} />
                             <Text style={{ color: theme.colors.opposite, fontSize: 14, fontWeight: 'bold' }}>{props.numComments}</Text>
                         </View>
-                        <TouchableOpacity style={{ flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderWidth: 2, borderRadius: 50, paddingHorizontal: 10 }}>
+                        {props.posterId != user.userID && <TouchableOpacity onPress={handleDM} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: theme.colors.secondary, borderColor: theme.colors.tertiary, borderWidth: 2, borderRadius: 50, paddingHorizontal: 10 }}>
                             <FeatherIcon name="send" size={18} color={theme.colors.opposite} />
                             <Text style={{ color: theme.colors.opposite, fontSize: 14, fontWeight: 'bold' }}>DM</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>}
                         <View style={{ flex: 1 }}></View>
 
-                        <Voting postId={props.postId} />
+                        <Voting postId={props.postId} onYourPosts={props.onYourPosts} />
                     </View>
                 </View>
             }
