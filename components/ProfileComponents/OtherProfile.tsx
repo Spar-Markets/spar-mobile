@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Pressable,
   Platform,
@@ -15,11 +15,16 @@ import {
   TextInput,
   SafeAreaView,
   Alert,
+  PermissionsAndroid,
+  Linking,
+  Animated
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
-import MIcon from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FeatherIcons from 'react-native-vector-icons/Feather';
 import CircularProgress from 'react-native-circular-progress-indicator';
 import { SvgXml } from 'react-native-svg';
 import { serverUrl } from '../../constants/global';
@@ -28,295 +33,430 @@ import { useTheme } from '../ContextComponents/ThemeContext';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createProfileStyles from '../../styles/createProfileStyles';
 import createGlobalStyles from '../../styles/createGlobalStyles';
-import {
-  launchCamera,
-  launchImageLibrary,
-  ImageLibraryOptions,
-} from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import storage from '@react-native-firebase/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import { useDispatch, useSelector } from 'react-redux';
-import { setProfileImageUri } from '../../GlobalDataManagment/imageSlice';
-import { useRoute } from '@react-navigation/native';
+import CreateWatchlistButton from '../HomeComponents/CreateWatchlistButton';
+import WatchlistButton from '../HomeComponents/WatchlistButton';
+import { SegmentedButtons } from 'react-native-paper';
+import PageHeader from '../GlobalComponents/PageHeader';
+import { RootState } from '../../GlobalDataManagment/store';
+import { setHasDefaultProfileImage } from '../../GlobalDataManagment/userSlice';
+import LinearGradient from 'react-native-linear-gradient';
+import { FlatList } from 'react-native';
+import { Skeleton, TabView } from '@rneui/base';
+import ProfileTabView from './ProfileTabView';
+import * as Progress from 'react-native-progress';
+import YourPosts from './YourPosts';
+import LikedPosts from './LikedPosts';
+import DashboardView from './DashboardView';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import getProfileImage from '../../utility/getProfileImage';
+import PostType from '../../types/PostType';
+import timeAgo from '../../utility/timeAgo';
+import OtherProfilePosts from './OtherProfilePosts';
+import generateRandomString from '../../utility/generateRandomString';
 
-interface otherProfileParams {
-  otherUserID: string;
-}
 
-interface UserData {
-  __v: number;
-  _id: string;
-  activematches: any[];
-  balance: Number;
-  createdAt: string;
-  email: string;
-  pastmatches: any[];
-  plaidPersonalAccess: string;
-  skillRating: Number;
-  userID: string;
-  username: string;
-  watchedStocks: [string];
-  followers: [string];
-  following: [string];
-  outgoingFollowRequests: [string];
-  incomingFollowRequests: [string];
-}
 
-const OtherProfile = ({ navigation }: any) => {
+
+
+const imageMap = [
+  '',
+  Image.resolveAssetSource(require('../../assets/images/profile1.png')).uri,
+  Image.resolveAssetSource(require('../../assets/images/profile2.png')).uri,
+  Image.resolveAssetSource(require('../../assets/images/profile3.png')).uri,
+];
+
+const OtherProfile = (props: any) => {
   const { theme } = useTheme();
   const { width, height } = useDimensions();
   const styles = createProfileStyles(theme, width);
-  const globalStyles = createGlobalStyles(theme, width);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const navigation = useNavigation<any>()
+
   const route = useRoute();
-  const [noPic, setNoPic] = useState(false);
+  const params = route.params as any;
 
-  const params = route.params as otherProfileParams | undefined;
+  MaterialCommunityIcons.loadFont();
+  MaterialIcons.loadFont();
+  FeatherIcons.loadFont();
+
+  const [username, setUsername] = useState<any>()
+  const [userBio, setUserBio] = useState<any>()
+  const [skillRating, setSkillRating] = useState<any>()
+  const [hasDefaultProfileImage, setHasDefaultProfileImage] = useState<any>()
+  const [defaultProfileImage, setDefaultProfileImage] = useState<any>()
+  const [friendCount, setFriendCount] = useState<any>()
+  const [profileImageUri, setProfileImageUri] = useState<any>()
+  const [createdAt, setCreatedAt] = useState<any>(null)
 
 
-  const [loading, setLoading] = useState(true);
-
-  const [otherUserData, setOtherUserData] = useState<UserData | null>(null);
-
-  const [status, setStatus] = useState<string | null>(null);
-
-  const getProfileImage = async () => {
-    const imageRef = ref(storage, `profileImages/${params?.otherUserID}`);
+  const fetchUserData = async (userID: string) => {
     try {
-      const url = await getDownloadURL(imageRef);
-      if (url) {
-        setProfileImage(url);
-        setNoPic(false);
-      } else {
-        setNoPic(true);
-      }
-    } catch (error) {
-      console.log('Error fetching profile image: ', error);
-      setNoPic(true);
-    }
-    setLoading(false);
-  };
+      //console.log("server url FROM env:", `${process.env.SERVER_URL}`);
+      //console.log("Server url endpoint:", `${serverUrl}/getUser`);
+      //console.log("USEUSER, UserID:", userID);
+      console.log("PASSING USER ID IN TO GET USER ENDPOINT:", userID)
+      const userResponse = await axios.post(`${serverUrl}/getUser`, { userID });
+      //console.log('Fetched User Data:', response.data);
+      setUsername(userResponse.data.username)
+      setUserBio(userResponse.data.bio)
+      setSkillRating(userResponse.data.skillRating)
+      // dispatch(setFollowers(response.data.followers))
+      // dispatch(setFollowing(response.data.following))
+      setHasDefaultProfileImage(params.hasDefaultProfileImage)
+      setProfileImageUri(params.profileImageUri)
+      setCreatedAt(userResponse.data.createdAt)
 
-  const getUserData = async () => {
-    try {
-      console.log('About to run if statement');
-      if (userData?.userID) {
-        console.log('About to run functions');
-        await getProfileImage();
-        await checkFollowStatus();
-        console.log(
-          'About to call getUser endpoint:',
-          `${serverUrl}/getUser`,
-          'with data:',
-          params?.otherUserID,
-        );
-        const response = await axios.post(`${serverUrl}/getUser`, {
-          userID: params?.otherUserID,
-        });
-        setOtherUserData(response.data);
-        setLoading(false);
-      }
+      setFriendCount(userResponse.data.friendCount)
+
+      //dispatch(setFriends(friendResponse.data))
+
+      //setUserData(userResponse.data);
+
+      console.log(userResponse.data)
+
     } catch (error) {
-      console.error('Creamy error fetching user data:', error);
+      console.error('Error fetching user data:', error);
     }
   };
 
   useEffect(() => {
-    getUserData();
-  }, [params?.otherUserID, userData?.userID]);
+    fetchUserData(params.userID)
+      .then(() => {
+        setLoading(false)
+      })
+  }, [])
 
-  const requestFollow = async () => {
+  const user = useSelector((state: RootState) => state.user)
+
+  const handleDM = async () => {
     try {
-      const response = await axios.post(serverUrl + '/addFollowRequest', {
-        userID: userData?.userID,
-        otherUserID: params?.otherUserID,
+      // Search for an existing conversation between the two users
+      const searchResponse = await axios.post(`${serverUrl}/conversations/search`, {
+        userID1: user.userID,
+        userID2: params.userID
       });
-      if (response.status === 200) {
-        setStatus('pending');
+
+      let conversationID;
+
+      if (searchResponse.data.exists) {
+        // Use the existing conversation's ID
+        conversationID = searchResponse.data.chat.conversationID;
+      } else {
+        // Generate a new conversation ID since no existing conversation was found
+        conversationID = generateRandomString(40);
+        console.log(conversationID, user.userID, params.userID)
+
+        // Create the conversation by sending the first message
+        await axios.post(`${serverUrl}/conversations`, {
+          conversationID,
+          participantIDs: [user.userID, params.userID],
+          type: "dm" // Set the conversation type, e.g., "dm"
+        });
+
+        // Optionally, send an initial message to start the chat
+        await axios.post(`${serverUrl}/addMessage`, {
+          conversationID,
+          userID: user.userID,
+          message: "Chat started", // Initial message
+          time: new Date(),
+        });
       }
-    } catch {
-      Alert.alert('Error Following');
-    }
-  };
 
-  const checkFollowStatus = async () => {
-    try {
-      const response = await axios.post(serverUrl + '/checkFollowStatus', {
-        userID: userData?.userID,
-        otherUserID: params?.otherUserID,
+      // Navigate to the chat screen with the existing or newly created conversation ID
+      navigation.navigate("Chat", {
+        conversationID,
+        userID: user.userID,
+        type: "dm",
+        otherProfileUri: profileImageUri,
+        otherHasDefaultProfileImage: hasDefaultProfileImage,
+        otherUsername: username
       });
-      setStatus(response.data.status);
-      //Alert.alert('Follow Status', `Status: ${response.data.status}`);
+
     } catch (error) {
-      console.error('Error checking follow status:', error);
-      Alert.alert('Error', 'An error occurred while checking follow status');
+      console.error("Error handling DM:", error);
     }
   };
 
-  if (loading || !otherUserData) {
+  const [loading, setLoading] = useState(true);
+
+  const dispatch = useDispatch();
+
+  const [selectedIndex, setSelectedIndex] = useState(0); // Start with 0 for Posts
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
+  const indicatorWidth = width / 3; // Each tab takes up 1/3 of the screen
+
+  useEffect(() => {
+    // Set the initial indicator position on mount
+    scrollX.setValue(0);
+  }, [width]);
+
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    { useNativeDriver: false }
+  );
+
+  const handleTabPress = (index: number) => {
+    setSelectedIndex(index);
+    scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
+  };
+
+  const handleMomentumScrollEnd = (event: any) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / width);
+    setSelectedIndex(index);
+  };
+
+  const textColorInterpolation = (index: number) => {
+    return scrollX.interpolate({
+      inputRange: [
+        (index - 1) * width,
+        index * width,
+        (index + 1) * width,
+      ],
+      outputRange: [
+        theme.colors.secondaryText,
+        theme.colors.text,
+        theme.colors.secondaryText,
+      ],
+      extrapolate: 'clamp',
+    });
+  };
+
+  const [scrollStarted, setScrollStarted] = useState(false); // Track if scrolling has started
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const handleScrollDown = useCallback(() => {
+    if (!scrollStarted) {
+      setScrollStarted(true);
+    }
+  }, [scrollStarted]);
+
+  useEffect(() => {
+    if (scrollStarted) {
+      Animated.timing(translateY, {
+        toValue: -200,
+        duration: 500, // Reduced duration for quicker response
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [scrollStarted]);
+
+  const [friendStatus, setFriendStatus] = useState<any>(null)
+
+  const addFriendRequest = async () => {
+    try {
+      const response = await axios.post(serverUrl + '/addFriendRequest', { userID: user.userID, requestedUserID: params.userID })
+      if (response.status === 200) {
+        setFriendStatus("requested")
+      }
+
+    } catch (error) {
+      Alert.alert(`Error Friending ${error}`)
+    }
+  }
+
+
+
+  if (loading) {
     return <View></View>;
   }
 
+
+  // /Animated.View style={{ transform: [{ translateY }], height: 200 }}
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerBtn}
-          onPress={() => navigation.goBack()}>
-          <Icon name={'chevron-left'} size={24} color={theme.colors.opposite} />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}></View>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Icon name={'bars'} size={24} color={theme.colors.opposite} />
-        </TouchableOpacity>
-      </View>
-      <ScrollView>
-        <View>
-          {profileImage ? (
-            <Image style={styles.profilePic} source={{ uri: profileImage }} />
-          ) : (
-            <View style={styles.profilePic}>
-              <Text
-                style={{
-                  fontFamily: 'InterTight-Black',
-                  color: theme.colors.text,
-                  fontSize: 30,
-                }}>
-                {otherUserData?.username.slice(0, 1).toUpperCase()}
+    <View style={styles.container}
+    >
+
+      {/*I want this view to animate out of view above on scroll */}
+      <View>
+
+        <PageHeader />
+
+        {/*<TouchableOpacity onPress={chooseBannerFromLibrary} style={{ width: width, height: 150 }}>
+          {banner != null ?
+            <Image source={{ uri: banner }} style={{ width: width, height: 150 }} /> : <View style={{ width: width, height: 150, backgroundColor: theme.colors.accent2 }} />
+          }
+
+        </TouchableOpacity>*/}
+        <View style={{ flexDirection: 'row', marginTop: 10 }}>
+          <View style={{ zIndex: 10 }}>
+
+            {profileImageUri && (
+              <Image
+                style={[styles.profilePic,
+
+                ]}
+                source={hasDefaultProfileImage ? profileImageUri : { uri: profileImageUri } as any}
+              />
+            )}
+          </View>
+
+          <View style={{ flexDirection: 'row', flex: 1, marginHorizontal: 10, padding: 10, marginTop: 10 }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+                {friendCount}
+              </Text>
+              <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+                {friendCount == 1 ? "Friend" : "Friends"}
               </Text>
             </View>
-          )}
-          <View style={styles.rankContainer}>
-            <Text style={styles.rankText}>Diamond</Text>
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+                0
+              </Text>
+              <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+                Games Played
+              </Text>
+            </View>
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
+                0
+              </Text>
+              <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
+                Posts
+              </Text>
+            </View>
           </View>
         </View>
-        <Text style={styles.usernameText}>@{otherUserData?.username}</Text>
-        <Text
-          style={{
-            color: theme.colors.text,
-            fontFamily: 'InterTight-Regular',
-            fontSize: 14,
-            marginHorizontal: 20,
-            textAlign: 'center',
-            marginTop: 10,
-          }}>
-          OOOOOWWEEEEE
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 10,
-            marginTop: 20,
-            marginHorizontal: 20,
-          }}>
-          <View style={styles.mainContainer}>
-            <Text style={styles.mainContainerType}>Followers</Text>
-            <Text style={styles.mainContainerText}>
-              {otherUserData?.followers
-                ? otherUserData?.followers.length
-                : 0 ?? 0}
-            </Text>
-          </View>
-          <View style={styles.mainContainer}>
-            <Text style={styles.mainContainerType}>Following</Text>
-            <Text style={styles.mainContainerText}>
-              {otherUserData?.following
-                ? otherUserData?.following.length
-                : 0 ?? 0}
-            </Text>
-          </View>
-        </View>
-        {status == 'none' && (
-          <TouchableOpacity
-            style={{
-              marginTop: 10,
-              backgroundColor: '#81BFB4',
-              marginHorizontal: 20,
-              height: 40,
-              borderRadius: 10,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            onPress={requestFollow}>
-            <Text
-              style={{
-                color: theme.colors.background,
-                fontFamily: 'InterTight-Bold',
-                fontSize: 16,
-              }}>
-              Follow
-            </Text>
-          </TouchableOpacity>
-        )}
-        {status == 'pending' && (
-          <TouchableOpacity
-            style={{
-              marginTop: 10,
-              backgroundColor: theme.colors.primary,
-              marginHorizontal: 20,
-              height: 40,
-              borderRadius: 10,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text
-              style={{
-                color: theme.colors.text,
-                fontFamily: 'InterTight-Bold',
-                fontSize: 16,
-              }}>
-              Pending
-            </Text>
-          </TouchableOpacity>
-        )}
-        {/*<View style={{marginTop: 20, marginHorizontal: 20, gap: 2}}>
-            <Text style={styles.progressText}>656/1000 pts.</Text>
-            <View style={styles.progressBarBackground}>
-              <View style={styles.progressBarProgress}></View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-                <View style={[styles.rankIndicator,{ backgroundColor: '#81BFB4'}]}></View>
-                <Text style={styles.rankProgressText}>Diamond</Text>
-              </View>
-              <View style={{flex: 1}}></View>
-              <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <Text style={styles.rankProgressText}>Ruby</Text>
-                <View style={[styles.rankIndicator,{ backgroundColor: '#FF4B8C'}]}></View>
-              </View>
-            </View>
-  </View>*/}
 
-        {/*<View style={{marginTop: 20}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 20}}>
-              <Text style={styles.labelText}>Friends</Text>
-              <TouchableOpacity style={styles.findFriendsBtn}>
-                <Text style={styles.findFriendsBtnTxt}>Find People</Text>
-              </TouchableOpacity>
+        <View style={{ marginHorizontal: 10, gap: 2, marginTop: 10 }}>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+              <Text style={[styles.usernameText]}>{username}</Text>
+
             </View>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{marginTop: 10, paddingHorizontal: 20}}>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic1.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
+
+            <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100, zIndex: 100, justifyContent: 'center' }}>
+              <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD</Text>
+            </LinearGradient>
+          </View>
+          <Text style={styles.bioText}>{userBio}</Text>
+          <View style={{ flexDirection: 'row', marginTop: 5, gap: 5 }}>
+            {!user.friends.includes(params.userID) && <TouchableOpacity onPress={addFriendRequest} style={{ height: 40, flex: 1, backgroundColor: theme.colors.tertiary, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'intertight-bold' }}>Add Friend</Text>
+            </TouchableOpacity>}
+            <TouchableOpacity onPress={handleDM} style={{ height: 40, flex: 1, backgroundColor: theme.colors.tertiary, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}>
+              <Text style={{ color: theme.colors.text, fontFamily: 'intertight-bold' }}>Message</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ marginTop: 10, flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+            <FeatherIcons name="calendar" color={theme.colors.secondaryText} size={16} />
+            <Text style={{ color: theme.colors.secondaryText, fontFamily: "intertight-medium" }}>Joined {createdAt}</Text>
+          </View>
+        </View>
+
+
+
+
+
+        {/*}  <View style={{
+          marginHorizontal: 10,
+          borderRadius: 10,
+          marginTop: 10,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 10,
+        }}>
+          <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100, zIndex: 100 }}>
+            <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD</Text>
+          </LinearGradient>
+          <View style={{ flex: 1, marginHorizontal: -2, height: 10, backgroundColor: theme.colors.tertiary, borderRadius: 0, position: 'relative' }}>
+
+            <View style={{
+              width: `${50}%`, // Set width based on progress
+              height: '100%',
+              backgroundColor: theme.colors.opposite,
+              borderRadius: 0,
+            }} />
+          </View>
+          <LinearGradient colors={["#B9F2FF", "#558B81"]} style={{ borderRadius: 100, zIndex: 100 }}>
+            <Text style={{ fontFamily: 'intertight-bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>DIAMOND</Text>
+          </LinearGradient>
+
+        </View>
+        */}
+
+      </View>
+
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, marginTop: 10 }}>
+        {/* Tab buttons with animated indicator */}
+        <View style={{ width: '100%', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', width: '100%' }}>
+            {['Activity', 'Posts', 'Missions'].map((label, index) => (
+              <TouchableOpacity
+                key={index}
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingVertical: 10,
+                }}
+                onPress={() => handleTabPress(index)}
+              >
+                <Animated.Text
+                  style={{
+                    color: textColorInterpolation(index),
+                    fontSize: 16,
+                    fontFamily: 'InterTight-bold'
+                  }}
+                >
+                  {label}
+                </Animated.Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic2.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic3.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.friendContainer}>
-                <Image style={styles.friendPic} source={require("../../assets/images/testPic4.png")} />
-                <Text style={styles.friendText}>@Drinks</Text>
-              </TouchableOpacity>
-            </ScrollView>
-            
-            </View>*/}
-      </ScrollView>
+            ))}
+          </View>
+          {/* Animated indicator */}
+          <Animated.View
+            style={{
+              height: 2,
+              backgroundColor: theme.colors.text,
+              width: indicatorWidth,
+              position: 'absolute',
+              bottom: 0,
+              left: scrollX.interpolate({
+                inputRange: [0, width, width * 2],
+                outputRange: [0, indicatorWidth, indicatorWidth * 2],
+              }),
+            }}
+          />
+        </View>
+
+        {/* Horizontal ScrollView */}
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ width: width * 3 }}
+          style={{ flexGrow: 1 }}
+          onMomentumScrollEnd={handleMomentumScrollEnd}
+        >
+          <View style={{ width: width, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'white' }}>Activity</Text>
+          </View>
+          <View style={{ width: width, justifyContent: 'center', alignItems: 'center' }}>
+            {params.userID &&
+              <OtherProfilePosts onScrollDown={handleScrollDown} posterId={params.userID} />
+            }
+          </View>
+          <View style={{ width: width, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'white' }}>Missions View</Text>
+          </View>
+        </ScrollView>
+      </View>
     </View>
   );
 };

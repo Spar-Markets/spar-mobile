@@ -23,17 +23,21 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { setSelectedPost } from '../../GlobalDataManagment/commentSheetSlice';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { appendPosts, setPosts } from '../../GlobalDataManagment/yourPostsSlice';
+import { appendPosts, clearPosts, setPosts } from '../../GlobalDataManagment/otherProfilePostsSlice';
 
 
-interface YourPostsProps {
+
+interface OtherProfilePostProps {
     onScrollDown?: () => void; // Add this prop to handle the scroll down event
+    posterId: string
 }
 
-const YourPosts: React.FC<YourPostsProps> = ({ onScrollDown }) => {
+const OtherProfilePosts: React.FC<OtherProfilePostProps> = ({ onScrollDown, posterId }) => {
     const { theme } = useTheme();
     const { width, height } = useDimensions();
     const styles = createFeedStyles(theme, width);
+
+    const posts = useSelector((state: RootState) => state.otherProfilePosts)
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -47,13 +51,6 @@ const YourPosts: React.FC<YourPostsProps> = ({ onScrollDown }) => {
     const [skip, setSkip] = useState(0);
     const [hasMorePosts, setHasMorePosts] = useState(true);
 
-    const yourPosts = useSelector((state: RootState) => state.yourPosts)
-
-
-    useEffect(() => {
-        console.log(yourPosts)
-    }, [])
-
 
     const fetchPosts = async (reset = false) => {
         if (loading) return; // Prevent new fetch if already loading
@@ -62,7 +59,7 @@ const YourPosts: React.FC<YourPostsProps> = ({ onScrollDown }) => {
         try {
             const response = await axios.get(`${serverUrl}/postsByUser`, {
                 params: {
-                    userID: user.userID, // Fetch posts by the current user's ID
+                    userID: posterId, // Fetch posts by the current user's ID
                     limit: 100,
                     skip: reset ? 0 : skip
                 }
@@ -78,9 +75,9 @@ const YourPosts: React.FC<YourPostsProps> = ({ onScrollDown }) => {
                 //console.log(fetchedPosts)
                 setSkip(100); // Reset skip to the next batch
             } else {
-                const newPosts = fetchedPosts.filter(fp => !yourPosts.some((p: any) => p.postId === fp.postId));
+                const newPosts = fetchedPosts.filter(fp => !posts.some((p: any) => p.postId === fp.postId));
                 console.log(newPosts)
-                dispatch(appendPosts(newPosts));
+                dispatch(appendPosts(newPosts))
                 setSkip(prevSkip => prevSkip + 100); // Increase skip for the next batch
             }
 
@@ -97,7 +94,19 @@ const YourPosts: React.FC<YourPostsProps> = ({ onScrollDown }) => {
     };
 
     useEffect(() => {
+        console.log("POSTER ID", posterId)
         fetchPosts(true); // Fetch posts with reset on component mount
+    }, [posterId]);
+
+    useEffect(() => {
+        console.log(posterId)
+    }, [posterId])
+
+    useEffect(() => {
+        return () => {
+            console.log("EXITING FROM YOUR PROFILE")
+            dispatch(clearPosts()); // Dispatch setPosts with an empty array when component unmounts
+        };
     }, []);
 
     const onRefresh = async () => {
@@ -162,7 +171,7 @@ const YourPosts: React.FC<YourPostsProps> = ({ onScrollDown }) => {
         <>
             <View style={{ flex: 1, width: width }}>
                 <FlatList
-                    data={yourPosts}
+                    data={posts}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.postId}
                     contentContainerStyle={{ marginTop: 10 }}
@@ -192,4 +201,4 @@ const YourPosts: React.FC<YourPostsProps> = ({ onScrollDown }) => {
     );
 };
 
-export default YourPosts;
+export default OtherProfilePosts;

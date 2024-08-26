@@ -53,6 +53,7 @@ import * as Progress from 'react-native-progress';
 import YourPosts from './YourPosts';
 import LikedPosts from './LikedPosts';
 import DashboardView from './DashboardView';
+import formatDate from '../../utility/formatDate';
 
 
 
@@ -257,33 +258,6 @@ const Profile = ({ navigation }: any) => {
       });
   };
 
-  const chooseBannerFromLibrary = async () => {
-    console.log(await requestPermissions());
-    ImagePicker.openPicker({
-      cropping: true,
-      cropperStatusBarColor: theme.colors.accent, // Status bar color of the cropper
-      cropperToolbarColor: theme.colors.accent, // Toolbar color of the cropper
-      cropperToolbarWidgetColor: theme.colors.text, // Toolbar widget color of the cropper
-      width: 1600, // Width for the cropped image
-      height: 500, // Height for the cropped image
-    })
-      .then((image: any) => {
-        const imageUri = image.path;
-        console.log('Image dimensions:', image.width, 'x', image.height); // Log image dimensions
-        console.log('Using image URI for upload:', imageUri); // Log the URI
-        console.log(image)
-
-        setBanner(imageUri);
-        uploadBannerImageToFirebase(imageUri);
-      })
-      .catch((error: any) => {
-        console.log('Image picker error:', error);
-      });
-  };
-
-
-  const [index, setIndex] = useState(0);
-
 
   const uploadProfileImageToFirebase = async (imageUri: string) => {
     if (imageUri) {
@@ -294,23 +268,6 @@ const Profile = ({ navigation }: any) => {
       ImageResizer.createResizedImage(uri, 150, 150, format, quality).then(
         async response => {
           const imgRef = storage().ref(`profileImages/${user.userID}`);
-          await imgRef.putFile(response.uri)
-          //await uploadBytes(imgRef, blob);
-          console.log('Image uploaded successfully');
-        },
-      );
-    }
-  };
-
-  const uploadBannerImageToFirebase = async (imageUri: string) => {
-    if (imageUri) {
-      const uri = imageUri; // The URI of the image to be resized
-      const format = 'JPEG'; // The format of the resized image ('JPEG', 'PNG', 'WEBP')
-      const quality = 100; // The quality of the resized image (0-100)
-
-      ImageResizer.createResizedImage(uri, 1600, 500, format, quality).then(
-        async response => {
-          const imgRef = storage().ref(`bannerImages/${user.userID}`);
           await imgRef.putFile(response.uri)
           //await uploadBytes(imgRef, blob);
           console.log('Image uploaded successfully');
@@ -403,6 +360,37 @@ const Profile = ({ navigation }: any) => {
 
         </TouchableOpacity>*/}
         <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity
+            style={{
+              alignItems: 'center',
+              paddingVertical: 15,
+              paddingHorizontal: 15,
+            }}
+            onPress={() => navigation.navigate('Settings')}>
+            <Icon
+              name="gear"
+              size={24}
+              color={theme.colors.text}
+              style={{ width: 30 }}
+            />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}></View>
+          <TouchableOpacity
+            style={{
+              alignItems: 'center',
+              paddingVertical: 15,
+              paddingHorizontal: 15,
+            }}
+            onPress={() => navigation.navigate('ProfileActivity')}>
+            <Icon
+              name="users"
+              size={24}
+              color={theme.colors.text}
+              style={{ width: 30 }}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity onPress={choosePhotoFromLibrary} style={{ zIndex: 10 }}>
             {hasDefaultProfileImage == true && (
               <Image
@@ -425,14 +413,19 @@ const Profile = ({ navigation }: any) => {
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', flex: 1, marginHorizontal: 10, padding: 10, marginTop: 10 }}>
-            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+            <TouchableOpacity onPress={() =>
+              navigation.navigate('FollowersFollowing', {
+                type: 'following',
+                username: user.username,
+              })
+            } style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
               <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
                 {user.friendCount}{' '}
               </Text>
               <Text style={{ color: theme.colors.secondaryText, fontFamily: 'interTight-semibold', fontSize: 14 }}>
                 {user.friendCount == 1 ? "Friend" : "Friends"}
               </Text>
-            </View>
+            </TouchableOpacity>
             <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
               <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold', fontSize: 18 }}>
                 0
@@ -460,6 +453,10 @@ const Profile = ({ navigation }: any) => {
               gap: 10,
             }}>
             <Text style={[styles.usernameText]}>{username}</Text>
+            <LinearGradient colors={["#ffbf00", "#a67c00"]} style={{ borderRadius: 100, zIndex: 100, justifyContent: 'center' }}>
+              <Text style={{ fontFamily: 'intertight-Bold', fontSize: 12, paddingHorizontal: 10, paddingVertical: 3 }}>GOLD II</Text>
+            </LinearGradient>
+            <View style={{ flex: 1 }}></View>
             <TouchableOpacity
               style={{
                 aspectRatio: 1,
@@ -487,8 +484,10 @@ const Profile = ({ navigation }: any) => {
           <Text style={styles.bioText}>{userBio}</Text>
           <View style={{ marginTop: 10, flexDirection: 'row', gap: 5, alignItems: 'center' }}>
             <FeatherIcons name="calendar" color={theme.colors.secondaryText} size={16} />
-            <Text style={{ color: theme.colors.secondaryText, fontFamily: "intertight-medium" }}>Joined August 2, 2024</Text>
+            <Text style={{ color: theme.colors.secondaryText, fontFamily: "intertight-medium" }}>Joined {user.createdAt}</Text>
           </View>
+
+
         </View>
 
 
@@ -525,7 +524,7 @@ const Profile = ({ navigation }: any) => {
 
       </View>
 
-      <View style={{ flex: 1, backgroundColor: theme.colors.background, borderBlockColor: 'red' }}>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, marginTop: 10 }}>
         {/* Tab buttons with animated indicator */}
         <View style={{ width: '100%', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', width: '100%' }}>
@@ -544,6 +543,7 @@ const Profile = ({ navigation }: any) => {
                   style={{
                     color: textColorInterpolation(index),
                     fontSize: 16,
+                    fontFamily: "intertight-bold"
                   }}
                 >
                   {label}

@@ -13,6 +13,7 @@ import marketStatusSlice from './marketStatusSlice';
 import commentSheetSlice from './commentSheetSlice';
 import yourPostsSlice from './yourPostsSlice';
 import likedPostsSlice from './likedPostsSlice';
+import otherProfilePostsSlice from './otherProfilePostsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -29,7 +30,8 @@ export const store = configureStore({
     marketStatus: marketStatusSlice,
     commentSheet: commentSheetSlice,
     yourPosts: yourPostsSlice,
-    likedPosts: likedPostsSlice
+    likedPosts: likedPostsSlice,
+    otherProfilePosts: otherProfilePostsSlice
   },
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware({

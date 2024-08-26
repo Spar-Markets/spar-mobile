@@ -291,30 +291,32 @@ const Post = (props: any) => {
                 <View>
                     <TouchableOpacity onPress={() => props.expandCommentSheet(props.postId)}>
                         <View style={styles.postTopContainer}>
-                            {!profileLoaded && (
-                                <Skeleton
-                                    style={{ width: 30, height: 30, borderRadius: 100, backgroundColor: theme.colors.tertiary }}
-                                    skeletonStyle={{ backgroundColor: theme.colors.secondary }}
-                                />
-                            )}
-                            {profileImageUri && (
-                                <Image
-                                    style={[
-                                        { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
-                                    ]}
-                                    source={hasDefaultProfileImage ? profileImageUri : { uri: profileImageUri } as any}
-                                    onLoad={() => setProfileLoaded(true)}
-                                />
-                            )}
-                            {!profileImageUri && props.profileImage && props.hasTempProfileImage && (
-                                <Image
-                                    style={[
-                                        { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
-                                    ]}
-                                    source={{ uri: props.profileImage }}
-                                    onLoad={() => setProfileLoaded(true)}
-                                />
-                            )}
+                            <TouchableOpacity onPress={() => navigation.navigate("OtherProfile", { userID: props.posterId, profileImageUri, hasDefaultProfileImage })}>
+                                {!profileLoaded && (
+                                    <Skeleton
+                                        style={{ width: 30, height: 30, borderRadius: 100, backgroundColor: theme.colors.tertiary }}
+                                        skeletonStyle={{ backgroundColor: theme.colors.secondary }}
+                                    />
+                                )}
+                                {profileImageUri && (
+                                    <Image
+                                        style={[
+                                            { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
+                                        ]}
+                                        source={hasDefaultProfileImage ? profileImageUri : { uri: profileImageUri } as any}
+                                        onLoad={() => setProfileLoaded(true)}
+                                    />
+                                )}
+                                {!profileImageUri && props.profileImage && props.hasTempProfileImage && (
+                                    <Image
+                                        style={[
+                                            { width: 30, height: 30, borderRadius: 100, position: profileLoaded ? 'relative' : 'absolute', opacity: profileLoaded ? 1 : 0 },
+                                        ]}
+                                        source={{ uri: props.profileImage }}
+                                        onLoad={() => setProfileLoaded(true)}
+                                    />
+                                )}
+                            </TouchableOpacity>
                             <View>
                                 {props.posterId == user.userID ? <Text style={styles.usernameAndTime}>{user.username} • {props.postedTimeAgo}</Text>
                                     : <Text style={styles.usernameAndTime}>{username} • {props.postedTimeAgo}</Text>
@@ -332,6 +334,7 @@ const Post = (props: any) => {
                             <Text style={styles.subjectText}>{props.title}</Text>
                             <Text style={styles.messageText}>{props.body}</Text>
                         </View>
+
 
                         {!mainImageLoaded && props.hasImage === true && (
                             <Skeleton
@@ -362,6 +365,7 @@ const Post = (props: any) => {
                                 />
                             </>
                         )}
+
                     </TouchableOpacity>
                     <View>
                         <View style={styles.postBottomContainer}>

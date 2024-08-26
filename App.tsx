@@ -57,7 +57,7 @@ import FollowersFollowing from './components/ProfileComponents/FollowersFollowin
 import PastMatches from './components/HeadToHeadComponents/PastMatches';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import Settings from './components/ProfileComponents/Settings';
-import { setBalance, setDefaultProfileImage, setFriendCount, setFriends, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUserID, setUsername } from './GlobalDataManagment/userSlice';
+import { setBalance, setCreatedAt, setDefaultProfileImage, setFriendCount, setFriends, setHasDefaultProfileImage, setInvitations, setSkillRating, setUserBio, setUserID, setUsername } from './GlobalDataManagment/userSlice';
 import { Text } from 'react-native';
 import Invitations from './components/HomeComponents/Invitations';
 import axios from 'axios';
@@ -145,6 +145,7 @@ const AppContent = (): React.ReactElement => {
           dispatch(setUserBio(userResponse.data.bio))
           dispatch(setSkillRating(userResponse.data.skillRating))
           dispatch(setBalance(userResponse.data.balance))
+          dispatch(setCreatedAt(userResponse.data.createdAt))
           // dispatch(setFollowers(response.data.followers))
           // dispatch(setFollowing(response.data.following))
           console.log(userResponse.data.hasDefaultProfileImage, "useuser Grant")
