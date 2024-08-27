@@ -84,7 +84,7 @@ const StockCard = (props: any) => {
                     color: '#0e8a5c',
                     textAlign: 'right',
                   }}>
-                  +{percentChange}%
+                  +{isNaN(percentChange) ? 0 : percentChange}%
                 </Text>
               ) : (
                 <Text
@@ -94,7 +94,7 @@ const StockCard = (props: any) => {
                     color: '#e71a1a',
                     textAlign: 'right',
                   }}>
-                  {percentChange}%
+                  {isNaN(percentChange) ? 0 : percentChange}%
                 </Text>
               )}
             </View>

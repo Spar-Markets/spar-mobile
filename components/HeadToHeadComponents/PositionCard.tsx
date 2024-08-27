@@ -180,7 +180,7 @@ const PositionCard = (props: any) => {
           {yourTickerPrices[props.ticker] && <Text style={styles.stockCardValue}>${(yourTickerPrices[props.ticker]).toFixed(2)}</Text>}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
             <EntypoIcon name="triangle-up" color={currentAccentColor} size={16} />
-            <Text style={[styles.stockCardDiff, { color: currentAccentColor }]}>{valueDiff} ({percentDiff}%)</Text>
+            <Text style={[styles.stockCardDiff, { color: currentAccentColor }]}>{isNaN(Number(valueDiff)) ? valueDiff : 0} ({isNaN(Number(percentDiff)) ? percentDiff : 0}%)</Text>
           </View>
         </View>
       </View>
