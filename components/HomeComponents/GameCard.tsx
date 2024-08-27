@@ -1257,6 +1257,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
                         key={index}
                         ticker={asset.ticker}
                         qty={asset.totalShares}
+                        avgCostBasis={asset.avgCostBasis}
                         matchID={matchID}
                         buyingPower={yourBuyingPower} // Adjust according to your data structure
                         assets={yourAssets} // Adjust according to your data structure

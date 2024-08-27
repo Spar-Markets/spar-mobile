@@ -109,13 +109,13 @@ const PositionCard = (props: any) => {
   const calculatePercentAndValueDiffAndColor = () => {
     if (pointData.length > 0) {
       const percentDiff =
-        ((yourTickerPrices[props.ticker]) - pointData[0].value) /
-        Math.abs(pointData[0].value);
+        ((yourTickerPrices[props.ticker]) - props.avgCostBasis) /
+        Math.abs(props.avgCostBasis);
       const percentDiffValue = (100 * percentDiff).toFixed(2);
       setPercentDiff(percentDiffValue);
 
       const valueDiff =
-        (yourTickerPrices[props.ticker]) - pointData[0].value;
+        (yourTickerPrices[props.ticker]) - props.avgCostBasis;
 
       if (valueDiff < 0) {
         setValueDiff("$" + Math.abs(valueDiff).toFixed(2));

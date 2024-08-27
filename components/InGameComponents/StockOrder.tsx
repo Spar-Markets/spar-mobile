@@ -25,6 +25,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import HapticFeedback from 'react-native-haptic-feedback';
 import Sound from 'react-native-sound';
 import { Image } from 'react-native';
+import formatNumber from '../../utility/formatNumber';
 
 // imports to access userID
 import { RootState } from '../../GlobalDataManagment/store';
@@ -412,7 +413,7 @@ const StockOrder = () => {
             <View style={{ flexDirection: 'row', marginVertical: 20 }}>
               <Text style={styles.orderFieldText}>Market Price</Text>
               <View style={{ flex: 1 }}></View>
-              <Text style={styles.orderFieldText}>${stockPrice}</Text>
+              <Text style={styles.orderFieldText}>${stockPrice?.toFixed(2)}</Text>
             </View>
             <View
               style={{ height: 1, backgroundColor: theme.colors.primary }}></View>
