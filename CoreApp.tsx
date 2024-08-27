@@ -22,6 +22,7 @@ const CoreApp = (): React.ReactElement => {
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
+      initialRouteName='Portfolio'
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName = '';

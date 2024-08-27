@@ -43,6 +43,7 @@ import {
 import { removeMatch } from '../../GlobalDataManagment/activeMatchesSlice';
 import { debounce, min } from 'lodash';
 import getProfileImage from '../../utility/getProfileImage';
+import { setBalance } from '../../GlobalDataManagment/userSlice';
 
 
 interface GameCardProps {
@@ -125,6 +126,7 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
   //const [oppTickerPrices, setOppTickerPrices] = useState({})
 
   const matchAssets = useSelector((state: RootState) => state.matches[matchID]);
+  const balance = useSelector((state: RootState) => state.user.balance);
   //const yourTickerPrices = matchAssets ? matchAssets.yourTickerPrices : {};
   //const oppTickerPrices = matchAssets ? matchAssets.oppTickerPrices : {};
 
@@ -629,6 +631,14 @@ const GameCard: React.FC<GameCardProps> = ({ userID, matchID, expandMatchSummary
           //console.log("Updated opp assets state:", oppUpdatedAssets);;
 
           //console.log("UPDATED ASSETS FROM REDUX", matchAssets[matchID].yourAssets, matchAssets[matchID].yourAssets)
+        } else if (JSONMessage.type == "updateWinnings") {
+          if (JSONMessage[userID]) {
+            if (balance) {
+              dispatch(setBalance(balance + Number(JSONMessage[userID])));
+            } else {
+              dispatch(setBalance(Number(JSONMessage[userID])));
+            }
+          }
         } else if (JSONMessage != "" && gotInitialPrices && yourAssets && opponentAssets) {
           //console.log(JSONMessage)
           //console.log("INSIDE PRICE STUFF THING ------------")
