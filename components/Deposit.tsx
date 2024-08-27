@@ -29,7 +29,7 @@ const Deposit = () => {
 
     const [statusBarHeight, setStatusBarHeight] = useState(0);
     const [selectedAccount, setSelectedAccount] = useState<account[]>()
-    const [balance, setBalance] = useState("Retrieving...");
+    const [balance, setBalance2] = useState("Retrieving...");
     const [input, setInput] = useState('0.00');
     const user = useSelector((state: RootState) => state.user)
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -140,17 +140,22 @@ const Deposit = () => {
         }
         const sim = await axios.post(`${serverUrl}/sandbox-transfer-simulate`, transferPackageForSim) 
         try {
+          console.log("step 2 BAL")
           const updateBalData = {
             userID: user.userID,
             deposit: input
           } 
-          await axios.post(`${serverUrl}/updateUserBalanceDeposit`, updateBalData)
+          console.log(updateBalData)
+          const response2 = await axios.post(`${serverUrl}/updateUserBalanceDeposit`, updateBalData)
           //redux their balance 
-          const balanceBeforeInput = user.balance
-          const totalbal = input + balanceBeforeInput
-          // dispatch(setBalance(totalbal))
-
-
+          if (user.balance != null) {
+            const balanceBeforeInput = user.balance
+            const preciseBalanceBeforeInput = parseFloat(balanceBeforeInput.toFixed(2));
+            const preciseInput = parseFloat(input).toFixed(2);
+            const newBalance = Number(preciseBalanceBeforeInput) + Number(preciseInput);
+            const final = newBalance.toFixed(2)
+            dispatch(setBalance(newBalance))
+          }
 
           } catch {
               console.error("error??")
