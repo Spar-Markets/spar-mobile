@@ -1,6 +1,6 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Animated, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../ContextComponents/ThemeContext';
 import axios from 'axios';
 import { serverUrl } from '../../constants/global';
@@ -9,6 +9,7 @@ import { RootState } from '../../GlobalDataManagment/store';
 import { useDimensions } from '../ContextComponents/DimensionsContext';
 import createHomeStyles from '../../styles/createHomeStyles';
 import EntypoIcon from 'react-native-vector-icons/Entypo'
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 
@@ -29,6 +30,8 @@ const MatchSummary = ({ matchID }) => {
     const [yourFinalValue, setYourFinalValue] = useState<any>(null)
     const [oppFinalValue, setOppFinalValue] = useState<any>(null)
     const [loading, setLoading] = useState<any>(true)
+    const [yourTrades, setYourTrades] = useState<any>(null)
+    const [oppTrades, setOppTrades] = useState<any>(null)
 
 
     async function getMatch() {
@@ -45,6 +48,8 @@ const MatchSummary = ({ matchID }) => {
                 setOppObject(response.data.match.user2)
                 setYourFinalValue(response.data.match.user1FinalValue)
                 setOppFinalValue(response.data.match.user2FinalValue)
+                setYourTrades(response.data.match.user1.trades)
+                setOppTrades(response.data.match.user2.trades)
 
                 if (response.data.match.user1FinalValue > response.data.match.user2FinalValue) {
                     setYourColor(theme.colors.stockUpAccent)
@@ -64,6 +69,8 @@ const MatchSummary = ({ matchID }) => {
                 setOppObject(response.data.match.user1)
                 setYourFinalValue(response.data.match.user2FinalValue)
                 setOppFinalValue(response.data.match.user1FinalValue)
+                setYourTrades(response.data.match.user2.trades)
+                setOppTrades(response.data.match.user1.trades)
 
                 if (response.data.match.user1FinalValue < response.data.match.user2FinalValue) {
                     setYourColor(theme.colors.stockUpAccent)
@@ -76,7 +83,7 @@ const MatchSummary = ({ matchID }) => {
                     setOppColor(theme.colors.secondaryText)
                 }
             }
-
+            console.log(response.data.match.user1.trades)
             setMatch(response.data.match);
         } catch (error) {
             console.error("Error in MatchSummary:", error);
@@ -105,6 +112,46 @@ const MatchSummary = ({ matchID }) => {
         }
 
         return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
+    const scrollX = useRef(new Animated.Value(0)).current;
+    const scrollViewRef = useRef<ScrollView>(null);
+    const indicatorWidth = (width - 40) / 2; // Each tab takes up 1/3 of the screen
+
+    useEffect(() => {
+        // Set the initial indicator position on mount
+        scrollX.setValue(0);
+    }, [width]);
+
+    const handleScroll = Animated.event(
+        [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+        { useNativeDriver: false }
+    );
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const handleTabPress = (index: number) => {
+        setSelectedIndex(index);
+        scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
+    };
+
+    const handleMomentumScrollEnd = (event: any) => {
+        const index = Math.round(event.nativeEvent.contentOffset.x / width);
+        setSelectedIndex(index);
+    };
+
+    const textColorInterpolation = (index: number) => {
+        return scrollX.interpolate({
+            inputRange: [
+                (index - 1) * width,
+                index * width,
+            ],
+            outputRange: [
+                theme.colors.secondaryText,
+                theme.colors.text,
+            ],
+            extrapolate: 'clamp',
+        });
     };
 
 
@@ -174,17 +221,143 @@ const MatchSummary = ({ matchID }) => {
                             </>
 
                         </View>
-                        {/* <View style={{ backgroundColor: 'transparent', borderRadius: 100, borderColor: theme.colors.text, borderWidth: 1, position: 'absolute', top: 70, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ color: theme.colors.text, fontFamily: 'InterTight-Bold' }}>VS</Text>
-              </View>*/}
+
 
 
                     </View>
 
 
 
+                    {/* FlatList for Trades */}
+                    <View style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', width: '100%' }}>
+                            {["You", oppUsername].map((label, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={{
+                                        flex: 1,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        paddingVertical: 10,
+                                    }}
+                                    onPress={() => handleTabPress(index)}
+                                >
+                                    <Animated.Text
+                                        style={{
+                                            color: textColorInterpolation(index),
+                                            fontSize: 16,
+                                            fontFamily: "intertight-bold"
+                                        }}
+                                    >
+                                        {label}
+                                    </Animated.Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                        {/* Animated indicator */}
+                        <Animated.View
+                            style={{
+                                height: 2,
+                                backgroundColor: theme.colors.text,
+                                width: indicatorWidth,
+                                position: 'absolute',
+                                bottom: 0,
+                                left: scrollX.interpolate({
+                                    inputRange: [0, width - 40],
+                                    outputRange: [0, indicatorWidth],
+                                }),
+                            }}
+                        />
+                    </View>
 
+                    {/* Trades Header View */}
+                    <View style={{ marginTop: 20 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5 }}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ fontFamily: 'Intertight-Bold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                    Ticker
+                                </Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ fontFamily: 'Intertight-Bold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                    Shares
+                                </Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ fontFamily: 'Intertight-Bold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                    Type
+                                </Text>
+                            </View>
+                        </View>
+                        {/* White Line Underneath the Labels */}
+                        <View style={{ height: 1, backgroundColor: 'white', marginVertical: 5 }} />
+                    </View>
 
+                    <ScrollView
+                        horizontal
+                        pagingEnabled
+                        scrollEventThrottle={16}
+                        showsHorizontalScrollIndicator={false}
+                        onScroll={handleScroll}
+                        contentContainerStyle={{ width: (width - 40) * 2 }}
+                        style={{ flexGrow: 1 }}>
+                        <View style={{ width: width - 40 }}>
+                            <FlatList
+                                data={yourTrades.reverse()}  // Reverse the order
+                                keyExtractor={(item, index) => index.toString()}
+                                renderItem={({ item }) => (
+                                    <View style={{ flexDirection: 'row', paddingVertical: 5, justifyContent: 'space-between' }}>
+                                        {/* Ticker */}
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontFamily: 'Intertight-semibold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                                {item.ticker}
+                                            </Text>
+                                        </View>
+                                        {/* Shares */}
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontFamily: 'Intertight-semibold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                                {item.shares}
+                                            </Text>
+                                        </View>
+                                        {/* Type */}
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontFamily: 'Intertight-semibold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                                {item.type}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
+                            />
+                        </View>
+                        <View style={{ width: width - 40 }}>
+                            <FlatList
+                                data={oppTrades.reverse()}  // Reverse the order
+                                keyExtractor={(item, index) => index.toString()}
+                                renderItem={({ item }) => (
+                                    <View style={{ flexDirection: 'row', paddingVertical: 5, justifyContent: 'space-between' }}>
+                                        {/* Ticker */}
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontFamily: 'Intertight-semibold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                                {item.ticker}
+                                            </Text>
+                                        </View>
+                                        {/* Shares */}
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontFamily: 'Intertight-semibold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                                {item.shares}
+                                            </Text>
+                                        </View>
+                                        {/* Type */}
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontFamily: 'Intertight-semibold', fontSize: 14, color: theme.colors.text, textAlign: 'left' }}>
+                                                {item.type}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
+                            />
+                        </View>
+                    </ScrollView>
 
                 </View>
                 : <View><Text style={{ color: theme.colors.text }}>Milk</Text></View>}
